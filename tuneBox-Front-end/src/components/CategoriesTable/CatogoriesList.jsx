@@ -40,18 +40,22 @@ const CatogoriesList = () => { // Xóa tham số categories từ prop
   }
 
   return (
+
+
     <table className="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Categories Name</th>
-          <th scope="col">Status</th>
-          <th scope="col">Action</th>
+      <thead  className="text-center" >
+        <tr >
+          
+          <th scope="col" >#</th>
+          <th scope="col"  >Categories Name</th>
+          <th scope="col"  >Status</th>
+          <th scope="col" >Action</th>
+          <th scope="col" >Status transition</th>
         </tr>
       </thead>
       <tbody>
         {categories.map((cate, index) => (
-          <tr key={cate.id}>
+          <tr  key={cate.id} className="ps-0">
             <td>{index + 1}</td>
             <td>{cate.name}</td>
             <td>{cate.status ? 'Unavailable' : 'Available'}</td>
@@ -59,7 +63,10 @@ const CatogoriesList = () => { // Xóa tham số categories từ prop
               <button className="btn btn-warning" onClick={() => uploadCateins(cate.id)}>
                 Edit
               </button>
-              <button className="btn btn-success ms-4" onClick={() => removeCateIns(cate.id)}>
+              
+            </td>
+            <td>
+            <button className="btn btn-success ms-4" onClick={() => removeCateIns(cate.id)}>
                 {cate.status ? 'Mark as Available' : 'Mark as Unavailable'}
               </button>
             </td>

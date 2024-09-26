@@ -3,7 +3,7 @@ import React from "react";
 const BrandList = () => {
   return (
     <table className="table table-striped table-hover">
-          <thead>
+          <thead className="text-center">
             <tr>
               <th scope="col">#</th>
               <th scope="col">Name</th>
