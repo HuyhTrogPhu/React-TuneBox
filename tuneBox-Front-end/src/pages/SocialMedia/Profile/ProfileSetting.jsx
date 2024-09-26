@@ -1,0 +1,198 @@
+import React, { useEffect } from 'react';
+import { images } from '../../../assets/images/images';
+import "../../../pages/SocialMedia/Profile/css/setting.css"
+const ProfileSetting = () => {
+  // Hàm để set 'active' cho các link khi click
+  useEffect(() => {
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', function () {
+        navLinks.forEach(nav => nav.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Cleanup event listener khi component unmount
+    return () => {
+      navLinks.forEach(link => {
+        link.removeEventListener('click', function () { });
+      });
+    };
+  }, []);
+
+  // Hàm để populate các ngày
+  const populateDays = () => {
+    const daySelect = document.getElementById('daySelect');
+    for (let i = 1; i <= 31; i++) {
+      let option = document.createElement('option');
+      option.value = i;
+      option.textContent = i;
+      daySelect.appendChild(option);
+    }
+  };
+
+  // Hàm để populate các tháng
+  const populateMonths = () => {
+    const monthSelect = document.getElementById('monthSelect');
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    months.forEach((month, index) => {
+      let option = document.createElement('option');
+      option.value = index + 1;
+      option.textContent = month;
+      monthSelect.appendChild(option);
+    });
+  };
+
+  // Hàm để populate các năm
+  const populateYears = () => {
+    const yearSelect = document.getElementById('yearSelect');
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear; i >= 1900; i--) {
+      let option = document.createElement('option');
+      option.value = i;
+      option.textContent = i;
+      yearSelect.appendChild(option);
+    }
+  };
+
+  // Thực hiện populate các dropdown khi component mount
+  useEffect(() => {
+    populateDays();
+    populateMonths();
+    populateYears();
+  }, []);
+  return (
+    <div className="container">
+      <div className="row">
+        <aside className="col-sm-3">
+          <a href className="text-black text-decoration-none">
+            <div className="post-header post">
+              <img src={images.avt} className="avatar_small" alt="Avatar" />
+              <div className="info1">
+                <div className="name1">Xuan Truong</div>
+                <div className="author1">Back to profile</div>
+              </div>
+            </div>
+          </a>
+          <div className="d-flex flex-column flex-shrink-0 p-3">
+            <ul className="nav nav-pills flex-column mb-auto">
+              <li className="nav-item">
+                <a href="#Profile" className="nav-link text-black" aria-current="page">
+                  <div className="post-setting">
+                    <img src={images.avt} alt="avatar" />
+                    <div className="name1">Profile</div>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="#Account" className="nav-link text-black">
+                  <div className="post-setting">
+                    <img src={images.user} alt="icon-user" />
+                    <div className="name1">Account</div>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="#Prime" className="nav-link text-black">
+                  <div className="post-setting">
+                    <img src={images.crown} alt="icon-crow" />
+                    <div className="name1">Prime</div>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="#Order" className="nav-link text-black">
+                  <div className="post-setting">
+                    <img src={images.shopping_bag} alt="icon-shopping" />
+                    <div className="name1">Order</div>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="#Bell" className="nav-link text-black">
+                  <div className="post-setting">
+                    <img src={images.bell} alt="icon-bell" style={{ backgroundColor: 'rgb(232, 232, 186)' }} />
+                    <div className="name1">Notification</div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </aside>
+        <article className="col-sm-9" style={{ paddingTop: 100 }}>
+          <div>
+            <h3><b>Profile setting</b></h3>
+          </div>
+          <div className="profile-container">
+            <div className="profile-avatar">
+              <img src={images.avt} className="avatar-setting" alt="Avatar" />
+            </div>
+            <div className="profile-container" >
+              <form className="row g-3">
+                <div className='row'>
+                  <label htmlFor="name" style={{ marginLeft: -40 }}><h6><b>Name</b></h6></label>
+                  <input className="form-control" type="text" placeholder="Name" id="name" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', height: 40, width: 600, marginTop: -20 }} />
+                </div>
+                <div className='row' >
+                  <label htmlFor="location" style={{ marginLeft: -40 }}><h6><b>Location</b></h6></label>
+                  <input className="form-control" type="text" placeholder="Search City" id="location" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', height: 40, width: 600, marginTop: -20 }} />
+                </div>
+                <div>
+                  <div className="row g-3 " style={{ marginLeft: -20, marginRight: 160 }}>
+                    {/* Gender Selection */}
+                    <div className="col-md-4 form-group">
+                      <label htmlFor="genderSelect" style={{ marginLeft: -30 }}><h6><b>Gender</b></h6></label>
+                      <select id="genderSelect" className="form-select" style={{ marginTop: -20 }}>
+                        <option value disabled="disabled" hidden selected="selected">Add Gender</option>
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    {/* Date Selection */}
+                    <div className="col-md-8">
+                      <div className="date-selectors"  >
+                        <section className="form-group "  >
+                          <label htmlFor="daySelect " style={{ marginLeft: -25 }}><h6 ><b>Day</b></h6></label>
+                          <div style={{ marginTop: -20 }}>
+                            <select id="daySelect" className="form-select" />
+                          </div>
+
+                        </section>
+                        <section className="form-group">
+                          <label htmlFor="monthSelect" style={{ marginLeft: -25 }}><h6><b>Month</b></h6></label>
+                          <div style={{ marginTop: -20 }}>
+                            <select id="monthSelect" className="form-select" />
+                          </div>
+
+                        </section>
+                        <section className="form-group">
+                          <label htmlFor="yearSelect"><h6><b>Year</b></h6></label>
+                          <div style={{ marginTop: -20 }}>
+                            <select id="yearSelect" className="form-select" />
+                          </div>
+
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div style={{ marginLeft: 180, marginRight: 170 }}>
+            <label htmlFor="About" style={{ marginLeft: -25 }}><h6><b>About</b></h6></label>
+            <div className="profile-container">
+              <textarea className="custom-textarea" name="about" id="About" defaultValue={""} />
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  );
+}
+export default ProfileSetting

@@ -1,0 +1,20 @@
+body {
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul,
+li {
+  list-style: none;
+}
+
+.app-container {
+  width: 80%;
+  margin: auto;
+}
+.hr-100{
+  width: 100%;
+}
