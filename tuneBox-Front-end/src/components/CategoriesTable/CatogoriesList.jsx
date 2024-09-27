@@ -1,16 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { updateCateIns } from "../../service/CategoryService";
 import { useNavigate } from "react-router-dom";
 
-const CatogoriesList = ({ categories, onUpdate }) => { // Nhận prop categories và onUpdate
+const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { // Nhận prop categories và onUpdate
 
 
   const [selectedCategory, setSelectedCategory] = useState(null) // lưu dữ liệu cate đang được chọn
   const [editCategoryName, setEditCategoryName] = useState("");   // Lưu trữ tên category được chỉnh sửa
+  const [successMessage, setSuccessMessage] = useState("");
+  const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
+
   const navigator = useNavigate();
   const [errors, setErrors] = useState({
     editCategoryName: ''
   })
+
+  //lưu trữ giá trị tìm kiếm
+  const [searchTerm, setSearchTerm] = useState("")
+  const filteredCategories = categories.filter(cate =>
+    cate.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+
+
   const openEditModal = (category) => {
     setSelectedCategory(category);    // Lưu trữ dữ liệu category được chọn vào state
     setEditCategoryName(category.name); // Đổ dữ liệu vào modal
@@ -31,12 +43,35 @@ const CatogoriesList = ({ categories, onUpdate }) => { // Nhận prop categories
           onUpdate(); // Gọi hàm onUpdate để cập nhật lại danh sách
           const modal = window.bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
           modal.hide(); // Ẩn modal sau khi lưu
+          setSuccessMessage("Category update successfully!");
         })
         .catch((error) => {
           console.error(error);
         });
     }
   };
+
+  useEffect(() => {
+    if (successMessage) {
+      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+
+      const intervalId = setInterval(() => {
+        setCountdown(prevCountdown => prevCountdown - 1);
+      }, 1000);
+
+      const timeoutId = setTimeout(() => {
+        setSuccessMessage(""); // Đặt lại thông báo sau khi hết thời gian
+      }, 5000);
+
+      // Dọn dẹp khi component unmount hoặc khi successMessage thay đổi
+      return () => {
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [successMessage]);
+
+
   // funtion chuyển đổi status
   function removeCateIns(id) {
     const categoryToUpdate = categories.find((cate) => cate.id === id);
@@ -70,10 +105,22 @@ const CatogoriesList = ({ categories, onUpdate }) => { // Nhận prop categories
 
   return (
     <div>
+      {/* Hiển thị thông báo thành công */}
+      {successMessage && (
+        <div className="alert alert-success" role="alert">
+          {successMessage} This notice will be closed in <b>{countdown}s.</b> 
+        </div>
+      )}
+
       <table className="table table-striped table-hover">
         <thead className="text-center">
           <tr>
-            <th scope="col">#</th>
+            <th scope="col">
+            <button onClick={handleSort} className="btn btn-link" style={{ textDecoration: 'none' }}>
+          #
+          {sortOrder === 'asc' ? ' Oldest' : ' Latest'}
+        </button>
+            </th>
             <th scope="col">Categories Name</th>
             <th scope="col">Status</th>
             <th scope="col">Action</th>
@@ -81,7 +128,7 @@ const CatogoriesList = ({ categories, onUpdate }) => { // Nhận prop categories
           </tr>
         </thead>
         <tbody>
-          {categories.map((cate, index) => (
+          {filteredCategories.map((cate, index) => (
             <tr key={cate.id} className="ps-0">
               <td>{index + 1}</td>
               <td>{cate.name}</td>
@@ -92,23 +139,21 @@ const CatogoriesList = ({ categories, onUpdate }) => { // Nhận prop categories
                 </button>
               </td>
               <td>
-                <td>
-                  <button
-                    className={`btn  ${cate.status ? 'btn-danger-custom' : 'btn-success'}`} // Thay đổi lớp tùy thuộc vào trạng thái
-                    onClick={() => removeCateIns(cate.id)}
-                  >
-                    {cate.status ? 'Mark as Available' : 'Mark as Unavailable'}
-                  </button>
-                </td>
-
+                <button
+                  className={`btn  ${cate.status ? 'btn-danger-custom' : 'btn-success'}`}
+                  onClick={() => removeCateIns(cate.id)}
+                >
+                  {cate.status ? 'Mark as Available' : 'Mark as Unavailable'}
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
+
       </table>
 
       {/* modal edit */}
-<style dangerouslySetInnerHTML={{__html: "\n      /* styles.css hoặc tệp CSS tương tự */\n.btn-danger-custom {\n  background-color: #dc3545; /* Màu đỏ */\n  color: white; /* Màu chữ */\n}\n\n.btn-danger-custom:hover {\n  background-color: #c82333; /* Màu đỏ đậm khi hover */\n}\n\n      " }} />
+      <style dangerouslySetInnerHTML={{ __html: "\n      /* styles.css hoặc tệp CSS tương tự */\n.btn-danger-custom {\n  background-color: #dc3545; /* Màu đỏ */\n  color: white; /* Màu chữ */\n}\n\n.btn-danger-custom:hover {\n  background-color: #c82333; /* Màu đỏ đậm khi hover */\n}\n\n      " }} />
 
       <div className="modal fade" id="editCategoryModal" tabIndex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
         <div className="modal-dialog">

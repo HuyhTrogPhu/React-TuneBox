@@ -10,16 +10,15 @@ const ManagerCategories = () => {
   const itemsPerPage = 10;
   const [errors, setErrors] = useState({ newCategoryName: '' });
   const [successMessage, setSuccessMessage] = useState("");
+  const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
+  const [searchTerm, setSearchTerm] = useState(""); // Thêm state để lưu trữ giá trị tìm kiếm
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' cho sắp xếp tăng dần, 'desc' cho giảm dần
+
   const navigator = useNavigate();
-
-
 
   useEffect(() => {
     getAllCategory();
-
   }, []);
-
-
 
   function getAllCategory() {
     listCateIns()
@@ -87,25 +86,57 @@ const ManagerCategories = () => {
         console.error("Error creating category:", error);
       });
   }
+
   useEffect(() => {
     if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage(""); // Đặt lại thông báo
-      }, 5000); // Thay đổi thời gian ở đây nếu cần
+      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
 
-      // Dọn dẹp timer khi unmount hoặc khi successMessage thay đổi
-      return () => clearTimeout(timer);
+      const intervalId = setInterval(() => {
+        setCountdown(prevCountdown => prevCountdown - 1);
+      }, 1000);
+
+      const timeoutId = setTimeout(() => {
+        setSuccessMessage(""); // Đặt lại thông báo sau khi hết thời gian
+      }, 5000);
+
+      // Dọn dẹp khi component unmount hoặc khi successMessage thay đổi
+      return () => {
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
+      };
     }
   }, [successMessage]);
 
+  // Lọc danh sách dựa trên từ khóa tìm kiếm
+  const filteredCategories = categories.filter(cate =>
+    cate.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
+  // Phân trang dựa trên danh sách đã lọc
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentCategories = categories.slice(indexOfFirstItem, indexOfLastItem);
+  const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const totalPages = Math.ceil(categories.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+
+
+  //sort
+
+  function handleSort() {
+    const sortedCategories = [...categories];
+    sortedCategories.sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.id - b.id;
+      } else {
+        return b.id - a.id;
+      }
+    });
+
+    setCategories(sortedCategories);
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');  // Đổi trạng thái sắp xếp
+  }
 
   return (
     <div>
@@ -122,11 +153,23 @@ const ManagerCategories = () => {
         {/* Hiển thị thông báo thành công */}
         {successMessage && (
           <div className="alert alert-success" role="alert">
-            {successMessage}
+            {successMessage} This notice will be closed in <b>{countdown}s.</b>
           </div>
         )}
 
-        <CategoriesTable categories={currentCategories} onUpdate={getAllCategory} />
+        {/* Thêm trường tìm kiếm */}
+        <div className="mb-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by category name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <CategoriesTable categories={currentCategories} onUpdate={getAllCategory} sortOrder={sortOrder}
+          handleSort={handleSort} />
 
         <div className="">
           <nav aria-label="Page navigation example">
@@ -152,7 +195,6 @@ const ManagerCategories = () => {
           </nav>
         </div>
       </div>
-
 
       {/* start modal add */}
       <div className="modal fade" id="addCategoryModal" tabIndex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
