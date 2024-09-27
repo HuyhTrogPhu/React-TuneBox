@@ -29,54 +29,71 @@ const MangerBrand = () => {
     let valid = true;
     const errorsCopy = { ...errors };
 
-    if (newBrandName.trim()) {
-      errorsCopy.newBrandName = '';
-    } else {
+    if (!newBrandName.trim()) {
       errorsCopy.newBrandName = 'Brand name is required';
       valid = false;
+    } else {
+      errorsCopy.newBrandName = '';
     }
 
-    if (newBrandImage) {
-      errorsCopy.newBrandImage = '';
-    } else {
+    if (!newBrandImage) {
       errorsCopy.newBrandImage = 'Brand image is required';
       valid = false;
+    } else {
+      errorsCopy.newBrandImage = '';
     }
 
-    if (newBrandDes.trim()) {
-      errorsCopy.newBrandDes = '';
-    } else {
+    if (!newBrandDes.trim()) {
       errorsCopy.newBrandDes = 'Brand description is required';
       valid = false;
+    } else {
+      errorsCopy.newBrandDes = '';
     }
 
     setErrors(errorsCopy);
     return valid;
   }
 
-  function handleSave() {
+
+  const handleSave = () => {
     if (!validateForm()) {
       return;
     }
 
-    const newBrand = {
-      name: newBrandName,
-      image: newBrandImage,
-      desc: newBrandDes,
-      status: false
-    };
+    const newBrand = new FormData();
+    newBrand.append('name', newBrandName);
+    newBrand.append('imageBrand', newBrandImage);
+    newBrand.append('desc', newBrandDes);
+
 
     createBrand(newBrand).then((response) => {
-      console.log("Brand:", response.data);
+      console.log("Brand created:", response.data);
+
       getAllBrand();
+
       setBrandName("");
       setBrandImage("");
       setBrandDes("");
+
       document.getElementById("closeModal").click();
+      setMessage("Brand created successfully!");
     }).catch((error) => {
-      console.log("Error creating brand:", error);
+      console.error("Error creating brand:", error);
     });
-  }
+  };
+
+
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+
+
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -90,6 +107,9 @@ const MangerBrand = () => {
     <div>
       {/* Main Content */}
       <div className="container-fluid">
+
+        {message && <div className="alert alert-success">{message}</div>}
+
         <div className="input-group mb-1 p-2">
           <input
             type="text"
@@ -153,7 +173,7 @@ const MangerBrand = () => {
 
                   <div className="mt-3">
                     <label className="form-label">Description:</label>
-                    <textarea cols="50" rows="50"
+                    <textarea cols="50" rows="5"
                       className={`form-control ${errors.newBrandDes ? 'is-invalid' : ''}`}
                       value={newBrandDes}
                       onChange={(e) => setBrandDes(e.target.value)}></textarea>
