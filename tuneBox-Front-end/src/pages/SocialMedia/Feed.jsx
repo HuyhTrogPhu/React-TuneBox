@@ -144,7 +144,7 @@ const HomeFeed = () => {
                       <h1>
                         Gọi đò ơi
                       </h1>
-                      <p style={{ fontSize: 20, margin: '10px 0 60px' }}>
+                      <p  style={{ fontSize: 20, margin: '10px 0 60px' }}>
                         Albums void 2
                       </p>
                       <div id="waveform">

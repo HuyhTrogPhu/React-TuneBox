@@ -1,5 +1,5 @@
+
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { images } from '../../../../assets/images/images';
 import axios from 'axios';
 
@@ -119,7 +119,6 @@ const Activity = () => {
                       multiple
                       onChange={(e) => setPostImages(Array.from(e.target.files))} // Cập nhật postImages với các file đã chọn
                     />
-                    <button id="post-image" type="button" className="btn" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)' }}>Photo/video</button>
                   </div>
                   <div className="col text-end">
                     <button id="submit-post" type="button" className="btn btn-secondary" onClick={handleSubmitPost}>Post</button>
@@ -129,35 +128,64 @@ const Activity = () => {
             </div>
           </div>
         </div>
-        {/* Bài viết mẫu */}
-        {/* Phần bài viết mẫu */}
+        {/* Bài viết */}
         <div className="container mt-2 mb-5">
-                {posts.map((post) => (
-                    <div key={post.id} className="post">
-                        <div className="post-header">
-                            <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
-                            <div>
-                                <div className="name">Phạm Xuân Trường</div>
-                                <div className="time">11:42 PM, 7 Sep 2024</div>
-                            </div>
-                        </div>
-                        <div className="post-content">
-                            {post.content} {/* Hiện nội dung bài viết */}
-                        </div>
-                        {/* Hiện hình ảnh nếu có */}
-                        {post.images && post.images.length > 0 && (
-                            <div className="post-images">
-                                {post.images.map((image, index) => (
-                                    <img key={index} src={`data:image/jpeg;base64,${image.postImage}`} alt="Post" />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
+    {posts.map((post) => (
+        <div key={post.id} className="post">
+            <div className="post-header">
+                <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
+                <div>
+                    <div className="name">Phạm Xuân Trường</div>
+                    <div className="time">11:42 PM, 7 Sep 2024</div>
+                </div>
             </div>
+            <div className="post-content">
+                {post.content} {/* Hiện nội dung bài viết */}
+            </div>
+            {/* Hiện hình ảnh nếu có */}
+            {post.images && post.images.length > 0 && (
+                <div className="post-images">
+                    {post.images.map((image, index) => (
+                        <img key={index} src={`data:image/jpeg;base64,${image.postImage}`} alt="Post" />
+                    ))}
+                </div>
+            )}
+            {/* Phần nút Like và Comment */}
+            <div className="interaction-buttons mt-3">
+                <button type="button" className="btn">
+                    <img src={images.heart} className="btn-icon" alt="Like" />
+                    <span>Like</span>
+                </button>
+            </div>
+
+            {/* Phần comment-section */}
+            <div className="comment-section mt-4">
+                <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
+                <div className="row">
+                    <div className="col text-start">
+                        <a href="/#" className="text-black text-decoration-none">View Comment</a>
+                    </div>
+                    <div className="col text-end">
+                        <span>1 Comment</span>
+                    </div>
+                </div>
+                <div className="comment mt-2">
+                    <img src={images.ava} alt="Commenter" />
+                    <div className="comment-content">
+                        <div className="comment-author">Huynh Trong Phu</div>
+                        <div className="comment-time">12:00 AM, 8 Sep 2024</div>
+                        <p>Chao em nhe nguoi dep!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    ))}
+</div>
+
+
       </div>
     </div>
   );
 };
 
-export default Activity;
+export default Activity; 
