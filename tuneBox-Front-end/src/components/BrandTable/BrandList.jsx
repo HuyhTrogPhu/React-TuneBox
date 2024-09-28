@@ -8,6 +8,8 @@ const BrandList = ({ brands, onUpdate }) => {
   const [editDescription, setEditDescription] = useState("");
   const [editImage, setEditImage] = useState(null);
   const [currentImage, setCurrentImage] = useState(null); // Thêm biến trạng thái cho hình ảnh hiện tại
+  const [successMessage, setSuccessMessage] = useState("");
+  const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
   const navigator = useNavigate();
   const [errors, setErrors] = useState({ editBrandName: '', editBrandImage: '', editBrandDescription: '' });
 
@@ -44,6 +46,26 @@ const BrandList = ({ brands, onUpdate }) => {
     setErrors(errorsCopy); // Cập nhật trạng thái lỗi
     return valid; // Trả về kết quả xác thực
   };
+  useEffect(() => {
+    if (successMessage) {
+      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+
+      const intervalId = setInterval(() => {
+        setCountdown(prevCountdown => prevCountdown - 1);
+      }, 1000);
+
+      const timeoutId = setTimeout(() => {
+        setSuccessMessage(""); // Đặt lại thông báo sau khi hết thời gian
+      }, 5000);
+
+      // Dọn dẹp khi component unmount hoặc khi successMessage thay đổi
+      return () => {
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [successMessage]);
+
 
   const handleUpdate = () => {
     if (selectedBrand && validateForm()) {
@@ -60,34 +82,35 @@ const BrandList = ({ brands, onUpdate }) => {
           // Đóng modal
           const modal = bootstrap.Modal.getInstance(document.getElementById('editBrandsModal'));
           modal.hide();
+          setSuccessMessage("Brand update successfully!");
         })
         .catch((error) => {
           console.error(error);
         });
     }
   };
-    // Hàm để chuyển đổi trạng thái thương hiệu
-    const handleToggleStatus = (id) => {
-      const brandToUpdate = brands.find((bra) => bra.id === id);
-    
-      if (brandToUpdate) {
-        const updatedStatus = !brandToUpdate.status; // Chuyển đổi trạng thái
-        const dataToSend = {
-          ...brandToUpdate,
-          status: updatedStatus,
-          name: brandToUpdate.name, // Giữ nguyên tên
-          description: brandToUpdate.description, // Giữ nguyên mô tả
-        };
-    
-        updateBrand(dataToSend, id)
-          .then(() => {
-            onUpdate(); // Cập nhật danh sách thương hiệu
-          })
-          .catch((error) => {
-            console.error("Error updating brand status:", error);
-          });
-      }
-    };
+  // Hàm để chuyển đổi trạng thái thương hiệu
+  const handleToggleStatus = (id) => {
+    const brandToUpdate = brands.find((bra) => bra.id === id);
+
+    if (brandToUpdate) {
+      const updatedStatus = !brandToUpdate.status; // Chuyển đổi trạng thái
+      const dataToSend = {
+        ...brandToUpdate,
+        status: updatedStatus,
+        name: brandToUpdate.name, // Giữ nguyên tên
+        description: brandToUpdate.description, // Giữ nguyên mô tả
+      };
+
+      updateBrand(dataToSend, id)
+        .then(() => {
+          onUpdate(); // Cập nhật danh sách thương hiệu
+        })
+        .catch((error) => {
+          console.error("Error updating brand status:", error);
+        });
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -99,6 +122,12 @@ const BrandList = ({ brands, onUpdate }) => {
 
   return (
     <div>
+      {/* Hiển thị thông báo thành công */}
+      {successMessage && (
+        <div className="alert alert-success" role="alert">
+          {successMessage} This notice will be closed in <b>{countdown}s.</b>
+        </div>
+      )}
       <table className="table table-striped table-hover">
         <thead className='text-center'>
           <tr>
