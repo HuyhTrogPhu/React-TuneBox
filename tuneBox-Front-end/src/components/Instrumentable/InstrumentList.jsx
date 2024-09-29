@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react"; // Thêm useState và useEffect vào đây
 import { useNavigate } from "react-router-dom";
-import { updateInstrument } from "../../service/InstrumentService";
+import { listInstruments, updateInstrument } from "../../service/InstrumentService";
 
-const BrandList = ({ instruments, onUpdate }) => {
-
+const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
+  const [instrumentList, setInstruments] = useState([]);
+
+  useEffect(() => {
+    listInstruments()
+      .then((response) => {
+        setInstruments(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching instruments", error);
+        setInstruments([]);
+      });
+  }, []);
 
   function uploadInstrument(id) {
     navigator(`/edit-instrument/${id}`);
@@ -17,9 +28,10 @@ const BrandList = ({ instruments, onUpdate }) => {
     updateInstrument({ ...insToUpdate, status: updatedStatus }, id)
       .then(() => {
         onUpdate();
-      }).catch((error) => {
-        console.error(error);
       })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   return (
@@ -39,24 +51,25 @@ const BrandList = ({ instruments, onUpdate }) => {
         </tr>
       </thead>
       <tbody>
-        {instruments.map((ins, index) => (
-          <tr key={ins.id} className="ps-0">
-            <td>{index + 1}</td>
-            <td>
-              <img
-                src={`data:image/${ins.insImage.split('.').pop()};base64,${ins.insImage}`}
-                alt={ins.name}
-                style={{ width: '50px' }}
-              />
-            </td>
-            <td>{ins.name}</td>
-            <td>{ins.category.name}</td>
-            <td>{ins.brand.name}</td>
-            <td>{ins.price}</td>
-            <td>{ins.color}</td>
-            <td>{ins.quantity}</td>
-            <td>{ins.status ? 'Unavailable' : 'Available'}</td>
-            <td>
+        {Array.isArray(instruments) && instruments.length > 0 ? (
+          instruments.map((ins, index) => (
+            <tr key={ins.id} className="ps-0">
+              <td>{index + 1}</td>
+              <td>
+                <img
+                  src={`data:image/${ins.insImage.split('.').pop()};base64,${ins.insImage}`}
+                  alt={ins.name}
+                  style={{ width: '50px' }}
+                />
+              </td>
+              <td>{ins.name}</td>
+              <td>{ins.category.name}</td>
+              <td>{ins.brand.name}</td>
+              <td>{ins.price}</td>
+              <td>{ins.color}</td>
+              <td>{ins.quantity}</td>
+              <td>{ins.status ? 'Unavailable' : 'Available'}</td>
+              <td>
                 <button className='btn btn-warning' onClick={() => uploadInstrument(ins.id)}>
                   Edit
                 </button>
@@ -69,11 +82,16 @@ const BrandList = ({ instruments, onUpdate }) => {
                   {ins.status ? 'Mark as Available' : 'Mark as Unavailable'}
                 </button>
               </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="10" className="text-center">No instruments available.</td>
           </tr>
-        ))}
+        )}
       </tbody>
     </table>
   );
 };
 
-export default BrandList;
+export default InstrumentList;

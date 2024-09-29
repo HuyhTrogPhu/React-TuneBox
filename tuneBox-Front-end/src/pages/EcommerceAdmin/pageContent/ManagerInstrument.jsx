@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import InstrumentTable from "../../../components/Instrumentable/InstrumentList";
 import "../css/ManagerInstrument.css";
-import { createInstrument, listBrands, listCategories, listInstruments } from "../../../service/InstrumentService";
+import { createInstrument, listBrands, listCategories } from "../../../service/InstrumentService";
 
 const ManagerInstrument = () => {
 
@@ -9,157 +9,108 @@ const ManagerInstrument = () => {
   const [newInsPrice, setInsPrice] = useState("");
   const [newInsQuantity, setInsQuantity] = useState("");
   const [newInsColor, setInsColor] = useState("");
-  const [newInsImage, setInsImage] = useState("");
+  const [newInsImage, setInsImage] = useState(null);
   const [newInsCategory, setInsCategory] = useState("");
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");
 
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [instruments, setInstruments] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState("");
+  const [apiError, setApiError] = useState(""); // State for API error
 
   useEffect(() => {
-    listBrands().then((response) => setBrands(response.data));
-    listCategories().then((response) => setCategories(response.data)); 
-    listInstruments().then((response) => setInstruments(response.data));
-  }, []);
-
-
-  function getAllBrand() {
-    listBrands().then((response) => {
-      setBrands(response.data);
-    }).catch((error) => {
-      console.error("Error fetching brands", error);
-    })
-  }
-
-  function getAllCategory() {
-    listCatgories().then((response) => {
-      setCategories(response.data);
-    }).catch((error) => {
-      console.error("Error fetching category", error);
-    })
-  }
-
-  function getAllInstrument() {
-    listInstruments().then((response) => {
-      setInstruments(response.data);
-    }).catch((error) => {
-      console.error("Error fetching instrument", error);
-    })
-  }
-
-  useEffect(() => {
-    getAllInstrument();
-    getAllBrand();
-    getAllCategory();
+    const fetchData = async () => {
+      try {
+        const [brandsResponse, categoriesResponse] = await Promise.all([
+          listBrands(),
+          listCategories(),
+        ]);
+        setBrands(brandsResponse.data);
+        setCategories(categoriesResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setApiError("Failed to fetch brands or categories."); // Set API error message
+      }
+    };
+    fetchData();
   }, []);
 
   function validateForm() {
     let valid = true;
-    const errorsCopy = { ...errors };
+    const errorsCopy = {};
 
     if (!newInsName.trim()) {
       errorsCopy.newInsName = 'Instrument name is required';
       valid = false;
-    } else {
-      errorsCopy.newInsName = '';
     }
 
-    if (!newInsPrice.trim()) {
-      errorsCopy.newInsPrice = 'Instrument const price is required';
+    if (!newInsPrice.trim() || parseFloat(newInsPrice) < 0) {
+      errorsCopy.newInsPrice = 'Instrument price must be a positive number';
       valid = false;
-    } else {
-      errorsCopy.newInsPrice = '';
-    }
-
-    if (newInsPrice < 0) {
-      errorsCopy.newInsPrice = 'Instrument cost price';
-      valid = false;
-    } else {
-      errorsCopy.newInsPrice = '';
     }
 
     if (!newInsColor.trim()) {
       errorsCopy.newInsColor = 'Instrument color is required';
       valid = false;
-    } else {
-      errorsCopy.newInsColor = '';
     }
 
-    if (!newInsQuantity.trim()) {
-      errorsCopy.newInsQuantity = 'Instrument quantity is required';
+    if (!newInsQuantity.trim() || parseInt(newInsQuantity) < 0) {
+      errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
       valid = false;
-    } else {
-      errorsCopy.newInsQuantity = '';
     }
 
-    if (newInsQuantity < 0) {
-      errorsCopy.newInsQuantity = 'Instrument quantity '
-      valid = false;
-    } else {
-      errorsCopy.newInsQuantity = '';
-    }
-
-    if (!newInsImage.trim()) {
+    if (!newInsImage) {
       errorsCopy.newInsImage = 'Instrument image is required';
       valid = false;
-    } else {
-      errorsCopy.newInsImage = '';
     }
 
     if (!newInsDes.trim()) {
       errorsCopy.newInsDes = 'Instrument description is required';
       valid = false;
-    } else {
-      errorsCopy.newInsDes = '';
     }
 
     setErrors(errorsCopy);
     return valid;
-
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateForm()) {
       return;
     }
 
     const newInstrument = new FormData();
-
     newInstrument.append('name', newInsName);
-    newInstrument.append('constPrice', newInsPrice);
+    newInstrument.append('price', newInsPrice);
     newInstrument.append('quantity', newInsQuantity);
     newInstrument.append('color', newInsColor);
     newInstrument.append('image', newInsImage);
-    newInstrument.append('desc', newInsDes);
+    newInstrument.append('description', newInsDes);
     newInstrument.append('category', newInsCategory);
     newInstrument.append('brand', newInsBrand);
 
-    createInstrument(newInstrument).then((response) => {
+    try {
+      const response = await createInstrument(newInstrument);
       console.log("Instrument created:", response.data);
-
-      getAllInstrument();
-      getAllBrand();
-      getAllCategory();
+      setMessage("Instrument created successfully");
+      setApiError("");
 
       setInsName("");
       setInsPrice("");
       setInsQuantity("");
       setInsColor("");
-      setInsImage("");
+      setInsImage(null);
       setInsDes("");
       setInsCategory("");
       setInsBrand("");
 
       document.getElementById("closeModal").click();
-      setMessage("Brand created successfully");
-    }).catch((error) => {
+    } catch (error) {
       console.error("Error creating instrument", error);
-    });
+      setApiError("Failed to create instrument."); // Set API error message
+    }
   };
-
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (message) {
@@ -184,6 +135,16 @@ const ManagerInstrument = () => {
       <div className="container-fluid">
 
         {message && <div className="alert alert-success">{message}</div>}
+        {apiError && <div className="alert alert-danger">{apiError}</div>} {/* Display API error */}
+
+        {/* Display errors for each input */}
+        {errors.newInsName && <div className="alert alert-danger">{errors.newInsName}</div>}
+        {errors.newInsPrice && <div className="alert alert-danger">{errors.newInsPrice}</div>}
+        {errors.newInsColor && <div className="alert alert-danger">{errors.newInsColor}</div>}
+        {errors.newInsQuantity && <div className="alert alert-danger">{errors.newInsQuantity}</div>}
+        {errors.newInsImage && <div className="alert alert-danger">{errors.newInsImage}</div>}
+        {errors.newInsDes && <div className="alert alert-danger">{errors.newInsDes}</div>}
+
 
         <div className="row m-2">
           <div className="row">
@@ -201,31 +162,56 @@ const ManagerInstrument = () => {
 
             {/* Search by category */}
             <div className="col-lg-4">
-              <form action="">
-                <div className="mb-3">
-                  <label className="form-label">Categories</label>
-                  <select className="form-select">
-                    <option selected="" disabled="">
-                      Select category instrument
+              <label className="form-label">Categories</label>
+              <select
+                className="form-select"
+                value={newInsCategory}
+                onChange={(e) => setInsCategory(e.target.value)}
+              >
+                <option value="" disabled>
+                  Select category instrument
+                </option>
+                {Array.isArray(categories) && categories.length > 0 ? (
+                  categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
-                    <option value={1}>...</option>
-                    <option value={0}>...</option>
-                  </select>
-                </div>
-              </form>
+                  ))
+                ) : (
+                  <option value="" disabled>
+                    No categories available
+                  </option>
+                )}
+              </select>
             </div>
+
 
             {/* Search by brand */}
             <div className="col-lg-4">
-              <label className="form-label">Brand</label>
-              <select className="form-select">
-                <option selected="" disabled="">
-                  Select brand instrument
+              <label className="form-label">Brands</label>
+              <select
+                className="form-select"
+                value={newInsBrand}
+                onChange={(e) => setInsBrand(e.target.value)}
+              >
+                <option value="" disabled>
+                  Select category instrument
                 </option>
-                <option value={1}>...</option>
-                <option value={0}>...</option>
+                {Array.isArray(brands) && brands.length > 0 ? (
+                  brands.map((brand) => (
+                    <option key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>
+                    No categories available
+                  </option>
+                )}
               </select>
             </div>
+
+
           </div>
 
         </div>
@@ -313,15 +299,19 @@ const ManagerInstrument = () => {
                         <label className="form-label">Category:</label>
                         <select
                           className="form-select"
-                          value={newInsCategory}
+                          value={newInsCategory || ""}
                           onChange={(e) => setInsCategory(e.target.value)}
                         >
                           <option value="" disabled>Select category</option>
-                          {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                              {category.name}
-                            </option>
-                          ))}
+                          {categories && categories.length > 0 ? (
+                            categories.map((category) => (
+                              <option key={category.id} value={category.id}>
+                                {category.name}
+                              </option>
+                            ))
+                          ) : (
+                            <option disabled>No categories available</option>
+                          )}
                         </select>
                       </div>
 
@@ -329,23 +319,28 @@ const ManagerInstrument = () => {
                         <label className="form-label">Brand:</label>
                         <select
                           className="form-select"
-                          value={newInsBrand}
+                          value={newInsBrand || ""}
                           onChange={(e) => setInsBrand(e.target.value)}
                         >
                           <option value="" disabled>Select brand</option>
-                          {brands.map((brand) => (
-                            <option key={brand.id} value={brand.id}>
-                              {brand.name}
-                            </option>
-                          ))}
+                          {brands && brands.length > 0 ? (
+                            brands.map((brand) => (
+                              <option key={brand.id} value={brand.id}>
+                                {brand.name}
+                              </option>
+                            ))
+                          ) : (
+                            <option disabled>No brands available</option>
+                          )}
                         </select>
                       </div>
+
 
                       <div className="mb=3">
                         <label className="form-label">Description</label>
                         <textarea cols="30" rows="10"
-                          className={`form-control ${errors.newBrandDes ? 'is-invalid' : ''}`}
-                          value={newBrandDes}
+                          className={`form-control ${errors.newInsDes ? 'is-invalid' : ''}`}
+                          value={newInsDes}
                           onChange={(e) => setInsDes(e.target.value)}></textarea>
                       </div>
 

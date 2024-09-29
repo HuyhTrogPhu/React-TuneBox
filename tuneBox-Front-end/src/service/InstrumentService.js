@@ -2,8 +2,8 @@ import axios from "axios";
 
 const REST_API_BASE_URL = 'http://localhost:8081/e-comAdmin/instrument';
 
-export const listBrands = () => axios.get(REST_API_BASE_URL);
-export const listCategories = () => axios.get(REST_API_BASE_URL);
+export const listBrands = () => axios.get(`${REST_API_BASE_URL}/brands`);
+export const listCategories = () => axios.get(`${REST_API_BASE_URL}/categories`);
 export const listInstruments = () => axios.get(REST_API_BASE_URL);
 
 export const createInstrument = (instrument) => axios.post(REST_API_BASE_URL, instrument);
