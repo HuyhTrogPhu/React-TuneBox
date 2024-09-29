@@ -8,6 +8,7 @@ const MangerBrand = () => {
   const [newBrandImage, setBrandImage] = useState("");
   const [newBrandDes, setBrandDes] = useState("");
   const [brands, setBrands] = useState([]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [errors, setErrors] = useState({ newBrandName: '', newBrandImage: '', newBrandDes: '' });
@@ -154,6 +155,7 @@ const MangerBrand = () => {
                 />
               </div>
               <div className="modal-body">
+                
                 <form action="">
                   <div className="mt-3">
                     <label className="form-label" >Brand name:</label>
@@ -180,6 +182,7 @@ const MangerBrand = () => {
                   </div>
 
                 </form>
+
               </div>
               <div className="modal-footer">
                 <button
