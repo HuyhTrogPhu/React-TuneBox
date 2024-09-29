@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import InstrumentTable from "../../../components/Instrumentable/InstrumentList";
 import "../css/ManagerInstrument.css";
-import { createInstrument, listBrands, listCategories } from "../../../service/InstrumentService";
+import { createInstrument, listBrands, listCategories, listInstruments } from "../../../service/InstrumentService";
 
 const ManagerInstrument = () => {
 
@@ -14,61 +14,104 @@ const ManagerInstrument = () => {
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");
 
+  const [instruments, setInstruments] = useState([]);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
-  const [apiError, setApiError] = useState(""); // State for API error
+  const [apiError, setApiError] = useState("");
+
+  const getAllInstrument = () => {
+    listInstruments().then((response) => {
+      console.log(response.data);
+      setInstruments(response.data);
+    }).catch((error) => {
+      console.error("Error fetching instruments", error);
+    })
+  }
+
+  const getAllBrand = () => {
+    listBrands().then((response) => {
+      console.log(response.data);
+      setBrands(response.data);
+    }).catch((error) => {
+      console.error("Error fetching brands", error);
+    })
+  }
+
+  const getAllCategory = () => {
+    listCategories().then((response) => {
+      console.log(response.data);
+      setCategories(response.data);
+    }).catch((error) => {
+      console.error("Error fetching categories", error);
+    })
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [brandsResponse, categoriesResponse] = await Promise.all([
-          listBrands(),
-          listCategories(),
-        ]);
-        setBrands(brandsResponse.data);
-        setCategories(categoriesResponse.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setApiError("Failed to fetch brands or categories."); // Set API error message
-      }
-    };
-    fetchData();
+    getAllInstrument();
+    getAllBrand();
+    getAllCategory();
   }, []);
 
   function validateForm() {
     let valid = true;
-    const errorsCopy = {};
+    const errorsCopy = { ...errors };
 
     if (!newInsName.trim()) {
       errorsCopy.newInsName = 'Instrument name is required';
       valid = false;
+    } else {
+      errorsCopy.newInsName = '';
     }
 
     if (!newInsPrice.trim() || parseFloat(newInsPrice) < 0) {
       errorsCopy.newInsPrice = 'Instrument price must be a positive number';
       valid = false;
+    } else {
+      errorsCopy.newInsPrice = '';
     }
 
     if (!newInsColor.trim()) {
       errorsCopy.newInsColor = 'Instrument color is required';
       valid = false;
+    } else {
+      errorsCopy.newInsColor = '';
     }
 
     if (!newInsQuantity.trim() || parseInt(newInsQuantity) < 0) {
       errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
       valid = false;
+    } else {
+      errorsCopy.newInsQuantity = '';
     }
 
     if (!newInsImage) {
       errorsCopy.newInsImage = 'Instrument image is required';
       valid = false;
+    } else {
+      errorsCopy.newInsImage = '';
     }
 
     if (!newInsDes.trim()) {
       errorsCopy.newInsDes = 'Instrument description is required';
       valid = false;
+    } else {
+      errorsCopy.newInsDes = '';
+    }
+
+    if (!newInsBrand) {
+      errorsCopy.newInsBrand = 'Instrument brand is required';
+      valid = false;
+    } else {
+      errorsCopy.newInsBrand = '';
+    }
+
+    if (!newInsCategory) {
+      errorsCopy.newInsCategory = 'Instrument category is required';
+      valid = false;
+    } else {
+      errorsCopy.newInsCategory = '';
     }
 
     setErrors(errorsCopy);
@@ -76,6 +119,7 @@ const ManagerInstrument = () => {
   }
 
   const handleSave = async () => {
+
     if (!validateForm()) {
       return;
     }
@@ -87,29 +131,14 @@ const ManagerInstrument = () => {
     newInstrument.append('color', newInsColor);
     newInstrument.append('image', newInsImage);
     newInstrument.append('description', newInsDes);
-    newInstrument.append('category', newInsCategory);
-    newInstrument.append('brand', newInsBrand);
+    newInstrument.append('categoryId', newInsCategory);
+    newInstrument.append('brandId', newInsBrand);
 
-    try {
-      const response = await createInstrument(newInstrument);
-      console.log("Instrument created:", response.data);
-      setMessage("Instrument created successfully");
-      setApiError("");
+    createInstrument(newInstrument).then((response) => {
+      console.log("Instrument created:", response.data)
 
-      setInsName("");
-      setInsPrice("");
-      setInsQuantity("");
-      setInsColor("");
-      setInsImage(null);
-      setInsDes("");
-      setInsCategory("");
-      setInsBrand("");
 
-      document.getElementById("closeModal").click();
-    } catch (error) {
-      console.error("Error creating instrument", error);
-      setApiError("Failed to create instrument."); // Set API error message
-    }
+    })
   };
 
   useEffect(() => {
@@ -334,6 +363,7 @@ const ManagerInstrument = () => {
                           )}
                         </select>
                       </div>
+
 
 
                       <div className="mb=3">

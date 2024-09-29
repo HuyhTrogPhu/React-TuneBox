@@ -48,7 +48,7 @@ const BrandList = ({ brands, onUpdate }) => {
   };
   useEffect(() => {
     if (successMessage) {
-      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+      setCountdown(2); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
 
       const intervalId = setInterval(() => {
         setCountdown(prevCountdown => prevCountdown - 1);

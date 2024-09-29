@@ -4,18 +4,18 @@ import { listInstruments, updateInstrument } from "../../service/InstrumentServi
 
 const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
-  const [instrumentList, setInstruments] = useState([]);
+  // const [instrumentList, setInstruments] = useState([]);
 
-  useEffect(() => {
-    listInstruments()
-      .then((response) => {
-        setInstruments(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching instruments", error);
-        setInstruments([]);
-      });
-  }, []);
+  // useEffect(() => {
+  //   listInstruments()
+  //     .then((response) => {
+  //       setInstruments(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching instruments", error);
+  //       setInstruments([]);
+  //     });
+  // }, []);
 
   function uploadInstrument(id) {
     navigator(`/edit-instrument/${id}`);
