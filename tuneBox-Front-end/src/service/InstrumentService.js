@@ -18,11 +18,12 @@ export const updateInstrument = (instrumentId, instrument) => {
     formData.append('categoryId', instrument.categoryId);
     formData.append('brandId', instrument.brandId);
     formData.append('description', instrument.description);
-    
+    formData.append('status', instrument.status); 
+
     if (instrument.image instanceof File) {
-        formData.append('image', instrument.image); // Chắc chắn bạn đang sử dụng tên đúng cho tệp hình ảnh
+        formData.append('image', instrument.image); // Hình ảnh mới
     } else {
-        formData.append('image', instrument.image); // Sử dụng giá trị cũ nếu không có hình ảnh mới
+        formData.append('image', instrument.image); // Hình ảnh cũ (base64 hoặc đường dẫn)
     }
 
     return axios.put(`${REST_API_BASE_URL}/${instrumentId}`, formData, {
@@ -31,5 +32,6 @@ export const updateInstrument = (instrumentId, instrument) => {
         },
     });
 };
+
 
 export const deleteInstrument = (instrumentId) => axios.delete(`${REST_API_BASE_URL}/${instrumentId}`);
