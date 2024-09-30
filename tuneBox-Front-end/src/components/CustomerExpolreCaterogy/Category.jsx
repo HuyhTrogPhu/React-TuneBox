@@ -22,7 +22,7 @@ const Category = () => {
       <div className="cotainer slider mt-5">
       <div className='d-flex justify-content-between align-items-center mb-4'>
                 <h4 className='category-title'>Category </h4>
-                <Link href="" className='view-all'>View all</Link>
+                <Link to={'/CategoryPage'} className='view-all'>View all</Link>
             </div>
         <hr className='hr-100' />
         <div className="row text-center">
@@ -30,7 +30,7 @@ const Category = () => {
             <Slider {...settings}>
               {/* Item 1 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.guitar} />
                   <h5>Guitar & Bass</h5>
                 </Link>
@@ -38,7 +38,7 @@ const Category = () => {
 
               {/* Item 2 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.giutar_amplifier} />
                   <h5>Amplifiers & Monitors</h5>
                 </Link>
@@ -46,7 +46,7 @@ const Category = () => {
 
               {/* Item 3 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.guitar_pedal} />
                   <h5>Pedals & Pedalboards</h5>
                 </Link>
@@ -54,7 +54,7 @@ const Category = () => {
 
               {/* Item 4 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.usb} />
                   <h5>Phụ kiện</h5>
                 </Link>
@@ -62,7 +62,7 @@ const Category = () => {
 
               {/* Item 5 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.music} />
                   <h5>Trống & Bộ gõ</h5>
                 </Link>
@@ -70,7 +70,7 @@ const Category = () => {
 
               {/* Item 6 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.key} />
                   <h5>Keyboards & Pianos</h5>
                 </Link>
@@ -78,7 +78,7 @@ const Category = () => {
 
               {/* Item 7 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.earphone} />
                   <h5>Lifestyle & Gifts</h5>
                 </Link>
@@ -86,7 +86,7 @@ const Category = () => {
 
               {/* Item 8 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.mic} />
                   <h5>Vocals & Microphones</h5>
                 </Link>
@@ -94,7 +94,7 @@ const Category = () => {
 
               {/* Item 9 */}
               <div className="item">
-                <Link href="">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.vocals} />
                   <h5>DJ & Production</h5>
                 </Link>
@@ -102,7 +102,7 @@ const Category = () => {
 
               {/* Item 10 */}
               <div className="item">
-                <Link href="/#">
+                <Link to={'/CategoryPage'}>
                   <img alt="" className="" src={icons.DJ} />
                   <h5>Âm thanh</h5>
                 </Link>

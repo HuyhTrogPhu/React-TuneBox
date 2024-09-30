@@ -18,6 +18,7 @@ import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from './pages/EcommerceAdmin'
 import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
+import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -50,7 +51,8 @@ function App() {
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
-            <Route path="/BrandPage" element={<BrandPage/>}/>
+            <Route path="/BrandPage" element={<BrandPage />} />
+            <Route path="/CategoryPage" element={<CategoryPage />} />
           </Route>
 
           {/* Các route không có Header */}
