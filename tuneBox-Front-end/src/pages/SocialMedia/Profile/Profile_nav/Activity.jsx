@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { images } from '../../../../assets/images/images';
 import axios from 'axios';
@@ -7,26 +6,25 @@ const Activity = () => {
   const [postContent, setPostContent] = useState(''); // State cho nội dung bài viết
   const [postImages, setPostImages] = useState([]); // State cho ảnh bài viết
   const [posts, setPosts] = useState([]); // State để lưu các bài viết
-
   // Phần js để hiện post modal
   useEffect(() => {
     const createPostBtn = document.getElementById('create-post-btn');
     const postModal = document.getElementById('post-modal');
     const closeModal = document.getElementById('close-modal');
 
-    if (createPostBtn && postModal && closeModal) {
-      createPostBtn.addEventListener('click', () => {
-        postModal.style.display = 'flex';
-      });
+    const openModal = () => postModal.style.display = 'flex';
+    const closePostModal = () => {
+      postModal.style.display = 'none';
+      resetForm();
+    };
 
-      closeModal.addEventListener('click', () => {
-        postModal.style.display = 'none';
-        resetForm(); // Reset form khi đóng modal
-      });
+    if (createPostBtn && postModal && closeModal) {
+      createPostBtn.addEventListener('click', openModal);
+      closeModal.addEventListener('click', closePostModal);
 
       return () => {
-        createPostBtn.removeEventListener('click', () => { });
-        closeModal.removeEventListener('click', () => { });
+        createPostBtn.removeEventListener('click', openModal);
+        closeModal.removeEventListener('click', closePostModal);
       };
     } else {
       console.error('One or more elements not found');
@@ -38,42 +36,54 @@ const Activity = () => {
     setPostContent('');
     setPostImages([]);
   };
-      // Hàm để lấy các bài viết
-      const fetchPosts = async () => {
-        try {
-            const response = await axios.get('http://localhost:8080/api/posts');
-            setPosts(response.data); // Lưu dữ liệu vào state
-        } catch (error) {
-            console.error('Error fetching posts:', error);
-        }
-    };    
-        // Gọi hàm fetchPosts khi component được mount
-        useEffect(() => {
-          fetchPosts();
-      }, []);
+
+  // Hàm để lấy các bài viết
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/posts/current-user', {
+        withCredentials: true,
+      });
+      setPosts(response.data); // Chỉ lưu các bài viết của người dùng hiện tại
+    } catch (error) {
+      console.error('Error fetching user posts:', error);
+    }
+  };
+
+  // Gọi hàm fetchPosts khi component được mount
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   // Hàm để xử lý việc tạo bài viết
   const handleSubmitPost = async () => {
     const formData = new FormData();
-    formData.append('content', postContent); // Đảm bảo 'content' đúng với API
+    formData.append('content', postContent);
 
-    // Thêm các ảnh vào formData
-    for (const element of postImages) {
-        formData.append('images', element); // 'images' phải trùng với tên trong API
-    }
+    // Thêm các tệp ảnh vào formData
+    postImages.forEach((image) => {
+      formData.append('images', image); // Tên trường 'images' phải trùng với backend
+    });
 
     try {
-        const response = await axios.post('http://localhost:8080/api/posts', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        console.log('Post created successfully:', response.data);
+      const response = await axios.post('http://localhost:8080/api/posts', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true, // Nếu cần dùng session
+      });
+
+      console.log('Post created successfully:', response.data);
+
+      // Đóng modal và reset form sau khi post thành công
+      document.getElementById('post-modal').style.display = 'none';
+      resetForm();
+
+      // Fetch lại các bài viết mới
+      fetchPosts();
     } catch (error) {
-        console.error('Error creating post:', error.response?.data || error.message);
+      console.error('Error creating post:', error.response?.data || error.message);
     }
-};
-  
+  };
 
   return (
     <div>
@@ -86,7 +96,7 @@ const Activity = () => {
             </div>
             <div className="col">
               <button id="create-post-btn" type="button" className="btn text-start" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', width: '85%', height: 50 }}>
-                Ban dang nghi gi vay?
+                Bạn đang nghĩ gì vậy?
               </button>
             </div>
           </div>
@@ -130,62 +140,61 @@ const Activity = () => {
         </div>
         {/* Bài viết */}
         <div className="container mt-2 mb-5">
-    {posts.map((post) => (
-        <div key={post.id} className="post">
-            <div className="post-header">
-                <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
-                <div>
-                    <div className="name">Phạm Xuân Trường</div>
-                    <div className="time">11:42 PM, 7 Sep 2024</div>
-                </div>
-            </div>
-            <div className="post-content">
-                {post.content} {/* Hiện nội dung bài viết */}
-            </div>
-            {/* Hiện hình ảnh nếu có */}
-            {post.images && post.images.length > 0 && (
-                <div className="post-images">
-                    {post.images.map((image, index) => (
-                        <img key={index} src={`data:image/jpeg;base64,${image.postImage}`} alt="Post" />
-                    ))}
-                </div>
-            )}
-            {/* Phần nút Like và Comment */}
-            <div className="interaction-buttons mt-3">
-                <button type="button" className="btn">
-                    <img src={images.heart} className="btn-icon" alt="Like" />
-                    <span>Like</span>
-                </button>
-            </div>
-
-            {/* Phần comment-section */}
-            <div className="comment-section mt-4">
-                <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
-                <div className="row">
-                    <div className="col text-start">
-                        <a href="/#" className="text-black text-decoration-none">View Comment</a>
-                    </div>
-                    <div className="col text-end">
-                        <span>1 Comment</span>
-                    </div>
-                </div>
-                <div className="comment mt-2">
-                    <img src={images.ava} alt="Commenter" />
-                    <div className="comment-content">
-                        <div className="comment-author">Huynh Trong Phu</div>
-                        <div className="comment-time">12:00 AM, 8 Sep 2024</div>
-                        <p>Chao em nhe nguoi dep!</p>
-                    </div>
-                </div>
-            </div>
+  {posts.map((post) => (
+    <div key={post.id} className="post">
+      <div className="post-header">
+        <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
+        <div>
+          <div className="name">{post.userName}</div> {/* Hiển thị tên người dùng */}
+          <div className="time">11:42 PM, 7 Sep 2024</div> 
         </div>
-    ))}
-</div>
+      </div>
+      <div className="post-content">
+        {post.content} {/* Hiện nội dung bài viết */}
+      </div>
+      {/* Hiện hình ảnh nếu có */}
+      {post.images && post.images.length > 0 && (
+        <div className="post-images">
+          {post.images.map((image, index) => (
+            <img key={index} src={`data:image/jpeg;base64,${image.postImage}`} alt="Post" />
+          ))}
+        </div>
+      )}
+      {/* Phần nút Like và Comment */}
+      <div className="interaction-buttons mt-3">
+        <button type="button" className="btn">
+          <img src={images.heart} className="btn-icon" alt="Like" />
+          <span>Like</span>
+        </button>
+      </div>
 
+      {/* Phần comment-section */}
+      <div className="comment-section mt-4">
+        <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
+        <div className="row">
+          <div className="col text-start">
+            <a href="/#" className="text-black text-decoration-none">View Comment</a>
+          </div>
+          <div className="col text-end">
+            <span>1 Comment</span>
+          </div>
+        </div>
+        <div className="comment mt-2">
+          <img src={images.ava} alt="Commenter" />
+          <div className="comment-content">
+            <div className="comment-author">Huynh Trong Phu</div>
+            <div className="comment-time">12:00 AM, 8 Sep 2024</div>
+            <p>Chao em nhe nguoi dep!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
 
       </div>
     </div>
   );
 };
 
-export default Activity; 
+export default Activity;

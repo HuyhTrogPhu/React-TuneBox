@@ -1,32 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
 import Playlists from "./Profile_nav/Playlists";
-import "./css/profile.css"
-import "./css/post.css"
-import "./css/button.css"
-import "./css/comment.css"
-import "./css/modal-create-post.css"
+import axios from "axios"; // Thêm axios
+import "./css/profile.css";
+import "./css/post.css";
+import "./css/button.css";
+import "./css/comment.css";
+import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 
-
-
 const ProfileUser = () => {
+  const [userName, setUserName] = useState(""); // State cho username
+  const [fullName, setFullName] = useState(""); // State cho tên đầy đủ
 
+  // Hàm để lấy thông tin người dùng từ API
+  const fetchUserInfo = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/User/current', { withCredentials: true });
+      setUserName(response.data.userName); // Giả sử response.data chứa tên người dùng
+      setFullName(response.data.fullName); // Lưu tên đầy đủ nếu có
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+    }
+  };
 
+  // Gọi fetchUserInfo khi component được mount
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
 
   return (
-
-
     <div className="container">
       {/* Hình nền profile */}
       <div
         className="background border container"
         style={{
-          backgroundImage:
-            "url(/src/UserImages/Background/anime-girl.jpg)",
+          backgroundImage: "url(/src/UserImages/Background/anime-girl.jpg)",
         }}
       />
 
@@ -35,9 +47,9 @@ const ProfileUser = () => {
           <div>
             <img src="/src/UserImages/Avatar/avt.jpg" className="avatar" alt="avatar" />
             <div className="fs-4 text-small mt-3">
-              <b>Phạm Xuân Trường</b>
+              <b>{fullName || "Tên người dùng"}</b> {/* Hiển thị tên đầy đủ */}
             </div>
-            <div className="">@phamxuantruong</div>
+            <div className="">{`@${userName.toLowerCase()}`}</div> {/* Hiển thị username */}
           </div>
           {/* 2 nút dưới avatar */}
           <div className="row mt-4">
@@ -62,7 +74,6 @@ const ProfileUser = () => {
             <div className="col text-end">
               <Link to={'/ProfileSetting'}>
                 <button type="button" className="btn btn-secondary">
-
                   <img src={images.pen} width="20px" height="20px" alt="setting-btn" />
                 </button>
               </Link>
@@ -77,11 +88,11 @@ const ProfileUser = () => {
             </div>
             <div className="col text-center">
               <span>0</span> <br />
-              <span>Follower</span>
+              <span>Following</span>
             </div>
             <div className="col text-center">
               <span>0</span> <br />
-              <span>Follower</span>
+              <span>Posts</span>
             </div>
           </div>
           {/*kết thúc thông tin người theo giõi */}
@@ -94,7 +105,6 @@ const ProfileUser = () => {
               Hard-rock
             </span>
           </div>
-
         </aside>
 
         {/* Phần nội dung chính */}
@@ -122,7 +132,7 @@ const ProfileUser = () => {
               <Route path="track" element={<Track />} />
               <Route path="albums" element={<Albums />} />
               <Route path="playlists" element={<Playlists />} />
-              <Route path="/" element={<Navigate to="activity" />} /> Đường dẫn mặc định
+              <Route path="/" element={<Navigate to="activity" />} /> {/* Đường dẫn mặc định */}
             </Routes>
           </article>
         </div>
