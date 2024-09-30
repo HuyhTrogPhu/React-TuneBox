@@ -4,7 +4,7 @@ import { listInstruments, updateInstrument, listBrands, listCategories, } from "
 
 const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
-  const [selectedInstrument, setSelectedInstrument] = useState(null);
+  const [selectedInstrument, setSelectedInstrument] = useState('');
   const [image, setImage] = useState(null);
   const [newInsName, setNewInsName] = useState('');
   const [newInsPrice, setNewInsPrice] = useState('');
@@ -17,7 +17,17 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const [categories, setCategories] = useState([]);
 
   const uploadInstrument = (id) => {
+    if (!id) {
+      console.error("Instrument ID is undefined or null");
+      return;  // Ngăn việc tiếp tục nếu ID không hợp lệ
+    }
+
     const insToEdit = instruments.find((ins) => ins.id === id);
+    if (!insToEdit) {
+      console.error("Instrument not found");
+      return;
+    }
+
     setSelectedInstrument(insToEdit);
     setNewInsName(insToEdit.name);
     setNewInsPrice(insToEdit.costPrice);
@@ -33,41 +43,78 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   };
 
   const handleUpdate = () => {
-    const formData = new FormData();
-    formData.append('name', newInsName);
-    formData.append('costPrice', parseFloat(newInsPrice));
-    formData.append('color', newInsColor);
-    formData.append('quantity', parseInt(newInsQuantity, 10));
-    formData.append('categoryId', newInsCategory);
-    formData.append('brandId', newInsBrand);
-    formData.append('description', newInsDes);
-
-    if (image) {
-      formData.append('image', image);
+    if (!selectedInstrument || !selectedInstrument.id) {
+      console.error("Selected instrument or ID is invalid");
+      return;
     }
 
-    console.log('FormData:', Array.from(formData.entries()));
-    console.log('Updating instrument:', {
-      name: newInsName,
-      costPrice: newInsPrice,
-      color: newInsColor,
-      quantity: newInsQuantity,
-      categoryId: newInsCategory,
-      brandId: newInsBrand,
-      description: newInsDes,
-      image: image, // Bạn có thể kiểm tra đây có phải là File object không
-  });
-  
-    updateInstrument(selectedInstrument.id, formData) // Sửa ở đây
-      .then(() => {
-        onUpdate();
-        const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
-        modal.hide();
-      })
-      .catch((error) => {
-        console.error(error);
+    const convertToBase64 = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          console.log("Converted to base64:", reader.result); 
+          resolve(reader.result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
+    };
+
+    if (image instanceof File) {
+      convertToBase64(image)
+        .then((base64Image) => {
+          const updatedInstrument = {
+            name: newInsName,
+            costPrice: parseFloat(newInsPrice),
+            color: newInsColor,
+            quantity: parseInt(newInsQuantity, 10),
+            categoryId: newInsCategory,
+            brandId: newInsBrand,
+            description: newInsDes,
+            image: base64Image,
+          };
+
+          console.log("Updated instrument data with new image:", updatedInstrument);
+
+          return updateInstrument(selectedInstrument.id, updatedInstrument);
+        })
+        .then(() => {
+          onUpdate();
+          const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
+          modal.hide();
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      // Nếu không thay đổi hình ảnh, gửi cập nhật mà không chuyển đổi
+      const updatedInstrument = {
+        name: newInsName,
+        costPrice: parseFloat(newInsPrice),
+        color: newInsColor,
+        quantity: parseInt(newInsQuantity, 10),
+        categoryId: newInsCategory,
+        brandId: newInsBrand,
+        description: newInsDes,
+        image: selectedInstrument.image, // Sử dụng hình ảnh cũ từ selectedInstrument
+      };
+
+      console.log("Updated instrument data without new image:", updatedInstrument);
+
+      updateInstrument(selectedInstrument.id, updatedInstrument)
+        .then(() => {
+          onUpdate();
+          const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
+          modal.hide();
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   };
+
+
+
 
 
   const getAllBrand = () => {
@@ -178,6 +225,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                   <div className="col-6">
                     <div className="mt-3">
                       <label className="form-label">Instrument name:</label>
+
                       <input
                         className="form-control"
                         type="text"
@@ -225,16 +273,29 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                       <input
                         type="file"
                         className="form-control"
-                        onChange={(e) => setImage(e.target.files[0])}
+                        onChange={(e) => {
+                          setImage(e.target.files[0]);
+                          console.log("Selected image:", e.target.files[0]);
+                        }}
                       />
                       {/* Hiển thị hình ảnh hiện tại nếu có */}
-                      {image && (
+                      {image && typeof image === "object" && image instanceof File ? (
                         <img
-                          src={`data:image/${image.split('.').pop()};base64,${image}`}
+                          src={URL.createObjectURL(image)}
                           alt="Current Instrument"
                           style={{ width: '100px', marginTop: '10px' }}
                         />
+                      ) : (
+                        image && typeof image === "string" && (
+                          <img
+                            src={`data:image/${image.split('.').pop()};base64,${image}`}
+                            alt="Current Instrument"
+                            style={{ width: '100px', marginTop: '10px' }}
+                          />
+                        )
                       )}
+
+
                     </div>
                   </div>
 

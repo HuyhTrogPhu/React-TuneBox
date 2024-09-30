@@ -10,6 +10,7 @@ export const createInstrument = (instrument) => axios.post(REST_API_BASE_URL, in
 export const getInstrument = (instrumentId) => axios.get(`${REST_API_BASE_URL}/${instrumentId}`);
 export const updateInstrument = (instrumentId, instrument) => {
     const formData = new FormData();
+
     formData.append('name', instrument.name);
     formData.append('costPrice', instrument.costPrice);
     formData.append('color', instrument.color);
@@ -18,8 +19,10 @@ export const updateInstrument = (instrumentId, instrument) => {
     formData.append('brandId', instrument.brandId);
     formData.append('description', instrument.description);
     
-    if (instrument.image) {
-        formData.append('image', instrument.image); // Hình ảnh
+    if (instrument.image instanceof File) {
+        formData.append('image', instrument.image); // Chắc chắn bạn đang sử dụng tên đúng cho tệp hình ảnh
+    } else {
+        formData.append('image', instrument.image); // Sử dụng giá trị cũ nếu không có hình ảnh mới
     }
 
     return axios.put(`${REST_API_BASE_URL}/${instrumentId}`, formData, {
