@@ -89,11 +89,12 @@ const ManagerInstrument = () => {
       errorsCopy.newInsName = '';
     }
 
-    if (!newInsPrice.trim() || parseFloat(newInsPrice) < 0) {
-      errorsCopy.newInsPrice = 'Instrument price must be a positive number';
-      valid = false;
+    const priceRegex = /^\d+(\.\d+)?$/; // Regex để kiểm tra giá (chỉ cho phép số và số thập phân)
+    if (!newInsPrice.trim() || !priceRegex.test(newInsPrice) || parseFloat(newInsPrice) < 0) {
+        errorsCopy.newInsPrice = 'Instrument price must be a positive number';
+        valid = false;
     } else {
-      errorsCopy.newInsPrice = '';
+        errorsCopy.newInsPrice = '';
     }
 
     if (!newInsColor.trim()) {
@@ -103,11 +104,12 @@ const ManagerInstrument = () => {
       errorsCopy.newInsColor = '';
     }
 
-    if (!newInsQuantity.trim() || parseInt(newInsQuantity) < 0) {
-      errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
-      valid = false;
+    const quantityRegex = /^\d+$/; // Regex để kiểm tra số lượng (chỉ cho phép số nguyên dương)
+    if (!newInsQuantity.trim() || !quantityRegex.test(newInsQuantity) || parseInt(newInsQuantity) < 0) {
+        errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
+        valid = false;
     } else {
-      errorsCopy.newInsQuantity = '';
+        errorsCopy.newInsQuantity = '';
     }
 
     if (!newInsImage) {
@@ -166,6 +168,7 @@ const ManagerInstrument = () => {
 
       // Cập nhật danh sách nhạc cụ
       getAllInstrument();
+      setMessage("Add done!")
     }).catch((error) => {
       console.error("Error creating instrument", error);
     });
@@ -221,14 +224,7 @@ const ManagerInstrument = () => {
         {apiError && <div className="alert alert-danger">{apiError}</div>} {/* Display API error */}
 
         {/* Display errors for each input */}
-        {errors.newInsName && <div className="alert alert-danger">{errors.newInsName}</div>}
-        {errors.newInsPrice && <div className="alert alert-danger">{errors.newInsPrice}</div>}
-        {errors.newInsColor && <div className="alert alert-danger">{errors.newInsColor}</div>}
-        {errors.newInsQuantity && <div className="alert alert-danger">{errors.newInsQuantity}</div>}
-        {errors.newInsImage && <div className="alert alert-danger">{errors.newInsImage}</div>}
-        {errors.newInsDes && <div className="alert alert-danger">{errors.newInsDes}</div>}
-
-
+   
         <div className="row m-2">
           <div className="row">
             {/* Search by keyword */}
@@ -359,42 +355,44 @@ const ManagerInstrument = () => {
 
                       <div className="mt-3">
                         <label className="form-label">Instrument name:</label>
-                        <input className={`form-control ${errors.newInsName ? 'is-valid' : ''}`}
+                        <input className={`form-control `}
                           type="text" placeholder="Enter instrument name"
                           value={newInsName}
                           onChange={(e) => setInsName(e.target.value)} />
                       </div>
+                           {errors.newInsName && <div className="alert alert-danger mt-3">{errors.newInsName}</div>}
 
                       <div className="mt-3">
                         <label className="form-label">Price:</label>
-                        <input className={`form-control ${errors.newInsPrice ? 'is-valid' : ''}`}
+                        <input className={`form-control `}
                           type="text" placeholder="Enter const price"
                           value={newInsPrice}
                           onChange={(e) => setInsPrice(e.target.value)} />
                       </div>
+                      {errors.newInsPrice && <div className="alert alert-danger mt-3">{errors.newInsPrice}</div>}
 
                       <div className="mt-3">
                         <label className="form-label">Color:</label>
-                        <input className={`form-control ${errors.newInsColor ? 'is-valid' : ''}`}
+                        <input className={`form-control `}
                           type="text" placeholder="Enter instrument color"
                           value={newInsColor}
                           onChange={(e) => setInsColor(e.target.value)} />
                       </div>
-
+                      {errors.newInsColor && <div className="alert alert-danger mt-3">{errors.newInsColor}</div>}
                       <div className="mt-3">
                         <label className="form-label">Quantity:</label>
-                        <input className={`form-control ${errors.newInsQuantity ? 'is-valid' : ''}`}
+                        <input className={`form-control`}
                           type="text" placeholder="Enter instrument quantity"
                           value={newInsQuantity}
                           onChange={(e) => setInsQuantity(e.target.value)} />
                       </div>
-
+                      {errors.newInsQuantity && <div className="alert alert-danger mt-3">{errors.newInsQuantity}</div>}
                       <div className="mt-3">
                         <label className="form-label">Instrument Image</label>
-                        <input type="file" className={`form-control ${errors.newInsImage ? 'is-valid' : ''}`}
+                        <input type="file" className={`form-control `}
                           onChange={(e) => setInsImage(e.target.files[0])} />
                       </div>
-
+                      {errors.newInsImage && <div className="alert alert-danger mt-3">{errors.newInsImage}</div>}
                     </div>
 
                     <div className="col-6">
@@ -402,7 +400,7 @@ const ManagerInstrument = () => {
                       <div className="mt-3">
                         <label className="form-label">Category:</label>
                         <select
-                          className="form-select"
+                          className={`form-select  ${errors.newInsCategory ? 'is-invalid' : ''}`}
                           value={newInsCategory || ""}
                           onChange={(e) => setInsCategory(e.target.value)}
                         >
@@ -417,12 +415,14 @@ const ManagerInstrument = () => {
                             <option disabled>No categories available</option>
                           )}
                         </select>
+                        {errors.newInsDes && <div className="alert alert-danger mt-3">{errors.newInsDes}</div>}
                       </div>
 
                       <div className="mt-3">
                         <label className="form-label">Brand:</label>
                         <select
-                          className="form-select"
+                     
+                          className={`form-select ${errors.newInsBrand ? 'is-invalid' : ''}`}
                           value={newInsBrand || ""}
                           onChange={(e) => setInsBrand(e.target.value)}
                         >
@@ -437,6 +437,7 @@ const ManagerInstrument = () => {
                             <option disabled>No brands available</option>
                           )}
                         </select>
+                        {errors.newInsBrand && <div className="alert alert-danger mt-3">{errors.newInsBrand}</div>}
                       </div>
 
 

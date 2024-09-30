@@ -15,6 +15,15 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const [newInsDes, setInsDes] = useState('');
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [newInsStatus, setNewInsStatus] = useState(false);
+  const [currentImage, setCurrentImage] = useState(null); // Thêm biến trạng thái cho hình ảnh hiện tại
+  const [successMessage, setSuccessMessage] = useState("");
+  const [countdown, setCountdown] = useState(5);
+
+
+
+
 
   const uploadInstrument = (id) => {
     if (!id) {
@@ -34,113 +43,169 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     setNewInsColor(insToEdit.color);
     setNewInsQuantity(insToEdit.quantity);
     setImage(insToEdit.image); // Giữ hình ảnh hiện tại
+    setCurrentImage(insToEdit.image);
     setNewInsCategory(insToEdit.categoryIns ? insToEdit.categoryIns.id : '');
     setNewInsBrand(insToEdit.brand ? insToEdit.brand.id : '');
     setInsDes(insToEdit.description);
+    setNewInsStatus(insToEdit.status);
     // Mở modal
     const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
     modal.show();
   };
 
-  const handleUpdate = () => {
+
+  const handleStatusChange = async (id) => {
+    // Tìm nhạc cụ cần cập nhật
+    const instrumentToUpdate = instruments.find(ins => ins.id === id);
+    if (!instrumentToUpdate) {
+      console.error("Instrument not found");
+      return;
+    }
+
+    // Chuyển đổi trạng thái
+    const updatedStatus = !instrumentToUpdate.status; // Chuyển đổi trạng thái
+    const updatedInstrument = {
+      ...instrumentToUpdate,
+      status: updatedStatus
+    };
+
+    try {
+      // Gọi API để cập nhật nhạc cụ
+      await updateInstrument(id, updatedInstrument);
+      onUpdate(); // Cập nhật danh sách nhạc cụ
+      setSuccessMessage("Status updated successfully!"); // Hiển thị thông báo thành công
+    } catch (error) {
+      console.error("Error updating instrument status:", error);
+    }
+  };
+  // Thêm trạng thái nhạc cụ
+
+
+
+  useEffect(() => {
+    if (successMessage) {
+      setCountdown(2); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+
+      const intervalId = setInterval(() => {
+        setCountdown(prevCountdown => prevCountdown - 1);
+      }, 1000);
+
+      const timeoutId = setTimeout(() => {
+        setSuccessMessage(""); // Đặt lại thông báo sau khi hết thời gian
+      }, 5000);
+
+      // Dọn dẹp khi component unmount hoặc khi successMessage thay đổi
+      return () => {
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [successMessage]);
+  //validation
+  const validateInputs = () => {
+    const errors = {};
+    // Check instrument name
+    if (!newInsName.trim()) {
+      errors.name = "Instrument name cannot be empty.";
+    }
+    if (instruments.some(ins => ins.name === newInsName && ins.id !== selectedInstrument.id)) {
+      errors.name = "Instrument name already exists.";
+    }
+    // Check price, color, quantity
+    if (!newInsPrice) {
+      errors.price = "Price cannot be empty.";
+    } else if (isNaN(newInsPrice)) {
+      errors.price = "Price must be a number.";
+    }
+    if (!newInsColor.trim()) {
+      errors.color = "Color cannot be empty.";
+    }
+    if (!newInsQuantity) {
+      errors.quantity = "Quantity cannot be empty.";
+    } else if (isNaN(newInsQuantity)) {
+      errors.quantity = "Quantity must be a number.";
+    }
+    if (!newInsCategory) {
+      errors.category = "Category cannot be empty.";
+    }
+    if (!newInsBrand) {
+      errors.brand = "Brand cannot be empty.";
+    }
+  
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0; // Return true if no errors
+  };
+  
+
+  const handleUpdate = async () => {
     if (!selectedInstrument || !selectedInstrument.id) {
       console.error("Selected instrument or ID is invalid");
       return;
     }
+    if (!validateInputs()) {
+      return; // Nếu không hợp lệ thì không thực hiện cập nhật
+    }
 
-    const convertToBase64 = (file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          console.log("Converted to base64:", reader.result); 
-          resolve(reader.result);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    const updatedInstrument = {
+      name: newInsName,
+      costPrice: parseFloat(newInsPrice),
+      color: newInsColor,
+      quantity: parseInt(newInsQuantity, 10),
+      categoryId: newInsCategory,
+      brandId: newInsBrand,
+      description: newInsDes,
+      status: newInsStatus,
+      image: image // Sử dụng image đã chọn
     };
 
-    if (image instanceof File) {
-      convertToBase64(image)
-        .then((base64Image) => {
-          const updatedInstrument = {
-            name: newInsName,
-            costPrice: parseFloat(newInsPrice),
-            color: newInsColor,
-            quantity: parseInt(newInsQuantity, 10),
-            categoryId: newInsCategory,
-            brandId: newInsBrand,
-            description: newInsDes,
-            image: base64Image,
-          };
-
-          console.log("Updated instrument data with new image:", updatedInstrument);
-
-          return updateInstrument(selectedInstrument.id, updatedInstrument);
-        })
-        .then(() => {
-          onUpdate();
-          const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
-          modal.hide();
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    } else {
-      // Nếu không thay đổi hình ảnh, gửi cập nhật mà không chuyển đổi
-      const updatedInstrument = {
-        name: newInsName,
-        costPrice: parseFloat(newInsPrice),
-        color: newInsColor,
-        quantity: parseInt(newInsQuantity, 10),
-        categoryId: newInsCategory,
-        brandId: newInsBrand,
-        description: newInsDes,
-        image: selectedInstrument.image, // Sử dụng hình ảnh cũ từ selectedInstrument
-      };
-
-      console.log("Updated instrument data without new image:", updatedInstrument);
-
-      updateInstrument(selectedInstrument.id, updatedInstrument)
-        .then(() => {
-          onUpdate();
-          const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
-          modal.hide();
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+    try {
+      await updateInstrument(selectedInstrument.id, updatedInstrument);
+      onUpdate(); // Cập nhật danh sách nhạc cụ
+      const modalElement = document.getElementById('editIns');
+      const modal = window.bootstrap.Modal.getInstance(modalElement); // Lấy instance đã có
+      modal.hide(); // Đóng modal
+      setSuccessMessage("Instrument update successfully!");
+    } catch (error) {
+      console.error("Error updating instrument:", error);
     }
   };
 
 
 
 
-
-  const getAllBrand = () => {
-    listBrands().then((response) => {
+  const getAllBrand = async () => {
+    try {
+      const response = await listBrands();
       console.log(response.data);
       setBrands(response.data);
-    }).catch((error) => {
+    } catch (error) {
       console.error("Error fetching brands", error);
-    })
-  }
+    }
+  };
 
-  const getAllCategory = () => {
-    listCategories().then((response) => {
+  const getAllCategory = async () => {
+    try {
+      const response = await listCategories();
       console.log(response.data);
       setCategories(response.data);
-    }).catch((error) => {
+    } catch (error) {
       console.error("Error fetching categories", error);
-    })
-  }
-  useEffect(() => {
+    }
+  };
 
+  useEffect(() => {
     getAllBrand();
     getAllCategory();
   }, []);
+
   return (
     <div>
+      {/* Hiển thị thông báo thành công */}
+      {successMessage && (
+        <div className="alert alert-success" role="alert">
+          {successMessage}
+        </div>
+      )}
       <table className="table table-striped table-hover">
         <thead className="text-center">
           <tr>
@@ -180,14 +245,14 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                     Edit
                   </button>
                 </td>
-                <td>
+                {/* <td>
                   <button
                     className={`btn ms-4 ${ins.status ? 'btn-success' : 'btn-danger'}`}
                     onClick={() => handleStatusChange(ins.id)}
                   >
                     {ins.status ? 'Mark as Available' : 'Mark as Unavailable'}
                   </button>
-                </td>
+                </td> */}
               </tr>
             ))
           ) : (
@@ -233,6 +298,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         value={newInsName}
                         onChange={(e) => setNewInsName(e.target.value)}
                       />
+                      {validationErrors.name && <div className="text-danger">{validationErrors.name}</div>}
                     </div>
 
                     <div className="mt-3">
@@ -244,6 +310,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         value={newInsPrice}
                         onChange={(e) => setNewInsPrice(e.target.value)}
                       />
+                      {validationErrors.price && <div className="text-danger">{validationErrors.price}</div>}
                     </div>
 
                     <div className="mt-3">
@@ -255,6 +322,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         value={newInsColor}
                         onChange={(e) => setNewInsColor(e.target.value)}
                       />
+                      {validationErrors.color && <div className="text-danger">{validationErrors.color}</div>}
                     </div>
 
                     <div className="mt-3">
@@ -266,6 +334,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         value={newInsQuantity}
                         onChange={(e) => setNewInsQuantity(e.target.value)}
                       />
+                      {validationErrors.quantity && <div className="text-danger">{validationErrors.quantity}</div>}
                     </div>
 
                     <div className="mt-3">
@@ -274,9 +343,11 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         type="file"
                         className="form-control"
                         onChange={(e) => {
-                          setImage(e.target.files[0]);
-                          console.log("Selected image:", e.target.files[0]);
+                          const selectedFile = e.target.files[0];
+                          setImage(selectedFile);
+                          console.log("Selected image:", selectedFile);
                         }}
+
                       />
                       {/* Hiển thị hình ảnh hiện tại nếu có */}
                       {image && typeof image === "object" && image instanceof File ? (
@@ -323,6 +394,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                           </option>
                         )}
                       </select>
+                      {validationErrors.category && <div className="text-danger">{validationErrors.category}</div>}
                     </div>
 
                     <div className="mt-3">
@@ -347,6 +419,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                           </option>
                         )}
                       </select>
+                      {validationErrors.brand && <div className="text-danger">{validationErrors.brand}</div>}
                     </div>
 
                     <div className="mb=3">
@@ -358,6 +431,15 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         value={newInsDes}
                         onChange={(e) => setInsDes(e.target.value)}
                       />
+                    </div>
+                    <div className="mt-3">
+                      <label className="form-label">Status:</label>
+                      <input
+                        type="checkbox"
+                        checked={newInsStatus}
+                        onChange={(e) => setNewInsStatus(e.target.checked)}
+                      />
+                      <span>{newInsStatus ? 'Unavailable' : 'Available'}</span>
                     </div>
                   </div>
 
