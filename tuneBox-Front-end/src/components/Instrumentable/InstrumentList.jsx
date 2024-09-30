@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { listInstruments, updateInstrument } from "../../service/InstrumentService";
+import { listInstruments, updateInstrument, listBrands, listCategories, } from "../../service/InstrumentService";
 
 const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
+  // const [instrumentList, setInstruments] = useState([]);
 
-  const [selectedIns, setSelectedIns] = useState(null);
-  const [editName, setEditName] = useState("");
-  const [editPrice, setEditPrice] = useState("");
-  const [editQuantity, setEditQuantity] = useState("");
-  const [editColor, setEditColor] = useState("");
-  const [editImage, setEditImage] = useState(null);
-  const [editDes, setEditDes] = useState("");
-  const [editBrand, setEditBrand] = useState("");
+  // useEffect(() => {
+  //   listInstruments()
+  //     .then((response) => {
+  //       setInstruments(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching instruments", error);
+  //       setInstruments([]);
+  //     });
+  // }, []);
 
   function uploadInstrument(id) {
     navigator(`/edit-instrument/${id}`);
@@ -25,12 +28,37 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     updateInstrument({ ...insToUpdate, status: updatedStatus }, id)
       .then(() => {
         onUpdate();
+        const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
+        modal.hide();
       })
       .catch((error) => {
         console.error(error);
       });
+  };
+
+
+  const getAllBrand = () => {
+    listBrands().then((response) => {
+      console.log(response.data);
+      setBrands(response.data);
+    }).catch((error) => {
+      console.error("Error fetching brands", error);
+    })
   }
 
+  const getAllCategory = () => {
+    listCategories().then((response) => {
+      console.log(response.data);
+      setCategories(response.data);
+    }).catch((error) => {
+      console.error("Error fetching categories", error);
+    })
+  }
+  useEffect(() => {
+
+    getAllBrand();
+    getAllCategory();
+  }, []);
   return (
     <table className="table table-striped table-hover">
       <thead className="text-center">
@@ -54,18 +82,18 @@ const InstrumentList = ({ instruments, onUpdate }) => {
               <td>{index + 1}</td>
               <td>
                 <img
-                  src={ins.image ? `data:image/${ins.image.split('.').pop()};base64,${ins.image}` : 'default-image-url'}
+                  src={`data:image/${ins.insImage.split('.').pop()};base64,${ins.insImage}`}
                   alt={ins.name}
                   style={{ width: '50px' }}
                 />
               </td>
               <td>{ins.name}</td>
-              <td>{ins.categoryIns ? ins.categoryIns.name : 'No category'}</td>
-              <td>{ins.brand ? ins.brand.name : 'No brand'}</td>
-              <td>{ins.costPrice}</td>
+              <td>{ins.category.name}</td>
+              <td>{ins.brand.name}</td>
+              <td>{ins.price}</td>
               <td>{ins.color}</td>
               <td>{ins.quantity}</td>
-              <td>{ins.status ? 'Available' : 'Unavailable'}</td>
+              <td>{ins.status ? 'Unavailable' : 'Available'}</td>
               <td>
                 <button className='btn btn-warning' onClick={() => uploadInstrument(ins.id)}>
                   Edit
@@ -87,7 +115,6 @@ const InstrumentList = ({ instruments, onUpdate }) => {
           </tr>
         )}
       </tbody>
-
     </table>
   );
 };
