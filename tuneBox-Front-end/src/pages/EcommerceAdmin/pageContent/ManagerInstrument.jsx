@@ -119,14 +119,14 @@ const ManagerInstrument = () => {
   }
 
   const handleSave = async () => {
-
     if (!validateForm()) {
       return;
     }
 
     const newInstrument = new FormData();
     newInstrument.append('name', newInsName);
-    newInstrument.append('price', newInsPrice);
+    newInstrument.append('costPrice', parseFloat(newInsPrice));
+
     newInstrument.append('quantity', newInsQuantity);
     newInstrument.append('color', newInsColor);
     newInstrument.append('image', newInsImage);
@@ -135,11 +135,17 @@ const ManagerInstrument = () => {
     newInstrument.append('brandId', newInsBrand);
 
     createInstrument(newInstrument).then((response) => {
-      console.log("Instrument created:", response.data)
+      console.log("Instrument created:", response.data);
 
-
-    })
+      document.getElementById("closeModal").click();
+      setMessage("Instrument created successfully!");
+      getAllInstrument();
+    }).catch((error) => {
+      setApiError("Error creating instrument. Please try again.");
+      console.error("Error creating instrument", error);
+    });
   };
+
 
   useEffect(() => {
     if (message) {
@@ -402,7 +408,7 @@ const ManagerInstrument = () => {
 
 
         {/* Table */}
-        <InstrumentTable />
+        <InstrumentTable instruments={instruments} onUpdate={getAllInstrument} />
 
 
 
