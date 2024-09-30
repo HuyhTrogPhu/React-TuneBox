@@ -68,27 +68,66 @@ const BrandList = ({ brands, onUpdate }) => {
 
 
   const handleUpdate = () => {
-    if (selectedBrand && validateForm()) {
-      const updatedBrand = {
-        name: editName,
-        description: editDescription,
-        brandImage: editImage || currentImage, // Sử dụng hình ảnh mới hoặc hiện tại
-        status: selectedBrand.status // Giữ nguyên trạng thái
-      };
-
-      updateBrand(updatedBrand, selectedBrand.id)
+    if (!selectedInstrument || !selectedInstrument.id) {
+      console.error("Selected instrument or ID is invalid");
+      return;
+    }
+  
+    const convertToBase64 = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          console.log("Converted to base64:", reader.result);
+          resolve(reader.result);
+        };
+        reader.onerror = () => {
+          console.error("Error converting file to base64");
+          reject(new Error("Failed to convert file"));
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+  
+    const updatedInstrument = {
+      name: newInsName,
+      costPrice: parseFloat(newInsPrice),
+      color: newInsColor,
+      quantity: parseInt(newInsQuantity, 10),
+      categoryId: newInsCategory,
+      brandId: newInsBrand,
+      description: newInsDes,
+      image: selectedInstrument.image, // Sử dụng hình ảnh cũ nếu không có hình ảnh mới
+    };
+  
+    if (image instanceof File) {
+      // Nếu có hình ảnh mới, chuyển đổi sang base64
+      convertToBase64(image)
+        .then((base64Image) => {
+          updatedInstrument.image = base64Image; // Cập nhật hình ảnh mới
+          return updateInstrument(selectedInstrument.id, updatedInstrument);
+        })
         .then(() => {
-          onUpdate(); // Cập nhật danh sách thương hiệu
-          // Đóng modal
-          const modal = bootstrap.Modal.getInstance(document.getElementById('editBrandsModal'));
+          onUpdate(); // Gọi hàm để cập nhật danh sách nhạc cụ
+          const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
           modal.hide();
-          setSuccessMessage("Brand update successfully!");
         })
         .catch((error) => {
-          console.error(error);
+          console.error("Error updating instrument with new image:", error);
+        });
+    } else {
+      // Nếu không có hình ảnh mới, chỉ gửi thông tin nhạc cụ cũ
+      updateInstrument(selectedInstrument.id, updatedInstrument)
+        .then(() => {
+          onUpdate(); // Gọi hàm để cập nhật danh sách nhạc cụ
+          const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
+          modal.hide();
+        })
+        .catch((error) => {
+          console.error("Error updating instrument without new image:", error);
         });
     }
   };
+  
   // Hàm để chuyển đổi trạng thái thương hiệu
   const handleToggleStatus = (id) => {
     const brandToUpdate = brands.find((bra) => bra.id === id);

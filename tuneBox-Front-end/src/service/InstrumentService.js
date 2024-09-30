@@ -13,17 +13,18 @@ export const getInstrument = (instrumentId) => axios.get(`${REST_API_BASE_URL}/$
 export const updateInstrument = (instrumentId, instrument) => {
     const formData = new FormData();
 
-    // Kiểm tra và chuyển đổi các giá trị về kiểu phù hợp
-    formData.append('name', instrument.name || '');
-    formData.append('costPrice', instrument.costPrice ? parseFloat(instrument.costPrice) : 0.0);
-    formData.append('color', instrument.color || '');
-    formData.append('quantity', instrument.quantity ? parseInt(instrument.quantity, 10) : 0);
-    formData.append('categoryId', instrument.categoryId ? parseInt(instrument.categoryId, 10) : 0);
-    formData.append('brandId', instrument.brandId ? parseInt(instrument.brandId, 10) : 0); // Đảm bảo brandId là số
-    formData.append('description', instrument.description || '');
+    formData.append('name', instrument.name);
+    formData.append('costPrice', instrument.costPrice);
+    formData.append('color', instrument.color);
+    formData.append('quantity', instrument.quantity);
+    formData.append('categoryId', instrument.categoryId);
+    formData.append('brandId', instrument.brandId);
+    formData.append('description', instrument.description);
     
-    if (instrument.image) {
-        formData.append('image', instrument.image); // Hình ảnh
+    if (instrument.image instanceof File) {
+        formData.append('image', instrument.image); // Chắc chắn bạn đang sử dụng tên đúng cho tệp hình ảnh
+    } else {
+        formData.append('image', instrument.image); // Sử dụng giá trị cũ nếu không có hình ảnh mới
     }
 
     return axios.put(`${REST_API_BASE_URL}/${instrumentId}`, formData, {

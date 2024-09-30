@@ -48,11 +48,11 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       return;
     }
 
-    // Hàm để chuyển đổi tệp hình ảnh sang base64
     const convertToBase64 = (file) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
+          console.log("Converted to base64:", reader.result); 
           resolve(reader.result);
         };
         reader.onerror = reject;
@@ -60,7 +60,6 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       });
     };
 
-    // Nếu có tệp hình ảnh mới được chọn, chuyển đổi nó thành base64
     if (image instanceof File) {
       convertToBase64(image)
         .then((base64Image) => {
@@ -72,8 +71,10 @@ const InstrumentList = ({ instruments, onUpdate }) => {
             categoryId: newInsCategory,
             brandId: newInsBrand,
             description: newInsDes,
-            image: base64Image, // Gán hình ảnh dưới dạng base64
+            image: base64Image,
           };
+
+          console.log("Updated instrument data with new image:", updatedInstrument);
 
           return updateInstrument(selectedInstrument.id, updatedInstrument);
         })
@@ -95,8 +96,10 @@ const InstrumentList = ({ instruments, onUpdate }) => {
         categoryId: newInsCategory,
         brandId: newInsBrand,
         description: newInsDes,
-        image: image, // Giữ nguyên hình ảnh cũ
+        image: selectedInstrument.image, // Sử dụng hình ảnh cũ từ selectedInstrument
       };
+
+      console.log("Updated instrument data without new image:", updatedInstrument);
 
       updateInstrument(selectedInstrument.id, updatedInstrument)
         .then(() => {
@@ -109,6 +112,8 @@ const InstrumentList = ({ instruments, onUpdate }) => {
         });
     }
   };
+
+
 
 
 
@@ -268,17 +273,28 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                       <input
                         type="file"
                         className="form-control"
-
-                        onChange={(e) => setImage(e.target.files[0])}
+                        onChange={(e) => {
+                          setImage(e.target.files[0]);
+                          console.log("Selected image:", e.target.files[0]);
+                        }}
                       />
                       {/* Hiển thị hình ảnh hiện tại nếu có */}
-                      {image && typeof image === "string" && (
+                      {image && typeof image === "object" && image instanceof File ? (
                         <img
-                          src={`data:image/${image.split('.').pop()};base64,${image}`}
+                          src={URL.createObjectURL(image)}
                           alt="Current Instrument"
                           style={{ width: '100px', marginTop: '10px' }}
                         />
+                      ) : (
+                        image && typeof image === "string" && (
+                          <img
+                            src={`data:image/${image.split('.').pop()};base64,${image}`}
+                            alt="Current Instrument"
+                            style={{ width: '100px', marginTop: '10px' }}
+                          />
+                        )
                       )}
+
 
                     </div>
                   </div>

@@ -17,6 +17,7 @@ import DetailProduct from "./components/Sellwell/DetailProduct";
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from './pages/EcommerceAdmin'
+import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -49,6 +50,7 @@ function App() {
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
+            <Route path="/BrandPage" element={<BrandPage/>}/>
           </Route>
 
           {/* Các route không có Header */}
