@@ -13,11 +13,7 @@ import Login from "./pages/GioiThieu/Login";
 import GioiThieu from "./pages/GioiThieu/GioiThieu";
 import Cart from "./pages/Ecommerce/Cart/Cart";
 import CartDetail from "./pages/Ecommerce/Cart/Cart_detail";
-<<<<<<< HEAD
-import DetailProduct from "./components/Sellwell/DetailProduct";
-=======
 import DetailProduct from "./pages/Ecommerce/ShopDetail/DetailProduct";
->>>>>>> 846bba1 (test)
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from './pages/EcommerceAdmin'
@@ -49,19 +45,11 @@ function App() {
           <Route element={<LayoutWithHeader />}>
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
-<<<<<<< HEAD
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser/*" element={<ProfileUser />} />
-            <Route path="/profileSetting" element={<ProfileSetting />} />
-            <Route path="/CartDetail" element={<CartDetail />} />
-            <Route path="cart" element={<Cart />} />
-=======
             <Route path="/Shop" element={<Shop />} />
             <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
->>>>>>> 846bba1 (test)
             <Route path="/DetailProduct" element={<DetailProduct />} />
             <Route path="/BrandPage" element={<BrandPage />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />

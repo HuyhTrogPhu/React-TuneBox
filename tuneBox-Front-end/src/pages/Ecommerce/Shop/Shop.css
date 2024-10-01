@@ -1,0 +1,116 @@
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+  }
+
+  .gioithieu {
+    background-color: black; /* Nền đen */
+    color: white; /* Chữ trắng */
+  }
+
+  .accordion{
+   margin-top: 10px;
+  }
+  .accordion-button{
+    background-color: #d6d6d4;
+  }
+  .accordion-button:focus{
+    box-shadow: none;
+    border: 1px soid rgba(0, 0, 0, 0.1);
+  }
+
+  .accordion-button:not(.collapsed) {
+    background: rgba(0, 0, 0, 0.1);
+    color: black;
+    box-shadow: none;
+  }
+
+  .accordion-item{
+    border: none;
+  }
+  .dropdown{
+    text-align: right; /* Căn toàn bộ khung dropdown về bên phải */
+  }
+
+  /* Đảm bảo rằng card chiếm toàn bộ chiều rộng của cột */
+  .card {
+width: 100%;
+border: none;
+  }
+
+  .dropdown-toggle{
+    background-color: white;
+    color: black;
+  }
+
+  .dropdown-toggle:focus, .dropdown-toggle:focus {
+    box-shadow: none; /* Loại bỏ hiệu ứng đổ bóng khi focus */
+    background-color: white; /* Đảm bảo màu nền không thay đổi khi focus */
+    color: black; /* Đảm bảo màu chữ không thay đổi khi focus */
+  }
+
+    /* thông tin */
+    .Thongtin{
+        background-color: #81A4B3;
+      }
+
+      .img-thongtin{
+        width: 30px; /* Đặt chiều rộng cho hình ảnh */
+            height: 30px; /* Đặt chiều cao cho hình ảnh */
+            object-fit: contain; /* Giữ tỷ lệ khung hình và không cắt hình ảnh */
+            display: block;
+            margin: 0 auto; /* Căn giữa hình ảnh trong item */
+      }
+
+      .Thongtin p {
+            margin-top: 2px; /* Khoảng cách âm phía trên */
+            margin-bottom: 5px; /* Khoảng cách âm phía dưới */
+            font-weight: bold; 
+        }
+
+        
+a{
+color: #B4AC6C;
+}
+
+
+.card:hover{
+box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+transform: translate(0px, -10px);
+}
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown-toggle {
+  background-color: #6c757d; /* Màu nền nút */
+  color: white; /* Màu chữ */
+}
+
+.custom-dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.custom-dropdown-menu .custom-dropdown-item {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.custom-dropdown-menu .custom-dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+/* Hiển thị dropdown khi nhấn vào nút */
+.custom-dropdown:hover .custom-dropdown-menu {
+  display: block;
+}
+

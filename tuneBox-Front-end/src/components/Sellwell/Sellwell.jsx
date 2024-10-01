@@ -8,14 +8,10 @@ const Sellwell = () => {
         <div>
             <div className=' mt-5'>
                 <div className='sellwell-title'>
-<<<<<<< HEAD
-                    <h4>Sell well</h4>
-=======
                     <div className='d-flex justify-content-between align-items-center mb-4'>
                         <h4 className='category-title'>Sell well </h4>
                         <Link to={'/Shop'} className='view-all'>View all</Link>
                     </div>
->>>>>>> 846bba1 (test)
                 </div>
                 <hr className='hr-100' />
 
