@@ -57,7 +57,7 @@ const ProfileUser = () => {
             <div className="col text-start">
               <button
                 type="button"
-                style={{ width: 200 }}
+                style={{ width: 180 }}
                 className="btn btn-dark"
               >
                 <img alt="leverup"
