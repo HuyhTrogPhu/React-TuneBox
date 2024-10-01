@@ -80,56 +80,46 @@ const Activity = () => {
   // Hàm để xử lý việc tạo hoặc cập nhật bài viết
   const handleSubmitPost = async () => {
     const formData = new FormData();
-  
-    // Kiểm tra xem postContent có rỗng không
-    if (postContent && postContent.trim() !== '') {
-      formData.append('content', postContent); // Thêm tham số 'content'
-    } else {
-      console.error("Content is empty. Post cannot be created.");
-      return; // Dừng lại nếu không có nội dung
+    
+    // Chỉ thêm 'content' nếu nó có giá trị
+    if (postContent) {
+        formData.append('content', postContent);
     }
-  
-    // Thêm các hình ảnh vào formData
+
+    // Thêm các tệp ảnh vào formData
     postImages.forEach((image) => {
-      formData.append('images', image);
+        formData.append('images', image); // Tên trường 'images' phải trùng với backend
     });
-  
+
     try {
-      // Kiểm tra xem có postId để cập nhật hay không
-      if (postId) {
-        const response = await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          withCredentials: true,
-        });
-        console.log('Post updated successfully:', response.data);
-      } else {
-        const response = await axios.post('http://localhost:8080/api/posts', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          withCredentials: true,
-        });
-        console.log('Post created successfully:', response.data);
-      }
-  
-      // Đóng modal và reset form sau khi post thành công
-      document.getElementById('post-modal').style.display = 'none';
-      resetForm();
-  
-      // Fetch lại các bài viết mới
-      fetchPosts();
+        if (postId) { // Nếu đang cập nhật bài viết
+            const response = await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true,
+            });
+            console.log('Post updated successfully:', response.data);
+        } else { // Nếu đang tạo bài viết mới
+            const response = await axios.post('http://localhost:8080/api/posts', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true,
+            });
+            console.log('Post created successfully:', response.data);
+        }
+
+        // Đóng modal và reset form sau khi post thành công
+        document.getElementById('post-modal').style.display = 'none';
+        resetForm();
+
+        // Fetch lại các bài viết mới
+        fetchPosts();
     } catch (error) {
-      console.error('Error creating/updating post:', error.response?.data || error.message);
+        console.error('Error creating/updating post:', error.response?.data || error.message);
     }
-  };
-  
-  
-  
-
-
-
+};
   // Hàm xóa bài viết
   const handleDeletePost = async (postId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this post?'); // Xác nhận xóa
