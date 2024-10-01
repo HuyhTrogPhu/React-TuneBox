@@ -80,7 +80,7 @@ const ManagerCategories = () => {
           if (backdrop) {
             backdrop.remove();
           }
-        }, 150); // Thay đổi giá trị này nếu cần
+        }, 50); // Thay đổi giá trị này nếu cần
       })
       .catch((error) => {
         console.error("Error creating category:", error);
@@ -89,7 +89,7 @@ const ManagerCategories = () => {
 
   useEffect(() => {
     if (successMessage) {
-      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+      setCountdown(3); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
 
       const intervalId = setInterval(() => {
         setCountdown(prevCountdown => prevCountdown - 1);

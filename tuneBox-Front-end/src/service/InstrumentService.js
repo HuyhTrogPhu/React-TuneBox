@@ -25,7 +25,7 @@ export const updateInstrument = (instrumentId, instrument) => {
     if (instrument.image instanceof File) {
         formData.append('image', instrument.image); // Hình ảnh mới
     } else {
-        formData.append('image', instrument.image); // Hình ảnh cũ (base64 hoặc đường dẫn)
+        formData.append('image', instrument.image); // Hình ảnh cũ (base64)
     }
 
     return axios.put(`${REST_API_BASE_URL}/${instrumentId}`, formData, {

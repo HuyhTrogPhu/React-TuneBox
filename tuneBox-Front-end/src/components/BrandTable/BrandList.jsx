@@ -155,7 +155,7 @@ const BrandList = ({ brands, onUpdate }) => {
               </td>
               <td>{bra.name}</td>
               <td>{bra.description ? bra.description : 'No description available'}</td>
-              <td>{bra.status ? 'Unavailable' : 'Available'}</td>
+              <td>{bra.status ? 'Available' : 'Unavailable'}</td>
               <td>
                 <button className='btn btn-warning' onClick={() => handleEdit(bra)}>
                   Edit

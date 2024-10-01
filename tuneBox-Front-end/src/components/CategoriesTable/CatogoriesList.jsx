@@ -140,10 +140,10 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
               </td>
               <td>
                 <button
-                  className={`btn  ${cate.status ? 'btn-danger-custom' : 'btn-success'}`}
+                  className={`btn  ${cate.status ? 'btn-danger' : 'btn-success'}`}
                   onClick={() => removeCateIns(cate.id)}
                 >
-                  {cate.status ? 'Mark as Available' : 'Mark as Unavailable'}
+                  {cate.status ? 'Mark as Unavailable' : 'Mark as Available'}
                 </button>
               </td>
             </tr>

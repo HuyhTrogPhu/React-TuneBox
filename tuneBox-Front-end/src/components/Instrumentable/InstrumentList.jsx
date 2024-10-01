@@ -6,6 +6,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
   const [selectedInstrument, setSelectedInstrument] = useState('');
   const [image, setImage] = useState(null);
+  const [imageList, setImageList] = useState([]);
   const [newInsName, setNewInsName] = useState('');
   const [newInsPrice, setNewInsPrice] = useState('');
   const [newInsColor, setNewInsColor] = useState('');
@@ -28,7 +29,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const uploadInstrument = (id) => {
     if (!id) {
       console.error("Instrument ID is undefined or null");
-      return;  // Ngăn việc tiếp tục nếu ID không hợp lệ
+      return;
     }
 
     const insToEdit = instruments.find((ins) => ins.id === id);
@@ -43,6 +44,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     setNewInsColor(insToEdit.color);
     setNewInsQuantity(insToEdit.quantity);
     setImage(insToEdit.image); // Giữ hình ảnh hiện tại
+    setImageList(insToEdit.image);
     setCurrentImage(insToEdit.image);
     setNewInsCategory(insToEdit.categoryIns ? insToEdit.categoryIns.id : '');
     setNewInsBrand(insToEdit.brand ? insToEdit.brand.id : '');
@@ -131,11 +133,11 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     if (!newInsBrand) {
       errors.brand = "Brand cannot be empty.";
     }
-  
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0; // Return true if no errors
   };
-  
+
 
   const handleUpdate = async () => {
     if (!selectedInstrument || !selectedInstrument.id) {
@@ -143,7 +145,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       return;
     }
     if (!validateInputs()) {
-      return; // Nếu không hợp lệ thì không thực hiện cập nhật
+      return;
     }
 
     const updatedInstrument = {
@@ -169,6 +171,10 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       console.error("Error updating instrument:", error);
     }
   };
+
+  const handleImageSelect = (selectedImg) => {
+    setImage(selectedImg);
+  }
 
 
 
@@ -228,7 +234,9 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    src={ins.image ? `data:image/${ins.image.split('.').pop()};base64,${ins.image}` : 'default-image-url'}
+                    src={Array.isArray(ins.image) && ins.image.length > 0
+                      ? `data:image/${ins.image[0].split('.').pop()};base64,${ins.image[0]}`
+                      : 'default-image-url'}
                     alt={ins.name}
                     style={{ width: '50px' }}
                   />
@@ -262,7 +270,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
           )}
         </tbody>
       </table>
-
+      {/* Modal edit */}
       <div
         className="modal fade"
         id="editIns"
@@ -290,7 +298,6 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                   <div className="col-6">
                     <div className="mt-3">
                       <label className="form-label">Instrument name:</label>
-
                       <input
                         className="form-control"
                         type="text"
@@ -335,38 +342,6 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         onChange={(e) => setNewInsQuantity(e.target.value)}
                       />
                       {validationErrors.quantity && <div className="text-danger">{validationErrors.quantity}</div>}
-                    </div>
-
-                    <div className="mt-3">
-                      <label className="form-label">Instrument Image</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        onChange={(e) => {
-                          const selectedFile = e.target.files[0];
-                          setImage(selectedFile);
-                          console.log("Selected image:", selectedFile);
-                        }}
-
-                      />
-                      {/* Hiển thị hình ảnh hiện tại nếu có */}
-                      {image && typeof image === "object" && image instanceof File ? (
-                        <img
-                          src={URL.createObjectURL(image)}
-                          alt="Current Instrument"
-                          style={{ width: '100px', marginTop: '10px' }}
-                        />
-                      ) : (
-                        image && typeof image === "string" && (
-                          <img
-                            src={`data:image/${image.split('.').pop()};base64,${image}`}
-                            alt="Current Instrument"
-                            style={{ width: '100px', marginTop: '10px' }}
-                          />
-                        )
-                      )}
-
-
                     </div>
                   </div>
 
@@ -423,7 +398,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                     </div>
 
                     <div className="mb=3">
-                      <label className="form-label">Description</label>
+                      <label className="form-label">Description:</label>
                       <textarea
                         cols="30"
                         rows="10"
@@ -441,6 +416,51 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                       />
                       <span>{newInsStatus ? 'Unavailable' : 'Available'}</span>
                     </div>
+                  </div>
+
+                  {/* Image */}
+                  <div className="mt-3">
+                    <label className="form-label">Instrument Images:</label>
+                    <div className="row">
+                      {imageList.map((img, index) => (
+                        <div key={index} className="col-3">
+                          <img
+                            className="border border-black"
+                            src={`data:image/${img.split('.').pop()};base64,${img}`}
+                            alt={`Instrument Image ${index + 1}`}
+                            style={{ width: '100%', cursor: 'pointer' }}
+                            onClick={() => handleImageSelect(img)} // Chọn hình ảnh
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Hiển thị hình ảnh hiện tại nếu có */}
+                    {image && typeof image === "object" && image instanceof File ? (
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt="Current Instrument"
+                        style={{ width: '100%', marginTop: '10px' }}
+                        onClick={() => document.getElementById('instrumentImageInput').click()} // Mở hộp thoại chọn file
+                      />
+                    ) : (
+                      image && typeof image === "string" && (
+                        <img
+                          src={`data:image/${image.split('.').pop()};base64,${image}`}
+                          alt="Current Instrument"
+                          style={{ width: '100%', marginTop: '10px' }}
+                          onClick={() => document.getElementById('instrumentImageInput').click()} // Mở hộp thoại chọn file
+                        />
+                      )
+                    )}
+
+                    {/* Input file hidden để chọn ảnh mới */}
+                    <input
+                      type="file"
+                      id="instrumentImageInput"
+                      style={{ display: 'none' }}
+                      onChange={(e) => handleImageSelect(e.target.files[0])}
+                    />
                   </div>
 
                   <div className="modal-footer">
@@ -461,6 +481,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
