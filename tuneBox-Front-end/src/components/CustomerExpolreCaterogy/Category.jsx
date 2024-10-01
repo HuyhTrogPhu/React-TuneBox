@@ -12,18 +12,31 @@ import { Link } from 'react-router-dom';
 const Category = () => {
 
   const settings = {
+<<<<<<< HEAD
     speed: 500, 
     slidesToShow: 6, 
     slidesToScroll: 1, 
+=======
+    speed: 500,
+    slidesToShow: 6,
+    slidesToScroll: 1,
+>>>>>>> 846bba1 (test)
   };
 
   return (
     <div>
       <div className="cotainer slider mt-5">
+<<<<<<< HEAD
       <div className='d-flex justify-content-between align-items-center mb-4'>
                 <h4 className='category-title'>Category </h4>
                 <Link to={'/CategoryPage'} className='view-all'>View all</Link>
             </div>
+=======
+        <div className='d-flex justify-content-between align-items-center mb-4'>
+          <h4 className='category-title'>Category </h4>
+          <Link to={'/CategoryPage'} className='view-all'>View all</Link>
+        </div>
+>>>>>>> 846bba1 (test)
         <hr className='hr-100' />
         <div className="row text-center">
           <div className="col-12">
