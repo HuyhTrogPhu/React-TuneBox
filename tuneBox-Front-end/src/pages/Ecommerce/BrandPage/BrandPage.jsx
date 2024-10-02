@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './BrandPage.css';
 import Footer2 from '../../../components/Footer/Footer2'
+import { listBrands } from '../../../service/BrandServiceCus';
 
-import { listBrands } from '../../../service/BrandsService';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -101,10 +101,7 @@ const BrandPage = () => {
             </div>
           )}
 
-        {/* Nút xem thêm */}
-        {!showMore && (
-          <button className='brandSeeMore btn mt-5 border' onClick={() => setShowMore(true)}>See more brand</button>
-        )}
+       
       </div>
       <Footer2 />
     </div>

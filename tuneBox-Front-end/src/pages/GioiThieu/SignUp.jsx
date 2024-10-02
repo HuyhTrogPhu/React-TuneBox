@@ -5,7 +5,7 @@ import './css/style.css';
 import './css/header.css';
 import './css/profile.css';
 
-import authService from '../../service/authService.js';
+
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
 import { images } from '../../assets/images/images.js';

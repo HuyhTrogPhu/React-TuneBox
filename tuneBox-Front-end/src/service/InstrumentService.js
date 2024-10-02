@@ -35,8 +35,6 @@ export const updateInstrument = (instrumentId, instrument) => {
     });
 };
 
-export const listInstrumentsByBrand = (brandId) => {
-    return axios.get(`${REST_API_BASE_URL}/brand/${brandId}`);
-};
+
 
 export const deleteInstrument = (instrumentId) => axios.delete(`${REST_API_BASE_URL}/${instrumentId}`);
