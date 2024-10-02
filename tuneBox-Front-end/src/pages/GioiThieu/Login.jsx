@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';  // Điều hướng sau khi đăng nhập
 import axios from 'axios';
 import './css/bootstrap.min.css';
@@ -41,6 +41,7 @@ const Login = () => {
       if (response.data.status) {
         navigate('/');
       } else {
+        console.error('Login failed:', response.data.message);
         setErrorMessage(response.data.message || 'Đăng nhập thất bại');
       }
     } catch (error) {
