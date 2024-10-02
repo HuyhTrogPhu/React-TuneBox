@@ -4,7 +4,7 @@ const REST_API_BASE_URL = 'http://localhost:8081/e-comAdmin/instrument';
 
 export const listBrands = () => axios.get(`${REST_API_BASE_URL}/brands`);
 export const listCategories = () => axios.get(`${REST_API_BASE_URL}/categories`);
-export const listInstruments = () => axios.get(`${REST_API_BASE_URL}/instruments`);
+export const listInstruments = () => axios.get(`${REST_API_BASE_URL}`);
 
 export const createInstrument = (instrument) => axios.post(REST_API_BASE_URL, instrument);
 
@@ -35,5 +35,8 @@ export const updateInstrument = (instrumentId, instrument) => {
     });
 };
 
+export const listInstrumentsByBrand = (brandId) => {
+    return axios.get(`${REST_API_BASE_URL}/brand/${brandId}`);
+};
 
 export const deleteInstrument = (instrumentId) => axios.delete(`${REST_API_BASE_URL}/${instrumentId}`);

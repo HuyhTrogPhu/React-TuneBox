@@ -19,6 +19,7 @@ import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from './pages/EcommerceAdmin'
 import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
+import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -52,6 +53,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
             <Route path="/BrandPage" element={<BrandPage />} />
+            <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
           </Route>
 

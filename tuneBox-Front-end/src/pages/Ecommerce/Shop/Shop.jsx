@@ -1,5 +1,6 @@
 import React from 'react'
 import '../../../pages/Ecommerce/Shop/Shop.css'
+import { images } from '../../../assets/images/images'
 const Shop = () => {
 
   const brands = {
@@ -7,7 +8,6 @@ const Shop = () => {
   }
 
   return (
-    <div className="container">
 
 
       <div className="content">
@@ -353,8 +353,6 @@ const Shop = () => {
           </div>
         </div>
       </div>
-    </div>
-
 
   )
 }

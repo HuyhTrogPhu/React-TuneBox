@@ -136,7 +136,7 @@ const MangerBrand = () => {
       <div className="container-fluid">
         {successMessage && (
           <div className="alert alert-success" role="alert">
-            {successMessage} This notice will be closed in <b>{countdown}s.</b>
+            {successMessage} 
           </div>
         )}
 
