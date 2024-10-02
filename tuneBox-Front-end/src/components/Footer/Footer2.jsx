@@ -4,7 +4,7 @@ import { images } from '../../assets/images/images'
 const Footer2 = () => {
   return (
     <div>
-<footer className="site-footer" id="section_7">
+<footer className="site-footer" id="section_7" style={{marginTop: 400}}>
   <div className="site-footer-top">
     <div className="container">
       <div className="row">

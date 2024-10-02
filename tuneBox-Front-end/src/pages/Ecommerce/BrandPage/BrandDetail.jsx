@@ -47,7 +47,7 @@ const BrandDetail = () => {
       const price = instrument.costPrice;
       const min = minPrice ? parseFloat(minPrice) : 0;
       const max = maxPrice ? parseFloat(maxPrice) : Infinity;
-      return price >= min && price <= max;
+      return instrument.status === false && price >= min && price <= max;
     });
   };
 
@@ -201,20 +201,29 @@ const BrandDetail = () => {
                 </div>
 
                 {/* Phân trang */}
-                <nav aria-label="Page navigation example" className="pagination-container">
-                  <ul className="pagination d-flex justify-content-center align-items-center">
-                    {Array.from({ length: totalPages }, (_, index) => (
-                      <li className="page-item" key={index + 1}>
-                        <button
-                          className={`page-link ${currentPage === index + 1 ? 'active' : ''}`}
-                          onClick={() => handlePageChange(index + 1)}
-                        >
-                          {index + 1}
+                <div className="phantrangdetail">
+                  <nav aria-label="Page navigation example">
+                    <ul className="pagination justify-content-center text-center">
+                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button className="page-link" aria-label="Previous" onClick={() => handlePageChange(currentPage - 1)}>
+                          <span aria-hidden="true">«</span>
                         </button>
                       </li>
-                    ))}
-                  </ul>
-                </nav>
+                      {[...Array(totalPages)].map((_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                          <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                            {index + 1}
+                          </button>
+                        </li>
+                      ))}
+                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                        <button className="page-link" aria-label="Next" onClick={() => handlePageChange(currentPage + 1)}>
+                          <span aria-hidden="true">»</span>
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
               </div>
             </div>
           </div>
