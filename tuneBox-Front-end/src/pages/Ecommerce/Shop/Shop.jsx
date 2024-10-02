@@ -36,7 +36,7 @@ const Shop = () => {
       console.log("Instruments Data:", instrumentsResponse.data);
       // Truy cập vào thuộc tính data của phản hồi
       setBrands(Array.isArray(brandsResponse.data) ? brandsResponse.data : []);
-      setCategories(Array.isArray(categoriesResponse.data) ? categoriesResponse.data : []);
+      setCategories(Array.isArray(categoriesResponse.data) ? categoriesResponse.data.filter(cate => cate.status === false) : []);
       setInstruments(Array.isArray(instrumentsResponse.data) ? instrumentsResponse.data : []);
     } catch (error) {
       console.error("Error fetching data:", error);
