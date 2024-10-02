@@ -6,7 +6,9 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
   const [selectedInstrument, setSelectedInstrument] = useState('');
   const [image, setImage] = useState(null);
-  const [imageList, setImageList] = useState([]);
+
+  const [imageList, setImageList] = useState([]); // danh sách hình ảnh của instrument
+
   const [newInsName, setNewInsName] = useState('');
   const [newInsPrice, setNewInsPrice] = useState('');
   const [newInsColor, setNewInsColor] = useState('');
@@ -44,14 +46,15 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     setNewInsPrice(insToEdit.costPrice);
     setNewInsColor(insToEdit.color);
     setNewInsQuantity(insToEdit.quantity);
-    setImage(insToEdit.image); // Giữ hình ảnh hiện tại
+    // setImage(insToEdit.image); // Giữ hình ảnh hiện tại
     setImageList(insToEdit.image);
-    setCurrentImage(insToEdit.image);
+    // setCurrentImage(insToEdit.image);
     setNewInsCategory(insToEdit.categoryIns ? insToEdit.categoryIns.id : '');
     setNewInsBrand(insToEdit.brand ? insToEdit.brand.id : '');
     setInsDes(insToEdit.description);
     setNewInsStatus(insToEdit.status);
-    setSelectedImages(insToEdit.image || []);
+
+    setSelectedImages(insToEdit.image || []); // lấy danh sách ảnh mới để update 
     // Mở modal
     const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
     modal.show();
@@ -141,6 +144,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   };
 
 
+  // update instrument 
   const handleUpdate = async () => {
     if (!selectedInstrument || !selectedInstrument.id) {
       console.error("Selected instrument or ID is invalid");
@@ -159,7 +163,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       brandId: newInsBrand,
       description: newInsDes,
       status: newInsStatus,
-      image: selectedImages // Sử dụng image đã chọn
+      images: selectedImages // sách ảnh mới
     };
 
     try {
@@ -176,6 +180,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
 
 
 
+  // thay đổi ảnh cũ với ảnh mới chọn từ máy tính
   const handleImageChange = (event, imgIndex) => {
     const file = event.target.files[0];
     if (file) {
@@ -241,6 +246,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
               <tr key={ins.id} className="ps-0">
                 <td>{index + 1}</td>
                 <td>
+                  {/* hiển thị ảnh đầu tiên từ danh sách ảnh */}
                   <img
                     src={Array.isArray(ins.image) && ins.image.length > 0
                       ? `data:image/${ins.image[0].split('.').pop()};base64,${ins.image[0]}`
@@ -430,17 +436,18 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                   <div className="mt-3">
                     <label className="form-label">Instrument Images:</label>
                     <div className="row">
+
                       {imageList.map((img, index) => (
                         <div key={index} className="col-3">
+                          {/* hiển thị danh sách ảnh -> thay đổi ảnh ở đây */}
                           <img
                             className="border border-black"
                             src={typeof img === 'object' ? URL.createObjectURL(img) : `data:image/${img.split('.').pop()};base64,${img}`}
                             alt="Instrument"
-                            style={{ width: '100px', height: '100px' }}
+                            style={{ width: '100px', height: '100px', cursor: 'pointer' }} // Thêm cursor pointer để chỉ ra rằng ảnh có thể nhấp vào
+                            onClick={() => document.getElementById(`file-input-${index}`).click()} // Khi nhấp vào ảnh, kích hoạt input file
                           />
-                          <button className="btn btn-secondary mt-2" onClick={() => handleImageSelect(index)}>
-                            Change Image
-                          </button>
+                          {/* chọn ảnh mới từ máy tính */}
                           <input
                             id={`file-input-${index}`}
                             type="file"
@@ -452,9 +459,8 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                       ))}
 
                     </div>
-
-
                   </div>
+
 
                   <div className="modal-footer">
                     <button

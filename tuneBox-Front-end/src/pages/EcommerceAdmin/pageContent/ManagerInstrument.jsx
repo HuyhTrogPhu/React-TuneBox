@@ -145,6 +145,24 @@ const ManagerInstrument = () => {
     return valid;
   }
 
+  const handleFileSelect = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+
+    if (selectedFiles.length > 5) {
+      setErrors({
+        ...errors,
+        newInsImage: 'You can only select up to 5 images.',
+      });
+    } else {
+      setErrors({
+        ...errors,
+        newInsImage: '',
+      });
+      setInsImage(selectedFiles); // Lưu danh sách file nếu số lượng <= 5
+    }
+  };
+
+
   const handleSave = async () => {
     if (!validateForm()) {
       return;
@@ -158,7 +176,7 @@ const ManagerInstrument = () => {
     newInstrument.append('color', newInsColor);
 
     newInsImage.forEach((image) => {
-      newInstrument.append("image", image);
+      newInstrument.append("images", image);
     })
 
     newInstrument.append('description', newInsDes);
@@ -385,6 +403,7 @@ const ManagerInstrument = () => {
                           onChange={(e) => setInsColor(e.target.value)} />
                       </div>
                       {errors.newInsColor && <div className="alert alert-danger mt-3">{errors.newInsColor}</div>}
+                      
                       <div className="mt-3">
                         <label className="form-label">Quantity:</label>
                         <input className={`form-control`}
@@ -393,13 +412,24 @@ const ManagerInstrument = () => {
                           onChange={(e) => setInsQuantity(e.target.value)} />
                       </div>
                       {errors.newInsQuantity && <div className="alert alert-danger mt-3">{errors.newInsQuantity}</div>}
+
                       <div className="mt-3">
                         <label className="form-label">Instrument Image</label>
-                        <input type="file" className={`form-control `}
+                        <input
+                          type="file"
+                          className="form-control"
                           multiple
-                          onChange={(e) => setInsImage([...e.target.files])} />
+                          onChange={handleFileSelect}
+                        />
+                        {newInsImage.length > 0 && (
+                          <div className="mt-2">
+                            {newInsImage.length} file(s) selected
+                          </div>
+                        )}
+                        {errors.newInsImage && (
+                          <div className="alert alert-danger mt-3">{errors.newInsImage}</div>
+                        )}
                       </div>
-                      {errors.newInsImage && <div className="alert alert-danger mt-3">{errors.newInsImage}</div>}
                     </div>
 
                     <div className="col-6">
