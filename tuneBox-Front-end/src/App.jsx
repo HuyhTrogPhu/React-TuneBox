@@ -17,6 +17,11 @@ import DetailProduct from "./components/Sellwell/DetailProduct";
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from './pages/EcommerceAdmin'
+// import ResetPassword from "./pages/GioiThieu/ResetPassword";
+// import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+import ForgotPassword2 from "./pages/GioiThieu/ForgotPassword2";
+import ResetPassword2 from "./pages/GioiThieu/ResetPassword2";
+
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -56,6 +61,11 @@ function App() {
             <Route path="/gioithieu" element={<GioiThieu />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
+            {/* <Route path="reset-password" element={<ResetPassword />} /> */}
+            <Route path="reset-password2" element={<ResetPassword2 />} />
+            {/* <Route path="forgot-password" element={<ForgotPassword />} /> */}
+            <Route path="forgot-password2" element={<ForgotPassword2 />} />                    
+                    
             <Route path="/createusername" element={<CreateUsername />} />
             <Route path="/talent" element={<SoThich />} />
             <Route path="/artist" element={<NgheSiYeuThich />} />
