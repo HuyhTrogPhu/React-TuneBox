@@ -19,6 +19,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const [validationErrors, setValidationErrors] = useState({});
   const [newInsStatus, setNewInsStatus] = useState(false);
   const [currentImage, setCurrentImage] = useState(null); // Thêm biến trạng thái cho hình ảnh hiện tại
+  const [selectedImages, setSelectedImages] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
 
@@ -50,6 +51,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     setNewInsBrand(insToEdit.brand ? insToEdit.brand.id : '');
     setInsDes(insToEdit.description);
     setNewInsStatus(insToEdit.status);
+    setSelectedImages(insToEdit.image || []);
     // Mở modal
     const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
     modal.show();
@@ -157,7 +159,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       brandId: newInsBrand,
       description: newInsDes,
       status: newInsStatus,
-      image: image // Sử dụng image đã chọn
+      image: selectedImages // Sử dụng image đã chọn
     };
 
     try {
@@ -172,10 +174,16 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     }
   };
 
-  const handleImageSelect = (selectedImg) => {
-    setImage(selectedImg);
-  }
 
+
+  const handleImageChange = (event, imgIndex) => {
+    const file = event.target.files[0];
+    if (file) {
+      const newImageList = [...imageList];
+      newImageList[imgIndex] = file; // Update the selected image
+      setImageList(newImageList);
+    }
+  };
 
 
 
@@ -247,7 +255,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 <td>{ins.costPrice}</td>
                 <td>{ins.color}</td>
                 <td>{ins.quantity}</td>
-                <td>{ins.status ? 'Unavailable' : 'Available'}</td>
+                <td>{ins.status ? 'Available' : 'Unavailable'}</td>
                 <td>
                   <button className='btn btn-warning' onClick={() => uploadInstrument(ins.id)}>
                     Edit
@@ -414,7 +422,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         checked={newInsStatus}
                         onChange={(e) => setNewInsStatus(e.target.checked)}
                       />
-                      <span>{newInsStatus ? 'Unavailable' : 'Available'}</span>
+                      <span>{newInsStatus ? 'Available' : 'Unavailable'}</span>
                     </div>
                   </div>
 
@@ -426,41 +434,26 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                         <div key={index} className="col-3">
                           <img
                             className="border border-black"
-                            src={`data:image/${img.split('.').pop()};base64,${img}`}
-                            alt={`Instrument Image ${index + 1}`}
-                            style={{ width: '100%', cursor: 'pointer' }}
-                            onClick={() => handleImageSelect(img)} // Chọn hình ảnh
+                            src={typeof img === 'object' ? URL.createObjectURL(img) : `data:image/${img.split('.').pop()};base64,${img}`}
+                            alt="Instrument"
+                            style={{ width: '100px', height: '100px' }}
+                          />
+                          <button className="btn btn-secondary mt-2" onClick={() => handleImageSelect(index)}>
+                            Change Image
+                          </button>
+                          <input
+                            id={`file-input-${index}`}
+                            type="file"
+                            hidden
+                            style={{ display: 'none' }}
+                            onChange={(event) => handleImageChange(event, index)}
                           />
                         </div>
                       ))}
+
                     </div>
 
-                    {/* Hiển thị hình ảnh hiện tại nếu có */}
-                    {image && typeof image === "object" && image instanceof File ? (
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt="Current Instrument"
-                        style={{ width: '100%', marginTop: '10px' }}
-                        onClick={() => document.getElementById('instrumentImageInput').click()} // Mở hộp thoại chọn file
-                      />
-                    ) : (
-                      image && typeof image === "string" && (
-                        <img
-                          src={`data:image/${image.split('.').pop()};base64,${image}`}
-                          alt="Current Instrument"
-                          style={{ width: '100%', marginTop: '10px' }}
-                          onClick={() => document.getElementById('instrumentImageInput').click()} // Mở hộp thoại chọn file
-                        />
-                      )
-                    )}
 
-                    {/* Input file hidden để chọn ảnh mới */}
-                    <input
-                      type="file"
-                      id="instrumentImageInput"
-                      style={{ display: 'none' }}
-                      onChange={(e) => handleImageSelect(e.target.files[0])}
-                    />
                   </div>
 
                   <div className="modal-footer">
