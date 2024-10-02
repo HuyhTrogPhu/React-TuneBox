@@ -5,7 +5,7 @@ const BrandList = () => {
     <div>
       
       <table className="table table-striped table-hover">
-          <thead>
+          <thead className='text-center'>
             <tr >
               <th scope="col">#</th>
               <th scope="col">Brands Name</th>
