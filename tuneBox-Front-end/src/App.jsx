@@ -17,6 +17,7 @@ import DetailProduct from "./components/Sellwell/DetailProduct";
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from './pages/EcommerceAdmin'
+import PostAudio from "./pages/SocialMedia/Profile/Profile_nav/PostAudio";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 // Layout có Header
@@ -50,6 +51,7 @@ function App() {
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="cart" element={<Cart />} />
+            <Route path="postAudio" element={<PostAudio />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
           </Route>
 

@@ -155,7 +155,7 @@ const Navbar = () => {
             marginRight: "10px",
           }}
           type="button"
-        >
+        > <Link to={'/PostAudio'}>
           {" "}
           <img
           alt="icon-plus"
@@ -168,6 +168,7 @@ const Navbar = () => {
             width="20px"
           />{" "}
           <b>Create</b>{" "}
+          </Link>
         </button>
       </div>
       <hr />
