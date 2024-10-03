@@ -1,35 +1,53 @@
-import React from "react";
+import React, { useState, useEffect } from "react"; // Thêm useState và useEffect vào đây
+import { useNavigate } from "react-router-dom";
+import { listInstruments, updateInstrument } from "../../service/InstrumentService";
 
-const BrandList = () => {
+const InstrumentList = ({ instruments, onUpdate }) => {
+  const navigator = useNavigate();
+  const [instrumentList, setInstruments] = useState([]);
+
+  useEffect(() => {
+    listInstruments()
+      .then((response) => {
+        setInstruments(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching instruments", error);
+        setInstruments([]);
+      });
+  }, []);
+
+  function uploadInstrument(id) {
+    navigator(`/edit-instrument/${id}`);
+  }
+
+  function removeInstrument(id) {
+    const insToUpdate = instruments.find((ins) => ins.id === id);
+    const updatedStatus = !insToUpdate.status;
+
+    updateInstrument({ ...insToUpdate, status: updatedStatus }, id)
+      .then(() => {
+        onUpdate();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   return (
     <table className="table table-striped table-hover">
-          <thead className="text-center">
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Categories</th>
-              <th scope="col">Price</th>
-              <th scope="col">Color</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">1</th>
-              <td scope="col">Guitar1</td>
-              <td scope="col">Guitar</td>
-              <td scope="col">999999999</td>
-              <td scope="col">Red rose</td>
-              <td scope="col">200</td>
-              <td scope="col">
-                <button className="btn btn-warning">Edit</button>
-                <button className="btn btn-success">Avaiable</button>
+
               </td>
             </tr>
-          </tbody>
-        </table>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="10" className="text-center">No instruments available.</td>
+          </tr>
+        )}
+      </tbody>
+    </table>
   );
 };
 
-export default BrandList;
+export default InstrumentList;
