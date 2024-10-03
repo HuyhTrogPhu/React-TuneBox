@@ -1,21 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
 import Playlists from "./Profile_nav/Playlists";
-import "./css/profile.css"
-import "./css/post.css"
-import "./css/button.css"
-import "./css/comment.css"
-import "./css/modal-create-post.css"
+import "./css/profile.css";
+import "./css/post.css";
+import "./css/button.css";
+import "./css/comment.css";
+import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
-
-
+import { fetchDataUser } from "./js/ProfileJS";
 
 const ProfileUser = () => {
+  const value = Cookies.get("UserID");
+  console.log(value);
+  const [userData, setUserData] = useState([]);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  useEffect(() => {
+    const fetchDataAndRender = async () => {
+      const response = await fetchDataUser(value);
+      console.log("Data fetched from API:", response);
+      if (response && response.data) {
+        setUserData(response.data);
+        console.log(userData);
+        setFollowerCount(userData.followers.length);
+        setFollowingCount(userData.following.length);
+      }
+    };
 
-
+    fetchDataAndRender();
+  }, []);
 
   return (
     <div className="container">
@@ -36,9 +53,9 @@ const ProfileUser = () => {
               alt="avatar"
             />
             <div className="fs-4 text-small mt-3">
-              <b>Phạm Xuân Trường</b>
+              <b>{userData.userNickname}</b>
             </div>
-            <div className="">@phamxuantruong</div>
+            <div className="">{userData.userName}</div>
           </div>
           {/* 2 nút dưới avatar */}
           <div className="row mt-4">
@@ -64,8 +81,12 @@ const ProfileUser = () => {
             <div className="col text-end">
               <Link to={"/ProfileSetting"}>
                 <button type="button" className="btn btn-secondary">
-
-                  <img src={images.pen} width="20px" height="20px" alt="setting-btn" />
+                  <img
+                    src={images.pen}
+                    width="20px"
+                    height="20px"
+                    alt="setting-btn"
+                  />
                 </button>
               </Link>
             </div>
@@ -78,12 +99,8 @@ const ProfileUser = () => {
               <span>Follower</span>
             </div>
             <div className="col text-center">
-              <span>0</span> <br />
-              <span>Follower</span>
-            </div>
-            <div className="col text-center">
-              <span>0</span> <br />
-              <span>Follower</span>
+              <span>{followingCount}</span> <br />
+              <span>Following</span>
             </div>
           </div>
           {/*kết thúc thông tin người theo giõi */}
@@ -154,10 +171,10 @@ const ProfileUser = () => {
           {/* Nội dung sẽ thay đổi dựa trên tab được chọn */}
           <article className="p-5">
             <Routes>
-              <Route path="activity" element={<Activity />} />
-              <Route path="track" element={<Track />} />
-              <Route path="albums" element={<Albums />} />
-              <Route path="playlists" element={<Playlists />} />
+              <Route path="/activity" element={<Activity />} />
+              <Route path="/track" element={<Track />} />
+              <Route path="/albums" element={<Albums />} />
+              <Route path="/playlists" element={<Playlists />} />
               <Route path="/" element={<Navigate to="activity" />} /> Đường dẫn mặc định
             </Routes>
           </article>

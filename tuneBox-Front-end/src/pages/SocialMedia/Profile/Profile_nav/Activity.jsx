@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+  import React, { useEffect, useState } from 'react';
 import { images } from '../../../../assets/images/images';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -52,39 +52,43 @@ const Activity = () => {
   };
 
   // Hàm để lấy các bài viết
+
   const fetchPosts = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/posts/current-user', {
-        withCredentials: true,  
-      });
-      console.log('Response data:', response.data);
-  
-      // Sắp xếp các bài viết theo thời gian tạo (mới nhất lên đầu)
-      const sortedPosts = response.data.sort((a, b) => {
-        const dateA = new Date(a.createdAt[0], a.createdAt[1] - 1, a.createdAt[2], a.createdAt[3], a.createdAt[4], a.createdAt[5]);
-        const dateB = new Date(b.createdAt[0], b.createdAt[1] - 1, b.createdAt[2], b.createdAt[3], b.createdAt[4], b.createdAt[5]);
-  
-        return dateB - dateA; // Sắp xếp từ mới đến cũ
-      });
-  
-      setPosts(sortedPosts); // Chỉ lưu các bài viết đã được sắp xếp
+        const response = await axios.get(`http://localhost:8080/api/posts/current-user`, {
+            params: { userId },
+            withCredentials: true,
+        });
+
+        console.log('Response data:', response.data);
+
+        // Sắp xếp các bài viết theo thời gian tạo (mới nhất lên đầu)
+        const sortedPosts = response.data.sort((a, b) => {
+            const dateA = new Date(a.createdAt); // Sử dụng trực tiếp nếu createdAt là chuỗi ISO
+            const dateB = new Date(b.createdAt);
+            return dateB - dateA; // Sắp xếp từ mới đến cũ
+        });
+
+        setPosts(sortedPosts);
     } catch (error) {
-      console.error('Error fetching user posts:', error);
+        console.error('Error fetching user posts:', error);
     }
-  };
+};
+
+
   
   // Gọi hàm fetchPosts khi component được mount
   useEffect(() => {
-    fetchPosts();
+      fetchPosts();
   }, []);
-
+  
   // Hàm để xử lý việc tạo hoặc cập nhật bài viết
   const handleSubmitPost = async () => {
     const formData = new FormData();
     
-    if (postContent) {
-        formData.append('content', postContent);
-    }
+    // Gán nội dung là chuỗi rỗng nếu không có nội dung
+    formData.append('content', postContent || ''); // Đảm bảo gửi một chuỗi rỗng nếu không có nội dung
+    formData.append('userId', userId);
 
     postImages.forEach((image) => {
         formData.append('images', image);
@@ -118,7 +122,8 @@ const Activity = () => {
     } catch (error) {
         console.error('Error creating/updating post:', error.response?.data || error.message);
     }
-  };
+};
+
 
   // Hàm xử lý thay đổi input file
   const handleImageChange = (e) => {
@@ -215,79 +220,82 @@ const Activity = () => {
         </div>
         {/* Bài viết */}
         <div className="container mt-2 mb-5">
-          {posts.map((post) => {
-            const createdAt = post.createdAt
-              ? new Date(post.createdAt[0], post.createdAt[1] - 1, post.createdAt[2], post.createdAt[3], post.createdAt[4], post.createdAt[5])
-              : null;
+        {posts.map((post) => {
+  // Kiểm tra xem post.createdAt có phải là mảng và đủ 6 phần tử không
+  const createdAt = post.createdAt
+  ? new Date(post.createdAt) // Nếu backend gửi một chuỗi định dạng ISO, sử dụng trực tiếp
+  : null;
+  return (
+    <div key={post.id} className="post">
+      <div className="post-header">
+        <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
+        <div>
+          <div className="name">{post.userName || 'Unknown User'}</div>
+          <div className="time">
+            {createdAt && !isNaN(createdAt.getTime()) 
+              ? format(createdAt, 'hh:mm a, dd MMM yyyy') 
+              : 'Invalid date'} {/* Hiện thị thời gian hoặc "Invalid date" */}
+          </div>
+        </div>
+        {/* Dropdown cho các tùy chọn chỉnh sửa và xóa */}
+        <div className="dropdown">
+          <button 
+            className="btn btn-options dropdown-toggle" 
+            type="button" 
+            id={`dropdownMenuButton-${post.id}`} 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false">
+            ...
+          </button>
+          <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${post.id}`}>
+            <li><button className="dropdown-item" onClick={() => handleEditPost(post)}>Edit</button></li>
+            <li><button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>Delete</button></li>
+          </ul>
+        </div>
+      </div>
+      <div className="post-content">
+        {post.content} {/* Hiện nội dung bài viết */}
+      </div>
+      {post.images && post.images.length > 0 && (
+        <div className="post-images">
+          {post.images.map((image, index) => (
+            <img key={index} src={`data:image/jpeg;base64,${image.postImage}`} alt="Post" />
+          ))}
+        </div>
+      )}
+      <div className="interaction-buttons mt-3">
+        <button type="button" className="btn">
+          <img src={images.heart} className="btn-icon" alt="Like" />
+          <span>Like</span>
+        </button>
+      </div>
+      <div className="comment-section mt-4">
+        <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
+        <div className="row">
+          <div className="col text-start">
+            <a href="/#" className="text-black text-decoration-none">View Comment</a>
+          </div>
+          <div className="col text-end">
+            <span>1 Comment</span>
+          </div>
+        </div>
+        <div className="comment mt-2">
+          <img src={images.ava} alt="Commenter" />
+          <div className="comment-content">
+            <div className="comment-author">Huynh Trong Phu</div>
+            <div className="comment-time">12:00 AM, 8 Sep 2024</div>
+            <p>Chao em nhe nguoi dep!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+})}
 
-            return (
-              <div key={post.id} className="post">
-                <div className="post-header">
-                  <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
-                  <div>
-                    <div className="name">{post.userName || 'Unknown User'}</div>
-                    <div className="time">
-                      {createdAt ? format(createdAt, 'hh:mm a, dd MMM yyyy') : 'Invalid date'}
-                    </div>
-                  </div>
-                  <div className="dropdown">
-                    <button 
-                      className="btn btn-options dropdown-toggle" 
-                      type="button" 
-                      id={`dropdownMenuButton-${post.id}`} 
-                      data-bs-toggle="dropdown" 
-                      aria-expanded="false">
-                      ...
-                    </button>
-                    <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${post.id}`}>
-                      <li><button className="dropdown-item" onClick={() => handleEditPost(post)}>Edit</button></li>
-                      <li><button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>Delete</button></li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="post-content">
-                  {post.content} {/* Hiện nội dung bài viết */}
-                </div>
-                {post.images && post.images.length > 0 && (
-                  <div className="post-images">
-                    {post.images.map((image, index) => (
-                      <img key={index} src={`data:image/jpeg;base64,${image.postImage}`} alt="Post" />
-                    ))}
-                  </div>
-                )}
-                <div className="interaction-buttons mt-3">
-                  <button type="button" className="btn">
-                    <img src={images.heart} className="btn-icon" alt="Like" />
-                    <span>Like</span>
-                  </button>
-                </div>
-
-                <div className="comment-section mt-4">
-                  <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
-                  <div className="row">
-                    <div className="col text-start">
-                      <a href="/#" className="text-black text-decoration-none">View Comment</a>
-                    </div>
-                    <div className="col text-end">
-                      <span>1 Comment</span>
-                    </div>
-                  </div>
-                  <div className="comment mt-2">
-                    <img src={images.ava} alt="Commenter" />
-                    <div className="comment-content">
-                      <div className="comment-author">Huynh Trong Phu</div>
-                      <div className="comment-time">12:00 AM, 8 Sep 2024</div>
-                      <p>Chao em nhe nguoi dep!</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
     </div>
   );
 };
 
-export default Activity;
+export default Activity; 

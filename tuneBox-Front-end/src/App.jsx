@@ -68,7 +68,7 @@ function App() {
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser" element={<ProfileUser />} />
+            <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />

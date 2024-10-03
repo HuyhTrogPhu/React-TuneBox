@@ -11,7 +11,7 @@ import Cookies from 'js-cookie';
 // });
 export const checkSignup = async (formData) => {
   try {
-    const response = await axios.post('http://localhost:8080/user/check', formData);
+    const response = await axios.post('http://localhost:8080/User/check', formData);
     return response.data; 
   } catch (error) {
     throw error; 
@@ -86,7 +86,7 @@ export const sendDataToAPI = async (formData)  => {
     genreBy: formData.genreBy
   };
 
-  await axios.post('http://localhost:8080/user/sign-up', jsonFormattedData,{withCredentials:true})
+  await axios.post('http://localhost:8080/User/sign-up', jsonFormattedData,{withCredentials:true})
     .then(response => {
       console.log('Data sent to API:', response.data);
         Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày

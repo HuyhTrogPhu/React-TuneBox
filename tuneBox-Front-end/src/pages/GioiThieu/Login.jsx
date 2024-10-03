@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -15,7 +14,8 @@ import './js/click-scroll.js';
 import './js/custom.js';
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
-import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const Login = () => {
   const [userName, setUsername] = useState('');
@@ -25,6 +25,7 @@ const Login = () => {
   const [forgotMessage, setForgotMessage] = useState('');
   const navigate = useNavigate(); 
   const [errorMessage, setErrorMessage] = useState('');
+  const [postId, setPostId] = useState(null); // State để lưu ID bài viết khi chỉnh sửa
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -38,7 +39,7 @@ const Login = () => {
     };
   
     try {
-      const response = await axios.post('http://localhost:8081/User/log-in', loginData);
+      const response = await axios.post('http://localhost:8080/User/log-in', loginData);
   
       if (response.data && response.data.status) {
         console.log('Đăng nhập thành công:', response.data);
