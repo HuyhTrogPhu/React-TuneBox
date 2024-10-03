@@ -20,11 +20,6 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const [currentImage, setCurrentImage] = useState(null); // Thêm biến trạng thái cho hình ảnh hiện tại
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
-
-
-
-
-
   const uploadInstrument = (id) => {
     if (!id) {
       console.error("Instrument ID is undefined or null");
@@ -169,10 +164,6 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       console.error("Error updating instrument:", error);
     }
   };
-
-
-
-
   const getAllBrand = async () => {
     try {
       const response = await listBrands();
@@ -245,14 +236,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                     Edit
                   </button>
                 </td>
-                {/* <td>
-                  <button
-                    className={`btn ms-4 ${ins.status ? 'btn-success' : 'btn-danger'}`}
-                    onClick={() => handleStatusChange(ins.id)}
-                  >
-                    {ins.status ? 'Mark as Available' : 'Mark as Unavailable'}
-                  </button>
-                </td> */}
+
               </tr>
             ))
           ) : (

@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 // const categoryButtons = document.querySelectorAll('.btn-category');
-                    
+
 // categoryButtons.forEach(button => {
 //     button.addEventListener('click', () => {
 //         // Toggle the 'active' class for the button
@@ -12,9 +12,9 @@ import Cookies from 'js-cookie';
 export const checkSignup = async (formData) => {
   try {
     const response = await axios.post('http://localhost:8080/user/check', formData);
-    return response.data; 
+    return response.data;
   } catch (error) {
-    throw error; 
+    throw error;
   }
 };
 
@@ -26,10 +26,10 @@ export const fetchDataNgheSi = async () => {
     const data = response.data;
     return data;
   } catch (error) {
-      console.error('Error fetching data:', error);
-      return [];
-    
-}
+    console.error('Error fetching data:', error);
+    return [];
+
+  }
 };
 
 
@@ -55,43 +55,43 @@ export const fetchDataSoThich = async () => {
   }
 };
 export const saveToLocalStorage = (formData) => {
-  
+
   const jsonFormattedData = {
     userDto: {
       email: formData.email,
       password: formData.password,
       userName: formData.userName,
-      userNickname:formData.userNickname
-    },
-    listInspiredBy: formData.listInspiredBy,  
-    listTalent: formData.listTalent,
-    genreBy: formData.genreBy
-  };
-
- localStorage.setItem('userData', JSON.stringify(jsonFormattedData));
-  
-  console.log(localStorage)
-};
-
-export const sendDataToAPI = async (formData)  => {
-  const jsonFormattedData = {
-    userDto: {
-      email: formData.email,
-      password: formData.password,
-      userName: formData.userName,
-      userNickname:formData.userNickname
+      userNickname: formData.userNickname
     },
     listInspiredBy: formData.listInspiredBy,
     listTalent: formData.listTalent,
     genreBy: formData.genreBy
   };
 
-  await axios.post('http://localhost:8080/user/sign-up', jsonFormattedData,{withCredentials:true})
+  localStorage.setItem('userData', JSON.stringify(jsonFormattedData));
+
+  console.log(localStorage)
+};
+
+export const sendDataToAPI = async (formData) => {
+  const jsonFormattedData = {
+    userDto: {
+      email: formData.email,
+      password: formData.password,
+      userName: formData.userName,
+      userNickname: formData.userNickname
+    },
+    listInspiredBy: formData.listInspiredBy,
+    listTalent: formData.listTalent,
+    genreBy: formData.genreBy
+  };
+
+  await axios.post('http://localhost:8080/user/sign-up', jsonFormattedData, { withCredentials: true })
     .then(response => {
       console.log('Data sent to API:', response.data);
-        Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
-        console.log('Dữ liệu đã được lưu vào cookie:', "UserID", response.data.data.id);
-  return response.data.status;
+      Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
+      console.log('Dữ liệu đã được lưu vào cookie:', "UserID", response.data.data.id);
+      return response.data.status;
     })
     .catch(error => {
       if (error.response) {
