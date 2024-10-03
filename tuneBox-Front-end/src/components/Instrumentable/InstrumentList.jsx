@@ -436,7 +436,32 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                   </div>
 
                   {/* Image */}
-                  
+                  <div className="mt-3">
+                    <label className="form-label">Instrument Images:</label>
+                    <div className="row">
+                      {imageList.map((img, index) => (
+                        <div key={index} className="col-3">
+                          {/* Hiển thị danh sách ảnh */}
+                          <img
+                            className="border border-black"
+                            src={typeof img === 'object'
+                              ? URL.createObjectURL(img)  // Nếu là đối tượng (ảnh mới từ máy tính)
+                              : `/images/${img.split('\\').pop()}`} // Nếu là đường dẫn từ cơ sở dữ liệu
+                            alt="Instrument"
+                            style={{ width: '100px', height: '100px', cursor: 'pointer' }} // Thêm cursor pointer để chỉ ra rằng ảnh có thể nhấp vào
+                            onClick={() => document.getElementById(`file-input-${index}`).click()} // Khi nhấp vào ảnh, kích hoạt input file
+                          />
+                          {/* Chọn ảnh mới từ máy tính */}
+                          <input
+                            id={`file-input-${index}`}
+                            type="file"
+                            hidden
+                            onChange={(event) => handleImageChange(event, index)} // Hàm xử lý thay đổi ảnh
+                          />
+                        </div>
+                      ))};
+                    </div>
+                  </div>
 
 
 
