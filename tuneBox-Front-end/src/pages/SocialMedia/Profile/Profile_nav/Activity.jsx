@@ -4,6 +4,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import Cookies from 'js-cookie';
 
 const Activity = () => {
   const [postContent, setPostContent] = useState(''); // State cho nội dung bài viết
@@ -11,6 +12,7 @@ const Activity = () => {
   const [postImageUrls, setPostImageUrls] = useState([]); // State cho URL ảnh đã chọn
   const [posts, setPosts] = useState([]); // State để lưu các bài viết
   const [postId, setPostId] = useState(null); // State để lưu ID bài viết khi chỉnh sửa
+  const userId =  Cookies.get("UserID"); //tạo cookies
 
   // Phần js để hiện post modal
   useEffect(() => {
