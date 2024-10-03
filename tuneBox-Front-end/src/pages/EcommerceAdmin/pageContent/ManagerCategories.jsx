@@ -7,6 +7,7 @@ const ManagerCategories = () => {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+
   const itemsPerPage = 10;
   const [errors, setErrors] = useState({ newCategoryName: '' });
   const [successMessage, setSuccessMessage] = useState("");
@@ -29,6 +30,7 @@ const ManagerCategories = () => {
         console.error("Error fetching categories:", error);
       });
   }
+
 
   function validateForm() {
     let valid = true;
@@ -54,17 +56,21 @@ const ManagerCategories = () => {
   function handleSave() {
     if (!validateForm()) {
       return;
+
     }
 
     const newCategory = {
       name: newCategoryName,
+
       status: false,
     };
+
 
     createCategory(newCategory)
       .then((response) => {
         console.log("Category created:", response.data);
         getAllCategory();
+
         setNewCategoryName(""); // Reset input field
         setSuccessMessage("Category added successfully!"); // Hiển thị thông báo thành công
 
@@ -80,7 +86,7 @@ const ManagerCategories = () => {
           if (backdrop) {
             backdrop.remove();
           }
-        }, 50); // Thay đổi giá trị này nếu cần
+        }, 150); // Thay đổi giá trị này nếu cần
       })
       .catch((error) => {
         console.error("Error creating category:", error);
@@ -138,9 +144,12 @@ const ManagerCategories = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');  // Đổi trạng thái sắp xếp
   }
 
+
   return (
     <div>
       <div className="container-fluid">
+
+
         <button
           data-bs-toggle="modal"
           data-bs-target="#addCategoryModal"
@@ -149,6 +158,7 @@ const ManagerCategories = () => {
         >
           Add Category
         </button>
+
 
         {/* Hiển thị thông báo thành công */}
         {successMessage && (
@@ -170,6 +180,7 @@ const ManagerCategories = () => {
 
         <CategoriesTable categories={currentCategories} onUpdate={getAllCategory} sortOrder={sortOrder}
           handleSort={handleSort} />
+
 
         <div className="">
           <nav aria-label="Page navigation example">
@@ -196,7 +207,7 @@ const ManagerCategories = () => {
         </div>
       </div>
 
-      {/* start modal add */}
+
       <div className="modal fade" id="addCategoryModal" tabIndex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
@@ -210,7 +221,7 @@ const ManagerCategories = () => {
                   <label htmlFor="categoryName" className="form-label">Category Name</label>
                   <input
                     type="text"
-                    className={`form-control ${errors.newCategoryName ? 'is-invalid' : ''}`}
+
                     id="categoryName"
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
@@ -226,7 +237,7 @@ const ManagerCategories = () => {
           </div>
         </div>
       </div>
-      {/* end modal add */}
+
     </div>
   );
 };

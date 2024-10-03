@@ -4,7 +4,7 @@ const REST_API_BASE_URL = 'http://localhost:8081/e-comAdmin/instrument';
 
 export const listBrands = () => axios.get(`${REST_API_BASE_URL}/brands`);
 export const listCategories = () => axios.get(`${REST_API_BASE_URL}/categories`);
-export const listInstruments = () => axios.get(`${REST_API_BASE_URL}/instruments`);
+export const listInstruments = () => axios.get(`${REST_API_BASE_URL}`);
 
 export const createInstrument = (instrument) => axios.post(REST_API_BASE_URL, instrument);
 
@@ -13,24 +13,20 @@ export const getInstrument = (instrumentId) => axios.get(`${REST_API_BASE_URL}/$
 export const updateInstrument = (instrumentId, instrumentData) => {
     const formData = new FormData();
 
-    // Thêm dữ liệu từ instrumentData vào formData
-    formData.append('name', instrumentData.name);
-    formData.append('costPrice', instrumentData.costPrice);
-    formData.append('color', instrumentData.color);
-    formData.append('quantity', instrumentData.quantity);
-    formData.append('categoryId', instrumentData.categoryId);
-    formData.append('brandId', instrumentData.brandId);
-    formData.append('description', instrumentData.description);
-    formData.append('status', instrumentData.status);
+    formData.append('name', instrument.name);
+    formData.append('costPrice', instrument.costPrice);
+    formData.append('color', instrument.color);
+    formData.append('quantity', instrument.quantity);
+    formData.append('categoryId', instrument.categoryId);
+    formData.append('brandId', instrument.brandId);
+    formData.append('description', instrument.description);
+    formData.append('status', instrument.status); 
 
-    // Thêm từng ảnh vào formData
-    instrumentData.images.forEach((image, index) => {
-        if (typeof image === 'object') { // Nếu ảnh là tệp mới được chọn từ máy tính
-            formData.append(`image_${index}`, image);
-        } else {
-            formData.append(`existingImage_${index}`, image); // Ảnh hiện tại (base64 hoặc đường dẫn)
-        }
-    });
+    if (instrument.image instanceof File) {
+        formData.append('image', instrument.image); // Hình ảnh mới
+    } else {
+        formData.append('image', instrument.image); // Hình ảnh cũ (base64 hoặc đường dẫn)
+    }
 
     return axios.put(`${REST_API_BASE_URL}/${instrumentId}`, formData, {
         headers: {
@@ -38,6 +34,8 @@ export const updateInstrument = (instrumentId, instrumentData) => {
         },
     });
 };
+
+
 
 
 export const deleteInstrument = (instrumentId) => axios.delete(`${REST_API_BASE_URL}/${instrumentId}`);

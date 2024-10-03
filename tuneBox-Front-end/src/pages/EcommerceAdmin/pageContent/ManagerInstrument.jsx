@@ -9,7 +9,7 @@ const ManagerInstrument = () => {
   const [newInsPrice, setInsPrice] = useState("");
   const [newInsQuantity, setInsQuantity] = useState("");
   const [newInsColor, setInsColor] = useState("");
-  const [newInsImages, setInsImages] = useState([]);
+  const [newInsImage, setInsImage] = useState(null);
   const [newInsCategory, setInsCategory] = useState("");
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");
@@ -176,6 +176,11 @@ const ManagerInstrument = () => {
     newInstrument.append('description', newInsDes);
     newInstrument.append('categoryId', newInsCategory);
     newInstrument.append('brandId', newInsBrand);
+
+    // Gửi tất cả hình ảnh
+    newInsImage.forEach((image) => {
+      newInstrument.append('image', image); // Thêm từng hình ảnh vào FormData
+    });
 
     createInstrument(newInstrument)
       .then((response) => {
@@ -411,26 +416,9 @@ const ManagerInstrument = () => {
                       {errors.newInsQuantity && <div className="alert alert-danger mt-3">{errors.newInsQuantity}</div>}
 
                       <div className="mt-3">
-                        <label className="form-label">Instrument Image:</label>
-                        <input
-                          type="file"
-                          className="form-control"
-                          multiple
-                          onChange={handleFileSelect} // Hàm xử lý khi người dùng chọn file
-                        />
-                        {newInsImages.length > 0 && newInsImages.length <= 5 && (
-                          <div className="mt-2">
-                            {newInsImages.length} file(s) selected
-                          </div>
-                        )}
-                        {newInsImages.length > 5 && (
-                          <div className="alert alert-danger mt-3">
-                            You can only upload a maximum of 5 images.
-                          </div>
-                        )}
-                        {/* {errors.newInsImages && (
-                          <div className="alert alert-danger mt-3">{errors.newInsImages}</div>
-                        )} */}
+                        <label className="form-label">Instrument Image</label>
+                        <input type="file" className={`form-control `}
+                          onChange={(e) => setInsImage(e.target.files[0])} />
                       </div>
 
 
