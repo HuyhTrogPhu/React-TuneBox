@@ -9,7 +9,7 @@ const ManagerInstrument = () => {
   const [newInsPrice, setInsPrice] = useState("");
   const [newInsQuantity, setInsQuantity] = useState("");
   const [newInsColor, setInsColor] = useState("");
-  const [newInsImage, setInsImage] = useState([]);
+  const [newInsImages, setInsImages] = useState([]);
   const [newInsCategory, setInsCategory] = useState("");
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");
@@ -71,7 +71,7 @@ const ManagerInstrument = () => {
     setInsPrice("");
     setInsQuantity("");
     setInsColor("");
-    setInsImage([]);
+    setInsImages([]);
     setInsCategory("");
     setInsBrand("");
     setInsDes("");
@@ -112,14 +112,6 @@ const ManagerInstrument = () => {
       errorsCopy.newInsQuantity = '';
     }
 
-    if (!newInsImage || newInsImage.length === 0) {
-      errorsCopy.newInsImages = "At least one instrument image is required";
-      valid = false;
-    } else {
-      errorsCopy.newInsImages = "";
-    }
-
-
     if (!newInsDes.trim()) {
       errorsCopy.newInsDes = 'Instrument description is required';
       valid = false;
@@ -145,22 +137,23 @@ const ManagerInstrument = () => {
     return valid;
   }
 
+  // hàm select file ảnh
   const handleFileSelect = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-
-    if (selectedFiles.length > 5) {
-      setErrors({
-        ...errors,
-        newInsImage: 'You can only select up to 5 images.',
-      });
+    const files = Array.from(e.target.files); // Chuyển FileList thành mảng
+    if (files.length > 5) {
+      setErrors((prev) => ({
+        ...prev,
+        newInsImages: "You can only upload a maximum of 5 images",
+      }));
     } else {
-      setErrors({
-        ...errors,
-        newInsImage: '',
-      });
-      setInsImage(selectedFiles); // Lưu danh sách file nếu số lượng <= 5
+      setInsImages(files); // Lưu mảng file vào state
+      setErrors((prev) => ({
+        ...prev,
+        newInsImages: "",
+      }));
     }
   };
+
 
 
   const handleSave = async () => {
@@ -169,34 +162,38 @@ const ManagerInstrument = () => {
     }
 
     const newInstrument = new FormData();
+
     newInstrument.append('name', newInsName);
     newInstrument.append('costPrice', parseFloat(newInsPrice));
-
     newInstrument.append('quantity', newInsQuantity);
     newInstrument.append('color', newInsColor);
 
-    newInsImage.forEach((image) => {
+    // Duyệt qua các ảnh đã chọn và thêm vào FormData
+    newInsImages.forEach((image) => {
       newInstrument.append("images", image);
-    })
+    });
 
     newInstrument.append('description', newInsDes);
     newInstrument.append('categoryId', newInsCategory);
     newInstrument.append('brandId', newInsBrand);
 
-    createInstrument(newInstrument).then((response) => {
-      console.log("Instrument created:", response.data);
+    createInstrument(newInstrument)
+      .then((response) => {
+        console.log("Instrument created:", response.data);
 
-      // Đóng modal
-      document.getElementById("closeModal").click();
+        // Đóng modal
+        document.getElementById("closeModal").click();
 
-      // Cập nhật danh sách nhạc cụ
-      getAllInstrument();
-      setMessage("Instrument added successfully!");
-      resetForm();
-    }).catch((error) => {
-      console.error("Error creating instrument", error);
-    });
+        // Cập nhật danh sách nhạc cụ
+        getAllInstrument();
+        setMessage("Instrument added successfully!");
+        resetForm();
+      })
+      .catch((error) => {
+        console.error("Error creating instrument", error);
+      });
   };
+
 
 
   useEffect(() => {
@@ -207,14 +204,14 @@ const ManagerInstrument = () => {
   }, [message]);
 
   // Lọc danh sách dựa trên từ khóa tìm kiếm
-  const filteredIns = instruments.filter(ins => {
+  const filteredIns = Array.isArray(instruments) ? instruments.filter(ins => {
     const matchesSearchTerm = ins.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory ? ins.categoryIns && ins.categoryIns.id === parseInt(selectedCategory, 10) : true;
     const matchesBrand = selectedBrand ? ins.brand && ins.brand.id === parseInt(selectedBrand, 10) : true; // Thay đổi so sánh
 
-
     return matchesSearchTerm && matchesCategory && matchesBrand;
-  });
+  }) : [];
+
 
 
 
@@ -403,7 +400,7 @@ const ManagerInstrument = () => {
                           onChange={(e) => setInsColor(e.target.value)} />
                       </div>
                       {errors.newInsColor && <div className="alert alert-danger mt-3">{errors.newInsColor}</div>}
-                      
+
                       <div className="mt-3">
                         <label className="form-label">Quantity:</label>
                         <input className={`form-control`}
@@ -414,22 +411,30 @@ const ManagerInstrument = () => {
                       {errors.newInsQuantity && <div className="alert alert-danger mt-3">{errors.newInsQuantity}</div>}
 
                       <div className="mt-3">
-                        <label className="form-label">Instrument Image</label>
+                        <label className="form-label">Instrument Image:</label>
                         <input
                           type="file"
                           className="form-control"
                           multiple
-                          onChange={handleFileSelect}
+                          onChange={handleFileSelect} // Hàm xử lý khi người dùng chọn file
                         />
-                        {newInsImage.length > 0 && (
+                        {newInsImages.length > 0 && newInsImages.length <= 5 && (
                           <div className="mt-2">
-                            {newInsImage.length} file(s) selected
+                            {newInsImages.length} file(s) selected
                           </div>
                         )}
-                        {errors.newInsImage && (
-                          <div className="alert alert-danger mt-3">{errors.newInsImage}</div>
+                        {newInsImages.length > 5 && (
+                          <div className="alert alert-danger mt-3">
+                            You can only upload a maximum of 5 images.
+                          </div>
                         )}
+                        {/* {errors.newInsImages && (
+                          <div className="alert alert-danger mt-3">{errors.newInsImages}</div>
+                        )} */}
                       </div>
+
+
+
                     </div>
 
                     <div className="col-6">
@@ -553,8 +558,8 @@ const ManagerInstrument = () => {
 
 
 
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

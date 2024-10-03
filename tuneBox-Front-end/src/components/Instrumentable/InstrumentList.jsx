@@ -5,7 +5,6 @@ import { listInstruments, updateInstrument, listBrands, listCategories, } from "
 const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
   const [selectedInstrument, setSelectedInstrument] = useState('');
-  const [image, setImage] = useState(null);
 
   const [imageList, setImageList] = useState([]); // danh sách hình ảnh của instrument
 
@@ -18,6 +17,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const [newInsDes, setInsDes] = useState('');
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
+
   const [validationErrors, setValidationErrors] = useState({});
   const [newInsStatus, setNewInsStatus] = useState(false);
   const [currentImage, setCurrentImage] = useState(null); // Thêm biến trạng thái cho hình ảnh hiện tại
@@ -47,7 +47,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     setNewInsColor(insToEdit.color);
     setNewInsQuantity(insToEdit.quantity);
     // setImage(insToEdit.image); // Giữ hình ảnh hiện tại
-    setImageList(insToEdit.image);
+    setImageList(insToEdit.images);
     // setCurrentImage(insToEdit.image);
     setNewInsCategory(insToEdit.categoryIns ? insToEdit.categoryIns.id : '');
     setNewInsBrand(insToEdit.brand ? insToEdit.brand.id : '');
@@ -245,16 +245,19 @@ const InstrumentList = ({ instruments, onUpdate }) => {
             instruments.map((ins, index) => (
               <tr key={ins.id} className="ps-0">
                 <td>{index + 1}</td>
+
                 <td>
-                  {/* hiển thị ảnh đầu tiên từ danh sách ảnh */}
+                  {/* Hiển thị ảnh đầu tiên từ danh sách ảnh */}
                   <img
-                    src={Array.isArray(ins.image) && ins.image.length > 0
-                      ? `data:image/${ins.image[0].split('.').pop()};base64,${ins.image[0]}`
+                    src={Array.isArray(ins.images) && ins.images.length > 0
+                      ? `/images/${ins.images[0].imagePath.split('\\').pop()}`  // Lấy tên file ảnh và hiển thị
                       : 'default-image-url'}
                     alt={ins.name}
                     style={{ width: '50px' }}
                   />
                 </td>
+
+
                 <td>{ins.name}</td>
                 <td>{ins.categoryIns ? ins.categoryIns.name : 'No category'}</td>
                 <td>{ins.brand ? ins.brand.name : 'No brand'}</td>
@@ -433,33 +436,8 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                   </div>
 
                   {/* Image */}
-                  <div className="mt-3">
-                    <label className="form-label">Instrument Images:</label>
-                    <div className="row">
+                  
 
-                      {imageList.map((img, index) => (
-                        <div key={index} className="col-3">
-                          {/* hiển thị danh sách ảnh -> thay đổi ảnh ở đây */}
-                          <img
-                            className="border border-black"
-                            src={typeof img === 'object' ? URL.createObjectURL(img) : `data:image/${img.split('.').pop()};base64,${img}`}
-                            alt="Instrument"
-                            style={{ width: '100px', height: '100px', cursor: 'pointer' }} // Thêm cursor pointer để chỉ ra rằng ảnh có thể nhấp vào
-                            onClick={() => document.getElementById(`file-input-${index}`).click()} // Khi nhấp vào ảnh, kích hoạt input file
-                          />
-                          {/* chọn ảnh mới từ máy tính */}
-                          <input
-                            id={`file-input-${index}`}
-                            type="file"
-                            hidden
-                            style={{ display: 'none' }}
-                            onChange={(event) => handleImageChange(event, index)}
-                          />
-                        </div>
-                      ))}
-
-                    </div>
-                  </div>
 
 
                   <div className="modal-footer">

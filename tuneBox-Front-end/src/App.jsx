@@ -68,7 +68,7 @@ function App() {
 
 
             {/* admin start */}
-            <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
+            <Route path='/ecomAdmin/*' element={<EcommerceAdmin />} />
             {/* admin end */}
           </Route>
         </Routes>
