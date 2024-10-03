@@ -1,4 +1,4 @@
-import "react";
+import React, { useState } from "react";
 import { Route, Routes, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
@@ -19,6 +19,9 @@ import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from './pages/EcommerceAdmin'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import ResetPassword from "./pages/GioiThieu/ResetPassword";
+import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -36,7 +39,26 @@ function LayoutWithoutHeader() {
   );
 }
 
+
 function App() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    userName: "",
+    userNickname:"",
+    listInspiredBy: [], // Chứa danh sách
+    listTalent: [],
+    genreBy: [], 
+  });
+
+  const updateFormData = (data) => {
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, ...data };
+      console.warn(formData);
+      return updatedData;
+    });
+  };
+
   return (
     <div>
       <div className="">
@@ -46,27 +68,27 @@ function App() {
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser/*" element={<ProfileUser />} />
+            <Route path="/profileUser" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
-            <Route path="cart" element={<Cart />} />
+            <Route path="/cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
           </Route>
 
           {/* Các route không có Header */}
           <Route element={<LayoutWithoutHeader />}>
             <Route path="/gioithieu" element={<GioiThieu />} />
-            <Route path="/signup" element={<SignUp />} />
+            <Route path="/signup" element={<SignUp updateFormData={updateFormData}/>} />
             <Route path="/login" element={<Login />} />
-            <Route path="/createusername" element={<CreateUsername />} />
-            <Route path="/talent" element={<SoThich />} />
-            <Route path="/artist" element={<NgheSiYeuThich />} />
-            <Route path="/categorymusic" element={<TheLoaiNhacYeuThich />} />
-
-
+            <Route path="reset-password" element={<ResetPassword />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
+            <Route path="/createusername" element={<CreateUsername updateFormData={updateFormData} formData={formData} />} />
+            <Route path="/talent" element={<SoThich updateFormData={updateFormData} formData={formData}/>} />
+            <Route path="/artist" element={<NgheSiYeuThich updateFormData={updateFormData}/>} />
+            <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData}/>} />
 
             {/* admin start */}
-            <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
+            <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
             {/* admin end */}
           </Route>
         </Routes>
