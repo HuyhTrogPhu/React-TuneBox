@@ -1,59 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { updateCateIns } from "../../service/CategoryService";
-import { useNavigate } from "react-router-dom";
 
-const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { // Nhận prop categories và onUpdate
-
-
-  const [selectedCategory, setSelectedCategory] = useState(null) // lưu dữ liệu cate đang được chọn
-  const [editCategoryName, setEditCategoryName] = useState("");   // Lưu trữ tên category được chỉnh sửa
-  const [successMessage, setSuccessMessage] = useState("");
-  const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
-
-  const navigator = useNavigate();
-  const [errors, setErrors] = useState({
-    editCategoryName: ''
-  })
-
-  //lưu trữ giá trị tìm kiếm
-  const [searchTerm, setSearchTerm] = useState("")
-  const filteredCategories = categories.filter(cate =>
-    cate.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-
-
-  const openEditModal = (category) => {
-    setSelectedCategory(category);    // Lưu trữ dữ liệu category được chọn vào state
-    setEditCategoryName(category.name); // Đổ dữ liệu vào modal
-    const modal = new window.bootstrap.Modal(document.getElementById('editCategoryModal'));
-    modal.show();                     // Hiển thị modal
-  };
-
-  const handUpdate = () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    if (selectedCategory) {
-      const updatedCategory = { ...selectedCategory, name: editCategoryName };
-
-      updateCateIns(selectedCategory.id, updatedCategory)
-        .then((response) => {
-          onUpdate(); // Gọi hàm onUpdate để cập nhật lại danh sách
-          const modal = window.bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
-          modal.hide(); // Ẩn modal sau khi lưu
-          setSuccessMessage("Category update successfully!");
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  };
-
-  useEffect(() => {
-    if (successMessage) {
-      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
 
       const intervalId = setInterval(() => {
         setCountdown(prevCountdown => prevCountdown - 1);
@@ -104,26 +49,6 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   }
 
   return (
-    <div>
-      {/* Hiển thị thông báo thành công */}
-      {successMessage && (
-        <div className="alert alert-success" role="alert">
-          {successMessage} This notice will be closed in <b>{countdown}s.</b> 
-        </div>
-      )}
-
-      <table className="table table-striped table-hover">
-        <thead className="text-center">
-          <tr>
-            <th scope="col">
-            <button onClick={handleSort} className="btn btn-link" style={{ textDecoration: 'none' }}>
-          #
-          {sortOrder === 'asc' ? ' Oldest' : ' Latest'}
-        </button>
-            </th>
-            <th scope="col">Categories Name</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
 
           </tr>
         </thead>

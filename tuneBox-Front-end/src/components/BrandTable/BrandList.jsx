@@ -129,38 +129,7 @@ const BrandList = ({ brands, onUpdate }) => {
         </div>
       )}
       <table className="table table-striped table-hover">
-        <thead className='text-center'>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Brand Image</th>
-            <th scope="col">Brand Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-            <th scope="col">Status Transition</th>
-          </tr>
-        </thead>
-        <tbody>
-          {brands.map((bra, index) => (
-            <tr key={bra.id} className="ps-0">
-              <td>{index + 1}</td>
-              <td>
-                <img
-                  src={bra.brandImage
-                    ? `data:image/jpeg;base64,${bra.brandImage}`
-                    : 'default-image-path.jpg'}
-                  alt={bra.name}
-                  style={{ width: '50px' }}
-                />
-              </td>
-              <td>{bra.name}</td>
-              <td>{bra.description ? bra.description : 'No description available'}</td>
-              <td>{bra.status ? 'Unavailable' : 'Available'}</td>
-              <td>
-                <button className='btn btn-warning' onClick={() => handleEdit(bra)}>
-                  Edit
-                </button>
-              </td>
+
               <td>
                 <button
                   className={`btn ms-4 ${bra.status ? 'btn-success' : 'btn-danger'}`}
