@@ -20,6 +20,7 @@ import EcommerceAdmin from './pages/EcommerceAdmin'
 import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
+import CategoryPageDetail from "./pages/Ecommerce/CategoryPage/CategoryPageDetail";
 
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
@@ -47,10 +48,10 @@ function App() {
     email: "",
     password: "",
     userName: "",
-    userNickname:"",
+    userNickname: "",
     listInspiredBy: [], // Chứa danh sách
     listTalent: [],
-    genreBy: [], 
+    genreBy: [],
   });
 
   const updateFormData = (data) => {
@@ -80,19 +81,20 @@ function App() {
             <Route path="/BrandPage" element={<BrandPage />} />
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
+            <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
           </Route>
 
           {/* Các route không có Header */}
           <Route element={<LayoutWithoutHeader />}>
             <Route path="/gioithieu" element={<GioiThieu />} />
-            <Route path="/signup" element={<SignUp updateFormData={updateFormData}/>} />
+            <Route path="/signup" element={<SignUp updateFormData={updateFormData} />} />
             <Route path="/login" element={<Login />} />
             <Route path="reset-password" element={<ResetPassword />} />
             <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="/createusername" element={<CreateUsername updateFormData={updateFormData} formData={formData} />} />
-            <Route path="/talent" element={<SoThich updateFormData={updateFormData} formData={formData}/>} />
-            <Route path="/artist" element={<NgheSiYeuThich updateFormData={updateFormData}/>} />
-            <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData}/>} />
+            <Route path="/talent" element={<SoThich updateFormData={updateFormData} formData={formData} />} />
+            <Route path="/artist" element={<NgheSiYeuThich updateFormData={updateFormData} />} />
+            <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData} />} />
 
             {/* admin start */}
             <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />

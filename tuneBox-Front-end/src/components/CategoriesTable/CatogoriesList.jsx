@@ -6,7 +6,11 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
 
 
   const [selectedCategory, setSelectedCategory] = useState(null) // lưu dữ liệu cate đang được chọn
-  const [editCategoryName, setEditCategoryName] = useState("");   // Lưu trữ tên category được chỉnh sửa
+  const [editCategoryName, setEditCategoryName] = useState("");   
+  const [editCategoryImage, setEditCategoryImage] = useState(null);
+  const [currentImage, setCurrenImage] = useState(null);
+  const [editCategoryDesc, setEditCategoryDesc] = useState("");
+  
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
 
@@ -25,7 +29,11 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
 
   const openEditModal = (category) => {
     setSelectedCategory(category);    // Lưu trữ dữ liệu category được chọn vào state
-    setEditCategoryName(category.name); // Đổ dữ liệu vào modal
+    setEditCategoryName(category.name); 
+    setEditCategoryImage(null);
+    setCurrenImage(category.image);
+    setEditCategoryDesc(category.description);
+
     const modal = new window.bootstrap.Modal(document.getElementById('editCategoryModal'));
     modal.show();                     // Hiển thị modal
   };
@@ -36,7 +44,13 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
     }
 
     if (selectedCategory) {
-      const updatedCategory = { ...selectedCategory, name: editCategoryName };
+      
+      const updatedCategory = {
+        name: editCategoryName,
+        description: editCategoryDesc,
+        image: editCategoryImage || currentImage,
+        status: selectedCategory.status
+      }
 
       updateCateIns(selectedCategory.id, updatedCategory)
         .then((response) => {
@@ -75,8 +89,17 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   // funtion chuyển đổi status
   function removeCateIns(id) {
     const categoryToUpdate = categories.find((cate) => cate.id === id);
-    const updatedStatus = !categoryToUpdate.status;
-    const updatedCategory = { ...categoryToUpdate, status: updatedStatus };
+    
+
+    if(categoryToUpdate) {
+      const updatedStatus = !categoryToUpdate.status;
+      const dataToSend = {
+        ...categoryToUpdate,
+        status: updatedStatus,
+        name: categoryToUpdate.name,
+        description: categoryToUpdate.description,
+      }
+    }
 
     updateCateIns(id, updatedCategory)
       .then((response) => {
@@ -90,13 +113,27 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   // Validation function
   function validateForm() {
     let valid = true;
-    const errorsCopy = { ...errors }; // Tạo một bản sao của errors
+    const errorsCopy = { editCategoryName: '', editCategoryImage: '', editCategoryDesc: '' }; 
 
     if (editCategoryName.trim()) {
-      errorsCopy.editCategoryName = ''; // Không có lỗi
+      errorsCopy.editCategoryName = ''; 
     } else {
       errorsCopy.editCategoryName = 'Category name is required'; // Có lỗi
       valid = false;
+    }
+
+    if(!editCategoryImage && !currentImage) {
+      errorsCopy.editCategoryImage = 'Brand image is required';
+      valid = false;
+    }else {
+      errorsCopy.editCategoryImage = '';
+    }
+
+    if(!editCategoryDesc.trim()) {
+      errorsCopy.editCategoryDesc = 'Category description is required';
+      valid = false;
+    } else {
+      errorsCopy.editCategoryDesc = '';
     }
 
     setErrors(errorsCopy); // Cập nhật trạng thái lỗi

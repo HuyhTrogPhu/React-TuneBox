@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import './CategoryPage.css'
 import { listCategories } from '../../../service/InstrumentService';
 import Benefit from '../../../components/Benefits/Benefits'
+import { useNavigate } from 'react-router-dom';
 
 function CategoryPage() {
 
   const [categoriyList, setCategoryList] = useState([]);
+  const navigate = useNavigate(); // navigate để lấy get category by id
 
   useEffect(() => {
     getCategoryList();

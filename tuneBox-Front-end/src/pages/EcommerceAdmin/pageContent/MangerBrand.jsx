@@ -191,18 +191,17 @@ const MangerBrand = () => {
                 />
               </div>
               <div className="modal-body">
-                
+
                 <form action="">
                   <div className="mt-3">
-                    <div>
+
                     <label className="form-label" >Brand name:</label>
                     <input className={`form-control ${errors.newBrandName ? 'is-invalid' : ''} `}
                       value={newBrandName}
                       onChange={(e) => setBrandName(e.target.value)}
                       type="text"
                       placeholder="Enter brand name" />
-                    </div>
-                  
+
                   </div>
                   {errors.newBrandName && <div className='invalid-feedback'>{errors.newBrandName}</div>}
 

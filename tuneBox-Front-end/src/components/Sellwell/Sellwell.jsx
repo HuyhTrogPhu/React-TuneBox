@@ -3,7 +3,6 @@ import './Sellwell.css';
 import { images } from '../../assets/images/images';
 import { Link } from 'react-router-dom';
 import { listInstruments } from '../../service/EcommerceHome';
-import Benefit from '../Benefits/Benefits'
 
 const Sellwell = () => {
     const [instrumentList, setInstrumentList] = useState([]);
@@ -18,6 +17,7 @@ const Sellwell = () => {
         listInstruments()
             .then((response) => {
                 setInstrumentList(response.data);
+                console.log(response.data)
             })
             .catch((error) => {
                 console.error("Error fetching instruments", error);
@@ -43,52 +43,49 @@ const Sellwell = () => {
                 <div className='sellwell-title'>
                     <div className='d-flex justify-content-between align-items-center mb-4'>
                         <h4 className='category-title'>Sell well</h4>
-                        <Link to={'/Shop'} className='view-all'>View all</Link>
                     </div>
                 </div>
                 <hr className='hr-100' />
 
                 <div className='row d-flex'>
                     {Array.isArray(instrumentList) && instrumentList.length > 0 ? (
-                        instrumentList.map((ins, index) => {
-                            <div className='card col-3' key={index}>
-                                <Link to={'/DetailProduct'}>
-                                    <div className='card-img'>
-                                        {
-                                            Array.isArray(ins.image) && ins.image.length > 0 ? (
-                                                <img
-                                                    src={`data:image/png;base64,${ins.image[0]}`}
-                                                    alt={`${ins.name}`}
-                                                    style={{ width: '50px' }}
-                                                />
-                                            ) : (
-                                                <img
-                                                    src='default-image-url'
-                                                    alt={ins.name}
-                                                    style={{ width: '50px' }}
-                                                />
-                                            )
-                                        }
-                                    </div>
-                                    <div className='card-body'>
-                                        <h5 className='card-title'>
-                                            {ins.name} {/* Cập nhật tên sản phẩm */}
-                                        </h5>
-                                        <p className='card-price'>
-                                            {ins.costPrice.toLocaleString()}đ {/* Cập nhật giá sản phẩm và định dạng */}
-                                        </p>
-                                    </div>
-                                </Link>
-                            </div>
-
-
+                        currentItems.map((ins, index) => { // Sử dụng currentItems thay vì instrumentList
+                            return ( // Thêm return ở đây
+                                <div className='card col-3' key={index}>
+                                    <Link to={'/DetailProduct'}>
+                                        <div className='card-img'>
+                                            {
+                                                Array.isArray(ins.image) && ins.image.length > 0 ? (
+                                                    <img
+                                                        src={`data:image/png;base64,${ins.image[0]}`}
+                                                        alt={`${ins.name}`}
+                                                        
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src='default-image-url' // Thay thế bằng URL hợp lệ
+                                                        alt={ins.name}
+                                                        
+                                                    />
+                                                )
+                                            }
+                                        </div>
+                                        <div className='card-body'>
+                                            <h5 className='card-title'>
+                                                {ins.name}
+                                            </h5>
+                                            <p className='card-price'>
+                                                {ins.costPrice.toLocaleString()}đ
+                                            </p>
+                                        </div>
+                                    </Link>
+                                </div>
+                            );
                         })
                     ) : (
                         <div className='alert alert-danger'>No instrument available</div>
                     )}
-
-
-
+                    
                     {/* Phân trang */}
                     <div className="">
                         <nav aria-label="Page navigation example">
@@ -114,13 +111,8 @@ const Sellwell = () => {
                         </nav>
                     </div>
                 </div>
-
             </div>
-
-
         </div>
-
-
     );
 }
 

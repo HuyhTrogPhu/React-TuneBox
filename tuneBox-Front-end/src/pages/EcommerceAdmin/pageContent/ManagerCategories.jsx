@@ -5,7 +5,10 @@ import { createCategory, listCateIns } from "../../../service/CategoryService";
 
 const ManagerCategories = () => {
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryImg, setNewCategoryImg] = useState(null);
+  const [newCategoryDesc, setCategoryDesc] = useState("");
   const [categories, setCategories] = useState([]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [errors, setErrors] = useState({ newCategoryName: '' });
@@ -44,19 +47,38 @@ const ManagerCategories = () => {
       errorsCopy.newCategoryName = '';
     }
 
+    if(!newCategoryImg) {
+      errorsCopy.newCategoryImg = 'Category image is required';
+      valid = false
+    } else {
+      errorsCopy.newCategoryImg = '';
+    }
+
+    if(!newCategoryDesc.trim()) {
+      errorsCopy.newCategoryDesc = 'Category description is required';
+      valid = false;
+    } else {
+      errorsCopy.newCategoryDesc = '';
+
+    }
+
     setErrors(errorsCopy);
     return valid;
   }
 
   function handleSave() {
+
+    setErrors({newCategoryName: '', newCategoryImg: '', newCategoryDesc: ''})
+
     if (!validateForm()) {
       return;
     }
 
-    const newCategory = {
-      name: newCategoryName,
-      status: false,
-    };
+    const newCategory = new FormData();
+    newCategory.append('name', newCategoryName);
+    newCategory.append('image', newCategoryImg);
+    newCategory.append('description', newCategoryDesc);
+
 
     createCategory(newCategory)
       .then((response) => {
@@ -71,13 +93,13 @@ const ManagerCategories = () => {
         modalInstance.hide(); // Ẩn modal
 
         // Để đảm bảo lớp phủ được ẩn
-        setTimeout(() => {
-          modalElement.classList.remove('show');
-          const backdrop = document.querySelector('.modal-backdrop');
-          if (backdrop) {
-            backdrop.remove();
-          }
-        }, 50); // Thay đổi giá trị này nếu cần
+        // setTimeout(() => {
+        //   modalElement.classList.remove('show');
+        //   const backdrop = document.querySelector('.modal-backdrop');
+        //   if (backdrop) {
+        //     backdrop.remove();
+        //   }
+        // }, 50); // Thay đổi giá trị này nếu cần
       })
       .catch((error) => {
         console.error("Error creating category:", error);
@@ -157,6 +179,7 @@ const ManagerCategories = () => {
               </div>
               <div className="modal-body">
                 <form>
+
                   <div className="mb-3">
                     <label htmlFor="categoryName" className="form-label">Category Name</label>
                     <input
@@ -168,6 +191,25 @@ const ManagerCategories = () => {
                     />
                     {errors.newCategoryName && <div className='invalid-feedback'>{errors.newCategoryName}</div>}
                   </div>
+
+                  <div className="mt-3">
+                    <label className="form-label">Image</label>
+                    <input type="file" 
+                    className={`form-control ${errors.newCategoryImg ? 'is-invalid' : ''} `}
+                    onChange={(e) => setNewCategoryImg(e.target.files[0])}/>
+                  </div>
+                  {errors.newCategoryImg && <div className="invalid-feedback">{errors.newCategoryImg}</div>}
+
+                  <div className="mt-3">
+                      <label className="form-label">Description</label>
+                      <textarea cols="50" rows="5"
+                      className={`form-control ${errors.newCategoryDesc ? 'is-invalid' : ''}`}
+                      value={newCategoryDesc}
+                      onChange={(e) => setCategoryDesc(e.target.value)}></textarea>
+                  </div>
+                  {errors.newCategoryDesc && <div className='invalid-feedback'>{errors.newCategoryDesc}</div>}
+
+
                 </form>
               </div>
               <div className="modal-footer">
