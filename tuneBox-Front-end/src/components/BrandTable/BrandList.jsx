@@ -125,7 +125,7 @@ const BrandList = ({ brands, onUpdate }) => {
       {/* Hiển thị thông báo thành công */}
       {successMessage && (
         <div className="alert alert-success" role="alert">
-          {successMessage}
+          {successMessage} This notice will be closed in <b>{countdown}s.</b>
         </div>
       )}
       <table className="table table-striped table-hover">
@@ -175,7 +175,7 @@ const BrandList = ({ brands, onUpdate }) => {
       </table>
 
       {/* Modal Edit */}
-      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true">
+      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">

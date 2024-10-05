@@ -16,6 +16,9 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
 
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null); // lưu chỉ mục ảnh muốn thay thế
+
+
   const [validationErrors, setValidationErrors] = useState({});
   const [newInsStatus, setNewInsStatus] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -106,12 +109,12 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       console.error("Selected instrument or ID is invalid");
       return;
     }
-  
+
     // Kiểm tra đầu vào hợp lệ
     if (!validateInputs()) {
       return;
     }
-  
+
     // Chuyển đổi hình ảnh thành Base64
     const base64Images = await Promise.all(
       image.map(file => {
@@ -124,7 +127,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
         });
       })
     );
-  
+
     // Tạo đối tượng cập nhật cho nhạc cụ
     const updatedInstrument = {
       ...selectedInstrument,
@@ -138,10 +141,10 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       status: newInsStatus !== undefined ? newInsStatus : selectedInstrument.status,
       image: base64Images // Gán hình ảnh mới vào đối tượng
     };
-  
+
     console.log("Updating instrument with ID:", selectedInstrument.id);
     console.log("Instrument data:", updatedInstrument);
-  
+
     try {
       await updateInstrument(selectedInstrument.id, updatedInstrument);
       onUpdate();
@@ -154,20 +157,33 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       setValidationErrors({ submit: "Failed to update instrument. Please try again." });
     }
   };
-  
+
   // Xử lý việc thêm hình ảnh mới
-  const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    const base64Images = await Promise.all(files.map(file => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result.split(',')[1]); // Lấy phần Base64
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }));
-    setImage(base64Images); // Thay vì concat, chỉ giữ lại ảnh mới
-};
+  const handleImageUpload = (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length > 0) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newImage = reader.result.split(',')[1]; // Lấy dữ liệu base64 của ảnh mới
+  
+        // Tạo bản sao của danh sách ảnh để không thay đổi state trực tiếp
+        const updatedImages = [...image];
+        
+        // Thay thế ảnh tại vị trí đã click trong danh sách
+        if (selectedImageIndex !== null) {
+          updatedImages[selectedImageIndex] = newImage;
+          setImage(updatedImages); // Cập nhật lại state với ảnh mới
+        }
+      };
+      reader.readAsDataURL(files[0]); // Đọc file đầu tiên được chọn
+    }
+  };
+  
+  const handleImageClick = (index) => {
+    setSelectedImageIndex(index); // Lưu lại chỉ số ảnh được click
+    document.querySelector('input[type="file"]').click(); // Mở hộp thoại chọn ảnh
+  };
+  
 
 
 
@@ -230,14 +246,11 @@ const InstrumentList = ({ instruments, onUpdate }) => {
 
                 <td>
                   {Array.isArray(ins.image) && ins.image.length > 0 ? (
-                    ins.image.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={`data:image/png;base64,${img}`} // Đảm bảo định dạng đúng
-                        alt={`${ins.name} ${idx}`}
-                        style={{ width: '50px', margin: '0 5px' }}
-                      />
-                    ))
+                    <img
+                      src={`data:image/png;base64,${ins.image[0]}`} // Chỉ hiển thị ảnh đầu tiên
+                      alt={`${ins.name} 0`}
+                      style={{ width: '50px', margin: '0 5px' }}
+                    />
                   ) : (
                     <img
                       src='default-image-url'
@@ -268,6 +281,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
           )}
         </tbody>
       </table>
+
       {/* Modal edit */}
       <div
         className="modal fade"
@@ -275,6 +289,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
         tabIndex={-1}
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
+        data-bs-backdrop="false"
       >
         <div className="modal-dialog modal-xl">
           <div className="modal-content">
@@ -290,6 +305,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
               ></button>
             </div>
             <div className="modal-body">
+
               <div className="mb-3">
                 <label htmlFor="name" className="form-label">
                   Name
@@ -303,6 +319,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 />
                 {validationErrors.name && <div className="invalid-feedback">{validationErrors.name}</div>}
               </div>
+
               <div className="mb-3">
                 <label htmlFor="costPrice" className="form-label">
                   Cost Price
@@ -316,6 +333,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 />
                 {validationErrors.price && <div className="invalid-feedback">{validationErrors.price}</div>}
               </div>
+
               <div className="mb-3">
                 <label htmlFor="color" className="form-label">
                   Color
@@ -329,6 +347,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 />
                 {validationErrors.color && <div className="invalid-feedback">{validationErrors.color}</div>}
               </div>
+
               <div className="mb-3">
                 <label htmlFor="quantity" className="form-label">
                   Quantity
@@ -342,6 +361,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 />
                 {validationErrors.quantity && <div className="invalid-feedback">{validationErrors.quantity}</div>}
               </div>
+
               <div className="mb-3">
                 <label htmlFor="category" className="form-label">
                   Category
@@ -359,6 +379,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 </select>
                 {validationErrors.category && <div className="invalid-feedback">{validationErrors.category}</div>}
               </div>
+
               <div className="mb-3">
                 <label htmlFor="brand" className="form-label">
                   Brand
@@ -376,6 +397,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 </select>
                 {validationErrors.brand && <div className="invalid-feedback">{validationErrors.brand}</div>}
               </div>
+
               <div className="mb-3">
                 <label htmlFor="description" className="form-label">
                   Description
@@ -388,6 +410,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                   onChange={(e) => setInsDes(e.target.value)}
                 ></textarea>
               </div>
+
               <div className="mb-3">
                 <label htmlFor="status" className="form-label">
                   Status
@@ -398,22 +421,38 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                   value={newInsStatus ? 'true' : 'false'}
                   onChange={(e) => setNewInsStatus(e.target.value === 'true')}
                 >
-                  <option value="false">Available</option>
-                  <option value="true">Unavailable</option>
+                  <option value="true">Available</option>
+                  <option value="false">Unavailable</option>
                 </select>
               </div>
+
               <div className="mb-3">
-                <label htmlFor="image" className="form-label">
-                  Image
-                </label>
+                <label htmlFor="image" className="form-label">Image</label>
+                {Array.isArray(image) && image.length > 0 ? (
+                  image.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={`data:image/png;base64,${img}`} // Hiển thị ảnh base64
+                      alt={`Instrument image ${idx}`}
+                      style={{ width: '50px', margin: '0 5px', cursor: 'pointer' }}
+                      onClick={() => handleImageClick(idx)} // Nhấn vào ảnh để thay thế
+                    />
+                  ))
+                ) : (
+                  <img
+                    src="default-image-url"
+                    alt="Default instrument image"
+                    style={{ width: '50px' }}
+                  />
+                )}
                 <input
                   type="file"
                   className="form-control"
-                  multiple
-                  onChange={handleImageUpload}
+                  hidden
+                  onChange={handleImageUpload} // Gọi hàm xử lý khi người dùng chọn ảnh mới
                 />
-
               </div>
+
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">

@@ -9,7 +9,7 @@ const ManagerInstrument = () => {
   const [newInsPrice, setInsPrice] = useState("");
   const [newInsQuantity, setInsQuantity] = useState("");
   const [newInsColor, setInsColor] = useState("");
-  const [newInsImage, setInsImage] = useState(null);
+  const [newInsImage, setInsImage] = useState([]);
   const [newInsCategory, setInsCategory] = useState("");
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");
@@ -71,7 +71,7 @@ const ManagerInstrument = () => {
     setInsPrice("");
     setInsQuantity("");
     setInsColor("");
-    setInsImages([]);
+    setInsImage(null);
     setInsCategory("");
     setInsBrand("");
     setInsDes("");
@@ -112,6 +112,13 @@ const ManagerInstrument = () => {
       errorsCopy.newInsQuantity = '';
     }
 
+    if (!newInsImage) {
+      errorsCopy.newInsImage = 'Instrument image is required';
+      valid = false;
+    } else {
+      errorsCopy.newInsImage = '';
+    }
+
     if (!newInsDes.trim()) {
       errorsCopy.newInsDes = 'Instrument description is required';
       valid = false;
@@ -137,42 +144,18 @@ const ManagerInstrument = () => {
     return valid;
   }
 
-  // hàm select file ảnh
-  const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files); // Chuyển FileList thành mảng
-    if (files.length > 5) {
-      setErrors((prev) => ({
-        ...prev,
-        newInsImages: "You can only upload a maximum of 5 images",
-      }));
-    } else {
-      setInsImages(files); // Lưu mảng file vào state
-      setErrors((prev) => ({
-        ...prev,
-        newInsImages: "",
-      }));
-    }
-  };
-
-
-
   const handleSave = async () => {
     if (!validateForm()) {
       return;
     }
 
     const newInstrument = new FormData();
-
     newInstrument.append('name', newInsName);
     newInstrument.append('costPrice', parseFloat(newInsPrice));
+
     newInstrument.append('quantity', newInsQuantity);
     newInstrument.append('color', newInsColor);
-
-    // Duyệt qua các ảnh đã chọn và thêm vào FormData
-    newInsImages.forEach((image) => {
-      newInstrument.append("images", image);
-    });
-
+    newInstrument.append('image', newInsImage);
     newInstrument.append('description', newInsDes);
     newInstrument.append('categoryId', newInsCategory);
     newInstrument.append('brandId', newInsBrand);
@@ -182,23 +165,19 @@ const ManagerInstrument = () => {
       newInstrument.append('image', image); // Thêm từng hình ảnh vào FormData
     });
 
-    createInstrument(newInstrument)
-      .then((response) => {
-        console.log("Instrument created:", response.data);
+    createInstrument(newInstrument).then((response) => {
+      console.log("Instrument created:", response.data);
 
-        // Đóng modal
-        document.getElementById("closeModal").click();
+      // Đóng modal
+      document.getElementById("closeModal").click();
 
-        // Cập nhật danh sách nhạc cụ
-        getAllInstrument();
-        setMessage("Instrument added successfully!");
-        resetForm();
-      })
-      .catch((error) => {
-        console.error("Error creating instrument", error);
-      });
+      // Cập nhật danh sách nhạc cụ
+      getAllInstrument();
+      setMessage("Add done!")
+    }).catch((error) => {
+      console.error("Error creating instrument", error);
+    });
   };
-
 
 
   useEffect(() => {
@@ -209,14 +188,14 @@ const ManagerInstrument = () => {
   }, [message]);
 
   // Lọc danh sách dựa trên từ khóa tìm kiếm
-  const filteredIns = Array.isArray(instruments) ? instruments.filter(ins => {
+  const filteredIns = instruments.filter(ins => {
     const matchesSearchTerm = ins.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory ? ins.categoryIns && ins.categoryIns.id === parseInt(selectedCategory, 10) : true;
     const matchesBrand = selectedBrand ? ins.brand && ins.brand.id === parseInt(selectedBrand, 10) : true; // Thay đổi so sánh
 
-    return matchesSearchTerm && matchesCategory && matchesBrand;
-  }) : [];
 
+    return matchesSearchTerm && matchesCategory && matchesBrand;
+  });
 
 
 
@@ -295,7 +274,7 @@ const ManagerInstrument = () => {
                 )}
               </select>
               <button
-                className="btn btn-secondary mt-3"
+                className="btn btn-outline-danger mt-3"
                 onClick={() => setSelectedCategory("")} // Đặt lại giá trị selectedBrand
               >
                 Reset
@@ -327,7 +306,7 @@ const ManagerInstrument = () => {
                 )}
               </select>
               <button
-                className="btn btn-secondary mt-3"
+                className="btn btn-outline-danger mt-3"
                 onClick={() => setSelectedBrand("")} // Đặt lại giá trị selectedBrand
               >
                 Reset
@@ -339,7 +318,7 @@ const ManagerInstrument = () => {
           </div>
 
         </div>
-        <button className="btn btn-secondary" onClick={handleSort}>
+        <button className="btn btn-outline-info" onClick={handleSort}>
           Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
         </button>
         <button
@@ -357,6 +336,7 @@ const ManagerInstrument = () => {
           tabIndex={-1}
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
+          data-bs-backdrop="false"
         >
           <div className="modal-dialog modal-xl">
             <div className="modal-content">
@@ -405,7 +385,6 @@ const ManagerInstrument = () => {
                           onChange={(e) => setInsColor(e.target.value)} />
                       </div>
                       {errors.newInsColor && <div className="alert alert-danger mt-3">{errors.newInsColor}</div>}
-
                       <div className="mt-3">
                         <label className="form-label">Quantity:</label>
                         <input className={`form-control`}
@@ -414,15 +393,20 @@ const ManagerInstrument = () => {
                           onChange={(e) => setInsQuantity(e.target.value)} />
                       </div>
                       {errors.newInsQuantity && <div className="alert alert-danger mt-3">{errors.newInsQuantity}</div>}
-
                       <div className="mt-3">
                         <label className="form-label">Instrument Image</label>
-                        <input type="file" className={`form-control `}
-                          onChange={(e) => setInsImage(e.target.files[0])} />
+                        <input
+                          type="file"
+                          className={`form-control`}
+                          multiple // Thêm thuộc tính multiple
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files); // Chuyển đổi FileList thành mảng
+                            setInsImage(files); // Cập nhật state với mảng hình ảnh
+                          }}
+                        />
+
                       </div>
-
-
-
+                      {errors.newInsImage && <div className="alert alert-danger mt-3">{errors.newInsImage}</div>}
                     </div>
 
                     <div className="col-6">
@@ -546,8 +530,8 @@ const ManagerInstrument = () => {
 
 
 
-      </div >
-    </div >
+      </div>
+    </div>
   );
 };
 

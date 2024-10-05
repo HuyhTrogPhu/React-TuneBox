@@ -155,7 +155,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
       {/* modal edit */}
       <style dangerouslySetInnerHTML={{ __html: "\n      /* styles.css hoặc tệp CSS tương tự */\n.btn-danger-custom {\n  background-color: #dc3545; /* Màu đỏ */\n  color: white; /* Màu chữ */\n}\n\n.btn-danger-custom:hover {\n  background-color: #c82333; /* Màu đỏ đậm khi hover */\n}\n\n      " }} />
 
-      <div className="modal fade" id="editCategoryModal" tabIndex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+      <div className="modal fade" id="editCategoryModal" tabIndex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">

@@ -136,7 +136,7 @@ const MangerBrand = () => {
       <div className="container-fluid">
         {successMessage && (
           <div className="alert alert-success" role="alert">
-            {successMessage} 
+            {successMessage} This notice will be closed in <b>{countdown}s.</b>
           </div>
         )}
 
@@ -167,12 +167,14 @@ const MangerBrand = () => {
           Add Brand
         </button>
 
+        {/* Modal add */}
         <div
           className="modal fade"
           id="ViewsModal"
           tabIndex={-1}
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
+          data-bs-backdrop="false"
         >
           <div className="modal-dialog">
             <div className="modal-content">
