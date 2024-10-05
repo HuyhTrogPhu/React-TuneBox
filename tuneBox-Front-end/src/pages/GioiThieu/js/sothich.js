@@ -11,7 +11,7 @@ import Cookies from 'js-cookie';
 // });
 export const checkSignup = async (formData) => {
   try {
-    const response = await axios.post('http://localhost:8081/user/check', formData);
+    const response = await axios.post('http://localhost:8080/user/check', formData);
     return response.data; 
   } catch (error) {
     throw error; 
@@ -22,7 +22,7 @@ export const checkSignup = async (formData) => {
 
 export const fetchDataNgheSi = async () => {
   try {
-    const response = await axios.get('http://localhost:8081/inspired/getall');
+    const response = await axios.get('http://localhost:808/inspired/getall');
     const data = response.data;
     return data;
   } catch (error) {
@@ -35,7 +35,7 @@ export const fetchDataNgheSi = async () => {
 
 export const fetchDataTheLoai = async () => {
   try {
-    const response = await axios.get('http://localhost:8081/Genre/getall');
+    const response = await axios.get('http://localhost:8080/Genre/getall');
     const data = response.data;
     return data;
   } catch (error) {
@@ -46,7 +46,7 @@ export const fetchDataTheLoai = async () => {
 
 export const fetchDataSoThich = async () => {
   try {
-    const response = await axios.get('http://localhost:8081/talent/getall');
+    const response = await axios.get('http://localhost:8080/talent/getall');
     const data = response.data;
     return data;
   } catch (error) {
@@ -86,7 +86,7 @@ export const sendDataToAPI = async (formData)  => {
     genreBy: formData.genreBy
   };
 
-  await axios.post('http://localhost:8081/user/sign-up', jsonFormattedData,{withCredentials:true})
+  await axios.post('http://localhost:8080/user/sign-up', jsonFormattedData,{withCredentials:true})
     .then(response => {
       console.log('Data sent to API:', response.data);
         Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày

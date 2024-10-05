@@ -17,6 +17,10 @@ import DetailProduct from "./components/Sellwell/DetailProduct";
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from './pages/EcommerceAdmin'
+import ResetPassword2 from "./pages/GioiThieu/ResetPassword2";
+import ForgotPassword2 from "./pages/GioiThieu/ForgotPassword2";
+import SocialMediaAdmin from "./pages/SocialMediaAdmin";
+import AlbumDetail from "./pages/SocialMediaAdmin/pageContent/AlbumDetail";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -63,7 +67,7 @@ function App() {
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser" element={<ProfileUser />} />
+            <Route path="/profileUser/*"  element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
@@ -75,8 +79,8 @@ function App() {
             <Route path="/gioithieu" element={<GioiThieu />} />
             <Route path="/signup" element={<SignUp updateFormData={updateFormData}/>} />
             <Route path="/login" element={<Login />} />
-            <Route path="reset-password" element={<ResetPassword />} />
-            <Route path="forgot-password" element={<ForgotPassword />} />
+            <Route path="reset-password2" element={<ResetPassword2 />} />
+            <Route path="forgot-password2" element={<ForgotPassword2 />} />
             <Route path="/createusername" element={<CreateUsername updateFormData={updateFormData} formData={formData} />} />
             <Route path="/talent" element={<SoThich updateFormData={updateFormData} formData={formData}/>} />
             <Route path="/artist" element={<NgheSiYeuThich updateFormData={updateFormData}/>} />
@@ -85,6 +89,9 @@ function App() {
             {/* admin start */}
             <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
             {/* admin end */}
+
+            <Route path="/socialadmin/*" element={<SocialMediaAdmin/>} />
+
           </Route>
         </Routes>
       </div>

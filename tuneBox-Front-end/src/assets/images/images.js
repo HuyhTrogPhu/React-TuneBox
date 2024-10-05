@@ -89,10 +89,14 @@ import slide4 from '../images/slide4.webp';
 import slide5 from '../images/slide5.webp';
 import plus from '../images/plus.png';
 import car from '../icon/car.png';
+import adminImage from "./admin.png";
+import karinaImage from "./karina.jpg";
 
 
 
 export const images = {
+    adminImage,
+    karinaImage,
     logoTuneBox,
     home, anime_girl, ava, avt, backg, background, bannerpre, bell,plus,car,
     camonnhangiai, casi, pause, index,
