@@ -195,6 +195,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   />
                   {errors.editBrandName && <div className='invalid-feedback'>{errors.editBrandName}</div>}
                 </div>
+
                 <div className="mb-3">
                   <label htmlFor="brandDescription" className="form-label">Description</label>
                   <textarea
@@ -205,6 +206,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   ></textarea>
                   {errors.editBrandDescription && <div className='invalid-feedback'>{errors.editBrandDescription}</div>}
                 </div>
+                
                 <div className="mb-3">
                   <label htmlFor="brandImage" className="form-label">Brand Image</label>
                   <input
