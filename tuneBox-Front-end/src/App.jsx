@@ -21,6 +21,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+import Trackdetail from "./pages/SocialMedia/Trackdetail"
 
 // Layout có Header
 function LayoutWithHeader() {
@@ -73,6 +74,7 @@ function App() {
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
+            <Route path="/Trackdetail" element= {<Trackdetail />} />
           </Route>
 
           {/* Các route không có Header */}

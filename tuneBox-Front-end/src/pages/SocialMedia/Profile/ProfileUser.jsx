@@ -12,6 +12,7 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { fetchDataUser } from "./js/ProfileJS";
+// import "./Profile_nav/css/activity.css"
 
 const ProfileUser = () => {
   const value = Cookies.get("UserID");
