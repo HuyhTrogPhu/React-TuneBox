@@ -4,6 +4,7 @@ import { images } from '../../../assets/images/images';
 import { useLocation } from 'react-router-dom';
 import { listInstrumentsByBrand } from '../../../service/InstrumentServiceCus'
 import Footer2 from '../../../components/Footer/Footer2';
+import Benefits from '../../../components/Benefits/Benefits';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -102,6 +103,7 @@ const BrandDetail = () => {
 
         <div className="content">
           <div className="row">
+            {/* filter */}
             <div className="col-3 phamloai">
               <div className="accordion" id="accordionPanelsStayOpenExample">
                 <div className="accordion-item">
@@ -110,6 +112,7 @@ const BrandDetail = () => {
                       Mức giá
                     </button>
                   </h2>
+
                   <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionPanelsStayOpenExample">
                     <div className="accordion-body">
                       <div className="input-group mb-3">
@@ -138,6 +141,7 @@ const BrandDetail = () => {
                       </div>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -229,7 +233,8 @@ const BrandDetail = () => {
           </div>
         </div>
       </div>
-
+      
+      <Benefits/>
       <Footer2 />
     </div>
 

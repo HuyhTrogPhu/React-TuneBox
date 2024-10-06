@@ -9,3 +9,7 @@ export const getInstrument = (instrumentId) => axios.get(`${REST_API_BASE_URL}/$
 export const listInstrumentsByBrand = (brandId) => {
     return axios.get(`${REST_API_BASE_URL}/brand/${brandId}`);
 };
+
+export const listInstrumentsByCategory = (categoryId) => {
+    return axios.get(`${REST_API_BASE_URL}/category/${categoryId}`);
+}

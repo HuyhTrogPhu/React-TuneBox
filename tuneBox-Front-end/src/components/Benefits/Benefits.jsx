@@ -9,7 +9,7 @@ const Bebefits = () => {
 
         <div className='col-3 benefit-card'>
           <div className='benefits-icon'>
-          <i class="fa-solid fa-headphones"></i>
+          <i className="fa-solid fa-headphones"></i>
           </div>
           <h2 className='benefits-text'>
             Ngôi Nhà Âm Nhạc & Cá Tính Âm nhạc
@@ -22,7 +22,7 @@ const Bebefits = () => {
 
         <div className='col-3 benefit-card'>
           <div className='benefits-icon'>
-          <i class="fa-solid fa-cart-shopping"></i>
+          <i className="fa-solid fa-cart-shopping"></i>
           </div>
           <h2 className='benefits-text'>
             Giao Hàng Miễn Phí
@@ -35,7 +35,7 @@ const Bebefits = () => {
 
         <div className='col-3 benefit-card'>
           <div className='benefits-icon'>
-          <i class="fa-solid fa-shield-halved"></i>
+          <i className="fa-solid fa-shield-halved"></i>
           </div>
           <h2 className='benefits-text'>
             Mua Sắm Trực Tuyến
@@ -49,7 +49,7 @@ const Bebefits = () => {
 
         <div className='col-3 benefit-card'>
           <div className='benefits-icon'>
-          <i class="fa-solid fa-message"></i>
+          <i className="fa-solid fa-message"></i>
           </div>
           <h2 className='benefits-text'>
             Hỗ Trợ Khách Hàng
