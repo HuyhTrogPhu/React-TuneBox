@@ -15,6 +15,7 @@ import "./js/sothich.js";
 import { fetchDataTheLoai } from "./js/sothich.js";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
+
 const TheLoaiNhacYeuThich = ({ updateFormData }) => {
   const navigate = useNavigate();
   const [talentData, setTalentData] = useState([]);

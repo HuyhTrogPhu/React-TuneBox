@@ -16,18 +16,14 @@ import CartDetail from "./pages/Ecommerce/Cart/Cart_detail";
 import DetailProduct from "./components/Sellwell/DetailProduct";
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
-<<<<<<< HEAD
-import EcommerceAdmin from './pages/EcommerceAdmin'
-import PostAudio from "./pages/SocialMedia/Profile/Profile_nav/PostAudio";
+// import PostAudio from "./pages/SocialMedia/Profile/Profile_nav/PostAudio";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-=======
 import EcommerceAdmin from "./pages/EcommerceAdmin";
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
 
->>>>>>> Gia-Bao
-// Layout có Header
 function LayoutWithHeader() {
   return (
     <>
@@ -73,16 +69,12 @@ function App() {
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser" element={<ProfileUser />} />
+            <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
-<<<<<<< HEAD
-            <Route path="cart" element={<Cart />} />
-            <Route path="postAudio" element={<PostAudio />} />
-=======
             <Route path="/cart" element={<Cart />} />
->>>>>>> Gia-Bao
             <Route path="/DetailProduct" element={<DetailProduct />} />
+            <Route path="/TrackDetail/:id" element={<TrackDetail />} />
           </Route>
 
           {/* Các route không có Header */}
