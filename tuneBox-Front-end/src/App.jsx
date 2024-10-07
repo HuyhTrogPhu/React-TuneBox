@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Route, Routes, Outlet } from "react-router-dom";
+import Cookies from 'js-cookie';
+import * as jwt_decode from 'jwt-decode';
+import { Navigate } from 'react-router-dom';
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -57,6 +60,18 @@ function App() {
     });
   };
 
+
+
+const isAuthenticated = () => {
+  const token = Cookies.get("jwtToken");
+  if (!token) return false;
+  return true; 
+};
+
+const PrivateRoute = ({ element }) => {
+  return isAuthenticated() ? element : <Navigate to="/login" />;
+};
+
   return (
     <div>
       <div className="">
@@ -66,8 +81,8 @@ function App() {
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser" element={<ProfileUser />} />
-            <Route path="/profileSetting" element={<ProfileSetting />} />
+            <Route path="/profileUser/*" element={<ProfileUser />} />
+            <Route path="/profileSetting/*" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
@@ -80,13 +95,13 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="reset-password" element={<ResetPassword />} />
             <Route path="forgot-password" element={<ForgotPassword />} />
-            <Route path="/createusername" element={<CreateUsername updateFormData={updateFormData} formData={formData} />} />
+            <Route path="/createUsername" element={<CreateUsername updateFormData={updateFormData} formData={formData} />} />
             <Route path="/talent" element={<SoThich updateFormData={updateFormData} formData={formData}/>} />
             <Route path="/artist" element={<NgheSiYeuThich updateFormData={updateFormData}/>} />
             <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData}/>} />
 
             {/* admin start */}
-            <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+            <Route path="/ecomadmin/*" element={<PrivateRoute element={<EcommerceAdmin/>} />} />
             {/* admin end */}
           </Route>
         </Routes>

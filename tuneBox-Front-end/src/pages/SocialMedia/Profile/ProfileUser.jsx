@@ -171,10 +171,10 @@ const ProfileUser = () => {
           {/* Nội dung sẽ thay đổi dựa trên tab được chọn */}
           <article className="p-5">
             <Routes>
-              <Route path="/activity" element={<Activity />} />
-              <Route path="/track" element={<Track />} />
-              <Route path="/albums" element={<Albums />} />
-              <Route path="/playlists" element={<Playlists />} />
+              <Route path="activity" element={<Activity />} />
+              <Route path="track" element={<Track />} />
+              <Route path="albums" element={<Albums />} />
+              <Route path="playlists" element={<Playlists />} />
               {/* <Route path="/" element={<Navigate to="activity" />} /> Đường dẫn mặc định */}
             </Routes>
           </article>

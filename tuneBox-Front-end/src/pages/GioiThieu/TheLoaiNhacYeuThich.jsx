@@ -91,7 +91,7 @@ const TheLoaiNhacYeuThich = ({ updateFormData }) => {
                       <div className="col-4" key={talent.id}>
                         <button
                           className={`btn-category ${
-                            selectedArtists.includes(talent) ? "selected" : ""
+                             selectedArtists.includes(talent.name) ? 'btn-primary text-light' : 'btn-light text-dark'
                           }`}
                           onClick={() => handleArtistSelect(talent.name)}
                         >
