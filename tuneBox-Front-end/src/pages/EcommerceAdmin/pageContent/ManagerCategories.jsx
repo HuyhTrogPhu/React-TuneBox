@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoriesTable from "../../../components/CategoriesTable/CatogoriesList";
 import { createCategory, listCateIns } from "../../../service/CategoryService";

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { updateCateIns } from "../../service/CategoryService";
 import { useNavigate } from "react-router-dom";
 
@@ -141,26 +141,6 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   }
 
   return (
-    <div>
-      {/* Hiển thị thông báo thành công */}
-      {successMessage && (
-        <div className="alert alert-success" role="alert">
-          {successMessage} This notice will be closed in <b>{countdown}s.</b> 
-        </div>
-      )}
-
-      <table className="table table-striped table-hover">
-        <thead className="text-center">
-          <tr>
-            <th scope="col">
-            <button onClick={handleSort} className="btn btn-link" style={{ textDecoration: 'none' }}>
-          #
-          {sortOrder === 'asc' ? ' Oldest' : ' Latest'}
-        </button>
-            </th>
-            <th scope="col">Categories Name</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
     <div>
       {/* Hiển thị thông báo thành công */}
       {successMessage && (

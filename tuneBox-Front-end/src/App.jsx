@@ -20,6 +20,7 @@ import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import EcommerceAdmin from "./pages/EcommerceAdmin";
+
 import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
