@@ -1,0 +1,71 @@
+.container {
+  padding: 20px;
+}
+
+.listBrand {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+}
+
+
+.listBrand li {
+  padding: 8px 18px;
+  margin: 2px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-size: 15px;
+}
+
+.fillterBrandTarget {
+  background-color: black;
+  color: white;
+}
+
+.fillterBrand {
+  background-color: white;
+  color: black;
+}
+
+.fillterBrand:hover {
+  background-color: black;
+  color: white;
+}
+
+.fillterBrand:focus,
+.fillterBrandTarget:focus {
+  border: 1px solid white;
+  background-color: black;
+  color: white;
+}
+
+
+/* list brand a */
+.listBrandA {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+  
+}
+
+.brandA h1 {
+  font-size: 30px;
+}
+
+.listBrandA li {
+  font-size: 15px;
+  color: black;
+  font-weight: 400;
+}
+
+.brandSeeMore {
+  background-color: tomato;
+}
