@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import "./chitietSP.css";
+import "./DetailProduct.css";
 import { images } from "../../../assets/images/images";
 import Footer2 from "../../../components/Footer/Footer2";
+import Benefits from "../../../components/Benefits/Benefits";
 
 const DetailProduct = () => {
   const changeImage = (e) => {
@@ -21,6 +22,7 @@ const DetailProduct = () => {
                 <img id="main-image" src={images.sp2} width={450} alt="product" />
               </div>
               <button className="button right">❯</button>
+              
               <div className="thumbnail text-center mt-5">
                 <a href=""> <img onClick={changeImage} src={images.sp1a} width={100} alt="thumbnail" /></a>
                 <a href=""> <img onClick={changeImage} src={images.sp1a} width={100} alt="thumbnail" /></a>
@@ -73,6 +75,8 @@ const DetailProduct = () => {
       </div>
     </div>
     <div style={{marginTop: 110}}>
+    
+    <Benefits/>
     <Footer2/>
     </div>
     

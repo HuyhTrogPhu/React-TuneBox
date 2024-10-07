@@ -3,8 +3,7 @@ import Bebefits from '../../../components/Benefits/Benefits'
 import Footer2 from '../../../components/Footer/Footer2'
 import { useLocation } from 'react-router-dom';
 import { listInstrumentsByCategory } from '../../../service/InstrumentServiceCus';
-import Bebefits from '../../../components/Benefits/Benefits';
-import Footer2 from '../../../components/Footer/Footer2';
+
 
 const ITEMS_PER_PAGE = 12;
 
@@ -13,14 +12,14 @@ const CategoryPageDetail = () => {
   const location = useLocation();
   const { category } = location.state;
 
-  const imageBase64Prefix = "date:image/png;base64,";
+  const imageBase64Prefix = "data:image/png;base64,";
   const [instruments, setInstruments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [sortByPrice, setByPrice] = useState('asc');
-  const [sortByName, setByName] = useState('desc');
+  const [sortByPrice, setSortByPrice] = useState('asc');
+  const [sortByName, setSortByName] = useState('desc');
 
   const categoryId = category.id;
 
@@ -56,22 +55,33 @@ const CategoryPageDetail = () => {
   }
 
   const sortInstruments = (instrumentsToSort) => {
-    return instrumentsToSort.sort((a, b) => {
-      if (sortByPrice === 'asc') {
-        return a.costPrice - b.costPrice;
-      } else {
-        return b.costPrice - a.costPrice;
-      }
+    let sorted = [...instrumentsToSort];
 
-      // if (sortByName === 'asc') {
-      //   return a.name - b.name;
-      // } else {
-      //   return b.name - a.name;
-      // }
+    // Sort by price
+    if (sortByPrice) {
+      sorted = sorted.sort((a, b) => {
+        if (sortByPrice === 'asc') {
+          return a.costPrice - b.costPrice;
+        } else {
+          return b.costPrice - a.costPrice;
+        }
+      });
+    }
 
+    // Sort by name
+    if (sortByName) {
+      sorted = sorted.sort((a, b) => {
+        if (sortByName === 'asc') {
+          return a.name.localeCompare(b.name);
+        } else {
+          return b.name.localeCompare(a.name);
+        }
+      });
+    }
 
-    })
-  }
+    return sorted;
+  };
+
 
   const getCurrentInstruments = () => {
     const filteredInstruments = filterInstruments();
@@ -161,52 +171,74 @@ const CategoryPageDetail = () => {
             <div className="row">
               <div className="custom-dropdown">
                 <button className="btn custom-dropdown-toggle btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Sắp xếp
+                  Sort by:
                 </button>
                 <ul className="custom-dropdown-menu">
                   <li>
-                    <button className="btn custom-dropdown-item" onClick={() => { setSortOrder('asc'); setCurrentPage(1); }}>Price: Low to high</button>
+                    <button className="btn custom-dropdown-item" onClick={() => { setSortByName(''); setSortByPrice(''); setCurrentPage(1); }}>
+                      Default
+                    </button>
                   </li>
                   <li>
-                    <button className="btn custom-dropdown-item" onClick={() => { setSortOrder('desc'); setCurrentPage(1); }}>Price: High to low</button>
+                    <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('asc'); setSortByName(''); setCurrentPage(1); }}>
+                      Price: Low to high
+                    </button>
                   </li>
+                  <li>
+                    <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('desc'); setSortByName(''); setCurrentPage(1); }}>
+                      Price: High to low
+                    </button>
+                  </li>
+                  <li>
+                    <button className="btn custom-dropdown-item" onClick={() => { setSortByName('asc'); setSortByPrice(''); setCurrentPage(1); }}>
+                      Name: A to Z
+                    </button>
+                  </li>
+                  <li>
+                    <button className="btn custom-dropdown-item" onClick={() => { setSortByName('desc'); setSortByPrice(''); setCurrentPage(1); }}>
+                      Name: Z to A
+                    </button>
+                  </li>
+
                 </ul>
               </div>
             </div>
+
 
             {/* Instrument */}
             <div className='sanPham mt-2'>
               <div className='row'>
                 {noResults ? (
-                    <div className='col-12 text-center'>
-                      <p>No instruments</p>
-                    </div>
+                  <div className='col-12 text-center'>
+                    <p>No instruments</p>
+                  </div>
                 ) : (
                   currentInstruments.map((instrument) => {
                     let stockStatus = '';
-                    if(instrument.quantity === 0) {
-                      stockStatus == 'Hết hàng';
-                    } else if (instrument.quantity > 0 && instrument.quantity <=5) {
+                    if (instrument.quantity === 0) {
+                      stockStatus = 'Hết hàng';
+                    } else if (instrument.quantity > 0 && instrument.quantity <= 5) {
                       stockStatus = 'Sắp hết hàng';
                     } else {
                       stockStatus = 'Còn hàng';
                     }
 
+
                     return (
-                      <div className='col-3 mb-4' key={instrument.id}> 
+                      <div className='col-3 mb-4' key={instrument.id}>
                         {Array.isArray(instrument.image) && instrument.image.length > 0 ? (
-                    <img
-                      src={`data:image/png;base64,${instrument.image[0]}`} // Chỉ hiển thị ảnh đầu tiên
-                      alt={`${instrument.name} 0`}
-                      style={{ width: '100px', margin: '0 5px' }}
-                    />
-                  ) : (
-                    <img
-                      src='default-image-url'
-                      alt={ins.name}
-                      style={{ width: '100px' }}
-                    />
-                  )}
+                          <img
+                            src={`data:image/png;base64,${instrument.image[0]}`} // Chỉ hiển thị ảnh đầu tiên
+                            alt={`${instrument.name} 0`}
+                            style={{ width: '100px', margin: '0 5px' }}
+                          />
+                        ) : (
+                          <img
+                            src='default-image-url'
+                            alt={ins.name}
+                            style={{ width: '100px' }}
+                          />
+                        )}
                         <h5 className='card-title2'>{instrument.name}</h5>
                         <p className='card-price'>
                           {instrument.costPrice.toLocaleString()}đ
@@ -221,28 +253,28 @@ const CategoryPageDetail = () => {
 
               {/* Phân trang */}
               <div className="phantrangdetail">
-                  <nav aria-label="Page navigation example">
-                    <ul className="pagination justify-content-center text-center">
-                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" aria-label="Previous" onClick={() => handlePageChange(currentPage - 1)}>
-                          <span aria-hidden="true">«</span>
+                <nav aria-label="Page navigation example">
+                  <ul className="pagination justify-content-center text-center">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                      <button className="page-link" aria-label="Previous" onClick={() => handlePageChange(currentPage - 1)}>
+                        <span aria-hidden="true">«</span>
+                      </button>
+                    </li>
+                    {[...Array(totalPages)].map((_, index) => (
+                      <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                          {index + 1}
                         </button>
                       </li>
-                      {[...Array(totalPages)].map((_, index) => (
-                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                          <button className="page-link" onClick={() => handlePageChange(index + 1)}>
-                            {index + 1}
-                          </button>
-                        </li>
-                      ))}
-                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                        <button className="page-link" aria-label="Next" onClick={() => handlePageChange(currentPage + 1)}>
-                          <span aria-hidden="true">»</span>
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
+                    ))}
+                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                      <button className="page-link" aria-label="Next" onClick={() => handlePageChange(currentPage + 1)}>
+                        <span aria-hidden="true">»</span>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
 
             </div>
 
@@ -252,8 +284,8 @@ const CategoryPageDetail = () => {
       </div>
 
 
-      <Bebefits/>
-      <Footer2/>
+      <Bebefits />
+      <Footer2 />
     </div>
   )
 }
