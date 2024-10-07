@@ -16,7 +16,9 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
 
   const navigator = useNavigate();
   const [errors, setErrors] = useState({
-    editCategoryName: ''
+    editCategoryName: '',
+    editCategoryDesc: '',
+    editCategoryImage: ''
   })
 
   //lưu trữ giá trị tìm kiếm
@@ -39,31 +41,38 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   };
 
   const handUpdate = () => {
-    if (!validateForm()) {
-      return;
-    }
 
-    if (selectedCategory) {
-
+    if (selectedCategory && validateForm()) {
       const updatedCategory = {
         name: editCategoryName,
         description: editCategoryDesc,
         image: editCategoryImage || currentImage,
         status: selectedCategory.status
       }
+      updateCateIns(updatedCategory, selectedCategory.id)
 
-      updateCateIns(selectedCategory.id, updatedCategory)
-        .then((response) => {
-          onUpdate(); // Gọi hàm onUpdate để cập nhật lại danh sách
-          const modal = window.bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
-          modal.hide(); // Ẩn modal sau khi lưu
-          setSuccessMessage("Category update successfully!");
+        .then(() => {
+          onUpdate()
+          setSuccessMessage("Categories update successfully")
+
+          const modalElement = document.getElementById('editCategoryModal');
+          const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+          modalInstance.hide();
+     
+      
+
         })
         .catch((error) => {
-          console.error(error);
-        });
+          console.error(error)
+        })
     }
+
+
+
+
   };
+
+
 
   useEffect(() => {
     if (successMessage) {
@@ -90,55 +99,51 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   function removeCateIns(id) {
     const categoryToUpdate = categories.find((cate) => cate.id === id);
 
-
     if (categoryToUpdate) {
       const updatedStatus = !categoryToUpdate.status;
       const dataToSend = {
         ...categoryToUpdate,
-        status: updatedStatus,
-        name: categoryToUpdate.name,
-        description: categoryToUpdate.description,
-      }
-    }
+        status: updatedStatus // Chuyển đổi trạng thái
+      };
 
-    updateCateIns(id, updatedCategory)
-      .then((response) => {
-        onUpdate(); // Gọi hàm onUpdate để cập nhật lại danh sách trong component cha
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      updateCateIns(dataToSend, id)
+        .then((response) => {
+          onUpdate(); // Gọi hàm onUpdate để cập nhật lại danh sách trong component cha
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   }
+
 
   // Validation function
   function validateForm() {
     let valid = true;
     const errorsCopy = { editCategoryName: '', editCategoryImage: '', editCategoryDesc: '' };
 
-    if (editCategoryName.trim()) {
-      errorsCopy.editCategoryName = '';
-    } else {
-      errorsCopy.editCategoryName = 'Category name is required'; // Có lỗi
+    // Kiểm tra tên danh mục
+    if (!editCategoryName.trim()) {
+      errorsCopy.editCategoryName = 'Category name is required';
       valid = false;
     }
 
+    // Kiểm tra hình ảnh
     if (!editCategoryImage && !currentImage) {
-      errorsCopy.editCategoryImage = 'Brand image is required';
+      errorsCopy.editCategoryImage = 'Category image is required';
       valid = false;
-    } else {
-      errorsCopy.editCategoryImage = '';
     }
 
+    // Kiểm tra mô tả
     if (!editCategoryDesc.trim()) {
       errorsCopy.editCategoryDesc = 'Category description is required';
       valid = false;
-    } else {
-      errorsCopy.editCategoryDesc = '';
     }
 
     setErrors(errorsCopy); // Cập nhật trạng thái lỗi
     return valid; // Trả về kết quả xác thực
   }
+
 
   return (
     <div>
@@ -155,6 +160,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
             <th scope="col">#</th>
             <th scope="col">Image</th>
             <th scope="col">Categories Name</th>
+            <th scope="col">Desc</th>
             <th scope="col">Status</th>
             <th scope="col">Action</th>
 
@@ -172,7 +178,8 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
                   style={{ width: '50px' }} />
               </td>
               <td>{cate.name}</td>
-              <td>{cate.status ? 'Available' : 'Unavailable'}</td>
+              <td>{cate.description}</td>
+              <td>{cate.status ? 'Unavailable' : 'Available'}</td>
               <td>
                 <button className="btn btn-warning" onClick={() => openEditModal(cate)}>
                   Edit
@@ -228,24 +235,26 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
                   {errors.editCategoryDesc && <div className='invalid-feedback'>{errors.editCategoryDesc}</div>}
                 </div>
 
+
+
                 <div className="mt-3">
                   <label className="form-label">Image:</label>
-                  <input 
-                  type="file" 
-                  className={`form-control ${errors.editCategoryImage ? 'is-invalid' : ''}`}
-                  onChange={(e) => setEditCategoryImage(e.target.files[0])}
+                  <input
+                    type="file"
+                    className={`form-control ${errors.editCategoryImage ? 'is-invalid' : ''}`}
+                    onChange={(e) => setEditCategoryImage(e.target.files[0])}
                   />
-                  {errors.editCategoryImage && <div className="invalid-feedback">{errors.editCategoryImage}</div> }
+                  {errors.editCategoryImage && <div className="invalid-feedback">{errors.editCategoryImage}</div>}
                 </div>
 
                 {/* Curren image */}
                 {currentImage && (
                   <div className="mt-3">
                     <label className="form-label">Current Image:</label>
-                    <img 
-                    src={`data:image/jpeg;base64, ${currentImage}`} 
-                    alt="Current image"
-                    style={{ width: '100%', maxHeight: '200px', objectFit: 'contain'}} 
+                    <img
+                      src={`data:image/jpeg;base64, ${currentImage}`}
+                      alt="Current image"
+                      style={{ width: '100%', maxHeight: '200px', objectFit: 'contain' }}
                     />
                   </div>
                 )}

@@ -9,7 +9,7 @@ const ManagerInstrument = () => {
   const [newInsPrice, setInsPrice] = useState("");
   const [newInsQuantity, setInsQuantity] = useState("");
   const [newInsColor, setInsColor] = useState("");
-  const [newInsImage, setInsImage] = useState([]);
+  const [newInsImage, setInsImage] = useState(null);
   const [newInsCategory, setInsCategory] = useState("");
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");
@@ -91,10 +91,10 @@ const ManagerInstrument = () => {
 
     const priceRegex = /^\d+(\.\d+)?$/; // Regex để kiểm tra giá (chỉ cho phép số và số thập phân)
     if (!newInsPrice.trim() || !priceRegex.test(newInsPrice) || parseFloat(newInsPrice) < 0) {
-      errorsCopy.newInsPrice = 'Instrument price must be a positive number';
-      valid = false;
+        errorsCopy.newInsPrice = 'Instrument price must be a positive number';
+        valid = false;
     } else {
-      errorsCopy.newInsPrice = '';
+        errorsCopy.newInsPrice = '';
     }
 
     if (!newInsColor.trim()) {
@@ -106,10 +106,10 @@ const ManagerInstrument = () => {
 
     const quantityRegex = /^\d+$/; // Regex để kiểm tra số lượng (chỉ cho phép số nguyên dương)
     if (!newInsQuantity.trim() || !quantityRegex.test(newInsQuantity) || parseInt(newInsQuantity) < 0) {
-      errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
-      valid = false;
+        errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
+        valid = false;
     } else {
-      errorsCopy.newInsQuantity = '';
+        errorsCopy.newInsQuantity = '';
     }
 
     if (!newInsImage) {
@@ -159,11 +159,6 @@ const ManagerInstrument = () => {
     newInstrument.append('description', newInsDes);
     newInstrument.append('categoryId', newInsCategory);
     newInstrument.append('brandId', newInsBrand);
-
-    // Gửi tất cả hình ảnh
-    newInsImage.forEach((image) => {
-      newInstrument.append('image', image); // Thêm từng hình ảnh vào FormData
-    });
 
     createInstrument(newInstrument).then((response) => {
       console.log("Instrument created:", response.data);
@@ -229,7 +224,7 @@ const ManagerInstrument = () => {
         {apiError && <div className="alert alert-danger">{apiError}</div>} {/* Display API error */}
 
         {/* Display errors for each input */}
-
+   
         <div className="row m-2">
           <div className="row">
             {/* Search by keyword */}
@@ -274,7 +269,7 @@ const ManagerInstrument = () => {
                 )}
               </select>
               <button
-                className="btn btn-outline-danger mt-3"
+                className="btn btn-secondary mt-3"
                 onClick={() => setSelectedCategory("")} // Đặt lại giá trị selectedBrand
               >
                 Reset
@@ -306,7 +301,7 @@ const ManagerInstrument = () => {
                 )}
               </select>
               <button
-                className="btn btn-outline-danger mt-3"
+                className="btn btn-secondary mt-3"
                 onClick={() => setSelectedBrand("")} // Đặt lại giá trị selectedBrand
               >
                 Reset
@@ -318,7 +313,7 @@ const ManagerInstrument = () => {
           </div>
 
         </div>
-        <button className="btn btn-outline-info" onClick={handleSort}>
+        <button className="btn btn-secondary" onClick={handleSort}>
           Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
         </button>
         <button
@@ -336,7 +331,6 @@ const ManagerInstrument = () => {
           tabIndex={-1}
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
-          data-bs-backdrop="false"
         >
           <div className="modal-dialog modal-xl">
             <div className="modal-content">
@@ -366,7 +360,7 @@ const ManagerInstrument = () => {
                           value={newInsName}
                           onChange={(e) => setInsName(e.target.value)} />
                       </div>
-                      {errors.newInsName && <div className="alert alert-danger mt-3">{errors.newInsName}</div>}
+                           {errors.newInsName && <div className="alert alert-danger mt-3">{errors.newInsName}</div>}
 
                       <div className="mt-3">
                         <label className="form-label">Price:</label>
@@ -395,16 +389,8 @@ const ManagerInstrument = () => {
                       {errors.newInsQuantity && <div className="alert alert-danger mt-3">{errors.newInsQuantity}</div>}
                       <div className="mt-3">
                         <label className="form-label">Instrument Image</label>
-                        <input
-                          type="file"
-                          className={`form-control`}
-                          multiple // Thêm thuộc tính multiple
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files); // Chuyển đổi FileList thành mảng
-                            setInsImage(files); // Cập nhật state với mảng hình ảnh
-                          }}
-                        />
-
+                        <input type="file" className={`form-control `}
+                          onChange={(e) => setInsImage(e.target.files[0])} />
                       </div>
                       {errors.newInsImage && <div className="alert alert-danger mt-3">{errors.newInsImage}</div>}
                     </div>
@@ -435,7 +421,7 @@ const ManagerInstrument = () => {
                       <div className="mt-3">
                         <label className="form-label">Brand:</label>
                         <select
-
+                     
                           className={`form-select ${errors.newInsBrand ? 'is-invalid' : ''}`}
                           value={newInsBrand || ""}
                           onChange={(e) => setInsBrand(e.target.value)}
