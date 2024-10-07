@@ -1,5 +1,6 @@
 import React from 'react'
 import { images } from '../../assets/images/images'
+import { Link } from 'react-router-dom'
 
 const Footer2 = () => {
   return (
@@ -19,33 +20,21 @@ const Footer2 = () => {
       <div className="col-lg-6 col-12 mb-4 pb-2">
         <ul className="site-footer-links">
           <li className="site-footer-link-item">
-            <a href="/index.html" className="site-footer-link fontchu text-white">Trang chủ</a>
+            <Link to={'/'} className='site-footer-link fontchu text-white'>Home</Link>
           </li>
           <li className="site-footer-link-item">
-            <a href className="site-footer-link fontchu text-white">Dịch vụ</a>
+            <Link to={'/shop'} className='site-footer-link fontchu text-white'>Shop</Link>
           </li>
-          <li className="site-footer-link-item">
-            <a href className="site-footer-link fontchu text-white">Tài nguyên</a>
-          </li>
-          <li className="site-footer-link-item">
-            <a href className="site-footer-link fontchu text-white">Góp ý</a>
-          </li>
-          <li className="site-footer-link-item">
-            <a href className="site-footer-link fontchu text-white">Giới thiệu</a>
-          </li>
+          
         </ul>
       </div>
       <div className="col-lg-3 col-md-6 col-12 mb-4 mb-lg-0" id="lienhe">
         <h5 className="site-footer-title mb-3 text-white">Liên hệ với chúng tôi</h5>
         <p className="text-white d-flex mb-1">
-          <a href="tel: 090-080-0760" className="site-footer-link text-white">
-            Thông qua Email:
-          </a>
+          <Link to={'email'} className="site-footer-link text-white">Email:</Link>
         </p>
         <p className="text-white d-flex">
-          <a href="mailto:hello@company.com" className="site-footer-link text-white">
-            bachdangsu@gmail.com
-          </a>
+          <Link to={'/bachdangsu.site'} className="site-footer-link text-white">bachdangsu@gmail.com</Link>
         </p>
       </div>
     </div>

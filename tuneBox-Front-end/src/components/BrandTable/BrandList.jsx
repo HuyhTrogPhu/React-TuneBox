@@ -48,7 +48,7 @@ const BrandList = ({ brands, onUpdate }) => {
   };
   useEffect(() => {
     if (successMessage) {
-      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+      setCountdown(2); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
 
       const intervalId = setInterval(() => {
         setCountdown(prevCountdown => prevCountdown - 1);
@@ -129,7 +129,38 @@ const BrandList = ({ brands, onUpdate }) => {
         </div>
       )}
       <table className="table table-striped table-hover">
-
+        <thead className='text-center'>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Brand Image</th>
+            <th scope="col">Brand Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+            <th scope="col">Status Transition</th>
+          </tr>
+        </thead>
+        <tbody>
+          {brands.map((bra, index) => (
+            <tr key={bra.id} className="ps-0">
+              <td>{index + 1}</td>
+              <td>
+                <img
+                  src={bra.brandImage
+                    ? `data:image/jpeg;base64,${bra.brandImage}`
+                    : 'default-image-path.jpg'}
+                  alt={bra.name}
+                  style={{ width: '50px' }}
+                />
+              </td>
+              <td>{bra.name}</td>
+              <td>{bra.description ? bra.description : 'No description available'}</td>
+              <td>{bra.status ? 'Available' : 'Unavailable'}</td>
+              <td>
+                <button className='btn btn-warning' onClick={() => handleEdit(bra)}>
+                  Edit
+                </button>
+              </td>
               <td>
                 <button
                   className={`btn ms-4 ${bra.status ? 'btn-success' : 'btn-danger'}`}
@@ -144,7 +175,7 @@ const BrandList = ({ brands, onUpdate }) => {
       </table>
 
       {/* Modal Edit */}
-      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true">
+      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -164,6 +195,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   />
                   {errors.editBrandName && <div className='invalid-feedback'>{errors.editBrandName}</div>}
                 </div>
+
                 <div className="mb-3">
                   <label htmlFor="brandDescription" className="form-label">Description</label>
                   <textarea
@@ -174,6 +206,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   ></textarea>
                   {errors.editBrandDescription && <div className='invalid-feedback'>{errors.editBrandDescription}</div>}
                 </div>
+                
                 <div className="mb-3">
                   <label htmlFor="brandImage" className="form-label">Brand Image</label>
                   <input

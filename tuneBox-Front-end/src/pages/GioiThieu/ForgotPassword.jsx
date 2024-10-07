@@ -14,7 +14,7 @@ const ForgotPassword = () => {
     const isEmail = inputValue.includes('@');
   
     try {
-      const response = await axios.post('http://localhost:8081/User/forgot-password', { 
+      const response = await axios.post('http://localhost:8080/User/forgot-password', { 
         email: isEmail ? inputValue : null,
         userName: !isEmail ? inputValue : null
       });

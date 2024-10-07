@@ -5,9 +5,11 @@ import { createCategory, listCateIns } from "../../../service/CategoryService";
 
 const ManagerCategories = () => {
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryImg, setNewCategoryImg] = useState(null);
+  const [newCategoryDesc, setCategoryDesc] = useState("");
   const [categories, setCategories] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
 
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [errors, setErrors] = useState({ newCategoryName: '' });
   const [successMessage, setSuccessMessage] = useState("");
@@ -31,16 +33,12 @@ const ManagerCategories = () => {
       });
   }
 
-
   function validateForm() {
     let valid = true;
     const errorsCopy = { ...errors };
 
     if (!newCategoryName.trim()) {
       errorsCopy.newCategoryName = 'Category name is required';
-      valid = false;
-    } else if (newCategoryName.length < 3 || newCategoryName.length > 100) {
-      errorsCopy.newCategoryName = 'Category name must be between 10 and 100 characters';
       valid = false;
     } else if (categories.some(category => category.name.toLowerCase() === newCategoryName.trim().toLowerCase())) {
       errorsCopy.newCategoryName = 'Category name already exists';
@@ -49,28 +47,43 @@ const ManagerCategories = () => {
       errorsCopy.newCategoryName = '';
     }
 
+    if(!newCategoryImg) {
+      errorsCopy.newCategoryImg = 'Category image is required';
+      valid = false
+    } else {
+      errorsCopy.newCategoryImg = '';
+    }
+
+    if(!newCategoryDesc.trim()) {
+      errorsCopy.newCategoryDesc = 'Category description is required';
+      valid = false;
+    } else {
+      errorsCopy.newCategoryDesc = '';
+
+    }
+
     setErrors(errorsCopy);
     return valid;
   }
 
   function handleSave() {
+
+    setErrors({newCategoryName: '', newCategoryImg: '', newCategoryDesc: ''})
+
     if (!validateForm()) {
       return;
-
     }
 
-    const newCategory = {
-      name: newCategoryName,
-
-      status: false,
-    };
+    const newCategory = new FormData();
+    newCategory.append('name', newCategoryName);
+    newCategory.append('image', newCategoryImg);
+    newCategory.append('description', newCategoryDesc);
 
 
     createCategory(newCategory)
       .then((response) => {
         console.log("Category created:", response.data);
         getAllCategory();
-
         setNewCategoryName(""); // Reset input field
         setSuccessMessage("Category added successfully!"); // Hiển thị thông báo thành công
 
@@ -80,14 +93,13 @@ const ManagerCategories = () => {
         modalInstance.hide(); // Ẩn modal
 
         // Để đảm bảo lớp phủ được ẩn
-        setTimeout(() => {
-          modalElement.classList.remove('show');
-          const backdrop = document.querySelector('.modal-backdrop');
-          if (backdrop) {
-            backdrop.remove();
-          }
-        }, 150); // Thay đổi giá trị này nếu cần
-
+        // setTimeout(() => {
+        //   modalElement.classList.remove('show');
+        //   const backdrop = document.querySelector('.modal-backdrop');
+        //   if (backdrop) {
+        //     backdrop.remove();
+        //   }
+        // }, 50); // Thay đổi giá trị này nếu cần
       })
       .catch((error) => {
         console.error("Error creating category:", error);
@@ -96,7 +108,7 @@ const ManagerCategories = () => {
 
   useEffect(() => {
     if (successMessage) {
-      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+      setCountdown(3); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
 
       const intervalId = setInterval(() => {
         setCountdown(prevCountdown => prevCountdown - 1);
@@ -145,12 +157,9 @@ const ManagerCategories = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');  // Đổi trạng thái sắp xếp
   }
 
-
   return (
     <div>
       <div className="container-fluid">
-
-
         <button
           data-bs-toggle="modal"
           data-bs-target="#addCategoryModal"
@@ -160,6 +169,57 @@ const ManagerCategories = () => {
           Add Category
         </button>
 
+        {/* start modal add */}
+        <div className="modal fade" id="addCategoryModal" tabIndex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true" data-bs-backdrop="false">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div className="modal-body">
+                <form>
+
+                  <div className="mb-3">
+                    <label htmlFor="categoryName" className="form-label">Category Name</label>
+                    <input
+                      type="text"
+                      className={`form-control ${errors.newCategoryName ? 'is-invalid' : ''}`}
+                      id="categoryName"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                    />
+                    {errors.newCategoryName && <div className='invalid-feedback'>{errors.newCategoryName}</div>}
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="form-label">Image</label>
+                    <input type="file" 
+                    className={`form-control ${errors.newCategoryImg ? 'is-invalid' : ''} `}
+                    onChange={(e) => setNewCategoryImg(e.target.files[0])}/>
+                  </div>
+                  {errors.newCategoryImg && <div className="invalid-feedback">{errors.newCategoryImg}</div>}
+
+                  <div className="mt-3">
+                      <label className="form-label">Description</label>
+                      <textarea cols="50" rows="5"
+                      className={`form-control ${errors.newCategoryDesc ? 'is-invalid' : ''}`}
+                      value={newCategoryDesc}
+                      onChange={(e) => setCategoryDesc(e.target.value)}></textarea>
+                  </div>
+                  {errors.newCategoryDesc && <div className='invalid-feedback'>{errors.newCategoryDesc}</div>}
+
+
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" className="btn btn-primary" onClick={handleSave}>Save Category</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* end modal add */}
 
         {/* Hiển thị thông báo thành công */}
         {successMessage && (
@@ -181,7 +241,6 @@ const ManagerCategories = () => {
 
         <CategoriesTable categories={currentCategories} onUpdate={getAllCategory} sortOrder={sortOrder}
           handleSort={handleSort} />
-
 
         <div className="">
           <nav aria-label="Page navigation example">
@@ -208,36 +267,6 @@ const ManagerCategories = () => {
         </div>
       </div>
 
-
-      <div className="modal fade" id="addCategoryModal" tabIndex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="addCategoryModalLabel">Add New Category</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="mb-3">
-                  <label htmlFor="categoryName" className="form-label">Category Name</label>
-                  <input
-                    type="text"
-
-                    id="categoryName"
-                    value={newCategoryName}
-                    onChange={(e) => setNewCategoryName(e.target.value)}
-                  />
-                  {errors.newCategoryName && <div className='invalid-feedback'>{errors.newCategoryName}</div>}
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" className="btn btn-primary" onClick={handleSave}>Save Category</button>
-            </div>
-          </div>
-        </div>
-      </div>
 
     </div>
   );
