@@ -14,21 +14,27 @@ const Activity = () => {
   const [posts, setPosts] = useState([]);
   const [postId, setPostId] = useState(null);
   const userId = Cookies.get("UserID");
-  const userName = Cookies.get("UserName");
+  const [username, setuserName]  = useState({});
   const [commentContent, setCommentContent] = useState({});
   const [showAllComments, setShowAllComments] = useState({});
   const [replyContent, setReplyContent] = useState({}); // State để lưu nội dung reply
   const [replyingTo, setReplyingTo] = useState({}); // State để xác định bình luận nào đang được trả lời
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentContent, setEditingCommentContent] = useState("");
-  
-  
+  const [showAllReplies, setShowAllReplies] = useState({});
+
+  const handleToggleReplies = (commentId) => {
+    setShowAllReplies((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
+  };
 
   useEffect(() => {
     const createPostBtn = document.getElementById("create-post-btn");
     const postModal = document.getElementById("post-modal");
     const closeModal = document.getElementById("close-modal");
-
+    setuserName(Cookies.get("userName"));
     const openModal = () => {
       resetForm();
       setPostId(null);
@@ -51,7 +57,6 @@ const Activity = () => {
       console.error("One or more elements not found");
     }
   }, []);
-
   const resetForm = () => {
     setPostContent("");
     setPostImages([]);
@@ -61,50 +66,49 @@ const Activity = () => {
 
   const fetchPosts = async () => {
     try {
-        const response = await axios.get(
-            `http://localhost:8080/api/posts/current-user`,
-            {
-                params: { userId },
-                withCredentials: true,
-            }
-        );
+      const response = await axios.get(
+        `http://localhost:8080/api/posts/current-user`,
+        {
+          params: { userId },
+          withCredentials: true,
+        }
+      );
+      console.log(response.data)
 
-        const sortedPosts = response.data.sort((a, b) => {
-            const dateA = new Date(a.createdAt);
-            const dateB = new Date(b.createdAt);
-            return dateB - dateA;
-        });
+      const sortedPosts = response.data.sort((a, b) => {
+        const dateA = new Date(Date.UTC(a.createdAt[0], a.createdAt[1] - 1, a.createdAt[2], a.createdAt[3], a.createdAt[4], a.createdAt[5]));
+        const dateB = new Date(Date.UTC(b.createdAt[0], b.createdAt[1] - 1, b.createdAt[2], b.createdAt[3], b.createdAt[4], b.createdAt[5]));
+        return dateB - dateA;
+      });
 
-        const postsWithCommentsAndReplies = await Promise.all(
-            sortedPosts.map(async (post) => {
-                const commentsResponse = await axios.get(
-                    `http://localhost:8080/api/comments/post/${post.id}`
-                );
-                
-                // Lấy các reply cho từng comment
-                const commentsWithReplies = await Promise.all(
-                    commentsResponse.data.map(async (comment) => {
-                        const repliesResponse = await axios.get(
-                            `http://localhost:8080/api/replies/comment/${comment.id}`
-                        );
-                        return { ...comment, replies: repliesResponse.data };
-                    })
-                );
+      const postsWithCommentsAndReplies = await Promise.all(
+        sortedPosts.map(async (post) => {
+          const commentsResponse = await axios.get(
+            `http://localhost:8080/api/comments/post/${post.id}`
+          );
 
-                return { ...post, comments: commentsWithReplies };
+          // Lấy các reply cho từng comment
+          const commentsWithReplies = await Promise.all(
+            commentsResponse.data.map(async (comment) => {
+              const repliesResponse = await axios.get(
+                `http://localhost:8080/api/replies/comment/${comment.id}`
+              );
+              return { ...comment, replies: repliesResponse.data };
             })
-        );
+          );
 
-        setPosts(postsWithCommentsAndReplies);
+          return { ...post, comments: commentsWithReplies };
+        })
+      );
+
+      setPosts(postsWithCommentsAndReplies);
     } catch (error) {
-        console.error("Error fetching user posts:", error);
+      console.error("Error fetching user posts:", error);
     }
-};
-
+  };
   useEffect(() => {
     fetchPosts();
   }, []);
-
   const handleSubmitPost = async () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
@@ -141,7 +145,6 @@ const Activity = () => {
       );
     }
   };
-
   const handleDeletePost = async (postId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this post?"
@@ -164,48 +167,46 @@ const Activity = () => {
     if (!editingCommentContent.trim()) return;
 
     try {
-        await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
-            content: editingCommentContent,
-            edited: true,  // Đánh dấu comment là đã chỉnh sửa
-        });
-        
-        // Cập nhật lại danh sách comment trong state
-        setPosts((prevPosts) =>
-            prevPosts.map((post) => {
-                if (post.id === postId) {
-                    return {
-                        ...post,
-                        comments: post.comments.map((comment) => {
-                            if (comment.id === commentId) {
-                                return { 
-                                    ...comment, 
-                                    content: editingCommentContent,
-                                    edited: true, // Đánh dấu comment là đã chỉnh sửa
-                                };
-                            }
-                            return comment;
-                        }),
-                    };
+      await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
+        content: editingCommentContent,
+        edited: true,  // Đánh dấu comment là đã chỉnh sửa
+      });
+
+      // Cập nhật lại danh sách comment trong state
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post.id === postId) {
+            return {
+              ...post,
+              comments: post.comments.map((comment) => {
+                if (comment.id === commentId) {
+                  return {
+                    ...comment,
+                    content: editingCommentContent,
+                    edited: true, // Đánh dấu comment là đã chỉnh sửa
+                  };
                 }
-                return post;
-            })
-        );
+                return comment;
+              }),
+            };
+          }
+          return post;
+        })
+      );
 
-        // Reset state sau khi cập nhật
-        setEditingCommentId(null);
-        setEditingCommentContent("");
+      // Reset state sau khi cập nhật
+      setEditingCommentId(null);
+      setEditingCommentContent("");
     } catch (error) {
-        console.error("Error updating comment:", error);
+      console.error("Error updating comment:", error);
     }
-};
-
+  };
   const handleEditPost = (post) => {
     setPostContent(post.content);
     setPostImages(post.images);
     setPostId(post.id);
     document.getElementById("post-modal").style.display = "flex";
   };
-
   const handleAddComment = async (postId) => {
     const content = commentContent[postId] || ""; // Lấy nội dung comment từ state
     if (!content.trim()) return;
@@ -233,11 +234,9 @@ const Activity = () => {
       console.error("Error adding comment:", error);
     }
   };
-
   const handleCommentChange = (postId, value) => {
     setCommentContent((prev) => ({ ...prev, [postId]: value })); // Cập nhật commentContent cho postId cụ thể
   };
-
   const handleDeleteComment = async (commentId, postId) => {
     try {
       await axios.delete(`http://localhost:8080/api/comments/${commentId}`);
@@ -258,7 +257,6 @@ const Activity = () => {
       console.error("Error deleting comment:", error);
     }
   };
-
   // Hàm để hiển thị tất cả comment hoặc chỉ một số lượng nhất định
   const handleToggleComments = (postId) => {
     setShowAllComments((prevState) => ({
@@ -269,15 +267,15 @@ const Activity = () => {
   const handleReplyChange = (commentId, value) => {
     setReplyContent((prev) => ({ ...prev, [commentId]: value })); // Cập nhật nội dung reply
   };
-  
+
   const handleReplyClick = (commentId) => {
     setReplyingTo((prev) => ({ ...prev, [commentId]: !prev[commentId] })); // Chuyển đổi trạng thái hiển thị input reply
   };
-  
+
   const handleAddReply = async (commentId, postId) => {
     const content = replyContent[commentId] || ""; // Lấy nội dung reply từ state
     if (!content.trim()) return;
-  
+
     try {
       const response = await axios.post(
         `http://localhost:8080/api/replies/comment/${commentId}/user/${userId}`,
@@ -286,7 +284,7 @@ const Activity = () => {
         },
         { withCredentials: true } // Ensure this is included
       );
-  
+
       setPosts(
         posts.map((post) => {
           if (post.id === postId) {
@@ -306,7 +304,7 @@ const Activity = () => {
           return post;
         })
       );
-  
+
       // Reset nội dung reply cho commentId cụ thể sau khi gửi thành công
       setReplyContent((prev) => ({ ...prev, [commentId]: "" }));
       setReplyingTo((prev) => ({ ...prev, [commentId]: false })); // Đóng input reply
@@ -314,9 +312,6 @@ const Activity = () => {
       console.error("Error adding reply:", error);
     }
   };
-  
-  
-
   return (
     <div>
       {/* Nút tạo bài */}
@@ -341,7 +336,7 @@ const Activity = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Modal để tạo bài viết */}
       <div
         id="post-modal"
@@ -398,7 +393,10 @@ const Activity = () => {
       {/* Phần hiển thị bài viết */}
       <div className="container mt-2 mb-5">
         {posts.map((post) => {
-          const createdAt = post.createdAt ? new Date(post.createdAt) : null;
+const createdAt = post.createdAt 
+? new Date(post.createdAt[0], post.createdAt[1] - 1, post.createdAt[2], post.createdAt[3], post.createdAt[4], post.createdAt[5])
+: null;
+        console.log(post.createdAt);
           const showAll = showAllComments[post.id];
           return (
             <div key={post.id} className="post">
@@ -409,12 +407,12 @@ const Activity = () => {
                   alt="Avatar"
                 />
                 <div>
-                  <div className="name">{post.userName || "Unknown User"}</div>
+                  <div className="name">{username}</div>
                   <div className="time">
-                    {createdAt && !isNaN(createdAt.getTime())
-                      ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                      : "Invalid date"}
-                  </div>
+            {createdAt && !isNaN(createdAt.getTime())
+              ? format(createdAt, "hh:mm a, dd MMM yyyy")
+              : "Invalid date"}
+          </div>
                 </div>
                 <div className="dropdown position-absolute top-0 end-0">
                   <button
@@ -490,152 +488,165 @@ const Activity = () => {
 
                 {/* Comment list */}
                 <div className=" mt-4">
-                {(showAll ? post.comments : post.comments.slice(0, 3)).map((comment) => (
-    <div key={comment.id} className="comment mt-2">
-        <div className="container">
-            <div className="row justify-content-start">
-                <div className="comment-content position-relative">
-                    <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
-                    <div>
-                        <div className="comment-author">{comment.userName}</div>
-                        <div className="comment-time">
-                            {format(new Date(comment.creationDate), "hh:mm a, dd MMM yyyy")}
-                            {comment.edited && <span className="edited-notice">  (Đã chỉnh sửa)</span>}
-                            </div>
-                        {editingCommentId === comment.id ? (
+                  {(showAll ? post.comments : post.comments.slice(0, 3)).map((comment) => (
+                    <div key={comment.id} className="comment mt-2">
+                      <div className="container">
+                        <div className="row justify-content-start">
+                          <div className="comment-content position-relative">
+                            <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
                             <div>
-                                <textarea
+                              <div className="comment-author">{comment.userName}</div>
+                              <div className="comment-time">
+                                {format(new Date(comment.creationDate), "hh:mm a, dd MMM yyyy")}
+                                {comment.edited && <span className="edited-notice">  (Đã chỉnh sửa)</span>}
+                              </div>
+                              {editingCommentId === comment.id ? (
+                                <div>
+                                  <textarea
                                     className="form-control"
                                     rows={2}
                                     value={editingCommentContent}
                                     onChange={(e) => setEditingCommentContent(e.target.value)}
-                                />
-                                <button
+                                  />
+                                  <button
                                     className="btn btn-primary mt-2"
                                     onClick={() => handleUpdateComment(comment.id, post.id)}
-                                >
+                                  >
                                     Save
-                                </button>
-                                <button
+                                  </button>
+                                  <button
                                     className="btn btn-secondary mt-2 ms-2"
                                     onClick={() => {
-                                        setEditingCommentId(null);
-                                        setEditingCommentContent("");
+                                      setEditingCommentId(null);
+                                      setEditingCommentContent("");
                                     }}
-                                >
+                                  >
                                     Cancel
-                                </button>
+                                  </button>
+                                </div>
+                              ) : (
+                                <p>{comment.content}</p>
+                              )}
                             </div>
-                        ) : (
-                            <p>{comment.content}</p>
-                        )}
-                    </div>
-                    <div className="dropdown position-absolute top-0 end-0">
-                        <button
-                            className="btn btn-options dropdown-toggle"
-                            type="button"
-                            id={`dropdownMenuButton-${comment.id}`}
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                        >
-                            ...
-                        </button>
-                        <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${comment.id}`}>
-                            <li>
-                                <button
+                            <div className="dropdown position-absolute top-0 end-0">
+                              <button
+                                className="btn btn-options dropdown-toggle"
+                                type="button"
+                                id={`dropdownMenuButton-${comment.id}`}
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                              >
+                                ...
+                              </button>
+                              <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${comment.id}`}>
+                                <li>
+                                  <button
                                     className="dropdown-item"
                                     onClick={() => {
-                                        setEditingCommentId(comment.id);
-                                        setEditingCommentContent(comment.content);
+                                      setEditingCommentId(comment.id);
+                                      setEditingCommentContent(comment.content);
                                     }}
-                                >
+                                  >
                                     Edit
-                                </button>
-                            </li>
-                            <li>
-                                <button
+                                  </button>
+                                </li>
+                                <li>
+                                  <button
                                     className="dropdown-item"
                                     onClick={() => handleDeleteComment(comment.id, post.id)}
-                                >
+                                  >
                                     Delete
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+                                  </button>
+                                </li>
+                              </ul>
+                            </div>
 
-                    {/* Reply button */}
-                    <button className="btn btn-link mt-2" onClick={() => handleReplyClick(comment.id)}>
-                        Reply
-                    </button>
-
-                    {/* Reply input box */}
-                    {replyingTo[comment.id] && (
-                        <div className="reply-input-container">
-                            <textarea
-                                className="reply-input mt-2 form-control"
-                                rows={1}
-                                placeholder="Write a reply..."
-                                value={replyContent[comment.id] || ""}
-                                onChange={(e) => handleReplyChange(comment.id, e.target.value)}
-                            />
-                            <button
-                                className="btn btn-primary mt-2"
-                                onClick={() => handleAddReply(comment.id, post.id)}
-                            >
-                                Reply
+                            {/* Reply button */}
+                            <button className="btn btn-link mt-2" onClick={() => handleReplyClick(comment.id)}>
+                              Reply
                             </button>
+
+                            {/* Reply input box */}
+                            {replyingTo[comment.id] && (
+                              <div className="reply-input-container">
+                                <textarea
+                                  className="reply-input mt-2 form-control"
+                                  rows={1}
+                                  placeholder="Write a reply..."
+                                  value={replyContent[comment.id] || ""}
+                                  onChange={(e) => handleReplyChange(comment.id, e.target.value)}
+                                />
+                                <button
+                                  className="btn btn-primary mt-2"
+                                  onClick={() => handleAddReply(comment.id, post.id)}
+                                >
+                                  Reply
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                    )}
-                </div>
-            </div>
-            <div className="row justify-content-center">
-                {/* Display replies if exist */}
-                {comment.replies && comment.replies.length > 0 && (
-                    <div className="replies-list mt-2 col-9">
-                        {comment.replies.map((reply) => (
-                            <div key={reply.id} className="reply">
-                                <img
+                        <div className="row justify-content-center">
+                          {/* Display replies if exist */}
+                          {comment.replies && comment.replies.length > 0 && (
+                            <div className="replies-list mt-2">
+                              {(showAllReplies[comment.id] ? comment.replies : comment.replies.slice(0, 2)).map((reply) => (
+                                <div key={reply.id} className="reply">
+                                  <img
                                     src="/src/UserImages/Avatar/avt.jpg"
                                     className="avatar_small"
                                     alt="Avatar"
-                                />
-                                <div className="reply-content">
+                                  />
+                                  <div className="reply-content">
                                     <div className="d-flex align-items-center">
-                                        <span className="reply-author">{reply.userName}</span>
-                                        <span className="reply-time">
-                                            {format(new Date(reply.creationDate), "hh:mm a, dd MMM yyyy")}
-                                        </span>
+                                      <span className="reply-author">{reply.userName}</span>
+                                      {/* <span className="reply-time">
+                                                                    {format(new Date(reply.creationDate), "hh:mm a, dd MMM yyyy") && 
+                                                                    !isNaN(new Date(reply.creationDate).getTime()) ? (
+                                                                        format(new Date(reply.creationDate), "hh:mm a, dd MMM yyyy")
+                                                                    ) : (
+                                                                        "Invalid date"
+                                                                    )}
+                                                                    
+                                                                </span> */}
                                     </div>
                                     <p>{reply.content}</p>
+                                  </div>
                                 </div>
+                              ))}
+
+                              {/* View all/Hide replies button */}
+                              {comment.replies.length > 2 && (
+                                <button
+                                  className="btn btn-link"
+                                  onClick={() => handleToggleReplies(comment.id)}
+                                >
+                                  {showAllReplies[comment.id] ? "Hide replies" : "View all replies"}
+                                </button>
+                              )}
                             </div>
-                        ))}
+                          )}
+                        </div>
+                      </div>
                     </div>
-                )}
-            </div>
-        </div>
-    </div>
-))}
-
-
-
-  {/* View all/Hide comments button */}
-  {post.comments.length > 3 && (
-    <button
-      className="btn btn-link"
-      onClick={() => handleToggleComments(post.id)}
-    >
-      {showAll ? "Hide comments" : "View all comments"}
-    </button>
-  )}
-</div>
+                  ))}
+                  {/* View all/Hide comments button */}
+                  {post.comments.length > 3 && (
+                    <button
+                      className="btn btn-link"
+                      onClick={() => handleToggleComments(post.id)}
+                    >
+                      {showAll ? "Hide comments" : "View all comments"}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );
         })}
+
       </div>
     </div>
   );
 };
-
 export default Activity;

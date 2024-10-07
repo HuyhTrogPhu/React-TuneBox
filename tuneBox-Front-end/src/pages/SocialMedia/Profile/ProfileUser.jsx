@@ -16,14 +16,14 @@ import { fetchDataUser } from "./js/ProfileJS";
 
 const ProfileUser = () => {
   const value = Cookies.get("UserID");
-  console.log(value);
+  // console.log(value);
   const [userData, setUserData] = useState([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   useEffect(() => {
     const fetchDataAndRender = async () => {
       const response = await fetchDataUser(value);
-      console.log("Data fetched from API:", response);
+      // console.log("Data fetched from API:", response);
       if (response && response.data) {
         setUserData(response.data);
         console.log(userData);
