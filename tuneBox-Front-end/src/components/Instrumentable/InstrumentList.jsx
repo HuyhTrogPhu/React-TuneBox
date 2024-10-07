@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { listInstruments, updateInstrument, listBrands, listCategories, } from "../../service/InstrumentService";
+import { listInstruments, updateInstrument, listBrands, listCategories } from "../../service/InstrumentService";
 
 const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
   const [selectedInstrument, setSelectedInstrument] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState([]);
   const [newInsName, setNewInsName] = useState('');
   const [newInsPrice, setNewInsPrice] = useState('');
   const [newInsColor, setNewInsColor] = useState('');
@@ -15,20 +15,19 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const [newInsDes, setInsDes] = useState('');
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
+
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null); // lưu chỉ mục ảnh muốn thay thế
+
+
   const [validationErrors, setValidationErrors] = useState({});
   const [newInsStatus, setNewInsStatus] = useState(false);
-  const [currentImage, setCurrentImage] = useState(null); // Thêm biến trạng thái cho hình ảnh hiện tại
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
-
-
-
-
 
   const uploadInstrument = (id) => {
     if (!id) {
       console.error("Instrument ID is undefined or null");
-      return;  // Ngăn việc tiếp tục nếu ID không hợp lệ
+      return;
     }
 
     const insToEdit = instruments.find((ins) => ins.id === id);
@@ -42,161 +41,44 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     setNewInsPrice(insToEdit.costPrice);
     setNewInsColor(insToEdit.color);
     setNewInsQuantity(insToEdit.quantity);
-    setImage(insToEdit.image); // Giữ hình ảnh hiện tại
-    setCurrentImage(insToEdit.image);
+    setImage(insToEdit.image);
     setNewInsCategory(insToEdit.categoryIns ? insToEdit.categoryIns.id : '');
     setNewInsBrand(insToEdit.brand ? insToEdit.brand.id : '');
     setInsDes(insToEdit.description);
     setNewInsStatus(insToEdit.status);
+
     // Mở modal
     const modal = new window.bootstrap.Modal(document.getElementById('editIns'));
     modal.show();
   };
 
-
-  const handleStatusChange = async (id) => {
-    // Tìm nhạc cụ cần cập nhật
-    const instrumentToUpdate = instruments.find(ins => ins.id === id);
-    if (!instrumentToUpdate) {
-      console.error("Instrument not found");
-      return;
-    }
-
-    // Chuyển đổi trạng thái
-    const updatedStatus = !instrumentToUpdate.status; // Chuyển đổi trạng thái
-    const updatedInstrument = {
-      ...instrumentToUpdate,
-      status: updatedStatus
-    };
-
-    try {
-      // Gọi API để cập nhật nhạc cụ
-      await updateInstrument(id, updatedInstrument);
-      onUpdate(); // Cập nhật danh sách nhạc cụ
-      setSuccessMessage("Status updated successfully!"); // Hiển thị thông báo thành công
-    } catch (error) {
-      console.error("Error updating instrument status:", error);
-    }
-  };
-  // Thêm trạng thái nhạc cụ
-
-
-
   useEffect(() => {
-    if (successMessage) {
-      setCountdown(2); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
-
-      const intervalId = setInterval(() => {
-        setCountdown(prevCountdown => prevCountdown - 1);
-      }, 1000);
-
-      const timeoutId = setTimeout(() => {
-        setSuccessMessage(""); // Đặt lại thông báo sau khi hết thời gian
-      }, 5000);
-
-      // Dọn dẹp khi component unmount hoặc khi successMessage thay đổi
-      return () => {
-        clearInterval(intervalId);
-        clearTimeout(timeoutId);
-      };
-    }
-  }, [successMessage]);
-  //validation
-  const validateInputs = () => {
-    const errors = {};
-    // Check instrument name
-    if (!newInsName.trim()) {
-      errors.name = "Instrument name cannot be empty.";
-    }
-    if (instruments.some(ins => ins.name === newInsName && ins.id !== selectedInstrument.id)) {
-      errors.name = "Instrument name already exists.";
-    }
-    // Check price, color, quantity
-    if (!newInsPrice) {
-      errors.price = "Price cannot be empty.";
-    } else if (isNaN(newInsPrice)) {
-      errors.price = "Price must be a number.";
-    }
-    if (!newInsColor.trim()) {
-      errors.color = "Color cannot be empty.";
-    }
-    if (!newInsQuantity) {
-      errors.quantity = "Quantity cannot be empty.";
-    } else if (isNaN(newInsQuantity)) {
-      errors.quantity = "Quantity must be a number.";
-    }
-    if (!newInsCategory) {
-      errors.category = "Category cannot be empty.";
-    }
-    if (!newInsBrand) {
-      errors.brand = "Brand cannot be empty.";
-    }
-  
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0; // Return true if no errors
-  };
-  
-
-  const handleUpdate = async () => {
-    if (!selectedInstrument || !selectedInstrument.id) {
-      console.error("Selected instrument or ID is invalid");
-      return;
-    }
-    if (!validateInputs()) {
-      return; // Nếu không hợp lệ thì không thực hiện cập nhật
-    }
-
-    const updatedInstrument = {
-      name: newInsName,
-      costPrice: parseFloat(newInsPrice),
-      color: newInsColor,
-      quantity: parseInt(newInsQuantity, 10),
-      categoryId: newInsCategory,
-      brandId: newInsBrand,
-      description: newInsDes,
-      status: newInsStatus,
-      image: image // Sử dụng image đã chọn
-    };
-
-    try {
-      await updateInstrument(selectedInstrument.id, updatedInstrument);
-      onUpdate(); // Cập nhật danh sách nhạc cụ
-      const modalElement = document.getElementById('editIns');
-      const modal = window.bootstrap.Modal.getInstance(modalElement); // Lấy instance đã có
-      modal.hide(); // Đóng modal
-      setSuccessMessage("Instrument update successfully!");
-    } catch (error) {
-      console.error("Error updating instrument:", error);
-    }
-  };
-
-
-
-
-  const getAllBrand = async () => {
-    try {
-      const response = await listBrands();
-      console.log(response.data);
-      setBrands(response.data);
-    } catch (error) {
-      console.error("Error fetching brands", error);
-    }
-  };
-
-  const getAllCategory = async () => {
-    try {
-      const response = await listCategories();
-      console.log(response.data);
-      setCategories(response.data);
-    } catch (error) {
-      console.error("Error fetching categories", error);
-    }
-  };
-
-  useEffect(() => {
-    getAllBrand();
-    getAllCategory();
+    listInstruments()
+      .then((response) => {
+        setInstruments(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching instruments", error);
+        setInstruments([]);
+      });
   }, []);
+
+  function uploadInstrument(id) {
+    navigator(`/edit-instrument/${id}`);
+  }
+
+  function removeInstrument(id) {
+    const insToUpdate = instruments.find((ins) => ins.id === id);
+    const updatedStatus = !insToUpdate.status;
+
+    updateInstrument({ ...insToUpdate, status: updatedStatus }, id)
+      .then(() => {
+        onUpdate();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   return (
     <div>

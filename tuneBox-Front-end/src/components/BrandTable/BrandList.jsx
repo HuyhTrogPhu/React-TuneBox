@@ -155,7 +155,7 @@ const BrandList = ({ brands, onUpdate }) => {
               </td>
               <td>{bra.name}</td>
               <td>{bra.description ? bra.description : 'No description available'}</td>
-              <td>{bra.status ? 'Unavailable' : 'Available'}</td>
+              <td>{bra.status ? 'Available' : 'Unavailable'}</td>
               <td>
                 <button className='btn btn-warning' onClick={() => handleEdit(bra)}>
                   Edit
@@ -175,7 +175,7 @@ const BrandList = ({ brands, onUpdate }) => {
       </table>
 
       {/* Modal Edit */}
-      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true">
+      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -195,6 +195,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   />
                   {errors.editBrandName && <div className='invalid-feedback'>{errors.editBrandName}</div>}
                 </div>
+
                 <div className="mb-3">
                   <label htmlFor="brandDescription" className="form-label">Description</label>
                   <textarea
@@ -205,6 +206,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   ></textarea>
                   {errors.editBrandDescription && <div className='invalid-feedback'>{errors.editBrandDescription}</div>}
                 </div>
+                
                 <div className="mb-3">
                   <label htmlFor="brandImage" className="form-label">Brand Image</label>
                   <input
