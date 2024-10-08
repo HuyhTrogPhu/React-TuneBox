@@ -20,6 +20,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
   const [currentImage, setCurrentImage] = useState(null); // Thêm biến trạng thái cho hình ảnh hiện tại
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
+  const [loading, setLoading] = useState(false); 
   const uploadInstrument = (id) => {
     if (!id) {
       console.error("Instrument ID is undefined or null");
@@ -140,7 +141,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     if (!validateInputs()) {
       return; // Nếu không hợp lệ thì không thực hiện cập nhật
     }
-
+    setLoading(true);
     const updatedInstrument = {
       name: newInsName,
       costPrice: parseFloat(newInsPrice),
@@ -162,6 +163,8 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       setSuccessMessage("Instrument update successfully!");
     } catch (error) {
       console.error("Error updating instrument:", error);
+    }finally {
+      setLoading(false);
     }
   };
   const getAllBrand = async () => {
@@ -219,7 +222,8 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    src={ins.image ? `data:image/${ins.image.split('.').pop()};base64,${ins.image}` : 'default-image-url'}
+              
+                    src={ins.image ? ins.image : 'default-image-path.jpg'}
                     alt={ins.name}
                     style={{ width: '50px' }}
                   />
@@ -343,7 +347,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                       ) : (
                         image && typeof image === "string" && (
                           <img
-                            src={`data:image/${image.split('.').pop()};base64,${image}`}
+                            src={image}
                             alt="Current Instrument"
                             style={{ width: '100px', marginTop: '10px' }}
                           />
@@ -435,9 +439,10 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                     >
                       Close
                     </button>
-                    <button type="button" className="btn btn-primary" onClick={handleUpdate}>
-                      Save Update
-                    </button>
+       
+                    <button type="button" className="btn btn-primary" onClick={handleUpdate} disabled={loading}>
+
+              {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}           </button>
                   </div>
                 </form>
               </div>

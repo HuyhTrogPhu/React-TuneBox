@@ -13,7 +13,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
 
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
-
+  const [loading, setLoading] = useState(false); 
   const navigator = useNavigate();
   const [errors, setErrors] = useState({
     editCategoryName: '',
@@ -41,35 +41,33 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   };
 
   const handUpdate = () => {
-
     if (selectedCategory && validateForm()) {
+      setLoading(true); // Bắt đầu loading
+
       const updatedCategory = {
         name: editCategoryName,
         description: editCategoryDesc,
         image: editCategoryImage || currentImage,
         status: selectedCategory.status
-      }
+      };
+
       updateCateIns(updatedCategory, selectedCategory.id)
-
         .then(() => {
-          onUpdate()
-          setSuccessMessage("Categories update successfully")
+          setTimeout(() => { // Mô phỏng thời gian chờ 6 giây
+            setLoading(false); // Tắt loading sau khi hoàn thành
+            onUpdate();
+            setSuccessMessage("Categories updated successfully");
 
-          const modalElement = document.getElementById('editCategoryModal');
-          const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-          modalInstance.hide();
-     
-      
-
+            const modalElement = document.getElementById('editCategoryModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+            modalInstance.hide();
+          }, 1000); 
         })
         .catch((error) => {
-          console.error(error)
-        })
+          setLoading(false); // Tắt loading khi có lỗi
+          console.error(error);
+        });
     }
-
-
-
-
   };
 
 
@@ -127,6 +125,15 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
       errorsCopy.editCategoryName = 'Category name is required';
       valid = false;
     }
+        // Kiểm tra tên danh mục có trùng hay không
+        const isDuplicate = categories.some(
+          (cate) => cate.name.toLowerCase() === editCategoryName.toLowerCase() && cate.id !== selectedCategory.id
+      );
+  
+      if (isDuplicate) {
+          errorsCopy.editCategoryName = 'Category name must be unique';
+          valid = false;
+      }
 
     // Kiểm tra hình ảnh
     if (!editCategoryImage && !currentImage) {
@@ -149,7 +156,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
     <div>
       {/* Hiển thị thông báo thành công */}
       {successMessage && (
-        <div className="alert alert-success" role="alert">
+        <div className="alert alert-success " role="alert" style={{marginTop: 10}}>
           {successMessage} This notice will be closed in <b>{countdown}s.</b>
         </div>
       )}
@@ -170,12 +177,19 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
           {filteredCategories.map((cate, index) => (
             <tr key={cate.id} className="ps-0">
               <td>{index + 1}</td>
-              <td>
+              {/* <td>
                 <img src={cate.image
                   ? `data:image/jpeg;base64,${cate.image}`
                   : `default-image-path.jpg`
                 } alt={cate.name}
                   style={{ width: '50px' }} />
+              </td> */}
+              <td>
+                <img
+                  src={cate.image ? cate.image : 'default-image-path.jpg'} // Sử dụng URL hình ảnh từ Cloudinary
+                  alt={cate.name}
+                  style={{ width: '50px' }} // Điều chỉnh kích thước nếu cần
+                />
               </td>
               <td>{cate.name}</td>
               <td>{cate.description}</td>
@@ -252,7 +266,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
                   <div className="mt-3">
                     <label className="form-label">Current Image:</label>
                     <img
-                      src={`data:image/jpeg;base64, ${currentImage}`}
+                      src={currentImage} // Sử dụng URL hình ảnh từ Cloudinary
                       alt="Current image"
                       style={{ width: '100%', maxHeight: '200px', objectFit: 'contain' }}
                     />
@@ -263,7 +277,9 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" className="btn btn-primary" onClick={handUpdate}>Save update</button>
+                <button type="button" className="btn btn-primary" onClick={handUpdate} disabled={loading}>
+                {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}
+              </button>
             </div>
           </div>
         </div>

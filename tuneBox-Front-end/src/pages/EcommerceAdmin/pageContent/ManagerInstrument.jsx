@@ -26,7 +26,7 @@ const ManagerInstrument = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState('asc');
 
-
+  const [loading, setLoading] = useState(false);
   //Sort theo cate  và brand
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
@@ -82,19 +82,22 @@ const ManagerInstrument = () => {
     let valid = true;
     const errorsCopy = { ...errors };
 
-    if (!newInsName.trim()) {
+    const isDuplicateName = instruments.some(ins => ins.name.toLowerCase() === newInsName.toLowerCase());
+    if (isDuplicateName) {
+      errorsCopy.newInsName = 'Instrument name already exists';
+      valid = false;
+    } else if (!newInsName.trim()) {
       errorsCopy.newInsName = 'Instrument name is required';
       valid = false;
     } else {
       errorsCopy.newInsName = '';
     }
-
     const priceRegex = /^\d+(\.\d+)?$/; // Regex để kiểm tra giá (chỉ cho phép số và số thập phân)
     if (!newInsPrice.trim() || !priceRegex.test(newInsPrice) || parseFloat(newInsPrice) < 0) {
-        errorsCopy.newInsPrice = 'Instrument price must be a positive number';
-        valid = false;
+      errorsCopy.newInsPrice = 'Instrument price must be a positive number';
+      valid = false;
     } else {
-        errorsCopy.newInsPrice = '';
+      errorsCopy.newInsPrice = '';
     }
 
     if (!newInsColor.trim()) {
@@ -106,10 +109,10 @@ const ManagerInstrument = () => {
 
     const quantityRegex = /^\d+$/; // Regex để kiểm tra số lượng (chỉ cho phép số nguyên dương)
     if (!newInsQuantity.trim() || !quantityRegex.test(newInsQuantity) || parseInt(newInsQuantity) < 0) {
-        errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
-        valid = false;
+      errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
+      valid = false;
     } else {
-        errorsCopy.newInsQuantity = '';
+      errorsCopy.newInsQuantity = '';
     }
 
     if (!newInsImage) {
@@ -148,7 +151,7 @@ const ManagerInstrument = () => {
     if (!validateForm()) {
       return;
     }
-
+    setLoading(true);
     const newInstrument = new FormData();
     newInstrument.append('name', newInsName);
     newInstrument.append('costPrice', parseFloat(newInsPrice));
@@ -160,18 +163,21 @@ const ManagerInstrument = () => {
     newInstrument.append('categoryId', newInsCategory);
     newInstrument.append('brandId', newInsBrand);
 
-    createInstrument(newInstrument).then((response) => {
-      console.log("Instrument created:", response.data);
+    createInstrument(newInstrument)
+      .then((response) => {
+        console.log("Instrument created:", response.data);
 
-      // Đóng modal
-      document.getElementById("closeModal").click();
+        // Đóng modal
+        document.getElementById("closeModal").click();
 
-      // Cập nhật danh sách nhạc cụ
-      getAllInstrument();
-      setMessage("Add done!")
-    }).catch((error) => {
-      console.error("Error creating instrument", error);
-    });
+        // Cập nhật danh sách nhạc cụ
+        getAllInstrument();
+        setMessage("Add done!")
+      }).catch((error) => {
+        console.error("Error creating instrument", error);
+      }).finally(() => {
+        setLoading(false)
+      })
   };
 
 
@@ -224,7 +230,7 @@ const ManagerInstrument = () => {
         {apiError && <div className="alert alert-danger">{apiError}</div>} {/* Display API error */}
 
         {/* Display errors for each input */}
-   
+
         <div className="row m-2">
           <div className="row">
             {/* Search by keyword */}
@@ -360,7 +366,7 @@ const ManagerInstrument = () => {
                           value={newInsName}
                           onChange={(e) => setInsName(e.target.value)} />
                       </div>
-                           {errors.newInsName && <div className="alert alert-danger mt-3">{errors.newInsName}</div>}
+                      {errors.newInsName && <div className="alert alert-danger mt-3">{errors.newInsName}</div>}
 
                       <div className="mt-3">
                         <label className="form-label">Price:</label>
@@ -421,7 +427,7 @@ const ManagerInstrument = () => {
                       <div className="mt-3">
                         <label className="form-label">Brand:</label>
                         <select
-                     
+
                           className={`form-select ${errors.newInsBrand ? 'is-invalid' : ''}`}
                           value={newInsBrand || ""}
                           onChange={(e) => setInsBrand(e.target.value)}
@@ -469,8 +475,15 @@ const ManagerInstrument = () => {
                       >
                         Reset Form
                       </button>
-                      <button type="button" className="btn btn-primary" onClick={handleSave}>
-                        Save
+                      <button type="button" className="btn btn-primary" onClick={handleSave} disabled={loading} >
+
+                        {loading ? (
+                          <span>
+                            <i className="fa fa-spinner fa-spin" /> Saving...
+                          </span>
+                        ) : (
+                          "Save"
+                        )}
                       </button>
                     </div>
 

@@ -8,18 +8,18 @@ const ManagerCategories = () => {
   const [newCategoryImg, setNewCategoryImg] = useState(null);
   const [newCategoryDesc, setCategoryDesc] = useState("");
   const [categories, setCategories] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const [errors, setErrors] = useState({ 
-    newCategoryName: '', 
-    newCategoryImg: '', 
-    newCategoryDesc: '' 
+  const [errors, setErrors] = useState({
+    newCategoryName: '',
+    newCategoryImg: '',
+    newCategoryDesc: ''
   });
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
-  const [searchTerm, setSearchTerm] = useState(""); 
-  const [sortOrder, setSortOrder] = useState('asc'); 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState('asc');
 
   const navigator = useNavigate();
 
@@ -67,7 +67,7 @@ const ManagerCategories = () => {
     if (!validateForm()) {
       return;
     }
-
+    setLoading(true);
     const newCategory = new FormData();
     newCategory.append('name', newCategoryName);
     newCategory.append('image', newCategoryImg);
@@ -77,8 +77,8 @@ const ManagerCategories = () => {
       .then((response) => {
         console.log("Category created:", response.data);
         getAllCategory();
-        setNewCategoryName(""); 
-        setCategoryDesc(""); 
+        setNewCategoryName("");
+        setCategoryDesc("");
         setNewCategoryImg(null);
         setSuccessMessage("Category added successfully!");
 
@@ -88,7 +88,10 @@ const ManagerCategories = () => {
       })
       .catch((error) => {
         console.error("Error creating category:", error);
-      });
+      }).finally
+      (() => {
+        setLoading(false)
+      })
   };
 
   useEffect(() => {
@@ -163,7 +166,7 @@ const ManagerCategories = () => {
 
                   <div className="mt-3">
                     <label className="form-label">Image</label>
-                    <input type="file" 
+                    <input type="file"
                       className={`form-control ${errors.newCategoryImg ? 'is-invalid' : ''} `}
                       onChange={(e) => setNewCategoryImg(e.target.files[0])}
                     />
@@ -172,7 +175,7 @@ const ManagerCategories = () => {
 
                   <div className="mt-3">
                     <label className="form-label">Description</label>
-                    <textarea 
+                    <textarea
                       cols="50" rows="5"
                       className={`form-control ${errors.newCategoryDesc ? 'is-invalid' : ''}`}
                       value={newCategoryDesc}
@@ -184,7 +187,13 @@ const ManagerCategories = () => {
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" className="btn btn-primary" onClick={handleSave}>Save Category</button>
+                <button type="button" className="btn btn-primary" onClick={handleSave}>{loading ? (
+                  <span>
+                    <i className="fa fa-spinner fa-spin" /> Saving...
+                  </span>
+                ) : (
+                  "Save"
+                )}</button>
               </div>
             </div>
           </div>
@@ -206,11 +215,11 @@ const ManagerCategories = () => {
           />
         </div>
 
-        <CategoriesTable 
-          categories={currentCategories} 
-          onUpdate={getAllCategory} 
+        <CategoriesTable
+          categories={currentCategories}
+          onUpdate={getAllCategory}
           sortOrder={sortOrder}
-          handleSort={handleSort} 
+          handleSort={handleSort}
         />
 
         <nav aria-label="Page navigation example">

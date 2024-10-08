@@ -22,6 +22,3 @@ export const updateCateIns = (category, categoryId ) => {
         withCredentials: true, // Thêm tùy chọn này nếu cần thiết
     });
 };
-
-
-
