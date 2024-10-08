@@ -240,7 +240,8 @@ const Shop = () => {
               </div>
             </div>
             {/* sanPham */}
-            <div className="col-9">
+            <div className="col-9 mt-3">
+
               <div className="row">
                 <div class="custom-dropdown">
                   <button class="btn custom-dropdown-toggle   btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -265,21 +266,27 @@ const Shop = () => {
                 <div className="row">
                   {currentItems.map((instrument) => (
                     <div className="col-3 mb-4" key={instrument.id}>
-                      <div className="card" style={{ width: '100%', border: 'none' }}>
-                        <img
-                          src={instrument.image ? `data:image/${instrument.image.split('.').pop()};base64,${instrument.image}` : 'default-image-url'}
-                          className="card-img-top"
-                          alt={instrument.name}
-                        />
-                        <div className="card-body">
-                          <p className="card-title">{instrument.name}</p>
-                          <p className="card-price"> {instrument.costPrice.toLocaleString()}đ</p>
-                          <p className="card-status text-center">{getStockStatus(instrument.quantity)}</p> {/* Hiển thị trạng thái */}
+                      <a href={`/product-detail/${instrument.id}`} className="card-link">
+                        <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                          <div className="card-img-wrapper">
+                            <img
+                              src={instrument.image}
+                              className="card-img-top"
+                              alt={instrument.name}
+                            />
+                          </div>
+                          <div className="card-body text-center">
+                            <p className="card-title">{instrument.name}</p>
+                            <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                            <p className="card-status">{getStockStatus(instrument.quantity)}</p>
+                          </div>
                         </div>
-                      </div>
+                      </a>
                     </div>
                   ))}
                 </div>
+
+
 
                 {/* Pagination */}
                 <div className="phantrangdetail">
