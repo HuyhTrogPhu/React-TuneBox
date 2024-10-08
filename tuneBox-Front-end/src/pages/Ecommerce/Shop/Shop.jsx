@@ -31,17 +31,22 @@ const Shop = () => {
       const brandsResponse = await listBrands();
       const categoriesResponse = await listCategories();
       const instrumentsResponse = await listInstruments();
-
-      console.log("Brands Data:", brandsResponse); // Kiểm tra lại dữ liệu
-      console.log("Instruments Data:", instrumentsResponse.data);
-      // Truy cập vào thuộc tính data của phản hồi
-      setBrands(Array.isArray(brandsResponse.data) ? brandsResponse.data : []);
+  
+      console.log("Brands Data:", brandsResponse); // Check the brand data
+  
+      // Filter brands with status === false
+      const filteredBrands = Array.isArray(brandsResponse.data)
+        ? brandsResponse.data.filter(brand => brand.status === false)
+        : [];
+  
+      setBrands(filteredBrands); // Set the filtered brands
       setCategories(Array.isArray(categoriesResponse.data) ? categoriesResponse.data.filter(cate => cate.status === false) : []);
       setInstruments(Array.isArray(instrumentsResponse.data) ? instrumentsResponse.data : []);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+  
 
 
 
