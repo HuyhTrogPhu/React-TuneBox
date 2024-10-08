@@ -266,7 +266,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 <td>{ins.costPrice}</td>
                 <td>{ins.color}</td>
                 <td>{ins.quantity}</td>
-                <td>{ins.status ? 'Available' : 'Unavailable'}</td>
+                <td>{ins.status ? 'Unavailable' : 'Available'}</td>
                 <td>
                   <button className='btn btn-warning' onClick={() => uploadInstrument(ins.id)}>
                     Edit

@@ -172,7 +172,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
                   style={{ width: '50px' }} />
               </td>
               <td>{cate.name}</td>
-              <td>{cate.status ? 'Available' : 'Unavailable'}</td>
+              <td>{cate.status ? 'Unavailable' : 'Available'}</td>
               <td>
                 <button className="btn btn-warning" onClick={() => openEditModal(cate)}>
                   Edit
