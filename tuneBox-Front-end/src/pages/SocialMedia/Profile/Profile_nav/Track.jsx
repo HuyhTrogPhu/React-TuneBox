@@ -16,10 +16,10 @@ const Track = () => {
     try {
       if (!userId) throw new Error("User ID not found.");
 
-      const response = await axios.get(`http://localhost:8080/tracks/user/${userId}`, { 
+      const response = await axios.get(`http://localhost:8080/customer/tracks/user/${userId}`, { 
         withCredentials: true 
       });
-
+      console.log('Response track data:', response.data);
       const sortedTrack = response.data.sort((a, b) => new Date(b.createDate) - new Date(a.createDate));
       setTracks(sortedTrack);
     } catch (error) {
@@ -33,7 +33,7 @@ const Track = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:8080/tracks/${trackId}`, { withCredentials: true });
+      await axios.delete(`http://localhost:8080/customer/tracks/${trackId}`, { withCredentials: true });
       console.log('Track deleted successfully');
       fetchTrack(); // Cập nhật danh sách track sau khi xóa
     } catch (error) {
@@ -79,7 +79,7 @@ const Track = () => {
     <div>
       {tracks.map((track) => {
         return (
-          track.status && (
+          !track.status && (
             <div key={track.id} className="post-header-track">
               <img src={track.trackImage || "/src/UserImages/Avatar/avt.jpg"} className="avatar_small" alt="Avatar" />
               <div className="info">

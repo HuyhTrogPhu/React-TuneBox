@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import './css/bootstrap.min.css';
@@ -14,8 +13,7 @@ import './js/click-scroll.js';
 import './js/custom.js';
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import axios from 'axios';
 
 const Login = () => {
   const [userName, setUsername] = useState('');
@@ -25,7 +23,6 @@ const Login = () => {
   // const [forgotMessage, setForgotMessage] = useState('');
   const navigate = useNavigate(); 
   const [errorMessage, setErrorMessage] = useState('');
-  // const [postId, setPostId] = useState(null); // State để lưu ID bài viết khi chỉnh sửa
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -45,9 +42,8 @@ const Login = () => {
         console.log('Đăng nhập thành công:', response.data);
   
         const user = response.data.data; // Giả sử thông tin người dùng nằm trong `data.data`
-      //  const role = user.role[0].name;  // Lấy role đầu tiên của người dùng
-        const role = 'CUSTOMER';
-        
+        // const role = user.role[0].name;  // Lấy role đầu tiên của người dùng
+        const role = "CUSTOMER";
         console.log(role);
         // Lưu thông tin người dùng vào localStorage
         localStorage.setItem('user', JSON.stringify(user));
@@ -87,7 +83,7 @@ const Login = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/ser/login/oauth2/success', {
+        const response = await axios.get('http://localhost:8080/user/login/oauth2/success', {
           withCredentials: true // Nếu cần thiết
         });
         // Giả sử bạn muốn lưu dữ liệu người dùng vào localStorage
@@ -112,11 +108,6 @@ const Login = () => {
             <div className="col-lg-6 col-10 mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
-                {errorMessage && (
-                  <div className="alert alert-danger text-center" role="alert">
-                    {errorMessage}
-                  </div>
-                )}
                 <div className="ticket-form-body">
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
