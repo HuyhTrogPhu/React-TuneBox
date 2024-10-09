@@ -16,10 +16,8 @@
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
-    "date-fns": "^4.1.0",
-
     "cloudinary": "^2.5.0",
-
+    "date-fns": "^4.1.0",
     "jquery": "^3.7.1",
     "js-cookie": "^3.0.5",
     "react": "^18.3.1",
@@ -29,7 +27,8 @@
     "react-slick": "^0.30.2",
     "slick-carousel": "^1.8.1",
     "tunebox": "file:",
-    "update": "^0.7.4"
+    "update": "^0.7.4",
+    "wavesurfer.js": "^7.8.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

@@ -12,7 +12,7 @@ const Shop = () => {
   const [instruments, setInstruments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12; // Số sản phẩm hiển thị trên mỗi trang
-  const imageBase64Prefix = "data:image/png;base64,";
+
 
 
   const [selectedBrands, setSelectedBrands] = useState([]);

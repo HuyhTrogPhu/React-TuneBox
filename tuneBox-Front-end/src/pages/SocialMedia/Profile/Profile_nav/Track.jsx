@@ -25,6 +25,8 @@ const Track = () => {
         (a, b) => new Date(b.createDate) - new Date(a.createDate)
       ); // Sap xep track
       setTracks(sortedTrack); // Luu track vao state
+      console.log(response.data);
+      
     } catch (error) {
       console.error(
         "Error fetching Track:",
@@ -66,7 +68,7 @@ const Track = () => {
       });
       return response.data.userName; // Tra ve ten nguoi dung
     } catch (error) {
-      console.error("Error fetching user data:", error); // Log loi neu co
+      console.error("Error fetching track data:", error); // Log loi neu co
       throw error;
     }
   };
@@ -78,7 +80,7 @@ const Track = () => {
         const name = await fetchUserName(); // Lay ten nguoi dung
         setUserName(name); // Luu ten vao state
       } catch (error) {
-        console.error("Error fetching user name:", error); // Log loi neu co
+        console.error("Error fetching track name:", error); // Log loi neu co
       }
     };
     getUserName();
@@ -145,7 +147,10 @@ const Track = () => {
               />
 
               <div className="info">
-                <Link to={`/track/${track.id}`}>
+                <Link to={{
+                  pathname: `/track/${track.id}`,
+                  state: {track}
+                }}>
                   <div className="name">{track.name || "Unknown Track"}</div>
                 </Link>
                 <div className="author">{userName || "Unknown userName"}</div>
