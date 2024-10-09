@@ -28,6 +28,15 @@ const Navbar = () => {
       });
   };
 
+  const getALlTrack = () => {
+    getTrackByUserId()
+      .then((response) => {
+        setGenre(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching track", error);
+      });
+  };
   const validateForm = () => {
     const newErrors = {};
     if (!newTrackName) newErrors.name = "Track name is required.";
@@ -57,8 +66,8 @@ const Navbar = () => {
       const response = await createTrack(newTrack);
       console.log("Track created:", response.data);
       document.getElementById("closeModal").click();
-      
-      getTrackByUserId();
+
+      getALlTrack();
       resetForm();
 
     } catch (error) {
@@ -79,6 +88,7 @@ const Navbar = () => {
     setTrackDescription("");
     setErrors({});
   };
+
 
   return (
     <header className="row" style={{ alignItems: "center" }}>

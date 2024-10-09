@@ -82,11 +82,11 @@ function App() {
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
-            <Route path="/TrackDetail/:id" element={<TrackDetail />} />
             <Route path="/BrandPage" element={<BrandPage />} />
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+            <Route path="/track/:id" element={<TrackDetail />} />
           </Route>
 
           {/* Các route không có Header */}
