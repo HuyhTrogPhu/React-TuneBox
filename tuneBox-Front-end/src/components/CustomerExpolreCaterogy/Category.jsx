@@ -48,10 +48,7 @@ const Category = () => {
                 <div className="item" key={category.id}>
                   <Link to={`/CategoryPage/${category.id}`}> {/* Thay đổi đường dẫn đến chi tiết danh mục */}
                     <img alt={category.name} className=""
-                      src={category.image 
-                        ? `data:image/jpeg;base64,${category.image}`
-                        : `default-image-path.jpg`
-                      }
+                      src={category.image ? category.image : 'default-image-path.jpg' }
                       style={{ width: '50px' }}
                     />
                     <h5>{category.name}</h5>

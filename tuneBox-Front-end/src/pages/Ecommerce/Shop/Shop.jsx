@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import '../../../pages/Ecommerce/Shop/Shop.css'
 import { images } from '../../../assets/images/images'
-import { listCategories, listInstruments, listBrands } from '../../../service/InstrumentServiceCus'
+import { listCategories, listInstruments, listBrands } from '../../../service/EcommerceHome'
 import { useNavigate } from 'react-router-dom';
 const Shop = () => {
 
@@ -240,34 +240,52 @@ const Shop = () => {
               </div>
             </div>
             {/* sanPham */}
-            <div className="col-9">
+            <div className="col-9 mt-3">
+              {/* Sort */}
               <div className="row">
-                <div class="custom-dropdown">
-                  <button class="btn custom-dropdown-toggle   btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Sắp xếp
+                <div className="custom-dropdown">
+                  <button className="btn custom-dropdown-toggle border mb-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i className="fa-solid fa-filter"></i>
                   </button>
-                  <ul class="custom-dropdown-menu">
+                  <ul className="custom-dropdown-menu">
                     <li>
-                      <a class="custom-dropdown-item" href="#" onClick={() => handleSort('desc')}>
-                        Giá cao nhất
-                      </a>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName(''); setSortByPrice(''); setCurrentPage(1); }}>
+                        Default
+                      </button>
                     </li>
                     <li>
-                      <a class="custom-dropdown-item" href="#" onClick={() => handleSort('asc')}>
-                        Giá thấp nhất
-                      </a>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('asc'); setSortByName(''); setCurrentPage(1); }}>
+                        Price: Low to high
+                      </button>
                     </li>
+                    <li>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('desc'); setSortByName(''); setCurrentPage(1); }}>
+                        Price: High to low
+                      </button>
+                    </li>
+                    <li>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName('asc'); setSortByPrice(''); setCurrentPage(1); }}>
+                        Name: A to Z
+                      </button>
+                    </li>
+                    <li>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName('desc'); setSortByPrice(''); setCurrentPage(1); }}>
+                        Name: Z to A
+                      </button>
+                    </li>
+
                   </ul>
                 </div>
-
               </div>
-              <div className="sanPham mt-2">
+
+              {/* San pham */}
+              <div className="sanPham mt-5">
                 <div className="row">
                   {currentItems.map((instrument) => (
                     <div className="col-3 mb-4" key={instrument.id}>
                       <div className="card" style={{ width: '100%', border: 'none' }}>
                         <img
-                          src={instrument.image ? `data:image/${instrument.image.split('.').pop()};base64,${instrument.image}` : 'default-image-url'}
+                          src={instrument.image ? instrument.image : 'default-image-url'}
                           className="card-img-top"
                           alt={instrument.name}
                         />

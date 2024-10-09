@@ -38,9 +38,7 @@ function CategoryPage() {
               <div className="card" onClick={() => handleCategory(category)}>
                 <img
                   className="img"
-                  src={category.image 
-                    ? `data:image/jpeg;base64,${category.image}` 
-                    : 'default-image-path.jpg'}
+                  src={category.image ? category.image : 'default-image-path.jpg' }
                   alt={category.name}
                 />
                 <div className="card-body category-content">

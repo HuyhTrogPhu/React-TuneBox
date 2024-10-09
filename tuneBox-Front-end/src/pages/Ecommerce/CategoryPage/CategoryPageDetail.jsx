@@ -3,7 +3,7 @@ import Bebefits from '../../../components/Benefits/Benefits'
 import Footer2 from '../../../components/Footer/Footer2'
 import './CategoryPageDetail.css'
 import { useLocation } from 'react-router-dom';
-import {  listInstrumentsByCategory, listSortedBrand, listSortedCategory } from '../../../service/InstrumentServiceCus';
+import {  listBrands, listCategories, listInstrumentsByCategory } from '../../../service/InstrumentServiceCus';
 
 
 const ITEMS_PER_PAGE = 12;
@@ -31,7 +31,7 @@ const CategoryPageDetail = () => {
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const response = await listSortedBrand();
+        const response = await listBrands();
         setBrands(response); // response đã là danh sách id và name
       } catch (error) {
         console.error("Error fetching brands", error);
@@ -43,7 +43,7 @@ const CategoryPageDetail = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await listSortedCategory();
+        const response = await listCategories
         setCategories(response); // response đã là danh sách id và name
       } catch (error) {
         console.error("Error fetching categories", error);
@@ -141,7 +141,7 @@ const CategoryPageDetail = () => {
         <div className='gioithieu1'>
           <div className='grid-container'>
             <div className='grid-item image'>
-              <img src={`${imageBase64Prefix}${category.image}`}
+              <img src={category.image}
                 alt={category.name}
                 className='banner-img'
               />
@@ -323,19 +323,12 @@ const CategoryPageDetail = () => {
 
                     return (
                       <div className='col-3 mb-4' key={instrument.id}>
-                        {Array.isArray(instrument.image) && instrument.image.length > 0 ? (
                           <img
-                            src={`data:image/png;base64,${instrument.image[0]}`} // Chỉ hiển thị ảnh đầu tiên
-                            alt={`${instrument.name}`}
+                            src={instrument.image}
+                            alt={instrument.name}
                             style={{ width: '100px', margin: '0 5px' }}
                           />
-                        ) : (
-                          <img
-                            src='default-image-url'
-                            alt={ins.name}
-                            style={{ width: '100px' }}
-                          />
-                        )}
+                        
                         <h5 className='card-title2'>{instrument.name}</h5>
                         <p className='card-price'>
                           {instrument.costPrice.toLocaleString()}đ

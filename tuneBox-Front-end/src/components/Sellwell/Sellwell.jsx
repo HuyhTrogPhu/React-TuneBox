@@ -42,7 +42,8 @@ const Sellwell = () => {
             <div className='mt-5'>
                 <div className='sellwell-title'>
                     <div className='d-flex justify-content-between align-items-center mb-4'>
-                        <h4 className='category-title'>Sell well</h4>
+                        <h4 className='title'>Sell well</h4>
+                        <Link to={'/Shop'} className='view-all'>View all</Link>
                     </div>
                 </div>
                 <hr className='hr-100' />
@@ -54,21 +55,10 @@ const Sellwell = () => {
                                 <div className='card col-3' key={index}>
                                     <Link to={'/DetailProduct'}>
                                         <div className='card-img'>
-                                            {
-                                                Array.isArray(ins.image) && ins.image.length > 0 ? (
-                                                    <img
-                                                        src={`data:image/png;base64,${ins.image[0]}`}
-                                                        alt={`${ins.name}`}
-                                                        
-                                                    />
-                                                ) : (
-                                                    <img
-                                                        src='default-image-url' // Thay thế bằng URL hợp lệ
-                                                        alt={ins.name}
-                                                        
-                                                    />
-                                                )
-                                            }
+                                            <img
+                                                src={ins.image ? ins.image : 'default-image-path.jpg'}
+                                                alt={ins.name}
+                                            />
                                         </div>
                                         <div className='card-body'>
                                             <h5 className='card-title'>
@@ -85,7 +75,7 @@ const Sellwell = () => {
                     ) : (
                         <div className='alert alert-danger'>No instrument available</div>
                     )}
-                    
+
                     {/* Phân trang */}
                     <div className="">
                         <nav aria-label="Page navigation example">
