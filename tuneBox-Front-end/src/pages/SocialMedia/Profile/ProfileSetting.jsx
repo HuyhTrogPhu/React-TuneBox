@@ -3,7 +3,20 @@ import Cookies from "js-cookie";
 import { images } from "../../../assets/images/images";
 import "../../../pages/SocialMedia/Profile/css/setting.css";
 import { fetchDataUser } from "./js/ProfileJS";
+
+import i18n from "../../../i18n/i18n";
+
+import ReactCountryFlag from "react-country-flag";
+
+import { useTranslation } from "react-i18next"; // Import hook dịch
 const ProfileSetting = () => {
+
+  const { t } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
+
   // Hàm để set 'active' cho các link khi click
   useEffect(() => {
     const navLinks = document.querySelectorAll(".nav-link");
@@ -164,7 +177,7 @@ const ProfileSetting = () => {
         <article className="col-sm-9" style={{ paddingTop: 100 }}>
           <div>
             <h3>
-              <b>Profile setting</b>
+            <b>{t("profile_setting")}</b>
             </h3>
           </div>
           <div className="profile-container">
@@ -176,14 +189,14 @@ const ProfileSetting = () => {
                 <div className="row">
                   <label htmlFor="name" style={{ marginLeft: -40 }}>
                     <h6>
-                      <b>Name</b>
+                    <b>{t("profile.name")}</b>
                     </h6>
                   </label>
                   <input
                   
                    className="form-control"
                    type="text"
-                   placeholder={userData.userName || "Name"} // Sử dụng userData.userName nếu có, nếu không thì là "Name"
+                   placeholder={userData.userName ? userData.userName : t("profile.name")}
                    id="name"
                    style={{
                      backgroundColor: 'rgba(64, 102, 128, 0.078)',
@@ -196,13 +209,13 @@ const ProfileSetting = () => {
                 <div className="row">
                   <label htmlFor="location" style={{ marginLeft: -40 }}>
                     <h6>
-                      <b>Location</b>
+                    <b>{t("location")}</b>
                     </h6>
                   </label>
                   <input
                     className="form-control"
                     type="text"
-                    placeholder="Search City"
+                    placeholder={t("search_city")}
                     id="location"
                     style={{
                       backgroundColor: "rgba(64, 102, 128, 0.078)",
@@ -221,7 +234,7 @@ const ProfileSetting = () => {
                     <div className="col-md-4 form-group">
                       <label htmlFor="genderSelect" style={{ marginLeft: -30 }}>
                         <h6>
-                          <b>Gender</b>
+                        <b>{t("gender")}</b>
                         </h6>
                       </label>
                       <select
@@ -235,8 +248,8 @@ const ProfileSetting = () => {
                           hidden
                           selected="selected"
                         >
-                          Add Gender
-                        </option>
+                          {t("add_gender")}
+                          </option>
                         <option value="Female">Female</option>
                         <option value="Male">Male</option>
                         <option value="Other">Other</option>
@@ -251,7 +264,7 @@ const ProfileSetting = () => {
                             style={{ marginLeft: -25 }}
                           >
                             <h6>
-                              <b>Day</b>
+                            <b>{t("day")}</b>
                             </h6>
                           </label>
                           <div style={{ marginTop: -20 }}>
@@ -264,7 +277,7 @@ const ProfileSetting = () => {
                             style={{ marginLeft: -25 }}
                           >
                             <h6>
-                              <b>Month</b>
+                            <b>{t("month")}</b>
                             </h6>
                           </label>
                           <div style={{ marginTop: -20 }}>
@@ -274,7 +287,7 @@ const ProfileSetting = () => {
                         <section className="form-group">
                           <label htmlFor="yearSelect">
                             <h6>
-                              <b>Year</b>
+                            <b>{t("year")}</b>
                             </h6>
                           </label>
                           <div style={{ marginTop: -20 }}>
@@ -291,7 +304,7 @@ const ProfileSetting = () => {
           <div style={{ marginLeft: 180, marginRight: 170 }}>
             <label htmlFor="About" style={{ marginLeft: -25 }}>
               <h6>
-                <b>About</b>
+              <b>{t("about")}</b>
               </h6>
             </label>
             <div className="profile-container">

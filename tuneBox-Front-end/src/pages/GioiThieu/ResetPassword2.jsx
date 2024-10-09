@@ -18,7 +18,20 @@ import { images } from '../../assets/images/images.js';
 import axios from 'axios';
 import { error } from 'jquery';
 
+import i18n from "../../i18n/i18n.js";
+
+import ReactCountryFlag from "react-country-flag";
+
+import { useTranslation } from "react-i18next"; // Import hook dịch
+
 const ResetPassword2 = () => {
+
+  const { t } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
+
   const [newPassword, setNewPassword] = useState(''); // Password state
   const [confirmPassword, setConfirmPassword] = useState(''); // Confirm password state
   const [message, setMessage] = useState('');
@@ -30,7 +43,7 @@ const ResetPassword2 = () => {
 
     // Check if passwords match
     if (newPassword !== confirmPassword) {
-      setMessage('Mật khẩu và xác nhận mật khẩu không khớp.');
+      setMessage(t('reset_password_mismatch'));
       return;
     }
 
@@ -41,10 +54,10 @@ const ResetPassword2 = () => {
         newPassword,
       });
 
-      setMessage('Mật khẩu đã được đặt lại thành công.');
+      setMessage(t('reset_password_success'));
       
     } catch (error) {
-      setMessage('Đã có lỗi xảy ra. Vui lòng thử lại.');
+      setMessage(t('reset_password_error'));
     }
   };
 
@@ -60,14 +73,23 @@ const ResetPassword2 = () => {
         </nav>
       </div>
 
+      <div className="language-switcher">
+        <button onClick={() => changeLanguage("en")}>
+          <ReactCountryFlag countryCode="US" svg />
+        </button>
+        <button onClick={() => changeLanguage("vi")}>
+          <ReactCountryFlag countryCode="VN" svg />
+        </button>
+      </div>
+
       <section className="ticket-section section-padding">
         <div className="container">
           <div className="row">
             <div className="d-flex justify-content-center align-items-center user">
               <div className="profile-setup-card text-center p-4 rounded-3">
-                <h5 className="mb-4">Đặt lại mật khẩu</h5>
+              <h5 className="mb-4">{t('reset_password_title')}</h5>
                 <p className="text-muted mb-3 fontchu">
-                  Nhập mật khẩu mới của bạn để thiết lập lại tài khoản.
+                  {t('reset_password_description')}
                 </p>
                 
                 <div className="mb-3">
@@ -76,7 +98,7 @@ const ResetPassword2 = () => {
                     className="form-control l1" 
                     value={newPassword} 
                     onChange={(e) => setNewPassword(e.target.value)} 
-                    placeholder="Mật khẩu mới"
+                    placeholder={t('reset_password_new_placeholder')}
                     required
                   />
                 </div>
@@ -87,13 +109,13 @@ const ResetPassword2 = () => {
                     className="form-control l1" 
                     value={confirmPassword} 
                     onChange={(e) => setConfirmPassword(e.target.value)} 
-                    placeholder="Xác nhận mật khẩu"
+                    placeholder={t('reset_password_confirm_placeholder')}
                     required
                   />
                 </div>
                 
                 <button className="btn btn-dark w-100" onClick={handleSubmit}>
-                  Đặt lại mật khẩu
+                {t('reset_password_button')}
                 </button>
                 
                 {/* Hiển thị thông báo */}

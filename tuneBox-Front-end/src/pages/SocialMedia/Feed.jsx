@@ -7,9 +7,17 @@ import "./css/mxh/modal-create-post.css"
 import "./css/profile.css"
 import "./css/mxh/comment.css"
 import "./css/mxh/button.css"
+import i18n from "../../i18n/i18n.js";
 
+
+import { useTranslation } from "react-i18next";
 
 const HomeFeed = () => {
+  const { t } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
   // phần js để hiện post modal
   useEffect(() => {
     const createPostBtn = document.getElementById('create-post-btn');
@@ -46,32 +54,32 @@ const HomeFeed = () => {
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
                   <img src={images.web_content} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Bản tin</span>
+                  <span className='fw-bold'>{t('news_feed')}</span>
                 </a>
               </li>
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
                   <img src={images.followers} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Đang theo dõi</span>
+                  <span className='fw-bold'>{t('following')}</span>
                 </a>
               </li>
 
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
                   <img src={images.feedback} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Bài viết đã thích</span>
+                  <span className='fw-bold'>{t('liked_posts')}</span>
                 </a>
               </li>
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
                   <img src={images.music} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Albums đã thích</span>
+                  <span className='fw-bold'>{t('liked_albums')}</span>
                 </a>
               </li>
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
                   <img src={images.playlist} alt='icon' width={20} className="me-2 " />
-                  <span className='fw-bold'>Playlist đã thích</span>
+                  <span className='fw-bold'>{t('liked_playlists')}</span>
                 </a>
               </li>
             </ul>
@@ -87,7 +95,9 @@ const HomeFeed = () => {
                       <img src={images.ava} className="avatar_small" alt='avatar' />
                     </div>
                     <div className="col">
-                      <button id="create-post-btn" type="button" className="btn text-start" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', width: '85%', height: 50 }}>Ban dang nghi gi vay?</button>
+                      <button id="create-post-btn" type="button" className="btn text-start" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', width: '85%', height: 50 }}>
+                      {t('placeholder_post')}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -98,7 +108,7 @@ const HomeFeed = () => {
                         <img src={images.ava} className="avatar_small" alt="Avatar" />
                         <div>
                           <div className="name">Phạm Xuân Trường</div>
-                          <div className="time">Posting to Feed</div>
+                          <div className="time">{t('user_greeting')}</div>
                         </div>
                         <button id="close-modal" type="button" className="btn btn-close">×</button>
                       </div>
@@ -109,7 +119,7 @@ const HomeFeed = () => {
                             <button id="post-image" type="button" className="btn" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)' }}><i className="bi bi-card-image" /> Photo/video</button>
                           </div>
                           <div className="col text-end">
-                            <button id="submit-post" type="button" className="btn btn-secondary">Post</button>
+                          <button id="submit-post" type="button" className="btn btn-secondary">{t('post')}</button>
                           </div>
                         </div>
                       </div>
@@ -125,15 +135,14 @@ const HomeFeed = () => {
                   <img src={images.ava} className alt="Avatar" />
                   <div>
                     <div className="name">Phạm Xuân Trường</div>
-                    <div className="title">Posting to Feed</div>
+                    <div className="title">{t('user_greeting')}</div>
                   </div>
                 </div>
                 <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '5%', height: '5%' }} />
               </div>
               {/* Nội dung bài viết */}
               <div className="post-content">
-                Xin chao moi nguoi da den voi trang cua minh hihi minh la Pham
-                Xuan Truong day hihi
+              {t('user_greeting')}  
               </div>
               {/* kết thúc nội dung bài viết */}
               <div className="my-3">

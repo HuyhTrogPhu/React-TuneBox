@@ -15,7 +15,21 @@ import "./js/sothich.js";
 
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
-const CreateUsername = ({updateFormData}) => {
+
+import i18n from "../../i18n/i18n.js";
+
+import ReactCountryFlag from "react-country-flag";
+
+import { useTranslation } from "react-i18next"; // Import hook dịch
+
+
+const CreateUsername = ({ updateFormData }) => {
+  const { t } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
+
   const [userNickname, setuserNickname] = useState("");
   const navigate = useNavigate();
 
@@ -23,6 +37,9 @@ const CreateUsername = ({updateFormData}) => {
     updateFormData({ userNickname });
     navigate("/artist");
   };
+
+
+
 
   return (
     <div>
@@ -48,6 +65,16 @@ const CreateUsername = ({updateFormData}) => {
           </nav>
         </div>
 
+        <div className="language-switcher">
+          <button onClick={() => changeLanguage("en")}>
+            <ReactCountryFlag countryCode="US" svg />
+          </button>
+          <button onClick={() => changeLanguage("vi")}>
+            <ReactCountryFlag countryCode="VN" svg />
+          </button>
+        </div>
+
+
         <section className="ticket-section section-padding">
           <div className="section-overlay" />
           <div className="container">
@@ -56,10 +83,9 @@ const CreateUsername = ({updateFormData}) => {
                 <div className=" d-flex justify-content-center align-items-center user ">
                   <div className="overlay" />
                   <div className="profile-setup-card text-center p-4 rounded-3">
-                    <h5 className="mb-4"> Đặt tên người dùng</h5>
+                    <h5 className="mb-4">{t("create_username_title")}</h5>
                     <p className="text-muted mb-3 fontchu">
-                      Hãy đặt tên người dùng để bạn bè và mọi người dễ dàng tìm
-                      kiếm bạn trên TuneBox.
+                      {t("create_username_description")}
                     </p>
                     <div className="profile-icon bg-primary rounded-circle d-flex justify-content-center align-items-center mb-3">
                       <span className="text-white display-4">P</span>
@@ -69,18 +95,17 @@ const CreateUsername = ({updateFormData}) => {
                         type="text"
                         className="form-control l1"
                         defaultValue
-                        placeholder="Nhập tên"
+                        placeholder={t("username_placeholder")}
                         value={userNickname}
                         onChange={(e) => setuserNickname(e.target.value)}
                         required
                       />
-                    </form >
+                    </form>
                     <button
                       className="btn btn-dark w-100"
                       onClick={handleSubmit}
                     >
-                      {" "}
-                      Tiếp tục
+                      {t("continue")} {/* Sử dụng khóa dịch */}
                     </button>
                   </div>
                 </div>

@@ -3,7 +3,14 @@ import { images } from "../../assets/images/images";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
 
+import ReactCountryFlag from "react-country-flag";
+import i18n from "../../i18n/i18n.js";
+
 const Navbar = () => {
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
   return (
     <header
       className="row"
@@ -169,6 +176,14 @@ const Navbar = () => {
           />{" "}
           <b>Create</b>{" "}
         </button>
+        <div className="language-switcher">
+          <button onClick={() => changeLanguage("en")}>
+            <ReactCountryFlag countryCode="US" svg />
+          </button>
+          <button onClick={() => changeLanguage("vi")}>
+            <ReactCountryFlag countryCode="VN" svg />
+          </button>
+        </div> 
       </div>
       <hr />
     </header>

@@ -19,7 +19,16 @@ import { saveToLocalStorage } from "./js/sothich.js";
 import { sendDataToAPI } from "./js/sothich.js";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
+
+import { useTranslation } from 'react-i18next';
+
+import i18n from "../../i18n/i18n.js";
+
+import ReactCountryFlag from "react-country-flag";
+
 const SoThich = ({ updateFormData, formData }) => {
+  const { t, i18n } = useTranslation();
+
   const navigate = useNavigate();
   const [talentData, setTalentData] = useState([]);
   const [selectedArtists, setSelectedArtists] = useState([]);
@@ -52,7 +61,11 @@ const SoThich = ({ updateFormData, formData }) => {
     navigate("/");
   };
 
-  
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
+
   return (
     <div>
       <div>
@@ -77,21 +90,26 @@ const SoThich = ({ updateFormData, formData }) => {
           </nav>
         </div>
 
+        <div className="language-switcher">
+          <button onClick={() => changeLanguage("en")}>
+            <ReactCountryFlag countryCode="US" svg />
+          </button>
+          <button onClick={() => changeLanguage("vi")}>
+            <ReactCountryFlag countryCode="VN" svg />
+          </button>
+        </div>
+
         <section className="ticket-section section-padding">
           <div className="section-overlay" />
           <div className="container">
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Sở trường của bạn là gì?</h3>
-                  <p>
-                    Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
-                    nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
-                    cải thiện trải nghiệm TuneBox của bạn.
-                  </p>
+                <h3>{t("talent_title")}</h3>
+                <p>{t("talent_description")}</p>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm sở trường..."
+                    placeholder={t("search_talent_placeholder")}
                     className="search-bar"
                   />
                   <div className="row text-center">
@@ -108,8 +126,8 @@ const SoThich = ({ updateFormData, formData }) => {
                       </div>
                     ))}
                   </div>
-                  <button onClick={handleSubmit}>Tiếp tục</button>
-                </div>
+                  <button onClick={handleSubmit}>{t("continue")}</button>
+                  </div>
               </div>
             </div>
           </div>

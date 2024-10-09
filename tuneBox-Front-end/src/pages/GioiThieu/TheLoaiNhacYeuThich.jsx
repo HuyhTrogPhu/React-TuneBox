@@ -15,7 +15,22 @@ import "./js/sothich.js";
 import { fetchDataTheLoai } from "./js/sothich.js";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
+
+import i18n from "../../i18n/i18n.js";
+
+import ReactCountryFlag from "react-country-flag";
+
+import { useTranslation } from "react-i18next"; // Import hook dịch
+
 const TheLoaiNhacYeuThich = ({ updateFormData }) => {
+
+  const { t } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
+
+
   const navigate = useNavigate();
   const [talentData, setTalentData] = useState([]);
   const [selectedArtists, setSelectedArtists] = useState([]); 
@@ -69,21 +84,26 @@ const TheLoaiNhacYeuThich = ({ updateFormData }) => {
           </nav>
         </div>
 
+        <div className="language-switcher">
+        <button onClick={() => changeLanguage("en")}>
+          <ReactCountryFlag countryCode="US" svg />
+        </button>
+        <button onClick={() => changeLanguage("vi")}>
+          <ReactCountryFlag countryCode="VN" svg />
+        </button>
+      </div>
+
         <section className="ticket-section section-padding">
           <div className="section-overlay" />
           <div className="container">
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Bạn yêu thích thể loại nhạc nào?</h3>
-                  <p>
-                    Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
-                    nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
-                    cải thiện trải nghiệm TuneBox của bạn.
-                  </p>
+                <h3>{t('genre_title')}</h3>
+                <p>{t('genre_description')}</p>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm thể loại nhạc"
+                    placeholder={t('genre_search_placeholder')} 
                     className="search-bar"
                   />
                   <div className="row text-center">
@@ -100,7 +120,7 @@ const TheLoaiNhacYeuThich = ({ updateFormData }) => {
                       </div>
                     ))}
                   </div>
-                  <button onClick={handleSubmit}>Tiếp tục</button>
+                  <button onClick={handleSubmit}>{t('genre_continue')}</button>
                 </div>
               </div>
             </div>

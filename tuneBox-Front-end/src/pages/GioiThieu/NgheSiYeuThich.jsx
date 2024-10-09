@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next"; // Import hook dịch
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
@@ -17,10 +18,18 @@ import "./js/sothich.js";
 import { fetchDataNgheSi } from "./js/sothich.js";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
+
+import i18n from "../../i18n/i18n.js";
+
+import ReactCountryFlag from "react-country-flag";
+
+// import GoogleTranslate from "../translate/GoogleTranslate.jsx";
+
 const NgheSiYeuThich = ({ updateFormData }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation(); // Sử dụng hook để dịch
   const [talentData, setTalentData] = useState([]);
-  const [selectedArtists, setSelectedArtists] = useState([]); 
+  const [selectedArtists, setSelectedArtists] = useState([]);
 
   useEffect(() => {
     const fetchDataAndRender = async () => {
@@ -37,7 +46,7 @@ const NgheSiYeuThich = ({ updateFormData }) => {
   const handleArtistSelect = (artist) => {
     setSelectedArtists((prevSelectedArtists) => {
       if (prevSelectedArtists.includes(artist)) {
-        return prevSelectedArtists.filter(item => item !== artist);
+        return prevSelectedArtists.filter((item) => item !== artist);
       } else {
         return [...prevSelectedArtists, artist];
       }
@@ -45,9 +54,14 @@ const NgheSiYeuThich = ({ updateFormData }) => {
   };
 
   const handleSubmit = () => {
-    updateFormData({ listInspiredBy: selectedArtists }); 
-    navigate("/categorymusic"); 
+    updateFormData({ listInspiredBy: selectedArtists });
+    navigate("/categorymusic");
   };
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
+
   return (
     <div>
       <div>
@@ -72,18 +86,23 @@ const NgheSiYeuThich = ({ updateFormData }) => {
           </nav>
         </div>
 
+        <div className="language-switcher">
+          <button onClick={() => changeLanguage("en")}>
+            <ReactCountryFlag countryCode="US" svg />
+          </button>
+          <button onClick={() => changeLanguage("vi")}>
+            <ReactCountryFlag countryCode="VN" svg />
+          </button>
+        </div>
+
         <section className="ticket-section section-padding">
           <div className="section-overlay" />
           <div className="container">
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Nghệ sĩ mà bạn yêu thích là ai?</h3>
-                  <p>
-                    Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
-                    nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
-                    cải thiện trải nghiệm TuneBox của bạn.
-                  </p>
+                  <h3>{t("favorite_artist")}</h3>
+                  <p>{t("description")}</p>
                   <input
                     type="text"
                     placeholder="Tìm kiếm nghệ sĩ..."

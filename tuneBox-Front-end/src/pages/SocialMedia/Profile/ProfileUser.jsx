@@ -4,7 +4,7 @@ import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
-import Playlists from "./Profile_nav/Playlists";
+import Playlists from "./Profile_nav/Playlists";  
 import "./css/profile.css";
 import "./css/post.css";
 import "./css/button.css";
@@ -13,7 +13,17 @@ import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { fetchDataUser } from "./js/ProfileJS";
 
+import i18n from "../../../i18n/i18n";
+
+import ReactCountryFlag from "react-country-flag";
+
+import { useTranslation } from "react-i18next"; // Import hook dịch
 const ProfileUser = () => {
+  const { t } = useTranslation();
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
+  };
   const value = Cookies.get("UserID");
   console.log(value);
   const [userData, setUserData] = useState([]);
@@ -73,8 +83,8 @@ const ProfileUser = () => {
                   height="20px"
                   style={{ marginRight: 20 }}
                 />
-                <b>Get Prime</b>
-              </button>
+                <b>{t("profile.get_prime")}</b>
+                </button>
             </div>
             {/*kết thúc nút mua prime */}
             {/* nút tới trang sửa profile */}
@@ -96,18 +106,18 @@ const ProfileUser = () => {
           <div className="row mt-4">
             <div className="col text-center">
               <span>{followerCount}</span> <br />
-              <span>Follower</span>
+              <span>{t("profile.followers")}</span>
             </div>
             <div className="col text-center">
               <span>{followingCount}</span> <br />
-              <span>Following</span>
+              <span>{t("profile.following")}</span>
             </div>
           </div>
           {/*kết thúc thông tin người theo giõi */}
 
           <div style={{ paddingTop: 30 }}>
-            <label>Nghệ sĩ ưu thích</label> <br />
-            {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
+          <label>{t("profile.favorite_artists")}</label> <br />
+          {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
               userData.inspiredBy.map((Mapdata) => (
                 <span
                   key={Mapdata.id}
@@ -117,10 +127,10 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>Không có nghệ sĩ ưu thích nào.</p>
+              <p>{t("profile.no_inspired_artists")}</p>
             )}
             <br />
-            <label>Sở trường</label> <br />
+            <label>{t("profile.talents")}</label> <br />
             {userData.talent && userData.talent.length > 0 ? (
               userData.talent.map((Mapdata) => (
                 <span
@@ -131,11 +141,11 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>Chưa chọn sở trường.</p>
+              <p>{t("profile.no_talents")}</p>
             )}
              <br />
-            <label>Dòng nhạc ưu thích</label> <br />
-            {userData.genre && userData.genre.length > 0 ? (
+             <label>{t("profile.favorite_genres")}</label> <br />
+             {userData.genre && userData.genre.length > 0 ? (
               userData.genre.map((Mapdata) => (
                 <span
                   key={Mapdata.id}
@@ -145,7 +155,7 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>Không có dòng nhạc ưu thích nào.</p>
+              <p>{t("profile.no_favorite_genres")}</p>
             )}
           </div>
         </aside>

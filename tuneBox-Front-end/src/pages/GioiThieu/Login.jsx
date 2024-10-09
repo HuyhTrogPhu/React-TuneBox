@@ -30,47 +30,36 @@ const Login = () => {
     const isEmail = userName.includes('@');
   
     const loginData = {
-      [isEmail ? 'email' : 'userName']: userName,
-      password: password
+        [isEmail ? 'email' : 'userName']: userName,
+        password: password
     };
   
     try {
-      const response = await axios.post('http://localhost:8080/user/log-in', loginData);
+        const response = await axios.post('http://localhost:8080/user/log-in', loginData);
   
-      if (response.data && response.data.status) {
-        console.log('Đăng nhập thành công:', response.data);
+        if (response.data && response.data.status) {
+            console.log('Đăng nhập thành công:', response.data);
   
-        const user = response.data.data; // Giả sử thông tin người dùng nằm trong `data.data`
-        const role = user.roleNames[0];  // Lấy role đầu tiên của người dùng
+            // Lưu thông tin người dùng vào localStorage
+            localStorage.setItem('user', JSON.stringify(response.data.data));
   
-        // Lưu thông tin người dùng vào localStorage
-        localStorage.setItem('user', JSON.stringify(user));
-  
-        // Điều hướng dựa trên role
-        if (role === 'Customer') {
-          navigate('/'); // Chuyển hướng đến trang Customer
-        } else if (role === 'EcomAdmin') {
-          navigate('/ecomadmin'); // Chuyển hướng đến trang EcomAdmin
-        } else if (role === 'SocialAdmin') {
-          navigate('/socialadmin'); // Chuyển hướng đến trang SocialAdmin
+            navigate('/'); // Chuyển hướng đến trang chính
         } else {
-          setErrorMessage('Role không hợp lệ');
+            console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
+            setErrorMessage(response.data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
         }
-      } else {
-        console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
-        setErrorMessage(response.data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
-      }
     } catch (error) {
-      console.error('Lỗi đăng nhập:', error);
-      if (error.response) {
-        setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
-      } else if (error.request) {
-        setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');
-      } else {
-        setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
-      }
+        console.error('Lỗi đăng nhập:', error);
+        if (error.response) {
+            setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
+        } else if (error.request) {
+            setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');
+        } else {
+            setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
+        }
     }
-  };
+};
+
   
   
   const handleLoginWithGoogle = () => {
