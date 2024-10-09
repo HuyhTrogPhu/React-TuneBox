@@ -36,28 +36,12 @@ const Login = () => {
     };
   
     try {
-      const response = await axios.post('http://localhost:8081/User/log-in', loginData);
+      const response = await axios.post('http://localhost:8080/user/log-in', loginData);
   
       if (response.data && response.data.status) {
-        console.log('Đăng nhập thành công:', response.data);
-  
-        const user = response.data.data; // Giả sử thông tin người dùng nằm trong `data.data`
-        const role = user.role[0].name;  // Lấy role đầu tiên của người dùng
-        
-        console.log(role);
-        // Lưu thông tin người dùng vào localStorage
-        localStorage.setItem('user', JSON.stringify(user));
+        console.log('Đăng nhập thành công:', response.data);  
         Cookies.set("UserID", response.data.data.id, { expires: 7 });
-        // Điều hướng dựa trên role
-        if (role === 'CUSTOMER') {
-          navigate('/'); // Chuyển hướng đến trang Customer
-        } else if (role === 'ECOMADMIN') {
-          navigate('/ecomadmin'); // Chuyển hướng đến trang EcomAdmin
-        } else if (role === 'SOCIALADMIN') {
-          navigate('/socialadmin'); // Chuyển hướng đến trang SocialAdmin
-        } else {
-          setErrorMessage('Role không hợp lệ');
-        }
+          navigate('/');
       } else {
         console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
         setErrorMessage(response.data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
@@ -86,8 +70,6 @@ const Login = () => {
         const response = await axios.get('http://localhost:8081/User/login/oauth2/success', {
           withCredentials: true // Nếu cần thiết
         });
-        // Giả sử bạn muốn lưu dữ liệu người dùng vào localStorage
-        localStorage.setItem('user', JSON.stringify(response.data.data));
         navigate('/'); // Chuyển hướng đến trang chính
       } catch (error) {
         console.error('Lỗi khi lấy thông tin người dùng:', error);

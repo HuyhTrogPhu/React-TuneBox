@@ -24,6 +24,7 @@ import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
 import CategoryPageDetail from "./pages/Ecommerce/CategoryPage/CategoryPageDetail";
+import LoginAdmin from "./pages/EcommerceAdmin/pageContent/LoginAdmin";
 
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
@@ -68,13 +69,13 @@ function App() {
 
 
 const isAuthenticated = () => {
-  const token = Cookies.get("jwtToken");
+  const token = Cookies.get("TokenADMIN");
   if (!token) return false;
   return true; 
 };
 
 const PrivateRoute = ({ element }) => {
-  return isAuthenticated() ? element : <Navigate to="/login" />;
+  return isAuthenticated() ? element : <Navigate to="/ecomadminlogin" />;
 };
 
   return (
@@ -112,7 +113,8 @@ const PrivateRoute = ({ element }) => {
             <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData}/>} />
 
             {/* admin start */}
-            <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+            <Route path="/ecomadmin/*" element={<PrivateRoute element={<EcommerceAdmin/>}  />} />
+            <Route path="/ecomadminlogin" element={< LoginAdmin />} />
             {/* admin end */}
           </Route>
         </Routes>

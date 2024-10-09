@@ -1,9 +1,20 @@
 import React from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
-import { Link } from "react-router-dom";
 
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 const Navbar = () => {
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    
+    Cookies.remove("UserID");
+    navigate("/login");
+  };
+
+
   return (
     <header
       className="row"
@@ -73,7 +84,7 @@ const Navbar = () => {
           </Link>
         </button>
       </div>
-      <div className="col text-end" style={{ alignItems: "center",}}>
+      <div className="col text-end" style={{ alignItems: "center" }}>
         <span>
           <img
             alt="icon-chuong"
@@ -86,7 +97,7 @@ const Navbar = () => {
         </span>
         <span>
           <img
-          alt="icon-chat"
+            alt="icon-chat"
             src={images.conversstion}
             style={{
               marginBottom: "15px",
@@ -107,7 +118,7 @@ const Navbar = () => {
             <b>Get</b>
           </span>{" "}
           <img
-          alt="icon-crow"
+            alt="icon-crow"
             height="32px"
             src={images.crown}
             style={{
@@ -116,28 +127,45 @@ const Navbar = () => {
             width="32px"
           />
         </button>
-        {/* Trang cá nhân */}
-        <button className="btn">
-          <Link to={'/profileUser'}>
+        {/* Trang cá nhân với dropdown */}
+        <div className="dropdown d-inline">
+          <a
+            href="#"
+            className="dropdown-toggle"
+            id="userDropdown"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Username
             <img
-              alt="Avatar"
-              className="avatar_small"
               src={images.avt}
-              style={{
-                height: "50px",
-                marginBottom: "15px",
-                width: "50px",
-                borderRadius: "50%",
-              }}
+              className="rounded-pill ms-2"
+              alt="User Image"
+              style={{ width: 30, height: 30 }}
             />
-          </Link>
-        </button>
+          </a>
+          <ul
+            className="dropdown-menu dropdown-menu-end"
+            aria-labelledby="userDropdown"
+          >
+            <li>
+              <Link className="dropdown-item" to="/profileUser">
+                Profile
+              </Link>
+            </li>
+            <li>
+            <button className="dropdown-item" onClick={handleLogout}>
+                Log Out
+              </button>
+            </li>
+          </ul>
+        </div>
         {/* Trang giỏ hàng */}
         <button className="btn">
-          <Link to={'/Cart'}>
+          <Link to={"/Cart"}>
             <span>
               <img
-              alt="icon-giohang"
+                alt="icon-giohang"
                 src={images.shopping_bag}
                 style={{
                   marginBottom: "15px",
@@ -158,7 +186,7 @@ const Navbar = () => {
         >
           {" "}
           <img
-          alt="icon-plus"
+            alt="icon-plus"
             height="20px"
             src={images.plus_white}
             style={{

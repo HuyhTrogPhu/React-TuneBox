@@ -48,9 +48,9 @@ const SoThich = ({ updateFormData, formData }) => {
   
   const handleSubmit = async () => {
     const updatedFormData = { ...formData, listTalent: selectedArtists };
-    saveToLocalStorage(updatedFormData); 
+    
     await sendDataToAPI(updatedFormData);
-    navigate("/");
+    navigate("/login");
   };
 
   
