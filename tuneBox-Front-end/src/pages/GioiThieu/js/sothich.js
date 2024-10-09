@@ -22,7 +22,7 @@ export const checkSignup = async (formData) => {
 
 export const fetchDataNgheSi = async () => {
   try {
-    const response = await axios.get('http://localhost:808/inspired/getall');
+    const response = await axios.get('http://localhost:8081/inspired/getall');
     const data = response.data;
     return data;
   } catch (error) {
@@ -90,6 +90,8 @@ export const sendDataToAPI = async (formData)  => {
     .then(response => {
       console.log('Data sent to API:', response.data);
         Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
+        Cookies.set("userName",response.data.data.userName, { expires: 7 });
+        const test = Cookies.get(userName);
         console.log('Dữ liệu đã được lưu vào cookie:', "UserID", response.data.data.id);
   return response.data.status;
     })

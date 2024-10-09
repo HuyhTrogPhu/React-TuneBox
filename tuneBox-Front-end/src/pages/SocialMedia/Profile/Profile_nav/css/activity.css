@@ -1,0 +1,42 @@
+.comments-list {
+  margin-top: 20px;
+}
+
+.comment {
+  display: flex;
+  margin-bottom: 15px;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.reply-input-container {
+  margin-top: 10px;
+}
+
+.replies-list {
+  margin-top: 10px; /* Đảm bảo có khoảng cách giữa bình luận gốc và các phản hồi */
+  padding-left: 20px; /* Tạo khoảng cách bên trái cho các phản hồi */
+}
+
+.reply {
+  display: flex;
+  margin-top: 5px; /* Khoảng cách giữa các phản hồi */
+  padding: 5px;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  background-color: #f1f1f1;
+}
+
+.reply-content {
+  margin-left: 10px; /* Tạo khoảng cách giữa hình ảnh và nội dung */
+}
+
+.reply-author {
+  font-weight: bold;
+}
+
+.reply-time {
+  font-size: 0.8em;
+  color: #777;
+}

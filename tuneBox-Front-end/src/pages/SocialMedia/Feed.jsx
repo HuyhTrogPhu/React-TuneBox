@@ -1,5 +1,10 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react';
 import { images } from "../../assets/images/images";
+import axios from 'axios';
+import { format } from 'date-fns';
+import Cookies from 'js-cookie';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import "./css/mxh/style.css"
 import "./css/mxh/post.css"
@@ -13,36 +18,140 @@ import i18n from "../../i18n/i18n.js";
 import { useTranslation } from "react-i18next";
 
 const HomeFeed = () => {
-  const { t } = useTranslation();
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
-  };
   // phần js để hiện post modal
   useEffect(() => {
     const createPostBtn = document.getElementById('create-post-btn');
     const postModal = document.getElementById('post-modal');
-    const postTextarea = document.getElementById('post-textarea');
     const closeModal = document.getElementById('close-modal');
 
-    if (createPostBtn && postModal && postTextarea && closeModal) {
-      createPostBtn.addEventListener('click', () => {
-        postModal.style.display = 'flex';
-      });
+    const openModal = () => postModal.style.display = 'flex';
+    const closePostModal = () => {
+      postModal.style.display = 'none';
+      resetForm();
+    };
 
-      closeModal.addEventListener('click', () => {
-        postModal.style.display = 'none';
-      });
+    if (createPostBtn && postModal && closeModal) {
+      createPostBtn.addEventListener('click', openModal);
+      closeModal.addEventListener('click', closePostModal);
 
       return () => {
-        createPostBtn.removeEventListener('click', () => {});
-        closeModal.removeEventListener('click', () => {});
+        createPostBtn.removeEventListener('click', openModal);
+        closeModal.removeEventListener('click', closePostModal);
       };
     } else {
       console.error('One or more elements not found');
     }
   }, []); // Chạy effect một lần khi component mount
 
+  // Hàm để reset form
+  const resetForm = () => {
+    setPostContent('');
+    setPostImages([]);
+  };
+
+  // Hàm để lấy các bài viết
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/posts', {
+        withCredentials: true,
+      });
+      console.log('Response data:', response.data);
+  
+      // Sắp xếp các bài viết theo thời gian tạo (mới nhất lên đầu)
+      const sortedPosts = response.data.sort((a, b) => {
+        const dateA = new Date(a.createdAt); // Sử dụng trực tiếp nếu createdAt là chuỗi ISO
+        const dateB = new Date(b.createdAt);
+        return dateB - dateA; // Sắp xếp từ mới đến cũ
+    });
+  
+      setPosts(sortedPosts); // Chỉ lưu các bài viết đã được sắp xếp
+    } catch (error) {
+      console.error('Error fetching user posts:', error);
+    }
+  };
+  
+  
+
+  // Gọi hàm fetchPosts khi component được mount
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+
+  // Hàm để xử lý việc tạo hoặc cập nhật bài viết
+  const handleSubmitPost = async () => {
+    const formData = new FormData();
+    
+    // Gán nội dung là chuỗi rỗng nếu không có nội dung
+    formData.append('content', postContent || ''); // Đảm bảo gửi một chuỗi rỗng nếu không có nội dung
+    formData.append('userId', userId);
+
+    postImages.forEach((image) => {
+        formData.append('images', image);
+    });
+
+    try {
+        if (postId) {
+            const response = await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true,
+            });
+            console.log('Post updated successfully:', response.data);
+        } else {
+            const response = await axios.post('http://localhost:8080/api/posts', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true,
+            });
+            console.log('Post created successfully:', response.data);
+        }
+
+        // Đóng modal và reset form sau khi post thành công
+        document.getElementById('post-modal').style.display = 'none';
+        resetForm();
+
+        // Fetch lại các bài viết mới
+        fetchPosts();
+    } catch (error) {
+        console.error('Error creating/updating post:', error.response?.data || error.message);
+    }
+};
+
+
+  // Hàm xử lý thay đổi input file
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setPostImages(files);
+
+    // Tạo URL cho mỗi ảnh đã chọn
+    const imageUrls = files.map((file) => URL.createObjectURL(file));
+    setPostImageUrls(imageUrls); // Cập nhật state với các URL ảnh
+  };
+
+  // Hàm xóa bài viết
+  const handleDeletePost = async (postId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this post?');
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/api/posts/${postId}`, { withCredentials: true });
+      console.log('Post deleted successfully');
+      fetchPosts();
+    } catch (error) {
+      console.error('Error deleting post:', error.response?.data || error.message);
+    }
+  };
+
+  // Hàm chỉnh sửa bài viết
+  const handleEditPost = (post) => {
+    setPostContent(post.content);
+    setPostImages(post.images); // Nếu backend trả về URL của ảnh, có thể cần thay đổi để thiết lập đúng
+    setPostId(post.id);
+    document.getElementById('post-modal').style.display = 'flex';
+  };
   // end js hiện post model
   return (
     <div>
@@ -95,9 +204,7 @@ const HomeFeed = () => {
                       <img src={images.ava} className="avatar_small" alt='avatar' />
                     </div>
                     <div className="col">
-                      <button id="create-post-btn" type="button" className="btn text-start" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', width: '85%', height: 50 }}>
-                      {t('placeholder_post')}
-                      </button>
+                      <button id="create-post-btn" type="button" className="btn text-start" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', width: '85%', height: 50 }}>Ban dang nghi gi vay?</button>
                     </div>
                   </div>
                 </div>
@@ -108,7 +215,7 @@ const HomeFeed = () => {
                         <img src={images.ava} className="avatar_small" alt="Avatar" />
                         <div>
                           <div className="name">Phạm Xuân Trường</div>
-                          <div className="time">{t('user_greeting')}</div>
+                          <div className="time">Posting to Feed</div>
                         </div>
                         <button id="close-modal" type="button" className="btn btn-close">×</button>
                       </div>
@@ -119,7 +226,7 @@ const HomeFeed = () => {
                             <button id="post-image" type="button" className="btn" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)' }}><i className="bi bi-card-image" /> Photo/video</button>
                           </div>
                           <div className="col text-end">
-                          <button id="submit-post" type="button" className="btn btn-secondary">{t('post')}</button>
+                            <button id="submit-post" type="button" className="btn btn-secondary">Post</button>
                           </div>
                         </div>
                       </div>
@@ -135,14 +242,15 @@ const HomeFeed = () => {
                   <img src={images.ava} className alt="Avatar" />
                   <div>
                     <div className="name">Phạm Xuân Trường</div>
-                    <div className="title">{t('user_greeting')}</div>
+                    <div className="title">Posting to Feed</div>
                   </div>
                 </div>
                 <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '5%', height: '5%' }} />
               </div>
               {/* Nội dung bài viết */}
               <div className="post-content">
-              {t('user_greeting')}  
+                Xin chao moi nguoi da den voi trang cua minh hihi minh la Pham
+                Xuan Truong day hihi
               </div>
               {/* kết thúc nội dung bài viết */}
               <div className="my-3">

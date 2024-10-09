@@ -16,11 +16,10 @@ import CartDetail from "./pages/Ecommerce/Cart/Cart_detail";
 import DetailProduct from "./components/Sellwell/DetailProduct";
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
-import EcommerceAdmin from './pages/EcommerceAdmin'
-import ResetPassword2 from "./pages/GioiThieu/ResetPassword2";
-import ForgotPassword2 from "./pages/GioiThieu/ForgotPassword2";
-import SocialMediaAdmin from "./pages/SocialMediaAdmin";
-import AlbumDetail from "./pages/SocialMediaAdmin/pageContent/AlbumDetail";
+import EcommerceAdmin from "./pages/EcommerceAdmin";
+import ResetPassword from "./pages/GioiThieu/ResetPassword";
+import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -67,11 +66,12 @@ function App() {
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser/*"  element={<ProfileUser />} />
+            <Route path="/profileUser" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
+            <Route path="/Trackdetail" element= {<Trackdetail />} />
           </Route>
 
           {/* Các route không có Header */}

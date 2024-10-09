@@ -16,6 +16,8 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "jquery": "^3.7.1",
     "js-cookie": "^3.0.5",
     "react": "^18.3.1",

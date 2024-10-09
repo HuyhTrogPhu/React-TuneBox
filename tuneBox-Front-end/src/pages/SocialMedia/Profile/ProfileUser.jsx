@@ -12,6 +12,7 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { fetchDataUser } from "./js/ProfileJS";
+// import "./Profile_nav/css/activity.css"
 
 import i18n from "../../../i18n/i18n";
 
@@ -25,14 +26,14 @@ const ProfileUser = () => {
     i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
   };
   const value = Cookies.get("UserID");
-  console.log(value);
+  // console.log(value);
   const [userData, setUserData] = useState([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   useEffect(() => {
     const fetchDataAndRender = async () => {
       const response = await fetchDataUser(value);
-      console.log("Data fetched from API:", response);
+      // console.log("Data fetched from API:", response);
       if (response && response.data) {
         setUserData(response.data);
         console.log(userData);
@@ -73,7 +74,7 @@ const ProfileUser = () => {
             <div className="col text-start">
               <button
                 type="button"
-                style={{ width: 200 }}
+                style={{ width: 180 }}
                 className="btn btn-dark"
               >
                 <img
@@ -185,7 +186,7 @@ const ProfileUser = () => {
               <Route path="/track" element={<Track />} />
               <Route path="/albums" element={<Albums />} />
               <Route path="/playlists" element={<Playlists />} />
-              {/* <Route path="/" element={<Navigate to="activity" />} /> Đường dẫn mặc định */}
+              <Route path="/" element={<Navigate to="activity" />} /> Đường dẫn mặc định
             </Routes>
           </article>
         </div>
