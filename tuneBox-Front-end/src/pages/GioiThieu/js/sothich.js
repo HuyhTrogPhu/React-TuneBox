@@ -69,6 +69,7 @@ export const saveToLocalStorage = (formData) => {
     genreBy: formData.genreBy
   };
 
+<<<<<<< HEAD
   localStorage.setItem('userData', JSON.stringify(jsonFormattedData));
 
   console.log(localStorage)
@@ -88,6 +89,9 @@ export const sendDataToAPI = async (formData) => {
   };
 
   await axios.post('http://localhost:8080/user/sign-up', jsonFormattedData, { withCredentials: true })
+=======
+  await axios.post('http://localhost:8080/user/sign-up', jsonFormattedData,{withCredentials:true})
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     .then(response => {
       console.log('Data sent to API:', response.data);
     

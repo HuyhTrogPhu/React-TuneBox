@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import InstrumentTable from "../../../components/Instrumentable/InstrumentList";
 import "../css/ManagerInstrument.css";
+<<<<<<< HEAD
 import { createInstrument, listBrands, listCategories, listInstruments } from "../../../service/InstrumentService";
+=======
+import { createInstrument, listBrands, listCategories } from "../../../service/InstrumentService";
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
 
 const ManagerInstrument = () => {
 
@@ -9,16 +13,24 @@ const ManagerInstrument = () => {
   const [newInsPrice, setInsPrice] = useState("");
   const [newInsQuantity, setInsQuantity] = useState("");
   const [newInsColor, setInsColor] = useState("");
+<<<<<<< HEAD
   const [newInsImage, setInsImage] = useState([]);
+=======
+  const [newInsImage, setInsImage] = useState(null);
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
   const [newInsCategory, setInsCategory] = useState("");
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");
 
+<<<<<<< HEAD
   const [instruments, setInstruments] = useState([]);
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+<<<<<<< HEAD
   const [apiError, setApiError] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -81,10 +93,35 @@ const ManagerInstrument = () => {
   function validateForm() {
     let valid = true;
     const errorsCopy = { ...errors };
+=======
+  const [apiError, setApiError] = useState(""); // State for API error
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [brandsResponse, categoriesResponse] = await Promise.all([
+          listBrands(),
+          listCategories(),
+        ]);
+        setBrands(brandsResponse.data);
+        setCategories(categoriesResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setApiError("Failed to fetch brands or categories."); // Set API error message
+      }
+    };
+    fetchData();
+  }, []);
+
+  function validateForm() {
+    let valid = true;
+    const errorsCopy = {};
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
 
     if (!newInsName.trim()) {
       errorsCopy.newInsName = 'Instrument name is required';
       valid = false;
+<<<<<<< HEAD
     } else {
       errorsCopy.newInsName = '';
     }
@@ -95,11 +132,19 @@ const ManagerInstrument = () => {
       valid = false;
     } else {
       errorsCopy.newInsPrice = '';
+=======
+    }
+
+    if (!newInsPrice.trim() || parseFloat(newInsPrice) < 0) {
+      errorsCopy.newInsPrice = 'Instrument price must be a positive number';
+      valid = false;
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     }
 
     if (!newInsColor.trim()) {
       errorsCopy.newInsColor = 'Instrument color is required';
       valid = false;
+<<<<<<< HEAD
     } else {
       errorsCopy.newInsColor = '';
     }
@@ -110,18 +155,29 @@ const ManagerInstrument = () => {
       valid = false;
     } else {
       errorsCopy.newInsQuantity = '';
+=======
+    }
+
+    if (!newInsQuantity.trim() || parseInt(newInsQuantity) < 0) {
+      errorsCopy.newInsQuantity = 'Instrument quantity must be a positive integer';
+      valid = false;
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     }
 
     if (!newInsImage) {
       errorsCopy.newInsImage = 'Instrument image is required';
       valid = false;
+<<<<<<< HEAD
     } else {
       errorsCopy.newInsImage = '';
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     }
 
     if (!newInsDes.trim()) {
       errorsCopy.newInsDes = 'Instrument description is required';
       valid = false;
+<<<<<<< HEAD
     } else {
       errorsCopy.newInsDes = '';
     }
@@ -138,6 +194,8 @@ const ManagerInstrument = () => {
       valid = false;
     } else {
       errorsCopy.newInsCategory = '';
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     }
 
     setErrors(errorsCopy);
@@ -151,12 +209,17 @@ const ManagerInstrument = () => {
 
     const newInstrument = new FormData();
     newInstrument.append('name', newInsName);
+<<<<<<< HEAD
     newInstrument.append('costPrice', parseFloat(newInsPrice));
 
+=======
+    newInstrument.append('price', newInsPrice);
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     newInstrument.append('quantity', newInsQuantity);
     newInstrument.append('color', newInsColor);
     newInstrument.append('image', newInsImage);
     newInstrument.append('description', newInsDes);
+<<<<<<< HEAD
     newInstrument.append('categoryId', newInsCategory);
     newInstrument.append('brandId', newInsBrand);
 
@@ -180,6 +243,33 @@ const ManagerInstrument = () => {
   };
 
 
+=======
+    newInstrument.append('category', newInsCategory);
+    newInstrument.append('brand', newInsBrand);
+
+    try {
+      const response = await createInstrument(newInstrument);
+      console.log("Instrument created:", response.data);
+      setMessage("Instrument created successfully");
+      setApiError("");
+
+      setInsName("");
+      setInsPrice("");
+      setInsQuantity("");
+      setInsColor("");
+      setInsImage(null);
+      setInsDes("");
+      setInsCategory("");
+      setInsBrand("");
+
+      document.getElementById("closeModal").click();
+    } catch (error) {
+      console.error("Error creating instrument", error);
+      setApiError("Failed to create instrument."); // Set API error message
+    }
+  };
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 3000);
@@ -187,6 +277,7 @@ const ManagerInstrument = () => {
     }
   }, [message]);
 
+<<<<<<< HEAD
   // Lọc danh sách dựa trên từ khóa tìm kiếm
   const filteredIns = instruments.filter(ins => {
     const matchesSearchTerm = ins.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -218,6 +309,16 @@ const ManagerInstrument = () => {
     setInstruments(sortedInstruments); // Cập nhật danh sách nhạc cụ
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
+=======
+
+  // const indexOfLastItem = currentPage * itemsPerPage;
+  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  // const currentInstrument = instruments.slice(indexOfFirstItem, indexOfLastItem);
+
+  // const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // const totalPages = Math.ceil(instruments.length / itemsPerPage);
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
 
 
   return (
@@ -229,6 +330,16 @@ const ManagerInstrument = () => {
         {apiError && <div className="alert alert-danger">{apiError}</div>} {/* Display API error */}
 
         {/* Display errors for each input */}
+<<<<<<< HEAD
+=======
+        {errors.newInsName && <div className="alert alert-danger">{errors.newInsName}</div>}
+        {errors.newInsPrice && <div className="alert alert-danger">{errors.newInsPrice}</div>}
+        {errors.newInsColor && <div className="alert alert-danger">{errors.newInsColor}</div>}
+        {errors.newInsQuantity && <div className="alert alert-danger">{errors.newInsQuantity}</div>}
+        {errors.newInsImage && <div className="alert alert-danger">{errors.newInsImage}</div>}
+        {errors.newInsDes && <div className="alert alert-danger">{errors.newInsDes}</div>}
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
 
         <div className="row m-2">
           <div className="row">
@@ -236,6 +347,7 @@ const ManagerInstrument = () => {
             <div className="col-lg-4">
               <form action="" className="p-3">
                 <div className="input-group mb-3 mt-3">
+<<<<<<< HEAD
                   <input
                     className="form-control m-0"
                     placeholder="Enter keyword"
@@ -243,6 +355,9 @@ const ManagerInstrument = () => {
                     onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật giá trị searchTerm
                   />
 
+=======
+                  <input className="form-control m-0" placeholder="Enter keyword" />
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                   <button className="btn border" type="submit">
                     <i className="fa-solid fa-magnifying-glass" />
                   </button>
@@ -251,12 +366,21 @@ const ManagerInstrument = () => {
             </div>
 
             {/* Search by category */}
+<<<<<<< HEAD
             <div className="col-lg-3">
               <label className="form-label">Categories</label>
               <select
                 className="form-select"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)} // Cập nhật giá trị selectedCategory
+=======
+            <div className="col-lg-4">
+              <label className="form-label">Categories</label>
+              <select
+                className="form-select"
+                value={newInsCategory}
+                onChange={(e) => setInsCategory(e.target.value)}
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
               >
                 <option value="" disabled>
                   Select category instrument
@@ -273,16 +397,20 @@ const ManagerInstrument = () => {
                   </option>
                 )}
               </select>
+<<<<<<< HEAD
               <button
                 className="btn btn-outline-danger mt-3"
                 onClick={() => setSelectedCategory("")} // Đặt lại giá trị selectedBrand
               >
                 Reset
               </button>
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
             </div>
 
 
             {/* Search by brand */}
+<<<<<<< HEAD
             <div className="col-lg-3">
               <label className="form-label">Brands</label>
               <select
@@ -292,6 +420,17 @@ const ManagerInstrument = () => {
               >
                 <option value="" disabled>
                   Select brand instrument
+=======
+            <div className="col-lg-4">
+              <label className="form-label">Brands</label>
+              <select
+                className="form-select"
+                value={newInsBrand}
+                onChange={(e) => setInsBrand(e.target.value)}
+              >
+                <option value="" disabled>
+                  Select category instrument
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                 </option>
                 {Array.isArray(brands) && brands.length > 0 ? (
                   brands.map((brand) => (
@@ -301,6 +440,7 @@ const ManagerInstrument = () => {
                   ))
                 ) : (
                   <option value="" disabled>
+<<<<<<< HEAD
                     No brands available
                   </option>
                 )}
@@ -321,6 +461,19 @@ const ManagerInstrument = () => {
         <button className="btn btn-outline-info" onClick={handleSort}>
           Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
         </button>
+=======
+                    No categories available
+                  </option>
+                )}
+              </select>
+            </div>
+
+
+          </div>
+
+        </div>
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
         <button
           className="btn m-3 btn-primary"
           data-bs-toggle="modal"
@@ -336,7 +489,10 @@ const ManagerInstrument = () => {
           tabIndex={-1}
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
+<<<<<<< HEAD
           data-bs-backdrop="false"
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
         >
           <div className="modal-dialog modal-xl">
             <div className="modal-content">
@@ -361,37 +517,63 @@ const ManagerInstrument = () => {
 
                       <div className="mt-3">
                         <label className="form-label">Instrument name:</label>
+<<<<<<< HEAD
                         <input className={`form-control `}
+=======
+                        <input className={`form-control ${errors.newInsName ? 'is-valid' : ''}`}
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                           type="text" placeholder="Enter instrument name"
                           value={newInsName}
                           onChange={(e) => setInsName(e.target.value)} />
                       </div>
+<<<<<<< HEAD
                       {errors.newInsName && <div className="alert alert-danger mt-3">{errors.newInsName}</div>}
 
                       <div className="mt-3">
                         <label className="form-label">Price:</label>
                         <input className={`form-control `}
+=======
+
+                      <div className="mt-3">
+                        <label className="form-label">Price:</label>
+                        <input className={`form-control ${errors.newInsPrice ? 'is-valid' : ''}`}
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                           type="text" placeholder="Enter const price"
                           value={newInsPrice}
                           onChange={(e) => setInsPrice(e.target.value)} />
                       </div>
+<<<<<<< HEAD
                       {errors.newInsPrice && <div className="alert alert-danger mt-3">{errors.newInsPrice}</div>}
 
                       <div className="mt-3">
                         <label className="form-label">Color:</label>
                         <input className={`form-control `}
+=======
+
+                      <div className="mt-3">
+                        <label className="form-label">Color:</label>
+                        <input className={`form-control ${errors.newInsColor ? 'is-valid' : ''}`}
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                           type="text" placeholder="Enter instrument color"
                           value={newInsColor}
                           onChange={(e) => setInsColor(e.target.value)} />
                       </div>
+<<<<<<< HEAD
                       {errors.newInsColor && <div className="alert alert-danger mt-3">{errors.newInsColor}</div>}
                       <div className="mt-3">
                         <label className="form-label">Quantity:</label>
                         <input className={`form-control`}
+=======
+
+                      <div className="mt-3">
+                        <label className="form-label">Quantity:</label>
+                        <input className={`form-control ${errors.newInsQuantity ? 'is-valid' : ''}`}
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                           type="text" placeholder="Enter instrument quantity"
                           value={newInsQuantity}
                           onChange={(e) => setInsQuantity(e.target.value)} />
                       </div>
+<<<<<<< HEAD
                       {errors.newInsQuantity && <div className="alert alert-danger mt-3">{errors.newInsQuantity}</div>}
                       <div className="mt-3">
                         <label className="form-label">Instrument Image</label>
@@ -407,6 +589,15 @@ const ManagerInstrument = () => {
 
                       </div>
                       {errors.newInsImage && <div className="alert alert-danger mt-3">{errors.newInsImage}</div>}
+=======
+
+                      <div className="mt-3">
+                        <label className="form-label">Instrument Image</label>
+                        <input type="file" className={`form-control ${errors.newInsImage ? 'is-valid' : ''}`}
+                          onChange={(e) => setInsImage(e.target.files[0])} />
+                      </div>
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                     </div>
 
                     <div className="col-6">
@@ -414,7 +605,11 @@ const ManagerInstrument = () => {
                       <div className="mt-3">
                         <label className="form-label">Category:</label>
                         <select
+<<<<<<< HEAD
                           className={`form-select  ${errors.newInsCategory ? 'is-invalid' : ''}`}
+=======
+                          className="form-select"
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                           value={newInsCategory || ""}
                           onChange={(e) => setInsCategory(e.target.value)}
                         >
@@ -429,14 +624,21 @@ const ManagerInstrument = () => {
                             <option disabled>No categories available</option>
                           )}
                         </select>
+<<<<<<< HEAD
                         {errors.newInsDes && <div className="alert alert-danger mt-3">{errors.newInsDes}</div>}
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                       </div>
 
                       <div className="mt-3">
                         <label className="form-label">Brand:</label>
                         <select
+<<<<<<< HEAD
 
                           className={`form-select ${errors.newInsBrand ? 'is-invalid' : ''}`}
+=======
+                          className="form-select"
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                           value={newInsBrand || ""}
                           onChange={(e) => setInsBrand(e.target.value)}
                         >
@@ -451,11 +653,17 @@ const ManagerInstrument = () => {
                             <option disabled>No brands available</option>
                           )}
                         </select>
+<<<<<<< HEAD
                         {errors.newInsBrand && <div className="alert alert-danger mt-3">{errors.newInsBrand}</div>}
                       </div>
 
 
 
+=======
+                      </div>
+
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                       <div className="mb=3">
                         <label className="form-label">Description</label>
                         <textarea cols="30" rows="10"
@@ -476,6 +684,7 @@ const ManagerInstrument = () => {
                       >
                         Close
                       </button>
+<<<<<<< HEAD
                       <button
                         type="button"
                         className="btn btn-danger"
@@ -483,6 +692,8 @@ const ManagerInstrument = () => {
                       >
                         Reset Form
                       </button>
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                       <button type="button" className="btn btn-primary" onClick={handleSave}>
                         Save
                       </button>
@@ -499,6 +710,7 @@ const ManagerInstrument = () => {
 
 
         {/* Table */}
+<<<<<<< HEAD
         <InstrumentTable instruments={currentIns} onUpdate={getAllInstrument} />
 
 
@@ -527,6 +739,44 @@ const ManagerInstrument = () => {
             </ul>
           </nav>
         </div>
+=======
+        <InstrumentTable />
+
+
+
+        {/* pagination */}
+        {/* <div className="">
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className="page-item">
+                <a className="page-link" href="#" aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </a>
+              </li>
+              <li className="page-item">
+                <a className="page-link" href="#">
+                  1
+                </a>
+              </li>
+              <li className="page-item">
+                <a className="page-link" href="#">
+                  2
+                </a>
+              </li>
+              <li className="page-item">
+                <a className="page-link" href="#">
+                  3
+                </a>
+              </li>
+              <li className="page-item">
+                <a className="page-link" href="#" aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div> */}
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
 
 
 

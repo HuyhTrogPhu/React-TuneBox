@@ -10,6 +10,10 @@ const ManagerCategories = () => {
   const [categories, setCategories] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
   const itemsPerPage = 10;
   const [errors, setErrors] = useState({ newCategoryName: '' });
   const [successMessage, setSuccessMessage] = useState("");
@@ -33,6 +37,10 @@ const ManagerCategories = () => {
       });
   }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
   function validateForm() {
     let valid = true;
     const errorsCopy = { ...errors };
@@ -40,6 +48,12 @@ const ManagerCategories = () => {
     if (!newCategoryName.trim()) {
       errorsCopy.newCategoryName = 'Category name is required';
       valid = false;
+<<<<<<< HEAD
+=======
+    } else if (newCategoryName.length < 3 || newCategoryName.length > 100) {
+      errorsCopy.newCategoryName = 'Category name must be between 10 and 100 characters';
+      valid = false;
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     } else if (categories.some(category => category.name.toLowerCase() === newCategoryName.trim().toLowerCase())) {
       errorsCopy.newCategoryName = 'Category name already exists';
       valid = false;
@@ -47,6 +61,7 @@ const ManagerCategories = () => {
       errorsCopy.newCategoryName = '';
     }
 
+<<<<<<< HEAD
     if(!newCategoryImg) {
       errorsCopy.newCategoryImg = 'Category image is required';
       valid = false
@@ -62,11 +77,14 @@ const ManagerCategories = () => {
 
     }
 
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     setErrors(errorsCopy);
     return valid;
   }
 
   function handleSave() {
+<<<<<<< HEAD
 
     setErrors({newCategoryName: '', newCategoryImg: '', newCategoryDesc: ''})
 
@@ -78,12 +96,28 @@ const ManagerCategories = () => {
     newCategory.append('name', newCategoryName);
     newCategory.append('image', newCategoryImg);
     newCategory.append('description', newCategoryDesc);
+=======
+    if (!validateForm()) {
+      return;
+
+    }
+
+    const newCategory = {
+      name: newCategoryName,
+
+      status: false,
+    };
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
 
 
     createCategory(newCategory)
       .then((response) => {
         console.log("Category created:", response.data);
         getAllCategory();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
         setNewCategoryName(""); // Reset input field
         setSuccessMessage("Category added successfully!"); // Hiển thị thông báo thành công
 
@@ -93,6 +127,7 @@ const ManagerCategories = () => {
         modalInstance.hide(); // Ẩn modal
 
         // Để đảm bảo lớp phủ được ẩn
+<<<<<<< HEAD
         // setTimeout(() => {
         //   modalElement.classList.remove('show');
         //   const backdrop = document.querySelector('.modal-backdrop');
@@ -100,6 +135,16 @@ const ManagerCategories = () => {
         //     backdrop.remove();
         //   }
         // }, 50); // Thay đổi giá trị này nếu cần
+=======
+        setTimeout(() => {
+          modalElement.classList.remove('show');
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) {
+            backdrop.remove();
+          }
+        }, 150); // Thay đổi giá trị này nếu cần
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
       })
       .catch((error) => {
         console.error("Error creating category:", error);
@@ -108,7 +153,11 @@ const ManagerCategories = () => {
 
   useEffect(() => {
     if (successMessage) {
+<<<<<<< HEAD
       setCountdown(3); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+=======
+      setCountdown(5); // Đặt lại thời gian đếm ngược khi thông báo được hiển thị
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
 
       const intervalId = setInterval(() => {
         setCountdown(prevCountdown => prevCountdown - 1);
@@ -156,10 +205,19 @@ const ManagerCategories = () => {
     setCategories(sortedCategories);
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');  // Đổi trạng thái sắp xếp
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
 
   return (
     <div>
       <div className="container-fluid">
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
         <button
           data-bs-toggle="modal"
           data-bs-target="#addCategoryModal"
@@ -169,6 +227,7 @@ const ManagerCategories = () => {
           Add Category
         </button>
 
+<<<<<<< HEAD
         {/* start modal add */}
         <div className="modal fade" id="addCategoryModal" tabIndex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true" data-bs-backdrop="false">
           <div className="modal-dialog">
@@ -242,6 +301,31 @@ const ManagerCategories = () => {
         <CategoriesTable categories={currentCategories} onUpdate={getAllCategory} sortOrder={sortOrder}
           handleSort={handleSort} />
 
+=======
+
+        {/* Hiển thị thông báo thành công */}
+        {successMessage && (
+          <div className="alert alert-success" role="alert">
+            {successMessage} This notice will be closed in <b>{countdown}s.</b>
+          </div>
+        )}
+
+        {/* Thêm trường tìm kiếm */}
+        <div className="mb-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by category name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <CategoriesTable categories={currentCategories} onUpdate={getAllCategory} sortOrder={sortOrder}
+          handleSort={handleSort} />
+
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
         <div className="">
           <nav aria-label="Page navigation example">
             <ul className="pagination justify-content-center text-center">
@@ -268,6 +352,39 @@ const ManagerCategories = () => {
       </div>
 
 
+<<<<<<< HEAD
+=======
+      <div className="modal fade" id="addCategoryModal" tabIndex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <form>
+                <div className="mb-3">
+                  <label htmlFor="categoryName" className="form-label">Category Name</label>
+                  <input
+                    type="text"
+
+                    id="categoryName"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                  />
+                  {errors.newCategoryName && <div className='invalid-feedback'>{errors.newCategoryName}</div>}
+                </div>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" className="btn btn-primary" onClick={handleSave}>Save Category</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
     </div>
   );
 };

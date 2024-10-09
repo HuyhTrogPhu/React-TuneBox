@@ -125,7 +125,11 @@ const BrandList = ({ brands, onUpdate }) => {
       {/* Hiển thị thông báo thành công */}
       {successMessage && (
         <div className="alert alert-success" role="alert">
+<<<<<<< HEAD
           {successMessage} This notice will be closed in <b>{countdown}s.</b>
+=======
+          {successMessage}
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
         </div>
       )}
       <table className="table table-striped table-hover">
@@ -155,7 +159,11 @@ const BrandList = ({ brands, onUpdate }) => {
               </td>
               <td>{bra.name}</td>
               <td>{bra.description ? bra.description : 'No description available'}</td>
+<<<<<<< HEAD
               <td>{bra.status ? 'Available' : 'Unavailable'}</td>
+=======
+              <td>{bra.status ? 'Unavailable' : 'Available'}</td>
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
               <td>
                 <button className='btn btn-warning' onClick={() => handleEdit(bra)}>
                   Edit
@@ -175,7 +183,11 @@ const BrandList = ({ brands, onUpdate }) => {
       </table>
 
       {/* Modal Edit */}
+<<<<<<< HEAD
       <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true" data-bs-backdrop="false">
+=======
+      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true">
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -195,7 +207,10 @@ const BrandList = ({ brands, onUpdate }) => {
                   />
                   {errors.editBrandName && <div className='invalid-feedback'>{errors.editBrandName}</div>}
                 </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                 <div className="mb-3">
                   <label htmlFor="brandDescription" className="form-label">Description</label>
                   <textarea
@@ -206,7 +221,10 @@ const BrandList = ({ brands, onUpdate }) => {
                   ></textarea>
                   {errors.editBrandDescription && <div className='invalid-feedback'>{errors.editBrandDescription}</div>}
                 </div>
+<<<<<<< HEAD
                 
+=======
+>>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                 <div className="mb-3">
                   <label htmlFor="brandImage" className="form-label">Brand Image</label>
                   <input

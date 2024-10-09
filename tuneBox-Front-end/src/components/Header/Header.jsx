@@ -1,7 +1,17 @@
 import React from 'react'
 import './Header.css'
 import { images } from '../../assets/images/images';
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 const Header = () => {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    
+    Cookies.remove("TokenADMIN");
+    navigate("/ecomadminlogin");
+  };
+
+
   return (
     <div className="topbar d-flex justify-content-end align-items-center p-3 bg-light border-bottom">
       <div className="dropdown">
@@ -30,7 +40,7 @@ const Header = () => {
             </a>
           </li>
           <li>
-            <a className="dropdown-item" href="#">
+            <a className="dropdown-item" href="#" onClick={handleLogout}> 
               Log Out
             </a>
           </li>
