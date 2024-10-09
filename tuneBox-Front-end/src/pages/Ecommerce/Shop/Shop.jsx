@@ -4,6 +4,7 @@ import Footer2 from '../../../components/Footer/Footer2'
 import { images } from '../../../assets/images/images'
 import { listCategories, listInstruments, listBrands } from '../../../service/EcommerceHome'
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 const Shop = () => {
 
   const [brands, setBrands] = useState([]);
@@ -231,7 +232,7 @@ const Shop = () => {
                               onChange={() => handleCategoryChange(cate.name)} // Gọi hàm handleCategoryChange
 
                             />
-                            <label htmlFor className="form-check-label">{cate.name}</label>
+                            <label  className="form-check-label">{cate.name}</label>
                           </div>
 
                         ))
@@ -253,7 +254,7 @@ const Shop = () => {
               <div className="row">
                 <div className="custom-dropdown">
                   <button className="btn custom-dropdown-toggle border mb-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i className="fa-solid fa-filter"></i>
+                    <i className="fa-solid fa-filter"></i>
                   </button>
                   <ul className="custom-dropdown-menu">
                     <li>
@@ -292,7 +293,10 @@ const Shop = () => {
                   {currentItems.map((instrument) => (
                     <div className="col-3 mb-4" key={instrument.id}>
 
-                      <a href={`/product-detail/${instrument.id}`} className="card-link">
+                      <Link to={{
+                        pathname: `/DetailProduct/${instrument.id}`,
+                        state: { instrument }
+                      }} className="card-link">
                         <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
                           <div className="card-img-wrapper">
                             <img
@@ -308,7 +312,7 @@ const Shop = () => {
                           </div>
 
                         </div>
-                      </a>
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -318,32 +322,32 @@ const Shop = () => {
                 {/* Pagination */}
 
                 <div className="phantrangdetail ">
-                <nav aria-label="Page navigation example">
-                  <ul className="pagination justify-content-center text-center">
-                    <li className="page-item">
-                      <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                        <span aria-hidden="true">«</span>
-                      </button>
-                    </li>
-
-                    {Array.from({ length: totalPages }, (_, index) => (
-                      <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                        <button className="page-link" onClick={() => paginate(index + 1)}>
-                          {index + 1}
+                  <nav aria-label="Page navigation example">
+                    <ul className="pagination justify-content-center text-center">
+                      <li className="page-item">
+                        <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                          <span aria-hidden="true">«</span>
                         </button>
                       </li>
-                    ))}
 
-                    <li className="page-item">
-                      <button className="page-link" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                        <span aria-hidden="true">»</span>
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
+                      {Array.from({ length: totalPages }, (_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                          <button className="page-link" onClick={() => paginate(index + 1)}>
+                            {index + 1}
+                          </button>
+                        </li>
+                      ))}
+
+                      <li className="page-item">
+                        <button className="page-link" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                          <span aria-hidden="true">»</span>
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
               </div>
-              </div>
-              
+
             </div>
           </div>
         </div>

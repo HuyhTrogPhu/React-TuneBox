@@ -1,10 +1,45 @@
-import { Link } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import "./DetailProduct.css";
 import { images } from "../../../assets/images/images";
 import Footer2 from "../../../components/Footer/Footer2";
 import Benefits from "../../../components/Benefits/Benefits";
+import { getInstrumentById } from '../../../service/EcommerceHome';
 
 const DetailProduct = () => {
+  const { id } = useParams();
+  const location = useLocation();
+  const [instrument, setInstrument] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchInstrument = async () => {
+      try {
+        const response = await getInstrumentById(id); // Gọi API để lấy dữ liệu
+        setInstrument(response.data);
+      } catch (err) {
+        setError("Sản phẩm không tồn tại hoặc không thể tìm thấy."); // Xử lý lỗi
+      } finally {
+        setLoading(false); // Đã tải xong (có dữ liệu hoặc lỗi)
+      }
+    };
+
+    if (location.state && location.state.instrument) {
+      setInstrument(location.state.instrument);
+      setLoading(false);
+    } else {
+      fetchInstrument(); // Gọi API nếu không có dữ liệu từ state
+    }
+  }, [id, location.state]);
+
+  // Hiển thị loading hoặc lỗi nếu có
+  if (loading) return <p>Đang tải sản phẩm...</p>;
+  if (error) return <p>{error}</p>;
+
+  // Nếu không có sản phẩm, hiển thị thông báo 404
+  if (!instrument) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+
   const changeImage = (e) => {
     const mainImage = document.getElementById("main-image");
     mainImage.src = e.target.src;
@@ -12,76 +47,57 @@ const DetailProduct = () => {
 
   return (
     <div>
- <div className="container">
-      <div className="content">
-        <div className="row">
-          <div className="col-md-4 d-flex justify-content-center">
-            <div className="img">
-              <button className="button1 left ">❮</button>
-              <div className="text-center">
-                <img id="main-image" src={images.sp2} width={450} alt="product" />
-              </div>
-              <button className="button right">❯</button>
-              
-              <div className="thumbnail text-center mt-5">
-                <a href=""> <img onClick={changeImage} src={images.sp1a} width={100} alt="thumbnail" /></a>
-                <a href=""> <img onClick={changeImage} src={images.sp1a} width={100} alt="thumbnail" /></a>
-                <a href=""> <img onClick={changeImage} src={images.sp1a} width={100} alt="thumbnail" /></a>
-                <a href=""> <img onClick={changeImage} src={images.sp1a} width={100} alt="thumbnail" /></a>
+      <div className="container">
+        <div className="content">
+          {/* Instrument image */}
+          <div className="row">
+            <h3 className="text-uppercase">{instrument.name}</h3>
+            <div className="col-md-12 d-flex justify-content-center">
+              <div className="img">
 
+                <div className="text-center">
+                  <img id="main-image" src={instrument.image} width={450} alt="product" />
+                </div>
               </div>
             </div>
           </div>
+          <div className="row mt-5">
+            {/* Instrument content */}
+            <div className="col-6"></div>
+            <div className="col-5">
+              <div className="mt-4 mb-3 noidungSP">
 
-          <div className="col-md-8">
-            <div className="mt-4 mb-3 noidungSP">
-              <h3 className="text-uppercase">
-                Squier Paranormal Series 54 Jazz Bass Electric Guitar, Black
-              </h3>
-              <div className="price d-flex flex-row align-items-center">
-                <span className="price">5.950 000 VND</span>
-              </div>
-              <div className="cart mt-4 align-items-center">
-                <input type="number" defaultValue={1} className="soluongSP rounded-2" />
-                <button className="btn btn-warning btnCart">
-                  <img src={images.car} width="30px" alt="car" /> Add to cart
-                </button>
-              </div>
-              <hr className="hr-100" />
-              <div className="gioiThieu mt-4">
-                <h5>Về sản phẩm</h5>
-                <p>
-                  Được giới thiệu lần đầu vào năm 1988, CE đã trở thành một phần
-                  thiết yếu của dòng sản phẩm PRS, mang đến sự nhanh nhạy và
-                  phản hồi của cấu trúc bu lông...
-                </p>
-              </div>
-              <hr className="hr-100" />
-              <div className="mxh">
-                <h5>Share:</h5>
-                <a href="https://facebook.com" target="_blank" title="Facebook">
-                  <i className="fab fa-facebook-f" />
-                </a>
-                <a href="https://twitter.com" target="_blank" title="Twitter">
-                  <i className="fab fa-twitter" />
-                </a>
-                <a href="https://instagram.com" target="_blank" title="Instagram">
-                  <i className="fab fa-instagram" />
-                </a>
+                <div className="price d-flex flex-row align-items-center">
+                  <span className="price">{instrument.costPrice.toLocaleString()} VND</span>
+                </div>
+                <div className="cart mt-4 align-items-center">
+                  <div className="d-flex">
+                    <div className="">
+                      <input type="number" defaultValue={1} className="soluongSP rounded-2 m-0" min={1} />
+                    </div>
+                    <div className="m-0">
+                      <button className="btn btn-warning btnCart" style={{ marginLeft: '10px' }}>
+                        <img src={images.car} width="30px" alt="car" /> Add to cart
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <hr className="hr-100" />
+                <div className="gioiThieu mt-4">
+                  <h5>Về sản phẩm</h5>
+                  <p>{instrument.description}</p>
+                </div>
+                <hr className="hr-100" />
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div style={{ marginTop: 110 }}>
+        <Benefits />
+        <Footer2 />
+      </div>
     </div>
-    <div style={{marginTop: 110}}>
-    
-    <Benefits/>
-    <Footer2/>
-    </div>
-    
-    </div>
-   
   );
 };
 
