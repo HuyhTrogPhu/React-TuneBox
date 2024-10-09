@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import '../../../pages/Ecommerce/Shop/Shop.css'
+import Footer2 from '../../../components/Footer/Footer2'
 import { images } from '../../../assets/images/images'
 import { listCategories, listInstruments, listBrands } from '../../../service/EcommerceHome'
 import { useNavigate } from 'react-router-dom';
@@ -32,16 +33,21 @@ const Shop = () => {
       const categoriesResponse = await listCategories();
       const instrumentsResponse = await listInstruments();
 
-      console.log("Brands Data:", brandsResponse); // Kiểm tra lại dữ liệu
-      console.log("Instruments Data:", instrumentsResponse.data);
-      // Truy cập vào thuộc tính data của phản hồi
-      setBrands(Array.isArray(brandsResponse.data) ? brandsResponse.data : []);
+      console.log("Brands Data:", brandsResponse); // Check the brand data
+
+      // Filter brands with status === false
+      const filteredBrands = Array.isArray(brandsResponse.data)
+        ? brandsResponse.data.filter(brand => brand.status === false)
+        : [];
+
+      setBrands(filteredBrands); // Set the filtered brands
       setCategories(Array.isArray(categoriesResponse.data) ? categoriesResponse.data.filter(cate => cate.status === false) : []);
       setInstruments(Array.isArray(instrumentsResponse.data) ? instrumentsResponse.data : []);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+
 
 
 
@@ -241,7 +247,9 @@ const Shop = () => {
             </div>
             {/* sanPham */}
             <div className="col-9 mt-3">
+
               {/* Sort */}
+
               <div className="row">
                 <div className="custom-dropdown">
                   <button className="btn custom-dropdown-toggle border mb-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -283,54 +291,64 @@ const Shop = () => {
                 <div className="row">
                   {currentItems.map((instrument) => (
                     <div className="col-3 mb-4" key={instrument.id}>
-                      <div className="card" style={{ width: '100%', border: 'none' }}>
-                        <img
-                          src={instrument.image ? instrument.image : 'default-image-url'}
-                          className="card-img-top"
-                          alt={instrument.name}
-                        />
-                        <div className="card-body">
-                          <p className="card-title">{instrument.name}</p>
-                          <p className="card-price"> {instrument.costPrice.toLocaleString()}đ</p>
-                          <p className="card-status text-center">{getStockStatus(instrument.quantity)}</p> {/* Hiển thị trạng thái */}
+
+                      <a href={`/product-detail/${instrument.id}`} className="card-link">
+                        <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                          <div className="card-img-wrapper">
+                            <img
+                              src={instrument.image}
+                              className="card-img-top"
+                              alt={instrument.name}
+                            />
+                          </div>
+                          <div className="card-body text-center">
+                            <p className="card-title">{instrument.name}</p>
+                            <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                            <p className="card-status">{getStockStatus(instrument.quantity)}</p>
+                          </div>
+
                         </div>
-                      </div>
+                      </a>
                     </div>
                   ))}
                 </div>
 
+
+
                 {/* Pagination */}
-                <div className="phantrangdetail">
-                  <nav aria-label="Page navigation example">
-                    <ul className="pagination justify-content-center text-center">
-                      <li className="page-item">
-                        <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                          <span aria-hidden="true">«</span>
+
+                <div className="phantrangdetail ">
+                <nav aria-label="Page navigation example">
+                  <ul className="pagination justify-content-center text-center">
+                    <li className="page-item">
+                      <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                        <span aria-hidden="true">«</span>
+                      </button>
+                    </li>
+
+                    {Array.from({ length: totalPages }, (_, index) => (
+                      <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => paginate(index + 1)}>
+                          {index + 1}
                         </button>
                       </li>
+                    ))}
 
-                      {Array.from({ length: totalPages }, (_, index) => (
-                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                          <button className="page-link" onClick={() => paginate(index + 1)}>
-                            {index + 1}
-                          </button>
-                        </li>
-                      ))}
-
-                      <li className="page-item">
-                        <button className="page-link" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                          <span aria-hidden="true">»</span>
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-
+                    <li className="page-item">
+                      <button className="page-link" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                        <span aria-hidden="true">»</span>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
               </div>
+              </div>
+              
             </div>
           </div>
         </div>
       </div>
+      <Footer2 />
     </div>
 
 
