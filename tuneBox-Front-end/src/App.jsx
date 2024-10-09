@@ -25,7 +25,7 @@ import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
 import CategoryPageDetail from "./pages/Ecommerce/CategoryPage/CategoryPageDetail";
-
+import WelcomeUser from "./pages/GioiThieu/WelcomeUser";
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
 import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
@@ -81,7 +81,7 @@ function App() {
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/DetailProduct" element={<DetailProduct />} />
+            <Route path="/DetailProduct/:id" element={<DetailProduct />} />
             <Route path="/BrandPage" element={<BrandPage />} />
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
@@ -100,7 +100,7 @@ function App() {
             <Route path="/talent" element={<SoThich updateFormData={updateFormData} formData={formData} />} />
             <Route path="/artist" element={<NgheSiYeuThich updateFormData={updateFormData} />} />
             <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData} />} />
-
+            <Route path="/welcome" element={<WelcomeUser />} />
             {/* admin start */}
             <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
             {/* admin end */}

@@ -87,7 +87,7 @@ const BrandDetail = () => {
             <div className="grid-container">
               <div className="grid-item image">
                 <img
-                  src={`${imageBase64Prefix}${brand.brandImage}`}
+                  src={brand.brandImage}
                   className='banner-img'
                   alt={brand.name}
                 />
@@ -146,7 +146,7 @@ const BrandDetail = () => {
               </div>
             </div>
 
-            <div className="col-9">
+            <div className="col-9 mt-3">
               <div className="row">
                 <div className="custom-dropdown">
                   <button className="btn custom-dropdown-toggle btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -182,23 +182,27 @@ const BrandDetail = () => {
                       }
 
                       return (
-                        <div className="col-3 mb-4" key={instrument.id}>
-                          <div className="card shadow-sm card-custom2">
-                            <img
-                              src={instrument.image ? `data:image/${instrument.image.split('.').pop()};base64,${instrument.image}` : 'default-image-url'}
-                              alt={instrument.name}
-                              className="card-img2"
-                            />
-                            <div className="card-body text-center">
-                              <h5 className="card-title2">{instrument.name}</h5>
-                              <p className="card-price2">
-                                {instrument.costPrice.toLocaleString()}đ
-                              </p>
-                              <p className="card-stock-status">{stockStatus}</p> {/* Hiển thị trạng thái hàng */}
-                              <button className="btn btn-primary mt-3 card-button2">Xem chi tiết</button>
-                            </div>
+                      
+
+                          <div className="col-3 mb-4" key={instrument.id}>
+                            <a href={`/product-detail/${instrument.id}`} className="card-link">
+                              <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                                <div className="card-img-wrapper">
+                                  <img
+                                    src={instrument.image}
+                                    className="card-img-top"
+                                    alt={instrument.name}
+                                  />
+                                </div>
+                                <div className="card-body text-center">
+                                  <p className="card-title">{instrument.name}</p>
+                                  <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                                  <p className="card-status">{stockStatus}</p>
+                                </div>
+                              </div>
+                            </a>
                           </div>
-                        </div>
+                       
                       );
                     })
                   )}
@@ -233,8 +237,8 @@ const BrandDetail = () => {
           </div>
         </div>
       </div>
-      
-      <Benefits/>
+
+      <Benefits />
       <Footer2 />
     </div>
 

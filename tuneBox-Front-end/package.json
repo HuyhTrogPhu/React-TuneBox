@@ -17,6 +17,9 @@
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "date-fns": "^4.1.0",
+
+    "cloudinary": "^2.5.0",
+
     "jquery": "^3.7.1",
     "js-cookie": "^3.0.5",
     "react": "^18.3.1",
