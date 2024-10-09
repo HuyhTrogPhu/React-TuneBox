@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import '../../../pages/Ecommerce/Shop/Shop.css'
+import Footer2 from '../../../components/Footer/Footer2'
 import { images } from '../../../assets/images/images'
 import { listCategories, listInstruments, listBrands } from '../../../service/InstrumentServiceCus'
 import { useNavigate } from 'react-router-dom';
@@ -31,14 +32,14 @@ const Shop = () => {
       const brandsResponse = await listBrands();
       const categoriesResponse = await listCategories();
       const instrumentsResponse = await listInstruments();
-  
+
       console.log("Brands Data:", brandsResponse); // Check the brand data
-  
+
       // Filter brands with status === false
       const filteredBrands = Array.isArray(brandsResponse.data)
         ? brandsResponse.data.filter(brand => brand.status === false)
         : [];
-  
+
       setBrands(filteredBrands); // Set the filtered brands
       setCategories(Array.isArray(categoriesResponse.data) ? categoriesResponse.data.filter(cate => cate.status === false) : []);
       setInstruments(Array.isArray(instrumentsResponse.data) ? instrumentsResponse.data : []);
@@ -46,7 +47,7 @@ const Shop = () => {
       console.error("Error fetching data:", error);
     }
   };
-  
+
 
 
 
@@ -294,37 +295,39 @@ const Shop = () => {
 
 
                 {/* Pagination */}
-                <div className="phantrangdetail">
-                  <nav aria-label="Page navigation example">
-                    <ul className="pagination justify-content-center text-center">
-                      <li className="page-item">
-                        <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                          <span aria-hidden="true">«</span>
+
+                <div className="phantrangdetail ">
+                <nav aria-label="Page navigation example">
+                  <ul className="pagination justify-content-center text-center">
+                    <li className="page-item">
+                      <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                        <span aria-hidden="true">«</span>
+                      </button>
+                    </li>
+
+                    {Array.from({ length: totalPages }, (_, index) => (
+                      <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => paginate(index + 1)}>
+                          {index + 1}
                         </button>
                       </li>
+                    ))}
 
-                      {Array.from({ length: totalPages }, (_, index) => (
-                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                          <button className="page-link" onClick={() => paginate(index + 1)}>
-                            {index + 1}
-                          </button>
-                        </li>
-                      ))}
-
-                      <li className="page-item">
-                        <button className="page-link" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                          <span aria-hidden="true">»</span>
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-
+                    <li className="page-item">
+                      <button className="page-link" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                        <span aria-hidden="true">»</span>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
               </div>
+              </div>
+              
             </div>
           </div>
         </div>
       </div>
+      <Footer2 />
     </div>
 
 
