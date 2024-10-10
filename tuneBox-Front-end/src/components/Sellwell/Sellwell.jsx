@@ -48,7 +48,7 @@ const Sellwell = () => {
                 </div>
                 <hr className='hr-100' />
 
-                <div className='row d-flex'>
+                <div className='row d-flex justify-content-start'>
                     {Array.isArray(instrumentList) && instrumentList.length > 0 ? (
                         currentItems.map((ins, index) => { // Sử dụng currentItems thay vì instrumentList
                             return (

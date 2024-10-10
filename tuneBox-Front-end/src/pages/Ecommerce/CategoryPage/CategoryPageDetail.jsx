@@ -17,7 +17,6 @@ const CategoryPageDetail = () => {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const imageBase64Prefix = "data:image/png;base64,";
   const [instruments, setInstruments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -43,7 +42,7 @@ const CategoryPageDetail = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await listCategories
+        const response = await listCategories();
         setCategories(response); // response đã là danh sách id và name
       } catch (error) {
         console.error("Error fetching categories", error);
@@ -51,10 +50,6 @@ const CategoryPageDetail = () => {
     };
     fetchCategories();
   }, []);
-
-
-
-
 
 
   useEffect(() => {

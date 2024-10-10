@@ -27,6 +27,7 @@ const Category = () => {
   function getListCategory() {
     listCategories().then((response) => {
       setCategoryList(response.data);
+      console.log(response.data);
     }).catch((error) => {
       console.error("Error fetching category", error);
     })
@@ -48,7 +49,7 @@ const Category = () => {
                 <div className="item" key={category.id}>
                   <Link to={`/CategoryPage/${category.id}`}> {/* Thay đổi đường dẫn đến chi tiết danh mục */}
                     <img alt={category.name} className=""
-                      src={category.image ? category.image : 'default-image-path.jpg' }
+                      src={category.image}
                       style={{ width: '50px' }}
                     />
                     <h5>{category.name}</h5>
