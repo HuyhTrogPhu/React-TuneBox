@@ -40,40 +40,59 @@ function Trackdetail() {
   
   // Nếu không có track, hiển thị thông báo không tìm thấy
   if (!track) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+  
 
   return (
     <div className="container">
       <div className="container track-page-header">
         <div className="adaptive-content">
-
-            <Waveform/>
+          {/* Truyền URL âm thanh từ Cloudinary cho Waveform và drop track*/}
+          <Waveform audioUrl={track.trackFile} track={track} />
 
         </div>
         <div className="adaptive-content track-player-actions">
           <div className="track-player-actions-column">
             <button className="btn">
-            <img src={images.heart} className="btn-icon" alt="Like" />
-            32
+              <img src={images.heart} className="btn-icon" alt="Like" />
+              32
             </button>
             <button className="btn">
-            <img src={images.share} className="btn-icon" alt="share" />
-              share
+              <img src={images.conversstion} className="btn-icon" alt="share" />
+              Comment
             </button>
           </div>
           <div className="track-player-actions-column">
-            <button className="btn">...</button>
+          <div className="btn-group" style={{ marginLeft: 25 }}>
+                <button
+                  className="btn dropdown-toggle no-border"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                ></button>
+                <ul className="dropdown-menu dropdown-menu-lg-end">
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      onClick={() => handleEditClick(track)}
+                    >
+                      Edit
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      onClick={() => deleteTrack(track.id)}
+                    >
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
           </div>
         </div>
       </div>
       <div className="row mb-2 mt-3">
         <div className="col-md-7 border rounded">
-          <div>
-            <nav className="nav flex-column flex-md-row p-5">
-              <a href="/#" className="nav-link">
-                Comment(4)
-              </a>
-            </nav>
-          </div>
           <div className="mb-2">
             <div className="comment-section">
               <textarea

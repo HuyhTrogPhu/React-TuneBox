@@ -251,6 +251,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
         </tbody>
       </table>
 
+{/* Edit modal */}
       <div
         className="modal fade"
         id="editIns"
@@ -324,7 +325,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                       />
                       {validationErrors.quantity && <div className="text-danger">{validationErrors.quantity}</div>}
                     </div>
-
+          {/* Image */}
                     <div className="mt-3">
                       <label className="form-label">Instrument Image</label>
                       <input

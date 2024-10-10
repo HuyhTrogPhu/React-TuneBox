@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import WaveSurfer from 'wavesurfer.js';
-import './css/waveForm.css';
-import { images } from '../../../../assets/images/images';
+import React, { useEffect, useRef, useState } from "react";
+import WaveSurfer from "wavesurfer.js";
+import "./css/waveForm.css";
+import { images } from "../../../../assets/images/images";
 
-const Waveform = () => {
+const Waveform = ({ audioUrl, track }) => {
   const waveformRef = useRef(null);
   const wavesurferRef = useRef(null);
   const [duration, setDuration] = useState(0);
@@ -14,46 +14,55 @@ const Waveform = () => {
     // Khởi tạo WaveSurfer
     wavesurferRef.current = WaveSurfer.create({
       container: waveformRef.current,
-      waveColor: 'violet',
-      progressColor: 'purple',
+      waveColor: "violet",
+      progressColor: "purple",
     });
 
-    // Tải file âm thanh
-    wavesurferRef.current.load('/audio/XuiHayVui.mp3');
+    // Tải file âm thanh từ Cloudinary
+    wavesurferRef.current.load(audioUrl);
 
-    wavesurferRef.current.on('ready', () => {
+    wavesurferRef.current.on("ready", () => {
       setDuration(wavesurferRef.current.getDuration());
     });
 
-    wavesurferRef.current.on('audioprocess', () => {
+    wavesurferRef.current.on("audioprocess", () => {
       setCurrentTime(wavesurferRef.current.getCurrentTime());
     });
 
     return () => wavesurferRef.current.destroy(); // Dọn dẹp khi component không còn
-  }, []);
+  }, [audioUrl]);
 
   const togglePlayPause = () => {
     wavesurferRef.current.playPause();
     setIsPlaying(wavesurferRef.current.isPlaying());
   };
 
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`; // Định dạng MM:SS
+  };
+
   return (
     <section>
       <div className="player">
         <div className="thumb">
-          <img src={images.avt} alt="" />
+          <img src={track.imageTrack || images.avt} />
         </div>
         <div className="info">
           <div className="detail">
             <div className="title">
-              HiHi
+              {track.name || "Tiêu đề Track"}
               <div className="time">
-                <span id="current">{currentTime.toFixed(2)}</span> /
-                <span id="duration">{duration.toFixed(2)}</span>
+                <span id="current">{formatTime(currentTime)}</span> /
+                <span id="duration">{formatTime(duration)}</span>
               </div>
             </div>
             <div className="control" onClick={togglePlayPause}>
-              <i className={isPlaying ? 'fi-rr-pause' : 'fi-rr-play'} id="playPause"></i>
+              <i
+                className={isPlaying ? "fi-rr-pause" : "fi-rr-play"}
+                id="playPause"
+              ></i>
             </div>
           </div>
           <div id="wave" ref={waveformRef}></div>
