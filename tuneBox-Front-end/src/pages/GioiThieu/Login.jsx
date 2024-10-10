@@ -1,7 +1,5 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import './css/bootstrap.min.css';
 import './css/bootstrap-icons.css';
 import './css/style.css';
@@ -14,8 +12,8 @@ import './js/click-scroll.js';
 import './js/custom.js';
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const Login = () => {
   const [userName, setUsername] = useState('');
@@ -25,7 +23,6 @@ const Login = () => {
   const [forgotMessage, setForgotMessage] = useState('');
   const navigate = useNavigate(); 
   const [errorMessage, setErrorMessage] = useState('');
-  const [postId, setPostId] = useState(null); // State để lưu ID bài viết khi chỉnh sửa
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -34,48 +31,37 @@ const Login = () => {
     const isEmail = userName.includes('@');
   
     const loginData = {
-      [isEmail ? 'email' : 'userName']: userName,
-      password: password
+        [isEmail ? 'email' : 'userName']: userName,
+        password: password
     };
   
     try {
-      const response = await axios.post('http://localhost:8080/User/log-in', loginData);
+        const response = await axios.post('http://localhost:8080/user/log-in', loginData);
   
-      if (response.data && response.data.status) {
-        console.log('Đăng nhập thành công:', response.data);
+        if (response.data && response.data.status) {
+            console.log('Đăng nhập thành công:', response.data);
   
-        const user = response.data.data; // Giả sử thông tin người dùng nằm trong `data.data`
-        const role = user.role[0].name;  // Lấy role đầu tiên của người dùng
-        
-        console.log(role);
-        // Lưu thông tin người dùng vào localStorage
-        localStorage.setItem('user', JSON.stringify(user));
-        Cookies.set("UserID", response.data.data.id, { expires: 7 });
-        // Điều hướng dựa trên role
-        if (role === 'CUSTOMER') {
-          navigate('/'); // Chuyển hướng đến trang Customer
-        } else if (role === 'ECOMADMIN') {
-          navigate('/ecomadmin'); // Chuyển hướng đến trang EcomAdmin
-        } else if (role === 'SOCIALADMIN') {
-          navigate('/socialadmin'); // Chuyển hướng đến trang SocialAdmin
+            // Lưu thông tin người dùng vào localStorage
+            localStorage.setItem('user', JSON.stringify(response.data.data));
+            Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
+            Cookies.set("Nickname",  response.data.data.userNickname, {expires: 7})
+            navigate('/'); // Chuyển hướng đến trang chính
         } else {
-          setErrorMessage('Role không hợp lệ');
+            console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
+            setErrorMessage(response.data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
         }
-      } else {
-        console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
-        setErrorMessage(response.data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
-      }
     } catch (error) {
-      console.error('Lỗi đăng nhập:', error);
-      if (error.response) {
-        setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
-      } else if (error.request) {
-        setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');
-      } else {
-        setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
-      }
+        console.error('Lỗi đăng nhập:', error);
+        if (error.response) {
+            setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
+        } else if (error.request) {
+            setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');
+        } else {
+            setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
+        }
     }
-  };
+};
+
   
   
   const handleLoginWithGoogle = () => {
@@ -111,11 +97,6 @@ const Login = () => {
             <div className="col-lg-6 col-10 mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
-                {errorMessage && (
-                  <div className="alert alert-danger text-center" role="alert">
-                    {errorMessage}
-                  </div>
-                )}
                 <div className="ticket-form-body">
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
@@ -164,7 +145,7 @@ const Login = () => {
                     <span className="text-center">Bạn chưa có tài khoản? <a href="#"><b>Đăng kí ngay.</b></a></span>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
-                    <Link to="/forgot-password" className="text-primary">
+                    <Link to="/forgot-password2" className="text-primary">
                       <b>Quên mật khẩu?</b>
                     </Link>
                   </div>

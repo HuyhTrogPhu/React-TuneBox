@@ -89,7 +89,6 @@ export const sendDataToAPI = async (formData) => {
   await axios.post('http://localhost:8080/user/sign-up', jsonFormattedData, { withCredentials: true })
     .then(response => {
       console.log('Data sent to API:', response.data);
-      Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
       console.log('Dữ liệu đã được lưu vào cookie:', "UserID", response.data.data.id);
       return response.data.status;
     })

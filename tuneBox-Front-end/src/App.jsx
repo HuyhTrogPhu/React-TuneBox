@@ -21,10 +21,9 @@ import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
 import CategoryPageDetail from "./pages/Ecommerce/CategoryPage/CategoryPageDetail";
-
+import OtherUserProfile from "./pages/SocialMedia/Profile/OtherUserProfile"
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
-import Trackdetail from "./pages/SocialMedia/Trackdetail"
 
 // Layout có Header
 function LayoutWithHeader() {
@@ -83,6 +82,7 @@ function App() {
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+            <Route path="/user/:userId/*" element={<OtherUserProfile />} />
           </Route>
 
           {/* Các route không có Header */}

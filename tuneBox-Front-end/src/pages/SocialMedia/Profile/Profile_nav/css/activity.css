@@ -1,42 +1,48 @@
-.comments-list {
-  margin-top: 20px;
+.comment {
+  border: 1px solid #ddd; /* Border nhẹ */
+  border-radius: 5px; /* Góc bo tròn */
+  padding: 10px 15px; /* Padding nhỏ hơn */
+  margin: 5px 0; /* Giảm khoảng cách giữa các bình luận */
+  background-color: #f9f9f9; /* Nền sáng */
+  display: flex; /* Sử dụng flex để căn chỉnh tốt hơn */
+  align-items: center; /* Căn giữa theo chiều dọc */
 }
 
-.comment {
-  display: flex;
-  margin-bottom: 15px;
-  border: 1px solid #eaeaea;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+.comment-content {
+  flex: 1; /* Tự động chiếm toàn bộ không gian còn lại */
+  margin-left: 10px; /* Khoảng cách giữa avatar và nội dung bình luận */
+}
+
+.comment-author {
+  font-weight: bold; /* Đậm tên người dùng */
+  font-size: 0.9em; /* Kích thước font nhỏ hơn */
+  color: #333; /* Màu chữ nhẹ nhàng */
+}
+
+.comment-time {
+  font-size: 0.8em; /* Kích thước font nhỏ hơn */
+  color: #888; /* Màu chữ xám cho thời gian */
+  margin-top: 2px; /* Khoảng cách giữa tên người dùng và thời gian */
 }
 
 .reply-input-container {
-  margin-top: 10px;
-}
-
-.replies-list {
-  margin-top: 10px; /* Đảm bảo có khoảng cách giữa bình luận gốc và các phản hồi */
-  padding-left: 20px; /* Tạo khoảng cách bên trái cho các phản hồi */
+  margin-top: 5px; /* Khoảng cách giữa phần bình luận và input reply */
 }
 
 .reply {
-  display: flex;
-  margin-top: 5px; /* Khoảng cách giữa các phản hồi */
-  padding: 5px;
-  border: 1px solid #eaeaea;
-  border-radius: 5px;
-  background-color: #f1f1f1;
+  margin-left: 30px; /* Thụt lề cho reply */
+  border-left: 2px solid #ddd; /* Đường kẻ bên trái */
+  padding-left: 10px; /* Khoảng cách bên trái */
+  margin-bottom: 10px;
 }
 
-.reply-content {
-  margin-left: 10px; /* Tạo khoảng cách giữa hình ảnh và nội dung */
+.nested-replies {
+  margin-left: 20px; /* Lùi vào bên phải cho các phản hồi lồng nhau */
+  border-left: 1px solid #ccc; /* Vạch bên trái để phân biệt */
+  padding-left: 10px; /* Khoảng cách giữa vạch và nội dung */
 }
 
-.reply-author {
-  font-weight: bold;
+.nested-reply {
+  margin-bottom: 8px; /* Giãn cách giữa các phản hồi lồng nhau */
 }
 
-.reply-time {
-  font-size: 0.8em;
-  color: #777;
-}

@@ -146,7 +146,6 @@ const HomeFeed = () => {
       console.error('Error deleting post:', error.response?.data || error.message);
     }
   };
-
   // Hàm chỉnh sửa bài viết
   const handleEditPost = (post) => {
     setPostContent(post.content);
@@ -261,7 +260,7 @@ const HomeFeed = () => {
       <div className="post-header">
         <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
         <div>
-          <div className="name">{post.userName || 'Unknown User'}</div>
+          <div className="name">{post.userNickname || 'Unknown User'}</div>
           <div className="time">
             {createdAt && !isNaN(createdAt.getTime()) 
               ? format(createdAt, 'hh:mm a, dd MMM yyyy') 
