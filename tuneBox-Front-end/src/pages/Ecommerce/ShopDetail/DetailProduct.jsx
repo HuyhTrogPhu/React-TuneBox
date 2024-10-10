@@ -63,10 +63,14 @@ const DetailProduct = () => {
           </div>
           <div className="row mt-5">
             {/* Instrument content */}
-            <div className="col-6"></div>
+            <div className="col-6">
+              <h3>Về sản phẩm</h3>
+              <div className="gioiThieu mt-4">
+                  <p>{instrument.description}</p>
+                </div>
+            </div>
             <div className="col-5">
               <div className="mt-4 mb-3 noidungSP">
-
                 <div className="price d-flex flex-row align-items-center">
                   <span className="price">{instrument.costPrice.toLocaleString()} VND</span>
                 </div>
@@ -82,12 +86,7 @@ const DetailProduct = () => {
                     </div>
                   </div>
                 </div>
-                <hr className="hr-100" />
-                <div className="gioiThieu mt-4">
-                  <h5>Về sản phẩm</h5>
-                  <p>{instrument.description}</p>
-                </div>
-                <hr className="hr-100" />
+              
               </div>
             </div>
           </div>

@@ -51,9 +51,12 @@ const Sellwell = () => {
                 <div className='row d-flex'>
                     {Array.isArray(instrumentList) && instrumentList.length > 0 ? (
                         currentItems.map((ins, index) => { // Sử dụng currentItems thay vì instrumentList
-                            return ( // Thêm return ở đây
+                            return (
                                 <div className='card col-3' key={index}>
-                                    <Link to={'/DetailProduct'}>
+                                    <Link to={{
+                                        pathname: `/DetailProduct/${ins.id}`,
+                                        state: { ins }
+                                    }}>
                                         <div className='card-img'>
                                             <img
                                                 src={ins.image ? ins.image : 'default-image-path.jpg'}
