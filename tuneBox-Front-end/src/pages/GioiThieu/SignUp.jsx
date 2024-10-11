@@ -30,7 +30,7 @@ const SignUp = ({ updateFormData }) => {
 
       // Nếu không có lỗi, cập nhật form và chuyển hướng
       updateFormData({ userName, email, password });
-      navigate("/createusername"); // Chuyển trang nếu không có lỗi
+      navigate("/createUsername"); // Chuyển trang nếu không có lỗi
     } catch (error) {
       // Xử lý lỗi khi email hoặc username đã tồn tại
       if (error.response && error.response.data) {

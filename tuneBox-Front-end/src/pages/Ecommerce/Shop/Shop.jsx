@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import '../../../pages/Ecommerce/Shop/Shop.css'
 import Footer2 from '../../../components/Footer/Footer2'
+import Benefits from '../../../components/Benefits/Benefits'
 import { images } from '../../../assets/images/images'
-import { listCategories, listInstruments, listBrands } from '../../../service/InstrumentServiceCus'
+import { listCategories, listInstruments, listBrands } from '../../../service/EcommerceHome'
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 const Shop = () => {
 
   const [brands, setBrands] = useState([]);
@@ -11,7 +13,6 @@ const Shop = () => {
   const [instruments, setInstruments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12; // Số sản phẩm hiển thị trên mỗi trang
-  const imageBase64Prefix = "data:image/png;base64,";
 
 
   const [selectedBrands, setSelectedBrands] = useState([]);
@@ -21,6 +22,17 @@ const Shop = () => {
   const [sortOrder, setSortOrder] = useState(''); // 'asc' cho giá thấp nhất, 'desc' cho giá cao nhất
 
   const [filteredInstruments, setFilteredInstruments] = useState([]);
+
+  // Tạo trạng thái để lưu trữ trạng thái mở/đóng cho từng accordion
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
+  const [isPriceOpen, setIsPriceOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
+  // Hàm toggle cho các accordion
+  const toggleBrandAccordion = () => setIsBrandOpen(!isBrandOpen);
+  const togglePriceAccordion = () => setIsPriceOpen(!isPriceOpen);
+  const toggleCategoryAccordion = () => setIsCategoryOpen(!isCategoryOpen);
+
 
   const navigate = useNavigate();
   // Fetch dữ liệu từ API khi component được mount
@@ -86,6 +98,7 @@ const Shop = () => {
   const handleSort = (order) => {
     setSortOrder(order);
   };
+
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
     if (quantity === 0) return 'Hết hàng';
@@ -148,16 +161,21 @@ const Shop = () => {
         <div className="content">
           <div className="row">
             <div className="col-3 phamloai">
+              {/* Filter */}
               <div className="accordion" id="accordionPanelsStayOpenExample">
-                {/* Khung tim kiem theo thuong hieu */}
+                {/* Khung tìm kiếm theo thương hiệu */}
                 <div className="accordion" id="accordionExample">
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      <button
+                        className={`accordion-button ${isBrandOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={toggleBrandAccordion}
+                      >
                         Thương hiệu
                       </button>
                     </h2>
-                    <div id="collapseOne" className="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isBrandOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
                         {brands.length > 0 ? (
                           brands.map((brand) => (
@@ -167,7 +185,6 @@ const Shop = () => {
                                 className="form-check-input"
                                 value={brand.name}
                                 onChange={() => handleBrandChange(brand.name)}
-
                               />
                               <label className="form-check-label">{brand.name}</label>
                             </div>
@@ -176,16 +193,20 @@ const Shop = () => {
                           <p>Không có thương hiệu nào</p>
                         )}
                       </div>
-
                     </div>
                   </div>
+
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      <button
+                        className={`accordion-button ${isPriceOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={togglePriceAccordion}
+                      >
                         Mức giá
                       </button>
                     </h2>
-                    <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isPriceOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
                         <div className="input-group mb-3">
                           <input
@@ -210,18 +231,22 @@ const Shop = () => {
                           </button>
                         </div>
                       </div>
-
                     </div>
                   </div>
+
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      <button
+                        className={`accordion-button ${isCategoryOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={toggleCategoryAccordion}
+                      >
                         Loại sản phẩm
                       </button>
                     </h2>
-                    <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isCategoryOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
-                        {/* check box */}
+                        {/* checkbox */}
                         {categories.map((cate) => (
                           <div className="form-check" key={cate.id}>
                             <input
@@ -229,50 +254,46 @@ const Shop = () => {
                               className="form-check-input"
                               value={cate.name}
                               onChange={() => handleCategoryChange(cate.name)} // Gọi hàm handleCategoryChange
-
                             />
-                            <label htmlFor className="form-check-label">{cate.name}</label>
+                            <label className="form-check-label">{cate.name}</label>
                           </div>
-
-                        ))
-
-                        }
-
+                        ))}
                       </div>
-
                     </div>
                   </div>
                 </div>
               </div>
+
             </div>
             {/* sanPham */}
             <div className="col-9 mt-3">
 
-              <div className="row">
-                <div class="custom-dropdown">
-                  <button class="btn custom-dropdown-toggle   btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Sắp xếp
-                  </button>
-                  <ul class="custom-dropdown-menu">
-                    <li>
-                      <a class="custom-dropdown-item" href="#" onClick={() => handleSort('desc')}>
-                        Giá cao nhất
-                      </a>
-                    </li>
-                    <li>
-                      <a class="custom-dropdown-item" href="#" onClick={() => handleSort('asc')}>
-                        Giá thấp nhất
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+              {/* Sort */}
 
+              <div className="row">
+                <div className='col-9'>Total product</div>
+
+                <div className='col-3'>
+                  <select className="form-select">
+                    <option selected>Default</option>
+                    <option value="" onClick={() => { setSortByName(''); setSortByPrice(''); setCurrentPage(1); }}>Price: Low to high</option>
+                    <option value="" onClick={() => { setSortByPrice('asc'); setSortByName(''); setCurrentPage(1); }}>Price: High to low</option>
+                    <option value="" onClick={() => { setSortByPrice('desc'); setSortByName(''); setCurrentPage(1); }}>Name: A to Z</option>
+                    <option value="" onClick={() => { setSortByName('asc'); setSortByPrice(''); setCurrentPage(1); }}>Name: Z to A</option>
+                  </select>
+                </div>
               </div>
-              <div className="sanPham mt-2">
+
+              {/* San pham */}
+              <div className="sanPham mt-5">
                 <div className="row">
                   {currentItems.map((instrument) => (
                     <div className="col-3 mb-4" key={instrument.id}>
-                      <a href={`/product-detail/${instrument.id}`} className="card-link">
+
+                      <Link to={{
+                        pathname: `/DetailProduct/${instrument.id}`,
+                        state: { instrument }
+                      }} className="card-link">
                         <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
                           <div className="card-img-wrapper">
                             <img
@@ -286,8 +307,9 @@ const Shop = () => {
                             <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
                             <p className="card-status">{getStockStatus(instrument.quantity)}</p>
                           </div>
+
                         </div>
-                      </a>
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -297,36 +319,37 @@ const Shop = () => {
                 {/* Pagination */}
 
                 <div className="phantrangdetail ">
-                <nav aria-label="Page navigation example">
-                  <ul className="pagination justify-content-center text-center">
-                    <li className="page-item">
-                      <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                        <span aria-hidden="true">«</span>
-                      </button>
-                    </li>
-
-                    {Array.from({ length: totalPages }, (_, index) => (
-                      <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                        <button className="page-link" onClick={() => paginate(index + 1)}>
-                          {index + 1}
+                  <nav aria-label="Page navigation example">
+                    <ul className="pagination justify-content-center text-center">
+                      <li className="page-item">
+                        <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                          <span aria-hidden="true">«</span>
                         </button>
                       </li>
-                    ))}
 
-                    <li className="page-item">
-                      <button className="page-link" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                        <span aria-hidden="true">»</span>
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
+                      {Array.from({ length: totalPages }, (_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                          <button className="page-link" onClick={() => paginate(index + 1)}>
+                            {index + 1}
+                          </button>
+                        </li>
+                      ))}
+
+                      <li className="page-item">
+                        <button className="page-link" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                          <span aria-hidden="true">»</span>
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
               </div>
-              </div>
-              
+
             </div>
           </div>
         </div>
       </div>
+      <Benefits />
       <Footer2 />
     </div>
 

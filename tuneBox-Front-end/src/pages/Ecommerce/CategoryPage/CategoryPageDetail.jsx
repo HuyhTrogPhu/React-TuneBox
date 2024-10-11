@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Bebefits from '../../../components/Benefits/Benefits'
 import Footer2 from '../../../components/Footer/Footer2'
+import './CategoryPageDetail.css'
 import { useLocation } from 'react-router-dom';
-import { listInstrumentsByCategory } from '../../../service/InstrumentServiceCus';
+import {  listBrands, listCategories, listInstrumentsByCategory } from '../../../service/InstrumentServiceCus';
 
 
 const ITEMS_PER_PAGE = 12;
@@ -12,7 +13,10 @@ const CategoryPageDetail = () => {
   const location = useLocation();
   const { category } = location.state;
 
-  const imageBase64Prefix = "data:image/png;base64,";
+  const [searchTerm, setSearchTerm] = useState("");
+  const [brands, setBrands] = useState([]);
+  const [categories, setCategories] = useState([]);
+
   const [instruments, setInstruments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -22,6 +26,31 @@ const CategoryPageDetail = () => {
   const [sortByName, setSortByName] = useState('desc');
 
   const categoryId = category.id;
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const response = await listBrands();
+        setBrands(response); // response đã là danh sách id và name
+      } catch (error) {
+        console.error("Error fetching brands", error);
+      }
+    };
+    fetchBrands();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await listCategories();
+        setCategories(response); // response đã là danh sách id và name
+      } catch (error) {
+        console.error("Error fetching categories", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -88,7 +117,7 @@ const CategoryPageDetail = () => {
     const sortedInstruments = sortInstruments(filteredInstruments);
     const indexOfLastInstrument = currentPage * ITEMS_PER_PAGE;
     const indexOfFirstInstrument = indexOfLastInstrument - ITEMS_PER_PAGE;
-    return sortedInstruments.slide(indexOfFirstInstrument, indexOfLastInstrument);
+    return sortedInstruments.slice(indexOfFirstInstrument, indexOfLastInstrument);
   }
 
   const handleFilter = () => {
@@ -107,7 +136,7 @@ const CategoryPageDetail = () => {
         <div className='gioithieu1'>
           <div className='grid-container'>
             <div className='grid-item image'>
-              <img src={`${imageBase64Prefix}${category.image}`}
+              <img src={category.image}
                 alt={category.name}
                 className='banner-img'
               />
@@ -121,47 +150,110 @@ const CategoryPageDetail = () => {
       </div>
       <hr className='hr-1001' />
 
-      <div className='content'>
+      <div className='content container'>
         <div className='row'>
 
           {/* filter */}
           <div className='col-3 phamloai'>
-            <div className="accordion" id="accordionPanelsStayOpenExample">
+            <div className="accordion" id="accordionExample">
 
-              <h2 className='accordion-header'>
-                <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                  Mức giá
-                </button>
-              </h2>
+              {/* Sort by price */}
+              <div className='accordion-item'>
+                <h2 className='accordion-header'>
+                  <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                    Pirce
+                  </button>
+                </h2>
 
-              <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionPanelsStayOpenExample">
-                <div className="accordion-body">
-                  <div className="input-group mb-3">
-                    <input
-                      type="number"
-                      className="form-control rounded-3"
-                      placeholder="Giá thấp nhất"
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
-                      min="0"
-                    />
-                    <span style={{ marginLeft: 10, marginRight: 10, marginTop: 6 }}>-</span>
-                    <input
-                      type="number"
-                      className="form-control rounded-3"
-                      placeholder="Giá cao nhất"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
-                      min="0"
-                    />
-                  </div>
-                  <div className="d-grid">
-                    <button className="btn btn-warning" type="button" onClick={handleFilter}>
-                      Áp dụng
-                    </button>
+                <div id="collapseOne" className="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                  <div className="accordion-body">
+
+                    <div className="input-group mb-3">
+                      <input
+                        type="number"
+                        className="form-control rounded-3"
+                        placeholder="Giá thấp nhất"
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value)}
+                        min="0"
+                      />
+                      <span style={{ marginLeft: 10, marginRight: 10, marginTop: 6 }}>-</span>
+                      <input
+                        type="number"
+                        className="form-control rounded-3"
+                        placeholder="Giá cao nhất"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                        min="0"
+                      />
+                    </div>
+
+                    <div className="d-grid">
+                      <button className="btn btn-warning" type="button" onClick={handleFilter}>
+                        Submit
+                      </button>
+                    </div>
+
                   </div>
                 </div>
               </div>
+
+              {/* Sort by brand */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    Brands
+                  </button>
+                </h2>
+                <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div className="accordion-body">
+
+                    {/* Search */}
+                    <form action="" className="p-3">
+                      <div className="input-group mb-3 mt-3">
+                        <input
+                          className="form-control m-0"
+                          placeholder="Enter keyword"
+                          value={searchTerm} // Gán giá trị cho input
+                          onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật giá trị searchTerm
+                        />
+
+                        <button className="btn border" type="submit">
+                          <i className="fa-solid fa-magnifying-glass" />
+                        </button>
+                      </div>
+                    </form>
+                    <div className='mt-3'>
+                      {brands.map((brand) => (
+                        <input type="checkbox" key={brand.id} value={brand.name}/>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sort by category */}
+              <div className='accordion-item'>
+                <div className='accordion-header'>
+                  <h2 className="accordion-header">
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      Categories
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                  <div className="accordion-body">
+                    <div className='mt-3'>
+                      {categories.map((category) => (
+                        <input type="checkbox" key={category.id} value={category.name}/>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
 
             </div>
           </div>
@@ -226,19 +318,12 @@ const CategoryPageDetail = () => {
 
                     return (
                       <div className='col-3 mb-4' key={instrument.id}>
-                        {Array.isArray(instrument.image) && instrument.image.length > 0 ? (
                           <img
-                            src={`data:image/png;base64,${instrument.image[0]}`} // Chỉ hiển thị ảnh đầu tiên
-                            alt={`${instrument.name} 0`}
+                            src={instrument.image}
+                            alt={instrument.name}
                             style={{ width: '100px', margin: '0 5px' }}
                           />
-                        ) : (
-                          <img
-                            src='default-image-url'
-                            alt={ins.name}
-                            style={{ width: '100px' }}
-                          />
-                        )}
+                        
                         <h5 className='card-title2'>{instrument.name}</h5>
                         <p className='card-price'>
                           {instrument.costPrice.toLocaleString()}đ

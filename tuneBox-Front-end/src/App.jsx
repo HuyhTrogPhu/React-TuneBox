@@ -77,7 +77,7 @@ function App() {
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/DetailProduct" element={<DetailProduct />} />
+            <Route path="/DetailProduct/:id" element={<DetailProduct />} />
             <Route path="/BrandPage" element={<BrandPage />} />
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
