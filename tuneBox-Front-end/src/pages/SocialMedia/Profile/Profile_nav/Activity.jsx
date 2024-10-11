@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Cookies from "js-cookie";
-import "./css/activity.css"
+import "./css/activity.css";
 
 const Activity = () => {
   const [postContent, setPostContent] = useState("");
@@ -14,7 +14,7 @@ const Activity = () => {
   const [posts, setPosts] = useState([]);
   const [postId, setPostId] = useState(null);
   const userId = Cookies.get("UserID");
-  const [username, setuserName]  = useState({});
+  const [username, setuserName] = useState({});
   const [commentContent, setCommentContent] = useState({});
   const [showAllComments, setShowAllComments] = useState({});
   const [replyContent, setReplyContent] = useState({}); // State để lưu nội dung reply
@@ -73,11 +73,29 @@ const Activity = () => {
           withCredentials: true,
         }
       );
-      console.log(response.data)
+      console.log(response.data);
 
       const sortedPosts = response.data.sort((a, b) => {
-        const dateA = new Date(Date.UTC(a.createdAt[0], a.createdAt[1] - 1, a.createdAt[2], a.createdAt[3], a.createdAt[4], a.createdAt[5]));
-        const dateB = new Date(Date.UTC(b.createdAt[0], b.createdAt[1] - 1, b.createdAt[2], b.createdAt[3], b.createdAt[4], b.createdAt[5]));
+        const dateA = new Date(
+          Date.UTC(
+            a.createdAt[0],
+            a.createdAt[1] - 1,
+            a.createdAt[2],
+            a.createdAt[3],
+            a.createdAt[4],
+            a.createdAt[5]
+          )
+        );
+        const dateB = new Date(
+          Date.UTC(
+            b.createdAt[0],
+            b.createdAt[1] - 1,
+            b.createdAt[2],
+            b.createdAt[3],
+            b.createdAt[4],
+            b.createdAt[5]
+          )
+        );
         return dateB - dateA;
       });
 
@@ -113,7 +131,7 @@ const Activity = () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
     formData.append("userId", userId);
-
+    console.log("userId: ",userId)
     postImages.forEach((image) => {
       formData.append("images", image);
     });
@@ -169,7 +187,7 @@ const Activity = () => {
     try {
       await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
         content: editingCommentContent,
-        edited: true,  // Đánh dấu comment là đã chỉnh sửa
+        edited: true, // Đánh dấu comment là đã chỉnh sửa
       });
 
       // Cập nhật lại danh sách comment trong state
@@ -393,10 +411,17 @@ const Activity = () => {
       {/* Phần hiển thị bài viết */}
       <div className="container mt-2 mb-5">
         {posts.map((post) => {
-const createdAt = post.createdAt 
-? new Date(post.createdAt[0], post.createdAt[1] - 1, post.createdAt[2], post.createdAt[3], post.createdAt[4], post.createdAt[5])
-: null;
-        console.log(post.createdAt);
+          const createdAt = post.createdAt
+            ? new Date(
+                post.createdAt[0],
+                post.createdAt[1] - 1,
+                post.createdAt[2],
+                post.createdAt[3],
+                post.createdAt[4],
+                post.createdAt[5]
+              )
+            : null;
+          console.log(post.createdAt);
           const showAll = showAllComments[post.id];
           return (
             <div key={post.id} className="post">
@@ -409,10 +434,10 @@ const createdAt = post.createdAt
                 <div>
                   <div className="name">{username}</div>
                   <div className="time">
-            {createdAt && !isNaN(createdAt.getTime())
-              ? format(createdAt, "hh:mm a, dd MMM yyyy")
-              : "Invalid date"}
-          </div>
+                    {createdAt && !isNaN(createdAt.getTime())
+                      ? format(createdAt, "hh:mm a, dd MMM yyyy")
+                      : "Invalid date"}
+                  </div>
                 </div>
                 <div className="dropdown position-absolute top-0 end-0">
                   <button
@@ -488,119 +513,160 @@ const createdAt = post.createdAt
 
                 {/* Comment list */}
                 <div className=" mt-4">
-                  {(showAll ? post.comments : post.comments.slice(0, 3)).map((comment) => (
-                    <div key={comment.id} className="comment mt-2">
-                      <div className="container">
-                        <div className="row justify-content-start">
-                          <div className="comment-content position-relative">
-                            <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
-                            <div>
-                              <div className="comment-author">{comment.userName}</div>
-                              <div className="comment-time">
-                                {format(new Date(comment.creationDate), "hh:mm a, dd MMM yyyy")}
-                                {comment.edited && <span className="edited-notice">  (Đã chỉnh sửa)</span>}
+                  {(showAll ? post.comments : post.comments.slice(0, 3)).map(
+                    (comment) => (
+                      <div key={comment.id} className="comment mt-2">
+                        <div className="container">
+                          <div className="row justify-content-start">
+                            <div className="comment-content position-relative">
+                              <img
+                                src="/src/UserImages/Avatar/avt.jpg"
+                                className="avatar_small"
+                                alt="Avatar"
+                              />
+                              <div>
+                                <div className="comment-author">
+                                  {comment.userName}
+                                </div>
+                                <div className="comment-time">
+                                  {format(
+                                    new Date(comment.creationDate),
+                                    "hh:mm a, dd MMM yyyy"
+                                  )}
+                                  {comment.edited && (
+                                    <span className="edited-notice">
+                                      {" "}
+                                      (Đã chỉnh sửa)
+                                    </span>
+                                  )}
+                                </div>
+                                {editingCommentId === comment.id ? (
+                                  <div>
+                                    <textarea
+                                      className="form-control"
+                                      rows={2}
+                                      value={editingCommentContent}
+                                      onChange={(e) =>
+                                        setEditingCommentContent(e.target.value)
+                                      }
+                                    />
+                                    <button
+                                      className="btn btn-primary mt-2"
+                                      onClick={() =>
+                                        handleUpdateComment(comment.id, post.id)
+                                      }
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      className="btn btn-secondary mt-2 ms-2"
+                                      onClick={() => {
+                                        setEditingCommentId(null);
+                                        setEditingCommentContent("");
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <p>{comment.content}</p>
+                                )}
                               </div>
-                              {editingCommentId === comment.id ? (
-                                <div>
+                              <div className="dropdown position-absolute top-0 end-0">
+                                <button
+                                  className="btn btn-options dropdown-toggle"
+                                  type="button"
+                                  id={`dropdownMenuButton-${comment.id}`}
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                >
+                                  ...
+                                </button>
+                                <ul
+                                  className="dropdown-menu"
+                                  aria-labelledby={`dropdownMenuButton-${comment.id}`}
+                                >
+                                  <li>
+                                    <button
+                                      className="dropdown-item"
+                                      onClick={() => {
+                                        setEditingCommentId(comment.id);
+                                        setEditingCommentContent(
+                                          comment.content
+                                        );
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button
+                                      className="dropdown-item"
+                                      onClick={() =>
+                                        handleDeleteComment(comment.id, post.id)
+                                      }
+                                    >
+                                      Delete
+                                    </button>
+                                  </li>
+                                </ul>
+                              </div>
+
+                              {/* Reply button */}
+                              <button
+                                className="btn btn-link mt-2"
+                                onClick={() => handleReplyClick(comment.id)}
+                              >
+                                Reply
+                              </button>
+
+                              {/* Reply input box */}
+                              {replyingTo[comment.id] && (
+                                <div className="reply-input-container">
                                   <textarea
-                                    className="form-control"
-                                    rows={2}
-                                    value={editingCommentContent}
-                                    onChange={(e) => setEditingCommentContent(e.target.value)}
+                                    className="reply-input mt-2 form-control"
+                                    rows={1}
+                                    placeholder="Write a reply..."
+                                    value={replyContent[comment.id] || ""}
+                                    onChange={(e) =>
+                                      handleReplyChange(
+                                        comment.id,
+                                        e.target.value
+                                      )
+                                    }
                                   />
                                   <button
                                     className="btn btn-primary mt-2"
-                                    onClick={() => handleUpdateComment(comment.id, post.id)}
+                                    onClick={() =>
+                                      handleAddReply(comment.id, post.id)
+                                    }
                                   >
-                                    Save
-                                  </button>
-                                  <button
-                                    className="btn btn-secondary mt-2 ms-2"
-                                    onClick={() => {
-                                      setEditingCommentId(null);
-                                      setEditingCommentContent("");
-                                    }}
-                                  >
-                                    Cancel
+                                    Reply
                                   </button>
                                 </div>
-                              ) : (
-                                <p>{comment.content}</p>
                               )}
                             </div>
-                            <div className="dropdown position-absolute top-0 end-0">
-                              <button
-                                className="btn btn-options dropdown-toggle"
-                                type="button"
-                                id={`dropdownMenuButton-${comment.id}`}
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                              >
-                                ...
-                              </button>
-                              <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${comment.id}`}>
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => {
-                                      setEditingCommentId(comment.id);
-                                      setEditingCommentContent(comment.content);
-                                    }}
-                                  >
-                                    Edit
-                                  </button>
-                                </li>
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => handleDeleteComment(comment.id, post.id)}
-                                  >
-                                    Delete
-                                  </button>
-                                </li>
-                              </ul>
-                            </div>
-
-                            {/* Reply button */}
-                            <button className="btn btn-link mt-2" onClick={() => handleReplyClick(comment.id)}>
-                              Reply
-                            </button>
-
-                            {/* Reply input box */}
-                            {replyingTo[comment.id] && (
-                              <div className="reply-input-container">
-                                <textarea
-                                  className="reply-input mt-2 form-control"
-                                  rows={1}
-                                  placeholder="Write a reply..."
-                                  value={replyContent[comment.id] || ""}
-                                  onChange={(e) => handleReplyChange(comment.id, e.target.value)}
-                                />
-                                <button
-                                  className="btn btn-primary mt-2"
-                                  onClick={() => handleAddReply(comment.id, post.id)}
-                                >
-                                  Reply
-                                </button>
-                              </div>
-                            )}
                           </div>
-                        </div>
-                        <div className="row justify-content-center">
-                          {/* Display replies if exist */}
-                          {comment.replies && comment.replies.length > 0 && (
-                            <div className="replies-list mt-2">
-                              {(showAllReplies[comment.id] ? comment.replies : comment.replies.slice(0, 2)).map((reply) => (
-                                <div key={reply.id} className="reply">
-                                  <img
-                                    src="/src/UserImages/Avatar/avt.jpg"
-                                    className="avatar_small"
-                                    alt="Avatar"
-                                  />
-                                  <div className="reply-content">
-                                    <div className="d-flex align-items-center">
-                                      <span className="reply-author">{reply.userName}</span>
-                                      {/* <span className="reply-time">
+                          <div className="row justify-content-center">
+                            {/* Display replies if exist */}
+                            {comment.replies && comment.replies.length > 0 && (
+                              <div className="replies-list mt-2">
+                                {(showAllReplies[comment.id]
+                                  ? comment.replies
+                                  : comment.replies.slice(0, 2)
+                                ).map((reply) => (
+                                  <div key={reply.id} className="reply">
+                                    <img
+                                      src="/src/UserImages/Avatar/avt.jpg"
+                                      className="avatar_small"
+                                      alt="Avatar"
+                                    />
+                                    <div className="reply-content">
+                                      <div className="d-flex align-items-center">
+                                        <span className="reply-author">
+                                          {reply.userName}
+                                        </span>
+                                        {/* <span className="reply-time">
                                                                     {format(new Date(reply.creationDate), "hh:mm a, dd MMM yyyy") && 
                                                                     !isNaN(new Date(reply.creationDate).getTime()) ? (
                                                                         format(new Date(reply.creationDate), "hh:mm a, dd MMM yyyy")
@@ -609,27 +675,32 @@ const createdAt = post.createdAt
                                                                     )}
                                                                     
                                                                 </span> */}
+                                      </div>
+                                      <p>{reply.content}</p>
                                     </div>
-                                    <p>{reply.content}</p>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
 
-                              {/* View all/Hide replies button */}
-                              {comment.replies.length > 2 && (
-                                <button
-                                  className="btn btn-link"
-                                  onClick={() => handleToggleReplies(comment.id)}
-                                >
-                                  {showAllReplies[comment.id] ? "Hide replies" : "View all replies"}
-                                </button>
-                              )}
-                            </div>
-                          )}
+                                {/* View all/Hide replies button */}
+                                {comment.replies.length > 2 && (
+                                  <button
+                                    className="btn btn-link"
+                                    onClick={() =>
+                                      handleToggleReplies(comment.id)
+                                    }
+                                  >
+                                    {showAllReplies[comment.id]
+                                      ? "Hide replies"
+                                      : "View all replies"}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                   {/* View all/Hide comments button */}
                   {post.comments.length > 3 && (
                     <button
@@ -644,7 +715,6 @@ const createdAt = post.createdAt
             </div>
           );
         })}
-
       </div>
     </div>
   );

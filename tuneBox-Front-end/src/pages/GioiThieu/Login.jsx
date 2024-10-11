@@ -15,6 +15,8 @@ import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import Cookies from 'js-cookie';
+
 
 const Login = () => {
   const [userName, setUsername] = useState('');
@@ -38,11 +40,11 @@ const Login = () => {
     };
   
     try {
-      const response = await axios.post('http://localhost:8081/User/log-in', loginData);
+      const response = await axios.post('http://localhost:8080/user/log-in', loginData);
   
         if (response.data && response.data.status) {
             console.log('Đăng nhập thành công:', response.data);
-  
+            Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
             // Lưu thông tin người dùng vào localStorage
             localStorage.setItem('user', JSON.stringify(response.data.data));
   

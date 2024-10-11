@@ -121,7 +121,8 @@ const SocialMediaAdmin = () => {
               <Route path='posts' element={<Posts/>} />
               <Route path='dashboard' element={<DashBoard/>} />
               <Route path='users' element={<Users/>} />
-            </Routes>
+              <Route path='postdetail/:id' element={<PostDetail/>} />
+              </Routes>
             </div>
           </div>
         </div>

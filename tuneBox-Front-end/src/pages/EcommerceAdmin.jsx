@@ -77,6 +77,7 @@ const EcommerceAdmin = () => {
 
 
       <Route path='Instrument' element={<ManagerInstrument/>} />
+
     </Routes>
     </div>
     </div>

@@ -17,8 +17,11 @@ import DetailProduct from "./components/Sellwell/DetailProduct";
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
 import EcommerceAdmin from "./pages/EcommerceAdmin";
-import ResetPassword from "./pages/GioiThieu/ResetPassword";
-import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+
+import ResetPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ResetPassword2";
+import ForgotPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ForgotPassword2";
+import Trackdetail from "./pages/SocialMedia/Trackdetail";
+import SocialMediaAdmin from "./pages/SocialMediaAdmin";
 
 // Layout có Header
 function LayoutWithHeader() {
@@ -66,8 +69,8 @@ function App() {
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser" element={<ProfileUser />} />
-            <Route path="/profileSetting" element={<ProfileSetting />} />
+            <Route path="/profileUser/*" element={<ProfileUser />} />
+            <Route path="/profileSetting/*" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
@@ -91,6 +94,7 @@ function App() {
             {/* admin end */}
 
             <Route path="/socialadmin/*" element={<SocialMediaAdmin/>} />
+            
 
           </Route>
         </Routes>

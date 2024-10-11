@@ -12,13 +12,15 @@ import "./css/mxh/modal-create-post.css"
 import "./css/profile.css"
 import "./css/mxh/comment.css"
 import "./css/mxh/button.css"
-import i18n from "../../i18n/i18n.js";
 
-
-import { useTranslation } from "react-i18next";
 
 const HomeFeed = () => {
-  // phần js để hiện post modal
+  const [postContent, setPostContent] = useState(''); // State cho nội dung bài viết
+  const [postImages, setPostImages] = useState([]); // State cho ảnh bài viết
+  const [posts, setPosts] = useState([]); // State để lưu các bài viết
+  const [postId, setPostId] = useState(null); // State để lưu ID bài viết khi chỉnh sửa
+  const userId =  Cookies.get("UserID"); //tạo cookies
+  // Phần js để hiện post modal
   useEffect(() => {
     const createPostBtn = document.getElementById('create-post-btn');
     const postModal = document.getElementById('post-modal');
@@ -163,32 +165,32 @@ const HomeFeed = () => {
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
                   <img src={images.web_content} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>{t('news_feed')}</span>
+                  <span className='fw-bold'>Bản tin</span>
                 </a>
               </li>
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
                   <img src={images.followers} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>{t('following')}</span>
+                  <span className='fw-bold'>Đang theo dõi</span>
                 </a>
               </li>
 
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
                   <img src={images.feedback} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>{t('liked_posts')}</span>
+                  <span className='fw-bold'>Bài viết đã thích</span>
                 </a>
               </li>
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
                   <img src={images.music} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>{t('liked_albums')}</span>
+                  <span className='fw-bold'>Albums đã thích</span>
                 </a>
               </li>
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
                   <img src={images.playlist} alt='icon' width={20} className="me-2 " />
-                  <span className='fw-bold'>{t('liked_playlists')}</span>
+                  <span className='fw-bold'>Playlist đã thích</span>
                 </a>
               </li>
             </ul>
@@ -197,179 +199,133 @@ const HomeFeed = () => {
           <div className="col-6 content p-4">
             {/* Post  */}
             <div>
-              <div className="post">
-                <div className="container mt-2 mb-5">
-                  <div className="row align-items-center">
-                    <div className="col-auto post-header">
-                      <img src={images.ava} className="avatar_small" alt='avatar' />
-                    </div>
-                    <div className="col">
-                      <button id="create-post-btn" type="button" className="btn text-start" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', width: '85%', height: 50 }}>Ban dang nghi gi vay?</button>
-                    </div>
-                  </div>
+        {/* Nút tạo bài */}
+        <div className="container mt-2 mb-5">
+          <div className="row align-items-center">
+            <div className="col-auto post-header">
+              <img src={images.ava} className="avatar_small" alt='avatar' />
+            </div>
+            <div className="col">
+              <button id="create-post-btn" type="button" className="btn text-start" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)', width: '85%', height: 50 }}>
+                Bạn đang nghĩ gì vậy?
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Modal để tạo bài viết */}
+        <div id="post-modal" className="modal-overlay" style={{ display: 'none' }}>
+          <div className="modal-content">
+            <div>
+              <div className="post-header">
+                <img src={images.ava} className="avatar_small" alt="Avatar" />
+                <div>
+                  <div className="name">Phạm Xuân Trường</div>
+                  <div className="time">Posting to Feed</div>
                 </div>
-                <div id="post-modal" className="modal-overlay" style={{ display: 'none' }}> {/* Đặt style display ở đây để bắt đầu ẩn */}
-                  <div className="modal-content">
-                    <div>
-                      <div className="post-header">
-                        <img src={images.ava} className="avatar_small" alt="Avatar" />
-                        <div>
-                          <div className="name">Phạm Xuân Trường</div>
-                          <div className="time">Posting to Feed</div>
-                        </div>
-                        <button id="close-modal" type="button" className="btn btn-close">×</button>
-                      </div>
-                      <div className="col">
-                        <textarea id="post-textarea" className="form-control" rows={3} placeholder="Write your post here..." defaultValue={""} />
-                        <div className="row mt-3">
-                          <div className="col text-start">
-                            <button id="post-image" type="button" className="btn" style={{ backgroundColor: 'rgba(64, 102, 128, 0.078)' }}><i className="bi bi-card-image" /> Photo/video</button>
-                          </div>
-                          <div className="col text-end">
-                            <button id="submit-post" type="button" className="btn btn-secondary">Post</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                <button id="close-modal" type="button" className="btn btn-close"></button>
+              </div>
+              <div className="col">
+                <textarea
+                  id="post-textarea"
+                  className="form-control"
+                  rows={3}
+                  placeholder="Write your post here..."
+                  value={postContent} // Liên kết state với textarea
+                  onChange={(e) => setPostContent(e.target.value)} // Cập nhật nội dung khi người dùng nhập
+                />
+                <div className="row mt-3">
+                  <div className="col text-start">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={(e) => setPostImages(Array.from(e.target.files))} // Cập nhật postImages với các file đã chọn
+                    />
+                  </div>
+                  <div className="col text-end">
+                    <button id="submit-post" type="button" className="btn btn-secondary" onClick={handleSubmitPost}>Post</button>
                   </div>
                 </div>
               </div>
             </div>
-            {/* Post 1 */}
-            <div className="post">
-              <div className="d-flex justify-content-between">
-                <div className="d-flex align-items-center post-header ">
-                  <img src={images.ava} className alt="Avatar" />
-                  <div>
-                    <div className="name">Phạm Xuân Trường</div>
-                    <div className="title">Posting to Feed</div>
-                  </div>
-                </div>
-                <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '5%', height: '5%' }} />
-              </div>
-              {/* Nội dung bài viết */}
-              <div className="post-content">
-                Xin chao moi nguoi da den voi trang cua minh hihi minh la Pham
-                Xuan Truong day hihi
-              </div>
-              {/* kết thúc nội dung bài viết */}
-              <div className="my-3">
-                <div className="hero" style={{}}>
-                  <div className="music" style={{ width: '100%', padding: 30, boxSizing: 'border-box', background: '#f0f3f5', display: 'flex' }}>
-                    <img src={images.ava} alt="icon" width="300px" />
-                    <div className="info" style={{ color: '#212529', marginLeft: 30, flex: 1 }}>
-                      <h1>
-                        Gọi đò ơi
-                      </h1>
-                      <p style={{ fontSize: 20, margin: '10px 0 60px' }}>
-                        Albums void 2
-                      </p>
-                      <div id="waveform">
-                        {/* the waveform will be rendered here */}
-                        <div className="controls" style={{ marginTop: 40, display: 'flex', alignItems: 'center' }}>
-                          <img style={{ width: 20, marginRight: 20, cursor: 'pointer' }} src={images.play1} alt="icon" id="playBtn" />
-                          <img style={{ width: 20, marginRight: 20, cursor: 'pointer' }} src={images.pause} alt="icon" id="stopBtn" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* 2 nút tương tác */}
-              <div className="mt-3">
-                {/* nút tim bài viết */}
-                <button type="button" className="btn ">
-                  <img src={images.image} className="btn-icon" alt="Heart" />
-                  <span>Like</span>
-                </button>
-                {/* nút share bài viết */}
-                <button type="button" className="btn ">
-                  <img src={images.share} className="btn-icon" alt="Share" />
-                  <span>Share</span>
-                </button>
-              </div>
-              {/* Kết thúc 2 nút */}
-              {/* Phần comment bài viết */}
-              <div className="comment-section mt-4">
-                <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
-                <div className="row">
-                  <div className=" col text-start">
-                    <a href="/#" className="text-black text-decoration-none">View Comment</a>
-                  </div>
-                  <div className=" col text-end">
-                    <span>1 Comment</span>
-                  </div>
-                </div>
-                <div className="comment mt-2">
-                  <img src={images.ava} alt="Commenter" />
-                  <div className="comment-content">
-                    <div className="comment-author">Huynh Trong Phu</div>
-                    <div className="comment-time">12:00 AM, 8 Sep 2024</div>
-                    <p>Chao em nhe nguoi dep!</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* post 2 */}
-            <div className="post mt-5">
-              <div className="d-flex justify-content-between">
-                <div className="d-flex align-items-center post-header ">
-                  <img src={images.ava} className alt="Avatar" />
-                  <div>
-                    <div className="name">Phạm Xuân Trường</div>
-                    <div className="title">Posting to Feed</div>
-                  </div>
-                </div>
-                <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '5%', height: '5%' }} />
-              </div>
-              {/* Nội dung bài viết */}
-              <div className="post-content">
-                Xin chao moi nguoi da den voi trang cua minh hihi minh la Pham
-                Xuan Truong day hihi
-              </div>
-              {/* kết thúc nội dung bài viết */}
-              <div className="audio-player my-3">
-                <audio controls>
-                  <source src="audio-file.mp3" type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
-              </div>
-              {/* 2 nút tương tác */}
-              <div className="mt-3">
-                {/* nút tim bài viết */}
-                <button type="button" className="btn ">
-                  <img src={images.image} className="btn-icon" alt="Heart" />
-                  <span>Like</span>
-                </button>
-                {/* nút share bài viết */}
-                <button type="button" className="btn ">
-                  <img src={images.share} className="btn-icon" alt="Share" />
-                  <span>Share</span>
-                </button>
-              </div>
-              {/* Kết thúc 2 nút */}
-              {/* Phần comment bài viết */}
-              <div className="comment-section mt-4">
-                <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
-                <div className="row">
-                  <div className=" col text-start">
-                    <a href="/#" className="text-black text-decoration-none">View Comment</a>
-                  </div>
-                  <div className=" col text-end">
-                    <span>1 Comment</span>
-                  </div>
-                </div>
-                <div className="comment mt-2">
-                  <img src={images.ava} alt="Commenter" />
-                  <div className="comment-content">
-                    <div className="comment-author">Huynh Trong Phu</div>
-                    <div className="comment-time">12:00 AM, 8 Sep 2024</div>
-                    <p>Chao em nhe nguoi dep!</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* end post2 */}
+          </div>
+        </div>
+        {/* Bài viết */}
+        <div className="container mt-2 mb-5">
+        {posts.map((post) => {
+  // Kiểm tra xem post.createdAt có phải là mảng và đủ 6 phần tử không
+  const createdAt = post.createdAt
+  ? new Date(post.createdAt) // Nếu backend gửi một chuỗi định dạng ISO, sử dụng trực tiếp
+  : null;
+  return (
+    <div key={post.id} className="post">
+      <div className="post-header">
+        <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
+        <div>
+          <div className="name">{post.userName || 'Unknown User'}</div>
+          <div className="time">
+            {createdAt && !isNaN(createdAt.getTime()) 
+              ? format(createdAt, 'hh:mm a, dd MMM yyyy') 
+              : 'Invalid date'} {/* Hiện thị thời gian hoặc "Invalid date" */}
+          </div>
+        </div>
+        {/* Dropdown cho các tùy chọn chỉnh sửa và xóa */}
+        <div className="dropdown">
+          <button 
+            className="btn btn-options dropdown-toggle" 
+            type="button" 
+            id={`dropdownMenuButton-${post.id}`} 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false">
+            ...
+          </button>
+          <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${post.id}`}>
+            <li><button className="dropdown-item" onClick={() => handleEditPost(post)}>Edit</button></li>
+            <li><button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>Delete</button></li>
+          </ul>
+        </div>
+      </div>
+      <div className="post-content">
+        {post.content} {/* Hiện nội dung bài viết */}
+      </div>
+      {post.images && post.images.length > 0 && (
+        <div className="post-images">
+          {post.images.map((image, index) => (
+            <img key={index} src={`data:image/jpeg;base64,${image.postImage}`} alt="Post" />
+          ))}
+        </div>
+      )}
+      <div className="interaction-buttons mt-3">
+        <button type="button" className="btn">
+          <img src={images.heart} className="btn-icon" alt="Like" />
+          <span>Like</span>
+        </button>
+      </div>
+      <div className="comment-section mt-4">
+        <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
+        <div className="row">
+          <div className="col text-start">
+            <a href="/#" className="text-black text-decoration-none">View Comment</a>
+          </div>
+          <div className="col text-end">
+            <span>1 Comment</span>
+          </div>
+        </div>
+        <div className="comment mt-2">
+          <img src={images.ava} alt="Commenter" />
+          <div className="comment-content">
+            <div className="comment-author">Huynh Trong Phu</div>
+            <div className="comment-time">12:00 AM, 8 Sep 2024</div>
+            <p>Chao em nhe nguoi dep!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+})}
+        </div>
+
+      </div>
+
           </div>
           {/* Right Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
