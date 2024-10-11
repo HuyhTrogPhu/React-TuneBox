@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
-import { images } from "../../../assets/images/images"; // Không sử dụng biến này nếu không cần
+import { images } from "../../../assets/images/images";
 import Footer2 from "../../../components/Footer/Footer2";
 import Benefits from "../../../components/Benefits/Benefits";
 import { useEffect, useState } from "react";
 import { getCart } from "../../../service/CartService";
-import { getInstrumentById } from "../../../service/EcommerceHome";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -90,7 +89,7 @@ const Cart = () => {
                                     </button>
                                   </div>
                                   <div className="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
-                                    <h6 className="mb-0">€ {(item.costPrice * item.quantity).toFixed(2)}</h6>
+                                    <h6 className="mb-0">{(item.costPrice * item.quantity).toFixed(2)}</h6>
                                   </div>
                                   <div className="col-md-1 col-lg-1 col-xl-1 text-end">
                                     <a href="#!" className="text-muted"><i className="fas fa-times" /></a>
