@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { images } from "../../../../assets/images/images";
-import axios from "axios";
-import { format } from "date-fns";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { useParams } from "react-router-dom"; // Import useParams để lấy userId từ URL
 import Cookies from "js-cookie";
+import axios from "axios";
+
 import "./css/activity.css";
+import { images } from "../../../../assets/images/images";
 
 const Activity = () => {
   const [postContent, setPostContent] = useState("");
@@ -13,12 +12,13 @@ const Activity = () => {
   const [postImageUrls, setPostImageUrls] = useState([]);
   const [posts, setPosts] = useState([]);
   const [postId, setPostId] = useState(null);
-  const userId = Cookies.get("UserID");
+  const { id } = useParams(); // Lấy ID từ URL
+  const userId = Cookies.get("UserID"); // Lấy ID người dùng hiện tại từ cookies
   const [username, setuserName] = useState({});
   const [commentContent, setCommentContent] = useState({});
   const [showAllComments, setShowAllComments] = useState({});
-  const [replyContent, setReplyContent] = useState({}); // State để lưu nội dung reply
-  const [replyingTo, setReplyingTo] = useState({}); // State để xác định bình luận nào đang được trả lời
+  const [replyContent, setReplyContent] = useState({});
+  const [replyingTo, setReplyingTo] = useState({});
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentContent, setEditingCommentContent] = useState("");
   const [showAllReplies, setShowAllReplies] = useState({});
@@ -65,47 +65,57 @@ const Activity = () => {
   };
 
   const fetchPosts = async () => {
+    const targetUserId = id ? id : userId;// Nếu có ID từ URL thì sử dụng, nếu không thì sử dụng userId từ cookies
+    console.log("Target User ID:", targetUserId);
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/posts/current-user`,
+        `http://localhost:8080/api/posts/user/${targetUserId}`, // Sử dụng targetUserId
         {
-          params: { userId },
           withCredentials: true,
         }
       );
-      console.log(response.data);
-
+  
+      console.log(response.data); // Kiểm tra dữ liệu nhận được
+  
       const sortedPosts = response.data.sort((a, b) => {
-        const dateA = new Date(a.createdAt); // Sử dụng trực tiếp nếu createdAt là chuỗi ISO
+        const dateA = new Date(a.createdAt);
         const dateB = new Date(b.createdAt);
         return dateB - dateA; // Sắp xếp từ mới đến cũ
       });
-
+  
+      // Lấy comments và replies cho từng post
       const postsWithCommentsAndReplies = await Promise.all(
         sortedPosts.map(async (post) => {
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
-            
-          // Lấy các reply cho từng comment
+  
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
               const repliesResponse = await axios.get(
                 `http://localhost:8080/api/replies/comment/${comment.id}`
               );
-              return { ...comment, replies: repliesResponse.data };
+              return { ...comment, replies: repliesResponse.data }; // Kết hợp replies vào comment
             })
           );
-
-          return { ...post, comments: commentsWithReplies };
+  
+          return { ...post, comments: commentsWithReplies }; // Kết hợp comments vào post
         })
       );
-
-      setPosts(postsWithCommentsAndReplies);
+  
+      setPosts(postsWithCommentsAndReplies); // Cập nhật state với danh sách bài viết
     } catch (error) {
-      console.error("Error fetching user posts:", error);
+      console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
+  
+
+  useEffect(() => {
+    fetchPosts(); // Gọi hàm để lấy bài viết khi component được mount
+  }, [id]); // Theo dõi currentUserId để gọi lại khi thay đổi
+  useEffect(() => {
+    fetchPosts();
+  }, []);
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -396,7 +406,6 @@ const Activity = () => {
           const createdAt = post.createdAt
             ? new Date(post.createdAt) // Nếu backend gửi một chuỗi định dạng ISO, sử dụng trực tiếp
             : null;
-          console.log(post.createdAt);
           const showAll = showAllComments[post.id];
           return (
             <div key={post.id} className="post">
@@ -411,9 +420,9 @@ const Activity = () => {
                     {post.userNickname || "Unknown User"}
                   </div>
                   <div className="time">
-                    {createdAt && !isNaN(createdAt.getTime())
+                    {/* {createdAt && !isNaN(createdAt.getTime())
                       ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                      : "Invalid date"}
+                      : "Invalid date"} */}
                   </div>
                 </div>
                 <div className="dropdown position-absolute top-0 end-0">
@@ -506,10 +515,10 @@ const Activity = () => {
                                   {comment.userNickname}
                                 </div>
                                 <div className="comment-time">
-                                  {format(
+                                  {/* {format(
                                     new Date(comment.creationDate),
                                     "hh:mm a, dd MMM yyyy"
-                                  )}
+                                  )} */}
                                   {comment.edited && (
                                     <span className="edited-notice">
                                       {" "}
@@ -644,7 +653,7 @@ const Activity = () => {
                                           {reply.userNickname}
                                         </span>
                                         <span className="reply-time">
-                                          {format(
+                                          {/* {format(
                                             new Date(reply.creationDate),
                                             "hh:mm a, dd MMM yyyy"
                                           ) &&
@@ -657,7 +666,7 @@ const Activity = () => {
                                                 new Date(reply.creationDate),
                                                 "hh:mm a, dd MMM yyyy"
                                               )
-                                            : "Invalid date"}
+                                            : "Invalid date"} */}
                                         </span>
                                       </div>
                                       <p>{reply.content}</p>

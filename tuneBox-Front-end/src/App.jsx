@@ -73,7 +73,6 @@ function App() {
             <Route path="/Shop" element={<Shop />} />
             <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
@@ -82,8 +81,8 @@ function App() {
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
-            <Route path="/user/:userId/*" element={<OtherUserProfile />} />
-          </Route>
+            <Route path="/profile/:id/*" element={<OtherUserProfile />} />
+            </Route>
 
           {/* Các route không có Header */}
           <Route element={<LayoutWithoutHeader />}>

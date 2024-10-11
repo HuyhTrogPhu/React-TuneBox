@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, Routes, Route, Navigate } from "react-router-dom";
+import { Link, Routes, Route, Navigate, useParams } from "react-router-dom";
+import axios from "axios";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
@@ -9,26 +10,37 @@ import "./css/post.css";
 import "./css/button.css";
 import "./css/comment.css";
 import "./css/modal-create-post.css";
-import { images } from "../../../assets/images/images";
 import { fetchDataUser } from "./js/ProfileJS";
 
 const OtherUserProfile = () => {
-  const { userId } = useParams(); // Lấy userId từ URL
-  const [userData, setUserData] = useState([]);
+  const { id } = useParams(); // Lấy userId từ URL
+  const [userData, setUserData] = useState(null); // Đặt mặc định là null
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const response = await fetchDataUser(userId); // Gọi API để lấy thông tin user
-      if (response && response.data) {
-        setUserData(response.data);
-        setFollowerCount(response.data.followers.length);
-        setFollowingCount(response.data.following.length);
+    const fetchDataAndRender = async () => {
+      const response = await fetchDataUser(id);
+      if (response) { // Kiểm tra nếu phản hồi không phải là null
+        // Kiểm tra cấu trúc dữ liệu
+        console.log("Response structure:", response);
+        setUserData(response); // Nếu không có thuộc tính data, set dữ liệu trực tiếp
+        setFollowerCount(response.followers?.length || 0);
+        setFollowingCount(response.following?.length || 0);
+      } else {
+        console.error("No data returned or data structure is incorrect");
       }
     };
-    fetchUser();
-  }, [userId]);
+    
+    fetchDataAndRender();
+  }, [id]);
+  
+  
+
+  // Kiểm tra nếu userData vẫn null
+  if (!userData) {
+    return <div>Đang tải dữ liệu...</div>; // Hoặc có thể hiển thị spinner/loading
+  }
 
   return (
     <div className="container">
@@ -44,7 +56,7 @@ const OtherUserProfile = () => {
         <aside className="col-sm-3">
           <div>
             <img
-              src="/src/UserImages/Avatar/avt.jpg"
+              src={userData.avatar || "/src/UserImages/Avatar/avt.jpg"} // Có thể lấy avatar từ userData
               className="avatar"
               alt="avatar"
             />
@@ -54,7 +66,7 @@ const OtherUserProfile = () => {
             <div className="">{userData.userName}</div>
           </div>
 
-          {/* Thông tin người theo giõi */}
+          {/* Thông tin người theo dõi */}
           <div className="row mt-4">
             <div className="col text-center">
               <span>{followerCount}</span> <br />
@@ -65,17 +77,17 @@ const OtherUserProfile = () => {
               <span>Following</span>
             </div>
           </div>
+          {/* Kết thúc thông tin người theo dõi */}
 
-          {/* Nghệ sĩ yêu thích, sở trường, dòng nhạc yêu thích */}
           <div style={{ paddingTop: 30 }}>
             <label>Nghệ sĩ ưu thích</label> <br />
-            {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
-              userData.inspiredBy.map((Mapdata) => (
+            {userData.inspiredBy?.length > 0 ? (
+              userData.inspiredBy.map((artist) => (
                 <span
-                  key={Mapdata.id}
+                  key={artist.id}
                   className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
                 >
-                  {Mapdata.name}
+                  {artist.name}
                 </span>
               ))
             ) : (
@@ -83,13 +95,13 @@ const OtherUserProfile = () => {
             )}
             <br />
             <label>Sở trường</label> <br />
-            {userData.talent && userData.talent.length > 0 ? (
-              userData.talent.map((Mapdata) => (
+            {userData.talent?.length > 0 ? (
+              userData.talent.map((talent) => (
                 <span
-                  key={Mapdata.id}
+                  key={talent.id}
                   className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
                 >
-                  {Mapdata.name}
+                  {talent.name}
                 </span>
               ))
             ) : (
@@ -97,13 +109,13 @@ const OtherUserProfile = () => {
             )}
             <br />
             <label>Dòng nhạc ưu thích</label> <br />
-            {userData.genre && userData.genre.length > 0 ? (
-              userData.genre.map((Mapdata) => (
+            {userData.genre?.length > 0 ? (
+              userData.genre.map((genre) => (
                 <span
-                  key={Mapdata.id}
+                  key={genre.id}
                   className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
                 >
-                  {Mapdata.name}
+                  {genre.name}
                 </span>
               ))
             ) : (
@@ -133,10 +145,10 @@ const OtherUserProfile = () => {
           {/* Nội dung sẽ thay đổi dựa trên tab được chọn */}
           <article className="p-5">
             <Routes>
-              <Route path="/activity" element={<Activity />} />
-              <Route path="/track" element={<Track />} />
-              <Route path="/albums" element={<Albums />} />
-              <Route path="/playlists" element={<Playlists />} />
+              <Route path="activity" element={<Activity userId={id} />} />
+              <Route path="track" element={<Track userId={id} />} />
+              <Route path="albums" element={<Albums userId={id} />} />
+              <Route path="playlists" element={<Playlists userId={id} />} />
               <Route path="/" element={<Navigate to="activity" />} /> {/* Đường dẫn mặc định */}
             </Routes>
           </article>
