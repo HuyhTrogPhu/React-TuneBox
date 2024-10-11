@@ -29,7 +29,7 @@ const DetailProduct = () => {
   useEffect(() => {
     // Lấy userId từ cookie khi component mount
     const storedUserId = Cookies.get('userId');
-    console.log("userId:",storedUserId);
+    console.log("userId:", storedUserId);
     if (storedUserId) {
       setUserId(storedUserId);
     }
@@ -103,31 +103,21 @@ const DetailProduct = () => {
   };
 
 
-  // get cart 
-  // useEffect(() => {
-  //   const loadCart = async () => {
-  //     try {
-  //       const response = await getCart();
-  //       setCartItems(response.data); // Cập nhật thông tin giỏ hàng từ session
-  //     } catch (error) {
-  //       console.error('Error loading cart:', error);
-  //     }
-  //   };
 
-  //   loadCart(); // Gọi hàm loadCart khi trang được tải
-  // }, []);
-
-  // Hàm add to cart 
-// Hàm add to cart
-const handleAddToCart = async () => {
-  try {
-      await addToCart(instrument.id, quantity);
+  // Hàm add to cart
+  const handleAddToCart = async () => {
+    try {
+      const response = await addToCart(instrument.id, quantity);
       alert('Đã thêm vào giỏ hàng thành công.');
-  } catch (error) {
+  
+      // Kiểm tra phản hồi từ API và session lưu trữ
+      console.log("API response after adding to cart:", response.data);
+    } catch (error) {
       console.error('Error adding to cart:', error);
       alert('Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.');
-  }
-};
+    }
+  };
+  
 
 
   return (
@@ -166,12 +156,12 @@ const handleAddToCart = async () => {
                       <div><strong>Qty:</strong></div>
                       <button className="btn btn-prev" onClick={handleDecrement}><strong>-</strong></button>
                       <input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => setQuantity(Number(e.target.value))}
-                      className="soluongSP rounded-2 m-0"
-                      min={1}
-                    />
+                        type="number"
+                        value={quantity}
+                        onChange={(e) => setQuantity(Number(e.target.value))}
+                        className="soluongSP rounded-2 m-0"
+                        min={1}
+                      />
                       <button className="btn btn-next" onClick={handleIncrement}><strong>+</strong></button>
                     </div>
 
@@ -186,7 +176,7 @@ const handleAddToCart = async () => {
 
                   {/* Add to cart */}
                   <div className="btn-cart mt-4">
-                    <button className="add-to-cart" onClick={handleAddToCart}>Add to cart</button>
+                    <button className="add-to-cart" value={instrument.id} onClick={handleAddToCart}>Add to cart</button>
                   </div>
                 </div>
 

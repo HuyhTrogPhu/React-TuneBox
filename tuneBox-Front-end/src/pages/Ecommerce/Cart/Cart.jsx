@@ -1,30 +1,45 @@
 import { Link } from "react-router-dom";
-import { images } from "../../../assets/images/images";
+import { images } from "../../../assets/images/images"; // Không sử dụng biến này nếu không cần
 import Footer2 from "../../../components/Footer/Footer2";
 import Benefits from "../../../components/Benefits/Benefits";
 import { useEffect, useState } from "react";
 import { getCart } from "../../../service/CartService";
-const Cart = () => {
+import { getInstrumentById } from "../../../service/EcommerceHome";
 
+const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
 
   const fetchCartItems = async () => {
     try {
       const response = await getCart();
-      const items = response.data;
-      console.log(response.data);
-      setCartItems(items);
+      const itemsObject = response.data.cartItems; 
+  
+      console.log("Cart data:", itemsObject);
+  
+      if (!itemsObject || itemsObject.length === 0) {
+        console.log("Giỏ hàng đang trống.");
+        setCartItems([]); 
+      } else {
+        // Xử lý dữ liệu nếu giỏ hàng không trống
+        const itemsArray = itemsObject.map((item) => {
+          return {
+            ...item.instrument, // Lấy thông tin từ đối tượng instrument
+            quantity: item.quantity, // Số lượng từ cart item
+          };
+        });
+        setCartItems(itemsArray); // Cập nhật giỏ hàng
+      }
     } catch (error) {
-      console.error("Error fetching cartitems:", error);
+      console.error("Error fetching cart items:", error);
     }
-  }
-
+  };
+  
   useEffect(() => {
     fetchCartItems();
   }, []);
 
   const totalPrice = cartItems.reduce((total, item) => {
-    return total + item.costPrice * item.quantity; // Tính tổng giá trị giỏ hàng dựa vào giá và số lượng
+    return total + item.costPrice * item.quantity;
   }, 0);
 
   return (
@@ -57,25 +72,25 @@ const Cart = () => {
                               </div>
                               <hr className="hr-100" />
                               {cartItems.map((item) => (
-                                <div className="row mb-4 d-flex justify-content-between align-items-center" key={item.id}>
+                                <div className="row mb-4 d-flex justify-content-between align-items-center" key={item.instrumentId}>
                                   <div className="col-md-2 col-lg-2 col-xl-2">
-                                    <img src={item.image} className="img-fluid rounded-3" alt={item.name} /> {/* Hiển thị hình ảnh sản phẩm */}
+                                    <img src={item.image} className="img-fluid rounded-3" alt={item.name} />
                                   </div>
                                   <div className="col-md-3 col-lg-3 col-xl-3">
-                                    <h6 className="text-muted">{item.brand?.name} - {item.categoryIns?.name}</h6>
+                                    {/* <h6 className="text-muted">{item.brand?.name} - {item.categoryIns?.name}</h6> */}
                                     <h6 className="mb-0">{item.name}</h6>
                                   </div>
                                   <div className="col-md-3 col-lg-3 col-xl-2 d-flex">
-                                    <button className="btn btn-link px-2" onClick={() => {/* Logic để giảm số lượng */}}>
+                                    <button className="btn btn-link px-2" onClick={() => {/* Giảm số lượng */ }}>
                                       <i className="fas fa-minus" />
                                     </button>
                                     <input min={0} name="quantity" defaultValue={item.quantity} type="number" className="form-control form-control-sm" />
-                                    <button className="btn btn-link px-2" onClick={() => {/* Logic để tăng số lượng */}}>
+                                    <button className="btn btn-link px-2" onClick={() => {/* Tăng số lượng */ }}>
                                       <i className="fas fa-plus" />
                                     </button>
                                   </div>
                                   <div className="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
-                                    <h6 className="mb-0">€ {item.costPrice.toFixed(2) * item.quantity}</h6> {/* Tính giá cho số lượng */}
+                                    <h6 className="mb-0">€ {(item.costPrice * item.quantity).toFixed(2)}</h6>
                                   </div>
                                   <div className="col-md-1 col-lg-1 col-xl-1 text-end">
                                     <a href="#!" className="text-muted"><i className="fas fa-times" /></a>
@@ -84,7 +99,11 @@ const Cart = () => {
                               ))}
                               <hr className="hr-100" />
                               <div className="pt-5">
-                                <h6 className="mb-0"><Link to="#" className="text-body"><i className="fas fa-long-arrow-alt-left me-2" />Back to shop</Link></h6>
+                                <h6 className="mb-0">
+                                  <Link to="#" className="text-body">
+                                    <i className="fas fa-long-arrow-alt-left me-2" />Back to shop
+                                  </Link>
+                                </h6>
                               </div>
                             </div>
                           </div>
@@ -94,13 +113,13 @@ const Cart = () => {
                               <hr className="hr-100" />
                               <div className="d-flex justify-content-between mb-4">
                                 <h5 className="text-uppercase">items {cartItems.length}</h5>
-                                <h5>€ {totalPrice.toFixed(2)}</h5>
+                                <h5>{totalPrice.toFixed(2)}</h5>
                               </div>
-                              
+
                               <hr className="hr-100" />
                               <div className="d-flex justify-content-between mb-5">
                                 <h5 className="text-uppercase">Total price</h5>
-                                <h5>€ {(totalPrice + 5.00).toFixed(2)}</h5> {/* Tổng cộng với phí vận chuyển */}
+                                <h5>{(totalPrice).toFixed(2)}</h5>
                               </div>
                               <button type="button" className="btn btn-dark btn-block btn-lg">Check out</button>
                             </div>
@@ -120,5 +139,5 @@ const Cart = () => {
     </div>
   );
 }
-export default Cart
 
+export default Cart;
