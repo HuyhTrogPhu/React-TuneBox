@@ -14,8 +14,8 @@ const Waveform = ({ audioUrl, track }) => {
     // Khởi tạo WaveSurfer
     wavesurferRef.current = WaveSurfer.create({
       container: waveformRef.current,
-      waveColor: "violet",
-      progressColor: "purple",
+      waveColor: "Gray",
+      progressColor: "#4F4F4F",
     });
 
     // Tải file âm thanh từ Cloudinary
@@ -44,8 +44,7 @@ const Waveform = ({ audioUrl, track }) => {
   };
 
   return (
-    <section>
-      <div className="player">
+      <div className="player w-100">
         <div className="thumb">
           <img src={track.imageTrack || images.avt} />
         </div>
@@ -67,8 +66,9 @@ const Waveform = ({ audioUrl, track }) => {
           </div>
           <div id="wave" ref={waveformRef}></div>
         </div>
+
+        
       </div>
-    </section>
   );
 };
 

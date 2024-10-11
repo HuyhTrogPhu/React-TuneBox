@@ -9,31 +9,31 @@
     transition: all 0.35s linear;
 }
 
-section {
-    display: grid;
-    place-content: center;
-    width: 100%;
-}
 
 .player {
     display: grid;
     grid-template-columns: 10rem 1fr;
     width: 40rem;
-    background-color: white;
+    background-color: #C0C0C0;
     border-radius: 0.5rem;
     box-shadow: 0 1rem 1.5rem #10101024;
     overflow: hidden;
+    place-content: center;
+    padding: 25px;
 }
 
 .player .thumb {
     width: 10rem;
     height: 10rem;
+   
 }
 
 .player .thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
+    margin-top: 50px;
 }
 
 .player .info {
@@ -49,7 +49,7 @@ section {
 .player .title {
     font-size: 1.5rem;
     padding-bottom: 1rem;
-    color: grey;
+    color: #333333;
 }
 
 .player .title .time {
@@ -64,7 +64,7 @@ section {
     display: grid;
     place-content: center;
     font-size: 1.25rem;
-    background-color: #1AAFFF;
+    background-color: #10101024;
     color: white;
     border-radius: 50%;
     cursor: pointer;
@@ -72,6 +72,6 @@ section {
 }
 
 .player .control i:hover {
-    box-shadow: 0 0 1.5rem #1AAFFFAA;
+    box-shadow: 0 0 1.5rem gray;
     font-size: 1.5rem;
 }
