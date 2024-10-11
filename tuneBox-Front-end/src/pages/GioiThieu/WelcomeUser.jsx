@@ -20,7 +20,23 @@ import { images } from '../../assets/images/images.js';
 const WelcomeUser = () => {
   return (
     <div>
-    <Header2 />
+    <div>
+      <div className='sticky-wrapper'>
+        <nav className="navbar navbar-expand-lg">
+          <div className="container">
+            <a className="fontlogo" href="/gioithieu">
+              <img src={images.logoTuneBox} alt width="100px" />
+            </a>
+            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span className="navbar-toggler-icon" />
+            </button>
+          
+          </div>
+        </nav>
+
+      </div>
+
+    </div>
 <div>
   <section className="hero-section" id="section_1">
     <div className="section-overlay" />
@@ -28,9 +44,9 @@ const WelcomeUser = () => {
       <div className="row">
         <div className="col-lg-6 col-12 mb-4 mb-lg-0 d-flex align-items-center">
           <div className="services-info">
-            <h2 className="text-white mb-4">Chào mừng </h2>
-            <p className="text-white fontchu">Tại TuneBox, bạn có thể chia sẻ, khám phá và thưởng thức những bản nhạc yêu thích, cũng như tạo nên những playlist cá nhân theo sở thích.</p>
-            <p className="text-white">   <a className="btn custom-btn smoothscroll" href="/signup">Bắt đầu</a></p>
+            <h2 className="text-white mb-4">Welcome </h2>
+            <p className="text-white fontchu">Start exploring unique musical ideas curated just for you. Connect with others through TuneBox. Join us in enjoying an amazing music space made just for you.</p>
+            <p className="text-white">   <a className="btn custom-btn smoothscroll" href="/signup">Get started now!</a></p>
           </div>
         </div>
         <div className="col-lg-6 col-12">
