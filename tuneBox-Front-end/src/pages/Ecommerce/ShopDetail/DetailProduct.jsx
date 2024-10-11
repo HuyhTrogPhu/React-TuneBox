@@ -150,9 +150,9 @@ const DetailProduct = () => {
                   <span className="price">{instrument.costPrice.toLocaleString()} VND</span>
                 </div>
                 <div className="cart mt-4 align-items-center">
-                  <div className="d-flex">
+                  <div className="row">
                     {/* Quantity */}
-                    <div className="col-5 d-flex mt-4">
+                    <div className="col-lg-5 col-md-5 col-sm 12 d-flex mt-4">
                       <div><strong>Qty:</strong></div>
                       <button className="btn btn-prev" onClick={handleDecrement}><strong>-</strong></button>
                       <input
@@ -166,7 +166,7 @@ const DetailProduct = () => {
                     </div>
 
                     {/* Brand */}
-                    <div className="col-5">
+                    <div className="col-lg-5 col-md-5 col-sm 12">
                       <div className="instrument-brand">
                         <img src={instrument.brand.brandImage} alt={instrument.brand.name} />
                         <Link to={'/CategoryPage'}>List brand <i className="fa-solid fa-arrow-right"></i></Link>
