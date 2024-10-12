@@ -74,3 +74,31 @@
 .dropdown-toggle{
     background-color: var(--ds-color-border-neutral);
 }
+
+.btn {
+    border: none; /* Bỏ viền */
+    background: none; /* Bỏ nền */
+    cursor: pointer; /* Đổi con trỏ khi di chuột qua nút */
+  }
+
+  .comment-section {
+    display: flex; /* Sử dụng Flexbox để sắp xếp các phần tử trong hàng */
+    align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+    gap: 8px; /* Khoảng cách giữa textarea và nút */
+  }
+  
+
+  /* commnet */
+  .card-comment .card-body {
+    background-color: #f3f0f0; /* Màu xanh nhạt */
+    padding-right: 30px;
+    padding-left: 30px;
+    padding-bottom: 20px;
+  }
+
+  .card-comment {
+    background-color: #fcfafa;
+  }
+  .card-comment .option-item{
+    text-decoration: underline;
+  }
