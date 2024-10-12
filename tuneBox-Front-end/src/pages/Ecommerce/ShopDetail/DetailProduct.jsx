@@ -7,7 +7,7 @@ import Benefits from "../../../components/Benefits/Benefits";
 import { getInstrumentById } from '../../../service/EcommerceHome';
 import { Link } from "react-router-dom";
 import Cookies from 'js-cookie';
-import { addToCart, getCart } from "../../../service/CartService";
+import { addToLocalCart, getLocalCart } from "../../../service/CartService";
 
 const DetailProduct = () => {
   const { id } = useParams();
@@ -58,24 +58,6 @@ const DetailProduct = () => {
   }, [id, location.state]);
 
 
-  // get list intrument related 
-  // useEffect(() => {
-  //   if (instrument) {
-  //     const fetchRelatedInstruments = async () => {
-  //       try {
-  //         const response = await getInstrumentByCateIdAndBrandId(instrument.categoryIns.id, instrument.brand.id);
-  //         console.log("Category Id:", instrument.categoryIns.id);
-  //         console.log("Brand Id", instrument.brand.id);
-  //         setRelatedInstrumet(response.data);
-  //         console.log(response.data);
-  //       } catch (error) {
-  //         console.error("Error fetching related instruments", error);
-  //       }
-  //     };
-  //     fetchRelatedInstruments();
-  //   }
-  // }, [instrument]);
-
 
 
   // Hiển thị loading hoặc lỗi nếu có
@@ -104,20 +86,11 @@ const DetailProduct = () => {
 
 
 
-  // Hàm add to cart
   const handleAddToCart = async () => {
-    try {
-      const response = await addToCart(instrument.id, quantity);
-      alert('Đã thêm vào giỏ hàng thành công.');
-  
-      // Kiểm tra phản hồi từ API và session lưu trữ
-      console.log("API response after adding to cart:", response.data);
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      alert('Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.');
-    }
+    addToLocalCart(instrument, quantity); // Sử dụng hàm đã có
+    alert('Đã thêm vào giỏ hàng thành công.');
   };
-  
+
 
 
   return (
