@@ -1,97 +1,131 @@
-import React, { useState } from 'react'
-import '../CheckOut/CheckOut.css'
-import Benefits from '../../../components/Benefits/Benefits'
-import Footer2 from '../../../components/Footer/Footer2'
+import React, { useEffect, useState } from 'react';
+import '../CheckOut/CheckOut.css';
+import Benefits from '../../../components/Benefits/Benefits';
+import Footer2 from '../../../components/Footer/Footer2';
 import Cookies from "js-cookie";
-
+import { getUserById } from '../../../service/CheckoutService';
 
 const CheckOut = () => {
-
-    const userId = Cookies.get('userId')
-    const [user, setUser] = useState("");
-
-
+    const [userId, setUserId] = useState('');
+    const [user, setUser] = useState({});
+    const [cartItems, setCartItems] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState('cod');
 
-    function getUserById() {
-        
+    // Lấy userId từ cookie khi component mount
+    useEffect(() => {
+        const storedUserId = Cookies.get('userId');
+        console.log("userId:", storedUserId);
+        if (storedUserId) {
+            setUserId(storedUserId);
+        }
+    }, []);
+
+    // Get user information khi userId có giá trị
+    useEffect(() => {
+        if (userId) {
+            const fetchUser = async () => {
+                try {
+                    const response = await getUserById(userId);
+                    setUser(response.data);
+                    console.log(response.data || "Not found user");
+                } catch (error) {
+                    console.error("Error fetching user:", error);
+                }
+            };
+            fetchUser();
+        }
+    }, [userId]);
+
+    const fetchCartItems = () => {
+        const items = JSON.parse(localStorage.getItem('cart')) || [];
+        if (!items || items.length === 0) {
+            console.log("Cart undefine");
+            setCartItems([]);
+        } else {
+            setCartItems(items);
+        }
     }
+
+    useEffect(() => {
+        fetchCartItems();
+    }, []);
+
 
     const handlePaymentChange = (method) => {
         setPaymentMethod(method);
     };
 
+
+
     return (
         <div>
             <div className='container'>
-                <div className='row'>
-                    {/* Order content */}
-                    <div className='order-infor col-6'>
+                <div className='row d-flex justify-content-between'>
+                    {/* Order content bên trái */}
+                    <div className='order-infor col-lg-6 col-md-6 col-sm-12'>
                         {/* Information user */}
                         <div className='user-infor'>
                             <h1>Thông tin liên hệ</h1>
-                            <form action="">
+                            <form>
                                 <div className='mt-3'>
-                                    <label className='form-label'>
-                                        Email:
-                                    </label>
-                                    <input type="email" className='form-control' />
+                                    <label className='form-label'>Email:</label>
+                                    <input
+                                        type="email"
+                                        className='form-control'
+                                        value={user.email || ''} // Giá trị mặc định nếu email undefined
+                                        readOnly
+                                    />
                                 </div>
-
                                 <div className='mt-3'>
-                                    <label className='fomr-label'>
-                                        Name:
-                                    </label>
-                                    <input type="text" className='form-control' />
+                                    <label className='form-label'>Name:</label>
+                                    <input
+                                        type="text"
+                                        className='form-control'
+                                        value={user.userName || ''} // Giá trị mặc định nếu userName undefined
+                                        readOnly
+                                    />
                                 </div>
-
                                 <div className='mt-3'>
-                                    <label className='form-label'>
-                                        Phone Number:
-                                    </label>
-                                    <input type="text" className='form-control' />
+                                    <label className='form-label'>Phone Number:</label>
+                                    <input
+                                        type="text"
+                                        className='form-control'
+                                        value={user.phoneNumber || ''} // Giá trị mặc định nếu phoneNumber undefined
+                                        readOnly
+                                    />
                                 </div>
                             </form>
                         </div>
+
                         {/* Order information */}
                         <div className='order-infor'>
                             <h1>Giao hàng</h1>
                             <div className='mt-3'>
                                 <label className='form-label'>Quốc gia:</label>
-                                <select name="country" className='form-select'>
-                                    <form action="" >
-                                        <input type="text" className='form-control' placeholder='Search country...' />
-                                    </form>
-                                    <option value="">Chọn quốc gia</option>
-                                </select>
+                                <input type="text" className='form-control' defaultValue={'Việt Nam'} disabled />
                             </div>
-
                             <div className='mt-3'>
-                                <label className='form-label'>Thành phố/ Tỉnh:</label>
+                                <label className='form-label'>Tỉnh/ Thành</label>
                                 <select name="cities" className='form-select'>
-                                    <option value="">Chọn thành phố/ Tỉnh</option>
+                                    <option value="">Chọn Tỉnh/ Thành</option>
                                 </select>
                             </div>
-
                             <div className='mt-3'>
-                                <label className='form-label'>Quận/ Huyện</label>
+                                <label className='form-label'>Quận, Huyện</label>
                                 <select name="tinh" className='form-select'>
                                     <option value=""> Chọn Quận/ Huyện</option>
                                 </select>
                             </div>
-
                             <div className='mt-3'>
-                                <label className=''>Phường, Xã, Thị Trấn</label>
+                                <label className=''>Phường, Xã</label>
                                 <select name="" className='form-select'>
-                                    <option value="">Chọn phường, xã, thị trấn</option>
+                                    <option value="">Chọn Phường, Xã</option>
                                 </select>
                             </div>
-
                             <div className='mt-3'>
                                 <label className='form-label'>Số nhà</label>
                                 <input type="text" className='form-control' />
                             </div>
-
                         </div>
 
                         {/* shipping method */}
@@ -125,11 +159,10 @@ const CheckOut = () => {
                                     </h2>
                                     <div className={`accordion-collapse collapse ${paymentMethod === 'cod' ? 'show' : ''}`}>
                                         <div className="accordion-body">
-                                            <p>Sao khi nhấn "Thanh toán ngay", bạn sẽ nhận hàng và thanh toán trực tiếp với nhân viên giao hàng của chúng tôi.</p>
+                                            <p>Sau khi nhấn "Thanh toán ngay", bạn sẽ nhận hàng và thanh toán trực tiếp với nhân viên giao hàng của chúng tôi.</p>
                                         </div>
                                     </div>
                                 </div>
-
                                 <div className="accordion-item">
                                     <h2 className="accordion-header">
                                         <button
@@ -157,52 +190,64 @@ const CheckOut = () => {
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
-                    {/* Instrument belong order*/}
-                    <div className='item col-6'>
-                        <div className='item-cart'>
-                            <div className='instrument-image col-2'>
-                                <img src="" alt="" />
-                            </div>
-                            <div className='instrument-name col-2'>
-                                <p></p>
-                            </div>
-                            <div className='instrument-price col-2'>
-                                <p></p>
-                            </div>
-                        </div>
+
+                    {/* Instrument belong order bên phải */}
+                    <div className='col-lg-6 col-md-6 col-sm-12'>
+                        {cartItems.length === 0 ? (
+                            <p>Giỏ hàng của bạn đang trống.</p>
+                        ) : (
+                            cartItems.map((item) => (
+                                <div className='item-cart d-flex' key={item.id}>
+                                    <div className='instrument-image col-2'>
+                                        <img src={item.image} alt="" style={{ width: '50px' }} />
+                                    </div>
+                                    <div className='instrument-name col-7'>
+                                        <p>{item.name}</p>
+                                    </div>
+                                    <div className='instrument-price col-3'>
+                                        <p>{item.costPrice} VND</p>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+
                         {/* Total item */}
-                        <div className='total-item'>
+                        <div className='total-item d-flex'>
                             <h5>Total items:</h5>
-                            <p></p>
+                            <p>{cartItems.length}</p>
                         </div>
 
                         {/* Total price */}
-                        <div className='total-price'>
+                        <div className='total-price d-flex'>
                             <h5>Total price:</h5>
-                            <p></p>
+                            <p>{cartItems.reduce((total, item) => total + item.costPrice, 0)} VND</p>
                         </div>
 
                         {/* Tax */}
-                        <div className='tax'>
+                        <div className='tax d-flex'>
                             <h5>Tax:</h5>
                             <p>2%</p>
                         </div>
 
                         {/* Sum total */}
-                        <div className='sum'>
+                        <div className='sum d-flex'>
                             <h3>Tổng cộng</h3>
-                            <strong></strong>
+                            <strong>{cartItems.reduce((total, item) => total + item.costPrice, 0) * 1.02} VND</strong>
                         </div>
+
+                        <div className='checkout'>
+                            <button className='btn border'>Thanh toán</button>
+                        </div>
+
                     </div>
                 </div>
             </div>
             <Benefits />
             <Footer2 />
         </div>
-    )
+    );
+
 }
 
-export default CheckOut
+export default CheckOut;
