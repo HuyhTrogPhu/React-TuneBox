@@ -53,6 +53,7 @@ const Login = () => {
     } catch (error) {
         console.error('Lỗi đăng nhập:', error);
         if (error.response) {
+          console.error('Phản hồi từ server:', error.response);
             setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
         } else if (error.request) {
             setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');

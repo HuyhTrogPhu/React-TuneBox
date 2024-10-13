@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
@@ -12,32 +12,28 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { fetchDataUser } from "./js/ProfileJS";
-// import "./Profile_nav/css/activity.css"
+import { FollowContext } from './FollowContext'; // Đảm bảo import đúng context
 
 const ProfileUser = () => {
-  const value = Cookies.get("UserID");
-  // console.log(value);
+  const userId = Cookies.get("UserID");
+  const { followerCount, setFollowerCount, followingCount, setFollowingCount } = useContext(FollowContext);
   const [userData, setUserData] = useState([]);
-  const [followerCount, setFollowerCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
+
   useEffect(() => {
     const fetchDataAndRender = async () => {
-      const response = await fetchDataUser(value);
-      // console.log("Data fetched from API:", response);
+      const response = await fetchDataUser(userId);
       if (response && response.data) {
         setUserData(response.data);
-        console.log(userData);
-        setFollowerCount(userData.followers.length);
-        setFollowingCount(userData.following.length);
+        setFollowerCount(response.data.followers.length); // Cập nhật số lượng người theo dõi
+        setFollowingCount(response.data.following.length); // Cập nhật số lượng người đang theo dõi
       }
     };
 
     fetchDataAndRender();
-  }, []);
+  }, [userId, setFollowerCount, setFollowingCount]);
 
   return (
     <div className="container">
-      {/* Hình nền profile */}
       <div
         className="background border container"
         style={{
@@ -58,9 +54,7 @@ const ProfileUser = () => {
             </div>
             <div className="">{userData.userName}</div>
           </div>
-          {/* 2 nút dưới avatar */}
           <div className="row mt-4">
-            {/* nút mua prime */}
             <div className="col text-start">
               <button
                 type="button"
@@ -77,8 +71,6 @@ const ProfileUser = () => {
                 <b>Get Prime</b>
               </button>
             </div>
-            {/*kết thúc nút mua prime */}
-            {/* nút tới trang sửa profile */}
             <div className="col text-end">
               <Link to={"/ProfileSetting"}>
                 <button type="button" className="btn btn-secondary">
@@ -91,9 +83,8 @@ const ProfileUser = () => {
                 </button>
               </Link>
             </div>
-            {/*kết thúc nút tới trang sửa profile */}
           </div>
-          {/* thông tin người theo giõi */}
+
           <div className="row mt-4">
             <div className="col text-center">
               <span>{followerCount}</span> <br />
@@ -104,7 +95,6 @@ const ProfileUser = () => {
               <span>Following</span>
             </div>
           </div>
-          {/*kết thúc thông tin người theo giõi */}
 
           <div style={{ paddingTop: 30 }}>
             <label>Nghệ sĩ ưu thích</label> <br />
@@ -134,7 +124,7 @@ const ProfileUser = () => {
             ) : (
               <p>Chưa chọn sở trường.</p>
             )}
-             <br />
+            <br />
             <label>Dòng nhạc ưu thích</label> <br />
             {userData.genre && userData.genre.length > 0 ? (
               userData.genre.map((Mapdata) => (
@@ -151,9 +141,7 @@ const ProfileUser = () => {
           </div>
         </aside>
 
-        {/* Phần nội dung chính */}
         <div className="col-sm-9 d-flex flex-column ">
-          {/* Menu cho các tab */}
           <nav className="nav flex-column flex-md-row p-5">
             <Link to="activity" className="nav-link">
               Activity
@@ -169,14 +157,13 @@ const ProfileUser = () => {
             </Link>
           </nav>
 
-          {/* Nội dung sẽ thay đổi dựa trên tab được chọn */}
           <article className="p-5">
             <Routes>
               <Route path="/activity" element={<Activity />} />
               <Route path="/track" element={<Track />} />
               <Route path="/albums" element={<Albums />} />
               <Route path="/playlists" element={<Playlists />} />
-              <Route path="/" element={<Navigate to="activity" />} /> Đường dẫn mặc định
+              <Route path="/" element={<Navigate to="activity" />} />
             </Routes>
           </article>
         </div>

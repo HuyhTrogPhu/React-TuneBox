@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link, Routes, Route, Navigate, useParams } from "react-router-dom";
 import axios from "axios";
+import Cookies from "js-cookie";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
 import Playlists from "./Profile_nav/Playlists";
+import { FollowContext } from "./FollowContext"; // Import FollowContext
 import "./css/profile.css";
 import "./css/post.css";
 import "./css/button.css";
@@ -13,33 +15,113 @@ import "./css/modal-create-post.css";
 import { fetchDataUser } from "./js/ProfileJS";
 
 const OtherUserProfile = () => {
-  const { id } = useParams(); // Lấy userId từ URL
-  const [userData, setUserData] = useState(null); // Đặt mặc định là null
+  const { id } = useParams();
+  const [userData, setUserData] = useState(null);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const userId = Cookies.get("UserID");
+
+  const { setFollowerCount: setGlobalFollowerCount, followingCount: globalFollowingCount, setFollowingCount: setGlobalFollowingCount } = useContext(FollowContext);
 
   useEffect(() => {
     const fetchDataAndRender = async () => {
-      const response = await fetchDataUser(id);
-      if (response) { // Kiểm tra nếu phản hồi không phải là null
-        // Kiểm tra cấu trúc dữ liệu
-        console.log("Response structure:", response);
-        setUserData(response); // Nếu không có thuộc tính data, set dữ liệu trực tiếp
-        setFollowerCount(response.followers?.length || 0);
-        setFollowingCount(response.following?.length || 0);
-      } else {
-        console.error("No data returned or data structure is incorrect");
+      try {
+        const response = await fetchDataUser(id);
+        if (response) {
+          setUserData(response);
+
+          // Lấy số lượng follower của OtherUser
+          const followersCountResponse = await axios.get(
+            `http://localhost:8080/api/follow/followers-count?userId=${id}`
+          );
+          setFollowerCount(followersCountResponse.data);
+          setGlobalFollowerCount(followersCountResponse.data); // Cập nhật số lượng follower trong Context
+
+          // Lấy số lượng following của OtherUser
+          const followingCountResponse = await axios.get(
+            `http://localhost:8080/api/follow/following-count?userId=${id}`
+          );
+          setFollowingCount(followingCountResponse.data);
+
+          // Kiểm tra xem User 1 có đang follow OtherUser hay không
+          const isFollowingResponse = await axios.get(
+            `http://localhost:8080/api/follow/is-following?followerId=${userId}&followedId=${id}`
+          );
+          setIsFollowing(isFollowingResponse.data);
+
+          // Kiểm tra xem User 1 có đang block OtherUser không
+          const isBlockedResponse = await axios.get(
+            `http://localhost:8080/api/blocks/is-blocked?blockerId=${userId}&blockedId=${id}`
+          );
+          setIsBlocked(isBlockedResponse.data);
+        } else {
+          console.error("No data returned or data structure is incorrect");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
       }
     };
-    
-    fetchDataAndRender();
-  }, [id]);
-  
-  
 
-  // Kiểm tra nếu userData vẫn null
+    fetchDataAndRender();
+  }, [id, userId, setGlobalFollowerCount]);
+
+  const toggleFollow = async () => {
+    try {
+      if (isFollowing) {
+        await axios.delete(`http://localhost:8080/api/follow/unfollow`, {
+          params: {
+            followerId: userId,
+            followedId: id
+          }
+        });
+        // Giảm số lượng người theo dõi của OtherUser
+        setFollowerCount((prevCount) => Math.max(prevCount - 1, 0));
+        setGlobalFollowerCount((prevCount) => Math.max(prevCount - 1, 0)); // Cập nhật trong Context
+
+        // Giảm số lượng following của User 1
+        setGlobalFollowingCount((prevCount) => Math.max(prevCount - 1, 0)); // Cập nhật số lượng following của User 1
+      } else {
+        await axios.post(`http://localhost:8080/api/follow/follow`, null, {
+          params: {
+            followerId: userId,
+            followedId: id
+          }
+        });
+        // Tăng số lượng người theo dõi của OtherUser
+        setFollowerCount((prevCount) => prevCount + 1);
+        setGlobalFollowerCount((prevCount) => prevCount + 1); // Cập nhật trong Context
+
+        // Tăng số lượng following của User 1
+        setGlobalFollowingCount((prevCount) => prevCount + 1); // Cập nhật số lượng following của User 1
+      }
+      setIsFollowing((prev) => !prev);
+    } catch (error) {
+      console.error("Error toggling follow status:", error);
+    }
+  };
+
+  const toggleBlock = async () => {
+    try {
+      if (isBlocked) {
+        await axios.delete(
+          `http://localhost:8080/api/blocks/unblock?blockerId=${userId}&blockedId=${id}`
+        );
+        setIsBlocked(false);
+      } else {
+        await axios.post(
+          `http://localhost:8080/api/blocks/block?blockerId=${userId}&blockedId=${id}`
+        );
+        setIsBlocked(true);
+      }
+    } catch (error) {
+      console.error("Error toggling block status:", error);
+    }
+  };
+
   if (!userData) {
-    return <div>Đang tải dữ liệu...</div>; // Hoặc có thể hiển thị spinner/loading
+    return <div>Đang tải dữ liệu...</div>;
   }
 
   return (
@@ -56,7 +138,7 @@ const OtherUserProfile = () => {
         <aside className="col-sm-3">
           <div>
             <img
-              src={userData.avatar || "/src/UserImages/Avatar/avt.jpg"} // Có thể lấy avatar từ userData
+              src={userData.avatar || "/src/UserImages/Avatar/avt.jpg"}
               className="avatar"
               alt="avatar"
             />
@@ -64,6 +146,20 @@ const OtherUserProfile = () => {
               <b>{userData.userNickname}</b>
             </div>
             <div className="">{userData.userName}</div>
+          </div>
+
+          {/* Nút Follow/Unfollow */}
+          <div>
+            <button id="followButton" onClick={toggleFollow}>
+              {isFollowing ? "Unfollow" : "Follow"}
+            </button>
+          </div>
+
+          {/* Nút Block/Unblock */}
+          <div>
+            <button id="blockButton" onClick={toggleBlock}>
+              {isBlocked ? "Unblock" : "Block"}
+            </button>
           </div>
 
           {/* Thông tin người theo dõi */}
@@ -77,8 +173,8 @@ const OtherUserProfile = () => {
               <span>Following</span>
             </div>
           </div>
-          {/* Kết thúc thông tin người theo dõi */}
 
+          {/* Các phần thông tin khác */}
           <div style={{ paddingTop: 30 }}>
             <label>Nghệ sĩ ưu thích</label> <br />
             {userData.inspiredBy?.length > 0 ? (
@@ -149,7 +245,7 @@ const OtherUserProfile = () => {
               <Route path="track" element={<Track userId={id} />} />
               <Route path="albums" element={<Albums userId={id} />} />
               <Route path="playlists" element={<Playlists userId={id} />} />
-              <Route path="/" element={<Navigate to="activity" />} /> {/* Đường dẫn mặc định */}
+              <Route path="/" element={<Navigate to="activity" />} />
             </Routes>
           </article>
         </div>

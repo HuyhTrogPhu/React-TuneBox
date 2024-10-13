@@ -108,17 +108,10 @@ const Activity = () => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
-  
-
   useEffect(() => {
     fetchPosts(); // Gọi hàm để lấy bài viết khi component được mount
   }, [id]); // Theo dõi currentUserId để gọi lại khi thay đổi
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  
   const handleSubmitPost = async () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
