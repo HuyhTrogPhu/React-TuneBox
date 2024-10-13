@@ -167,8 +167,8 @@ const CheckOut = () => {
 
                     "weight": 1000,
                     "insurance_value": 1000000,
-                    "length":15,
-                    "width":15,
+                    "length": 15,
+                    "width": 15,
                     "coupon": null
                 }, {
                     headers: {
@@ -186,7 +186,6 @@ const CheckOut = () => {
             setDeliveryFee(0);
         }
     };
-
 
     return (
         <div>
@@ -390,14 +389,14 @@ const CheckOut = () => {
 
                             {/* Tax */}
                             <div className='tax d-flex'>
-                                <h5>Tax:</h5>
-                                <p>2%</p>
+                                <h5>Phí giao hàng:</h5>
+                                <p>{deliveryFee.toLocaleString('vi')} VND</p>
                             </div>
 
                             {/* Sum total */}
                             <div className='sum d-flex'>
                                 <h3>Tổng cộng</h3>
-                                <strong>{(cartItems.reduce((total, item) => total + item.costPrice, 0) * 1.02).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</strong>
+                                <strong>{(cartItems.reduce((total, item) => total + item.costPrice, 0) + deliveryFee).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</strong>
                             </div>
                         </div>
 
