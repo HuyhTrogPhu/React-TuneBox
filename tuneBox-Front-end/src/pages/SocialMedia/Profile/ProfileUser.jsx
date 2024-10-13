@@ -14,7 +14,7 @@ import { images } from "../../../assets/images/images";
 import { fetchDataUser } from "./js/ProfileJS";
 
 const ProfileUser = () => {
-  const value = Cookies.get("UserID");
+  const value = Cookies.get("userId");
   console.log(value);
   const [userData, setUserData] = useState([]);
   const [followerCount, setFollowerCount] = useState(0);
