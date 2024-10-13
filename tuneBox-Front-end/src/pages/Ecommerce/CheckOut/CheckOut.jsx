@@ -187,6 +187,11 @@ const CheckOut = () => {
         }
     };
 
+    const totalPrice = cartItems.reduce((total, item) => {
+        const costPrice = parseFloat(item.costPrice) || 0; // Chuyển đổi sang số và đảm bảo không bị NaN
+        const quantity = parseInt(item.quantity) || 0; // Chuyển đổi sang số nguyên
+        return total + costPrice * quantity;
+      }, 0)
     return (
         <div>
             <div className='container-fluid' style={{ padding: '50px 100px 50px 100px' }}>
@@ -369,7 +374,7 @@ const CheckOut = () => {
                                             <p>{item.name}</p>
                                         </div>
                                         <div className='instrument-price col-3'>
-                                            <p>{(item.costPrice).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                            <p>{(item.costPrice * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                                         </div>
                                     </div>
                                 ))
@@ -384,7 +389,7 @@ const CheckOut = () => {
                             {/* Total price */}
                             <div className='total-price d-flex'>
                                 <h5>Total price:</h5>
-                                <p>{cartItems.reduce((total, item) => total + item.costPrice, 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                <p>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                             </div>
 
                             {/* Tax */}
@@ -396,7 +401,7 @@ const CheckOut = () => {
                             {/* Sum total */}
                             <div className='sum d-flex'>
                                 <h3>Tổng cộng</h3>
-                                <strong>{(cartItems.reduce((total, item) => total + item.costPrice, 0) + deliveryFee).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</strong>
+                                <strong>{(totalPrice + deliveryFee).toLocaleString('vi')} VND</strong>
                             </div>
                         </div>
 
