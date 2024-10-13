@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/api/comments';
+const API_URL_REPLY = 'http://localhost:8080/api/replies';
 
 // Thêm comment vào track
 export const addCommentTrack = async (trackId, userId, commentDTO, createdAt) => {
@@ -44,5 +45,46 @@ export const getCommentsByTrack = async (trackId) => {
     } catch (error) {
         console.error('Error fetching comments', error);
         throw error;
+    }
+};
+
+
+// REPLY
+// Hàm thêm reply cho comment
+export const addReply = async (commentId, userId, replyData) => {
+    try {
+        const response = await axios.post(`${API_URL_REPLY}/comment/${commentId}/user/${userId}`, replyData);
+        return response.data; // Trả về dữ liệu reply mới
+    } catch (error) {
+        throw new Error(error.response.data.message || 'Error adding reply');
+    }
+};
+
+// Hàm lấy danh sách replies theo commentId
+export const getRepliesByComment = async (commentId) => {
+    try {
+        const response = await axios.get(`${API_URL_REPLY}/comment/${commentId}`);
+        return response.data; // Trả về danh sách replies
+    } catch (error) {
+        throw new Error(error.response.data.message || 'Error fetching replies');
+    }
+};
+
+// Hàm xóa reply
+export const deleteReply = async (replyId) => {
+    try {
+        await axios.delete(`${API_URL_REPLY}/${replyId}`);
+    } catch (error) {
+        throw new Error(error.response.data.message || 'Error deleting reply');
+    }
+};
+
+// Hàm thêm reply cho reply (nested reply)
+export const addReplyToReply = async (parentReplyId, userId, replyData) => {
+    try {
+        const response = await axios.post(`${API_URL_REPLY}/reply/${parentReplyId}/user/${userId}`, replyData);
+        return response.data; // Trả về dữ liệu reply mới
+    } catch (error) {
+        throw new Error(error.response.data.message || 'Error adding reply to reply');
     }
 };

@@ -89,16 +89,50 @@
   
 
   /* commnet */
-  .card-comment .card-body {
-    background-color: #f3f0f0; /* Màu xanh nhạt */
-    padding-right: 30px;
-    padding-left: 30px;
-    padding-bottom: 20px;
+  .comment {
+    border: 1px solid #ddd; /* Border nhẹ */
+    border-radius: 5px; /* Góc bo tròn */
+    padding: 10px 15px; /* Padding nhỏ hơn */
+    margin: 5px 0; /* Giảm khoảng cách giữa các bình luận */
+    background-color: #f9f9f9; /* Nền sáng */
+    display: flex; /* Sử dụng flex để căn chỉnh tốt hơn */
+    align-items: center; /* Căn giữa theo chiều dọc */
   }
-
-  .card-comment {
-    background-color: #fcfafa;
+  
+  .comment-content {
+    flex: 1; /* Tự động chiếm toàn bộ không gian còn lại */
+    margin-left: 10px; /* Khoảng cách giữa avatar và nội dung bình luận */
   }
-  .card-comment .option-item{
-    text-decoration: underline;
+  
+  .comment-author {
+    font-weight: bold; /* Đậm tên người dùng */
+    font-size: 0.9em; /* Kích thước font nhỏ hơn */
+    color: #333; /* Màu chữ nhẹ nhàng */
+  }
+  
+  .comment-time {
+    font-size: 0.8em; /* Kích thước font nhỏ hơn */
+    color: #888; /* Màu chữ xám cho thời gian */
+    margin-top: 2px; /* Khoảng cách giữa tên người dùng và thời gian */
+  }
+  
+  .reply-input-container {
+    margin-top: 5px; /* Khoảng cách giữa phần bình luận và input reply */
+  }
+  
+  .reply {
+    margin-left: 30px; /* Thụt lề cho reply */
+    border-left: 2px solid #ddd; /* Đường kẻ bên trái */
+    padding-left: 10px; /* Khoảng cách bên trái */
+    margin-bottom: 10px;
+  }
+  
+  .nested-replies {
+    margin-left: 20px; /* Lùi vào bên phải cho các phản hồi lồng nhau */
+    border-left: 1px solid #ccc; /* Vạch bên trái để phân biệt */
+    padding-left: 10px; /* Khoảng cách giữa vạch và nội dung */
+  }
+  
+  .nested-reply {
+    margin-bottom: 8px; /* Giãn cách giữa các phản hồi lồng nhau */
   }

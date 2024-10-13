@@ -13,6 +13,9 @@ import {
   addCommentTrack,
   deleteCommentTrack,
   updateCommentTrack,
+  getRepliesByComment,
+  addReply,
+  deleteReply,
 } from "../../../../service/CommentTrackCus";
 import { images } from "../../../../assets/images/images";
 import Waveform from "../Profile_nav/Waveform";
@@ -34,8 +37,8 @@ function Trackdetail() {
 
   const [editingCommentId, setEditingCommentId] = useState(null); // ID của bình luận đang chỉnh sửa
 
-  const [replyContent, setReplyContent] = useState(""); // Nội dung câu trả lời
-  const [replyingCommentId, setReplyingCommentId] = useState(null); // ID bình luận đang trả lời
+  const [replies, setReplies] = useState({}); // State quản lý replies của các comment
+  const [replyContent, setReplyContent] = useState({}); // State để lưu nội dung phản hồi
 
   const userId = Cookies.get("UserID"); // Lấy userId từ cookies
 
@@ -98,6 +101,11 @@ function Trackdetail() {
       try {
         const response = await getCommentsByTrack(id);
         setComments(response); // Cập nhật danh sách bình luận
+
+        // Duyệt qua từng bình luận để lấy replies
+        for (const comment of response) {
+          await fetchReplies(comment.id); // Gọi hàm fetchReplies cho từng comment
+        }
       } catch (error) {
         console.error("Lỗi khi lấy bình luận:", error);
       }
@@ -111,23 +119,6 @@ function Trackdetail() {
     if (editingCommentId) {
       await handleUpdateComment(editingCommentId, newComment);
       setEditingCommentId(null);
-    } else if (replyingCommentId) {
-      // Thêm câu trả lời cho bình luận
-      try {
-        const replyDTO = {
-          content: replyContent,
-          userId: userId,
-          creationDate: new Date().toISOString(),
-          parentId: replyingCommentId, // Ghi lại ID bình luận cha
-        };
-        await addCommentTrack(id, userId, replyDTO); // Thêm câu trả lời
-        setReplyContent(""); // Reset input câu trả lời
-        setReplyingCommentId(null); // Reset ID bình luận đang trả lời
-        const updatedComments = await getCommentsByTrack(id);
-        setComments(updatedComments);
-      } catch (error) {
-        console.error("Lỗi khi thêm câu trả lời:", error);
-      }
     } else {
       // Thêm bình luận mới
       try {
@@ -194,6 +185,65 @@ function Trackdetail() {
       setLiked(!liked); // Đảo trạng thái liked
     } catch (error) {
       console.error("Lỗi khi xử lý like:", error);
+    }
+  };
+
+  // lấy reply
+  const fetchReplies = async (commentId) => {
+    try {
+      const replies = await getRepliesByComment(commentId);
+      setReplies((prevReplies) => ({
+        ...prevReplies,
+        [commentId]: replies, // Cập nhật danh sách replies cho bình luận cụ thể
+      }));
+    } catch (error) {
+      console.error(error.message); // Hiển thị thông báo lỗi nếu có
+    }
+  };
+
+  // new reply
+  const handleAddReply = async (commentId) => {
+    // Lấy nội dung reply từ state
+    const content = replyContent[commentId];
+
+    // xóa replly
+    const deleteReply = async (replyId, commentId) => {
+      try {
+        await deleteReply(replyId);
+        fetchReplies(commentId); // Cập nhật lại danh sách reply sau khi xóa
+      } catch (error) {
+        console.error("Lỗi khi xóa reply:", error);
+      }
+    };
+
+    // Kiểm tra xem người dùng đã nhập nội dung hay chưa
+    if (!content) {
+      alert("Vui lòng nhập nội dung phản hồi.");
+      return;
+    }
+
+    // Tạo đối tượng replyData
+    const replyData = {
+      content: content,
+    };
+
+    try {
+      // Gọi API để thêm reply
+      const newReply = await addReply(commentId, userId, replyData); // Gọi hàm addReply
+
+      // Cập nhật state replies
+      setReplies((prevReplies) => ({
+        ...prevReplies,
+        [commentId]: [...(prevReplies[commentId] || []), newReply],
+      }));
+
+      // Xóa nội dung đã nhập sau khi thêm thành công
+      setReplyContent((prevState) => ({
+        ...prevState,
+        [commentId]: "", // Xóa nội dung đã nhập
+      }));
+    } catch (error) {
+      console.error("Lỗi khi thêm phản hồi:", error.message);
     }
   };
 
@@ -279,122 +329,182 @@ function Trackdetail() {
             </div>
 
             {/* list cmt */}
-            <div className="comment-list">
+            <div className="comment-list mt-4">
               {comments.map((comment) => (
-                <div className="card-comment mb-2" key={comment.id}>
-                  <div className="card-body rounded-4">
-                    <div className="d-flex flex-start align-items-center">
-                      <img
-                        src="/src/UserImages/Avatar/avt.jpg"
-                        width={40}
-                        height={40}
-                        className="rounded-circle me-2"
-                      />
-                      <div>
-                        <h6 className="fw-bold text-primary mb-0">
-                          {comment.userName} Name
-                        </h6>
-                        <p className="text-muted small mb-0">
-                          {format(
-                            new Date(comment.creationDate),
-                            "dd/MM/yyyy HH:mm"
-                          )}
-                        </p>
-                      </div>
-                    </div>
+                <div className="comment mt-2" key={comment.id}>
+                  <div className="container">
+                    <div className="row justify-content-start">
+                      {/* list comment */}
 
-                    <p className="m-2 mb-0">{comment.content}</p>
-
-                    <div className="option-comment ms-auto">
-                      <button
-                        className=" option-item me-3 border-0"
-                        onClick={() => handleEditComment(comment)}
-                      >
-                        edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteComment(comment.id)}
-                        className=" option-item me-3 border-0"
-                      >
-                        delete
-                      </button>
-                      <button
-                        onClick={() => {
-                          setReplyingCommentId(comment.id); // Lưu ID bình luận cha
-                          setReplyContent(""); // Reset nội dung câu trả lời
-                        }}
-                        className=" option-item border-0"
-                      >
-                        reply
-                      </button>
-                    </div>
-
-                    {/* Trường nhập liệu cho câu trả lời */}
-                    {replyingCommentId === comment.id && (
-                      <div className="mt-2">
-                        <textarea
-                          className="form-control"
-                          rows="2"
-                          value={replyContent}
-                          onChange={(e) => setReplyContent(e.target.value)}
-                          placeholder="Viết câu trả lời..."
-                        />
+                      <div className="comment-content position-relative ">
+                        <div className="d-flex align-items-start">
+                          <img
+                            src={images.avt}
+                            alt=""
+                            width={50}
+                            height={50}
+                            className="avatar-comment"
+                          />
+                          <div>
+                            <div className="comment-author">
+                              {comment.userId}
+                            </div>
+                            <div className="comment-time">
+                              {format(
+                                new Date(comment.creationDate),
+                                "dd/MM/yyyy"
+                              )}
+                            </div>
+                            <p>{comment.content}</p>
+                          </div>
+                        </div>
+                        {/* Dropdown chỉnh sửa/xóa bình luận */}
+                        <div className="dropdown position-absolute top-0 end-0">
+                          <div className="btn-group" style={{ marginLeft: 25 }}>
+                            <button
+                              className="btn dropdown-toggle no-border"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            ></button>
+                            <ul className="dropdown-menu dropdown-menu-lg-end">
+                              <li>
+                                <a
+                                  className="dropdown-item"
+                                  onClick={() => handleEditComment(comment)}
+                                >
+                                  Edit
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  className="dropdown-item"
+                                  onClick={() =>
+                                    handleDeleteComment(comment.id)
+                                  }
+                                >
+                                  Delete
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        {/* Nút trả lời */}
                         <button
-                          className="btn-primary rounded mt-1"
-                          onClick={handleAddComment}
+                          className="btn btn-link mt-2"
+                          onClick={() => {
+                            setReplyContent((prevState) => ({
+                              ...prevState,
+                              [comment.id]: prevState[comment.id] ? "" : "", // Toggle khung nhập
+                            }));
+                          }}
                         >
-                          Gửi
+                          Reply
                         </button>
+                        {/* Khung nhập trả lời */}
+                        {replyContent[comment.id] !== undefined &&
+                          replyContent[comment.id] !== null && (
+                            <div className="reply-input-container d-flex align-items-start">
+                              <textarea
+                                className="reply-input mt-2 form-control me-2"
+                                rows={1}
+                                placeholder="Write a reply..."
+                                value={replyContent[comment.id] || ""}
+                                onChange={(e) =>
+                                  setReplyContent((prevState) => ({
+                                    ...prevState,
+                                    [comment.id]: e.target.value, // Cập nhật nội dung reply
+                                  }))
+                                }
+                              />
+                              <button
+                                className="btn btn-primary rounded mt-2 p-1"
+                                onClick={() => handleAddReply(comment.id)}
+                              >
+                                Reply
+                              </button>
+                            </div>
+                          )}
                       </div>
-                    )}
-                    
-                    {/* Hiển thị bình luận con */}
-                    {comment.replies && comment.replies.length > 0 && (
-                      <div className="mt-2 ms-4">
-                        {comment.replies.map((reply) => (
-                          <div className="card-comment mb-2" key={reply.id}>
-                            <div className="card-body rounded-4">
-                              <div className="d-flex flex-start align-items-center">
-                                <img
-                                  src="/src/UserImages/Avatar/avt.jpg"
-                                  width={30}
-                                  height={30}
-                                  className="rounded-circle me-2"
-                                />
+                    </div>
+
+                    {/* Hiển thị reply */}
+                    <div className="row justify-content-center">
+                      <div className="replies-list mt-2">
+                        {replies[comment.id] &&
+                          replies[comment.id].map((reply) => (
+                            <div
+                              className="reply d-flex align-items-start"
+                              key={reply.id}
+                            >
+                              <img
+                                src="/src/UserImages/Avatar/avt.jpg"
+                                className="avatar_small"
+                                alt="Avatar"
+                              />
+                              <div className="reply-content">
                                 <div>
-                                  <h6 className="fw-bold text-primary mb-0">
-                                    {reply.userName} Name
-                                  </h6>
-                                  <p className="text-muted small mb-0">
+                                  <div className="comment-author">
+                                    {reply.userId}
+                                  </div>
+                                  <div className="comment-time">
                                     {format(
-                                      new Date(reply.creationDate),
-                                      "dd/MM/yyyy HH:mm"
+                                      new Date(comment.creationDate),
+                                      "dd/MM/yyyy"
                                     )}
-                                  </p>
+                                  </div>
+                                  <p>{reply.content}</p>
                                 </div>
                               </div>
-                              <p className="m-2 mb-0">{reply.content}</p>
+                              <div>
+                                {/* Dropdown chỉnh sửa/xóa bình luận */}
+                                <div className="dropdown top-0 end-0">
+                                  <div
+                                    className="btn-group"
+                                    style={{ marginLeft: 25 }}
+                                  >
+                                    <button
+                                      className="btn dropdown-toggle no-border"
+                                      type="button"
+                                      data-bs-toggle="dropdown"
+                                      aria-expanded="false"
+                                    ></button>
+                                    <ul className="dropdown-menu dropdown-menu-lg-end">
+                                      <li>
+                                        <a
+                                          className="dropdown-item"
+                                          onClick={() =>
+                                            handleEditComment(comment)
+                                          }
+                                        >
+                                          Edit
+                                        </a>
+                                      </li>
+                                      <li>
+                                        <a
+                                          className="dropdown-item"
+                                          onClick={() =>
+                                            deleteReply(reply.id, comment.id)
+                                          }
+                                        >
+                                          Delete
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               ))}
+              {/* end list cmt */}
             </div>
-          </div>
-        </div>
-        <div className="col-md-4 border rounded-3 ms-5">
-          <div className="row align-items-center">
-            <div className="col-auto post-header">
-              <img
-                src="/src/UserImages/Avatar/avt.jpg"
-                className="avatar_small"
-                alt="avatar"
-              />
-              <span>{track.description}</span>
-            </div>
+
+            {/*  */}
           </div>
         </div>
       </div>
