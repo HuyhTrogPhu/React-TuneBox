@@ -136,3 +136,7 @@
   .nested-reply {
     margin-bottom: 8px; /* Giãn cách giữa các phản hồi lồng nhau */
   }
+
+  .track-infor{
+    height: 200px;
+  }

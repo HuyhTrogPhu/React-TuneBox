@@ -16,6 +16,7 @@ import {
   getRepliesByComment,
   addReply,
   deleteReply,
+  updateReply,
 } from "../../../../service/CommentTrackCus";
 import { images } from "../../../../assets/images/images";
 import Waveform from "../Profile_nav/Waveform";
@@ -39,6 +40,8 @@ function Trackdetail() {
 
   const [replies, setReplies] = useState({}); // State quản lý replies của các comment
   const [replyContent, setReplyContent] = useState({}); // State để lưu nội dung phản hồi
+  const [editingReply, setEditingReply] = useState(null); // Trạng thái theo dõi reply đang chỉnh sửa
+  const [editContentReply, setEditContentReply] = useState(""); // Nội dung đang chỉnh sửa
 
   const userId = Cookies.get("UserID"); // Lấy userId từ cookies
 
@@ -206,16 +209,6 @@ function Trackdetail() {
     // Lấy nội dung reply từ state
     const content = replyContent[commentId];
 
-    // xóa replly
-    const deleteReply = async (replyId, commentId) => {
-      try {
-        await deleteReply(replyId);
-        fetchReplies(commentId); // Cập nhật lại danh sách reply sau khi xóa
-      } catch (error) {
-        console.error("Lỗi khi xóa reply:", error);
-      }
-    };
-
     // Kiểm tra xem người dùng đã nhập nội dung hay chưa
     if (!content) {
       alert("Vui lòng nhập nội dung phản hồi.");
@@ -228,14 +221,43 @@ function Trackdetail() {
     };
 
     try {
-      // Gọi API để thêm reply
-      const newReply = await addReply(commentId, userId, replyData); // Gọi hàm addReply
+      if (editingReply) {
+        // Nếu đang chỉnh sửa, gọi hàm update với đối tượng replyData
+        const updatedReply = await updateReply(
+          editingReply.replyId,
+          userId,
+          replyData
+        ); // Truyền replyData
 
-      // Cập nhật state replies
-      setReplies((prevReplies) => ({
-        ...prevReplies,
-        [commentId]: [...(prevReplies[commentId] || []), newReply],
-      }));
+        // Cập nhật state replies sau khi cập nhật
+        setReplies((prevReplies) => {
+          const updatedReplies = { ...prevReplies };
+          const repliesForComment = updatedReplies[commentId] || [];
+          const index = repliesForComment.findIndex(
+            (reply) => reply.id === editingReply.replyId
+          );
+
+          // Nếu tìm thấy phản hồi, cập nhật nó
+          if (index !== -1) {
+            repliesForComment[index] = updatedReply; // Cập nhật phản hồi
+          }
+
+          updatedReplies[commentId] = repliesForComment; // Cập nhật lại danh sách replies
+          return updatedReplies;
+        });
+
+        setEditingReply(null); // Reset trạng thái chỉnh sửa sau khi cập nhật
+        setEditContentReply(""); // Xóa nội dung chỉnh sửa
+      } else {
+        // Gọi API để thêm reply
+        const newReply = await addReply(commentId, userId, replyData); // Gọi hàm addReply
+
+        // Cập nhật state replies
+        setReplies((prevReplies) => ({
+          ...prevReplies,
+          [commentId]: [...(prevReplies[commentId] || []), newReply],
+        }));
+      }
 
       // Xóa nội dung đã nhập sau khi thêm thành công
       setReplyContent((prevState) => ({
@@ -245,6 +267,23 @@ function Trackdetail() {
     } catch (error) {
       console.error("Lỗi khi thêm phản hồi:", error.message);
     }
+  };
+
+  // xóa replly
+  const handleDeleteReply = async (replyId, commentId) => {
+    try {
+      await deleteReply(replyId);
+      fetchReplies(commentId); // Cập nhật lại danh sách reply sau khi xóa
+    } catch (error) {
+      console.error("Lỗi khi xóa reply:", error);
+    }
+  };
+
+  // Hàm kích hoạt chỉnh sửa
+  const handleEditReply = (replyId, currentContent) => {
+    console.log("Editing reply:", replyId, currentContent);
+    setEditContentReply(currentContent); // Đặt nội dung hiện tại vào input
+    setEditingReply({ replyId }); // Đặt trạng thái chỉnh sửa với replyId
   };
 
   // Hiển thị thông báo đang tải hoặc lỗi
@@ -305,7 +344,7 @@ function Trackdetail() {
         </div>
       </div>
       <div className="row mb-2 mt-3">
-        <div className="col-md-7 border rounded-3 ms-4">
+        <div className=" col-md-7 border rounded-3 ms-4">
           <div>
             {/* form comment */}
             <div className="comment-content row m-4">
@@ -323,7 +362,7 @@ function Trackdetail() {
                   className="btn-primary rounded mt-4 p-1"
                   onClick={handleAddComment}
                 >
-                  Gửi
+                  Send
                 </button>
               </div>
             </div>
@@ -347,7 +386,7 @@ function Trackdetail() {
                           />
                           <div>
                             <div className="comment-author">
-                              {comment.userId}
+                              @{comment.userNickname}
                             </div>
                             <div className="comment-time">
                               {format(
@@ -402,29 +441,37 @@ function Trackdetail() {
                           Reply
                         </button>
                         {/* Khung nhập trả lời */}
-                        {replyContent[comment.id] !== undefined &&
-                          replyContent[comment.id] !== null && (
-                            <div className="reply-input-container d-flex align-items-start">
-                              <textarea
-                                className="reply-input mt-2 form-control me-2"
-                                rows={1}
-                                placeholder="Write a reply..."
-                                value={replyContent[comment.id] || ""}
-                                onChange={(e) =>
+                        {replyContent[comment.id] !== undefined && (
+                          <div className="reply-input-container d-flex align-items-start">
+                            <textarea
+                              className="reply-input mt-2 form-control me-2"
+                              rows={1}
+                              placeholder="Write a reply..."
+                              value={
+                                editingReply
+                                  ? editContentReply
+                                  : replyContent[comment.id] || "" // Hiển thị nội dung đang chỉnh sửa hoặc nội dung mới
+                              }
+                              onChange={(e) => {
+                                if (editingReply?.replyId === comment.id) {
+                                  setEditContentReply(e.target.value); // Cập nhật nội dung khi chỉnh sửa
+                                } else {
                                   setReplyContent((prevState) => ({
                                     ...prevState,
-                                    [comment.id]: e.target.value, // Cập nhật nội dung reply
-                                  }))
+                                    [comment.id]: e.target.value, // Cập nhật nội dung khi thêm mới
+                                  }));
                                 }
-                              />
-                              <button
-                                className="btn btn-primary rounded mt-2 p-1"
-                                onClick={() => handleAddReply(comment.id)}
-                              >
-                                Reply
-                              </button>
-                            </div>
-                          )}
+                              }}
+                            />
+                            <button
+                              className="btn-primary rounded mt-2 p-1"
+                              onClick={() => handleAddReply(comment.id)}
+                            >
+                              {editingReply ? "Update" : "Reply"}{" "}
+                              {/* Thay đổi nút theo trạng thái */}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -445,7 +492,7 @@ function Trackdetail() {
                               <div className="reply-content">
                                 <div>
                                   <div className="comment-author">
-                                    {reply.userId}
+                                    @{reply.userNickname}
                                   </div>
                                   <div className="comment-time">
                                     {format(
@@ -474,7 +521,10 @@ function Trackdetail() {
                                         <a
                                           className="dropdown-item"
                                           onClick={() =>
-                                            handleEditComment(comment)
+                                            handleEditReply(
+                                              reply.id,
+                                              reply.content
+                                            )
                                           }
                                         >
                                           Edit
@@ -484,7 +534,10 @@ function Trackdetail() {
                                         <a
                                           className="dropdown-item"
                                           onClick={() =>
-                                            deleteReply(reply.id, comment.id)
+                                            handleDeleteReply(
+                                              reply.id,
+                                              comment.id
+                                            )
                                           }
                                         >
                                           Delete
@@ -506,6 +559,25 @@ function Trackdetail() {
 
             {/*  */}
           </div>
+        </div>
+
+        {/* Form thong tin */}
+        <div className="track-infor col-md-4 border rounded-3 ms-5 p-3 ">
+          <div className="d-flex align-items-start">
+            <img
+              src={images.avt}
+              alt=""
+              width={50}
+              height={50}
+              className="avatar_small"
+            />
+            <div className="infor ms-3">
+              <div className="info-author">{track.userName}</div>
+              <div className="info-genre">{track.genreName}</div>
+              <p>{track.description}</p>
+            </div>
+          </div>
+          <hr></hr>
         </div>
       </div>
     </div>

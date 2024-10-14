@@ -88,3 +88,17 @@ export const addReplyToReply = async (parentReplyId, userId, replyData) => {
         throw new Error(error.response.data.message || 'Error adding reply to reply');
     }
 };
+
+// Hàm cập nhật reply theo replyId và userId
+export const updateReply = async (replyId, userId, replyData) => {
+    try {
+        // Gửi yêu cầu cập nhật reply bằng phương thức PUT
+        const response = await axios.put(`${API_URL_REPLY}/reply/${replyId}`, replyData, {
+            params: { userId: userId } // Thêm userId vào query string
+        });
+        return response.data; // Trả về reply đã cập nhật
+    } catch (error) {
+        // Bắt lỗi nếu có và trả về message lỗi
+        throw new Error(error.response.data.message || 'Error updating reply');
+    }
+};
