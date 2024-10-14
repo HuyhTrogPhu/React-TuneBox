@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import './css/bootstrap.min.css';
 import './css/bootstrap-icons.css';
 import './css/style.css';
@@ -13,72 +12,12 @@ import './js/click-scroll.js';
 import './js/custom.js';
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
-import axios from 'axios';
+import { images } from "../../assets/images/images.js";
+
 
 const Login = () => {
-  const [userName, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  // const [showModal, setShowModal] = useState(false); 
-  // const [forgotEmailOrUsername, setForgotEmailOrUsername] = useState('');
-  // const [forgotMessage, setForgotMessage] = useState('');
-  const navigate = useNavigate(); 
-  const [errorMessage, setErrorMessage] = useState('');
+  
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    setErrorMessage('');
-  
-    const isEmail = userName.includes('@');
-  
-    const loginData = {
-      [isEmail ? 'email' : 'userName']: userName,
-      password: password
-    };
-  
-    try {
-      const response = await axios.post('http://localhost:8080/user/log-in', loginData);
-  
-      if (response.data && response.data.status) {
-        console.log('Đăng nhập thành công:', response.data);  
-        Cookies.set("userId", response.data.data.id, { expires: 7 });
-          navigate('/');
-      } else {
-        console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
-        setErrorMessage(response.data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
-      }
-    } catch (error) {
-      console.error('Lỗi đăng nhập:', error);
-      if (error.response) {
-        setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
-      } else if (error.request) {
-        setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');
-      } else {
-        setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
-      }
-    }
-  };
-  
-  
-  const handleLoginWithGoogle = () => {
-    console.log("Đang cố gắng đăng nhập với Google...");
-    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
-  };
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get('http://localhost:8081/User/login/oauth2/success', {
-          withCredentials: true // Nếu cần thiết
-        });
-        navigate('/'); // Chuyển hướng đến trang chính
-      } catch (error) {
-        console.error('Lỗi khi lấy thông tin người dùng:', error);
-        navigate('/login'); // Chuyển hướng về trang đăng nhập nếu có lỗi
-      }
-    };
-  
-    fetchUserData();
-  }, [navigate]);
 
   return (
     <div>
@@ -88,7 +27,7 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="col-lg-6 col-10 mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
+              <form className="custom-form ticket-form mb-5 mb-lg-0">
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
                   <div className="row">
@@ -100,9 +39,8 @@ const Login = () => {
                         id="name"
                         className="form-control"
                         placeholder="Nhập tên đăng nhập hoặc email"
-                        required
-                        value={userName}
-                        onChange={(e) => setUsername(e.target.value)}
+                       
+                       
                       />
                     </div>
                   </div>
@@ -114,28 +52,27 @@ const Login = () => {
                         className="form-control"
                         name="password"
                         placeholder="Nhập mật khẩu"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)} 
+                        
                       />
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-10 col-8 mx-auto">
                     <button type="submit" className="form-control">Đăng nhập</button>
                   </div>
-                  <div className='text-danger'>{errorMessage}</div>
                   <div className="col-lg-4 col-md-10 col-8 mx-auto" style={{ marginTop: 20, paddingLeft: 20 }}>
                     <span className="text-center">Hoặc tiếp tục với</span>
                   </div>
                   <div className="row d-flex justify-content-center" style={{ marginTop: 20 }}>
                     <div className="col-lg-6 col-md-6 col-12 d-flex justify-content-center image-container">
-                      <button type="button" onClick={handleLoginWithGoogle}>
-                        Đăng nhập với Google
-                      </button>
+                      <div>
+                        <img src={images.google} alt="google" width="65px" height="65px" />
+                      </div>
                     </div>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 80 }}>
-                    <span className="text-center">Bạn chưa có tài khoản? <a href="#"><b>Đăng kí ngay.</b></a></span>
+                    <span className="text-center">Bạn chưa có tài khoản?
+                      <Link to={'/register'}><b>Đăng kí ngay.</b></Link>
+                    </span>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
                     <Link to="/forgot-password" className="text-primary">

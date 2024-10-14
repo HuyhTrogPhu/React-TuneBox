@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
@@ -11,40 +12,32 @@ import "./js/bootstrap.min.js";
 import "./js/jquery.sticky.js";
 import "./js/click-scroll.js";
 import "./js/custom.js";
-import "./js/sothich.js";
-import { fetchDataTheLoai } from "./js/sothich.js";
+
+
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
-const TheLoaiNhacYeuThich = ({ updateFormData }) => {
+import { listTalents } from "../../service/LoginService.js";
+import { Link } from "react-router-dom";
+
+const Talent = () => {
   const navigate = useNavigate();
   const [talentData, setTalentData] = useState([]);
-  const [selectedArtists, setSelectedArtists] = useState([]); 
+  const [selectedTalent, setSelectedTalent] = useState([]);
+
+  const fetchTalent = async () => {
+    try {
+      const response = await listTalents();
+      setTalentData(response.data);
+    } catch (error) {
+      console.log("Error fetching talent data", error); 
+    }
+  }
 
   useEffect(() => {
-    const fetchDataAndRender = async () => {
-      const response = await fetchDataTheLoai();
-      console.log("Data fetched from API:", response);
-      if (response && response.data) {
-        setTalentData(response.data);
-      }
-    };
-
-    fetchDataAndRender();
+    fetchTalent();
   }, []);
 
-  const handleArtistSelect = (artist) => {
-    setSelectedArtists((prevSelectedArtists) => {
-      if (prevSelectedArtists.includes(artist)) {
-        return prevSelectedArtists.filter(item => item !== artist);
-      } else {
-        return [...prevSelectedArtists, artist];
-      }
-    });
-  };
-  const handleSubmit = () => {
-    updateFormData({ genreBy: selectedArtists }); 
-    navigate("/talent"); 
-  };
+  
   return (
     <div>
       <div>
@@ -75,7 +68,7 @@ const TheLoaiNhacYeuThich = ({ updateFormData }) => {
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Bạn yêu thích thể loại nhạc nào?</h3>
+                  <h3>Sở trường của bạn là gì?</h3>
                   <p>
                     Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
                     nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
@@ -83,24 +76,22 @@ const TheLoaiNhacYeuThich = ({ updateFormData }) => {
                   </p>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm thể loại nhạc"
+                    placeholder="Tìm kiếm sở trường..."
                     className="search-bar"
                   />
                   <div className="row text-center">
                     {talentData.map((talent) => (
                       <div className="col-4" key={talent.id}>
                         <button
-                          className={`btn-category ${
-                            selectedArtists.includes(talent) ? "selected" : ""
-                          }`}
-                          onClick={() => handleArtistSelect(talent.name)}
+                          className='btn'
                         >
                           {talent.name}
                         </button>
                       </div>
                     ))}
                   </div>
-                  <button onClick={handleSubmit}>Tiếp tục</button>
+                  <button >
+                    <Link to={'/genre'}>Tiếp tục</Link></button>
                 </div>
               </div>
             </div>
@@ -112,4 +103,4 @@ const TheLoaiNhacYeuThich = ({ updateFormData }) => {
   );
 };
 
-export default TheLoaiNhacYeuThich;
+export default Talent;

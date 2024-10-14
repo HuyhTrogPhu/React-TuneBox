@@ -1,44 +1,63 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkSignup } from "./js/sothich.js";
 import Header2 from "../../components/Navbar/Header2.jsx";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
+import { Link } from "react-router-dom";
 
-const SignUp = ({ updateFormData }) => {
-  const navigate = useNavigate();
-  const [userName, setUserName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // State để lưu thông báo lỗi
+const SignUp = () => {
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); 
-    setErrorMessage(""); // Clear previous error message
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const navigate =  useNavigate();
+
+  const validateForm = () => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if(userName.trim()){
+      return "Không được để trống tên người dùng";
+    }
+
+    if(email.trim()) {
+      return "Không được để trống email";
+    }
+
+    if(password.trim()) {
+      return "Không được để trống mâtj khẩu";
+    }
+
+    if (!emailPattern.test(email)) {
+      return "Email không hợp lệ!";
+    }
+    if (password.length < 4) {
+      return "Mật khẩu phải có ít nhất 4 ký tự!";
+    }
+    return "";
+  };
+
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     const formData = {
-      userDto: {
-        userName,
-        email,
-        password,
-      },
+      userName: userName,
+      email: email,
+      password: password,
+      name: null,
+      avartar: null,
+      inspiredBys: [],
+      talent: [],
+      genre: []
     };
 
-    try {
-      // Gửi dữ liệu đến API để kiểm tra email và username
-      await checkSignup(formData);
-
-      // Nếu không có lỗi, cập nhật form và chuyển hướng
-      updateFormData({ userName, email, password });
-      navigate("/createUsername"); // Chuyển trang nếu không có lỗi
-    } catch (error) {
-      // Xử lý lỗi khi email hoặc username đã tồn tại
-      if (error.response && error.response.data) {
-        setErrorMessage(error.response.data|| "email hoặc username đã tồn tại");
-      } else {
-        setErrorMessage("Không thể kết nối đến server.");
-      }
-    }
+    navigate('/userInfor', { state: formData });
   };
 
   return (
@@ -49,7 +68,7 @@ const SignUp = ({ updateFormData }) => {
         <div className="container">
           <div className="row">
             <div className="col-lg-6 col-10 mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleSubmit}>
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleSignUp}>
                 <h2 className="text-center mb-4">Tạo tài khoản</h2>
                 <div className="ticket-form-body">
                   <div className="row">
@@ -60,10 +79,9 @@ const SignUp = ({ updateFormData }) => {
                         name="name"
                         id="name"
                         className="form-control"
-                        placeholder="Nhập tên"
+                        placeholder="Nhập tên đăng nhập"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
-                        required
                       />
                     </div>
                   </div>
@@ -77,9 +95,6 @@ const SignUp = ({ updateFormData }) => {
                         placeholder="Nhập địa chỉ email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                        title="Vui lòng nhập một địa chỉ email hợp lệ"
-                        required
                       />
                     </div>
                   </div>
@@ -90,23 +105,24 @@ const SignUp = ({ updateFormData }) => {
                         type="password"
                         className="form-control"
                         name="password"
-                        value={password}
                         placeholder="Nhập mật khẩu"
+                        value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
                       />
                     </div>
                   </div>
 
                   {/* Hiển thị thông báo lỗi */}
-                  {errorMessage && (
-                    <div className="alert alert-danger" style={{ marginTop: 20 }}>
-                      {errorMessage}
+                  {error && (
+                    <div className="row" style={{ marginTop: 10, color: 'red', textAlign: 'center' }}>
+                      {error}
                     </div>
                   )}
 
                   <div className="col-lg-4 col-md-10 col-8 mx-auto">
-                    <button type="submit" className="form-control">Đăng kí</button>
+                    <button type="submit" className="form-control">
+                      Đăng kí
+                    </button>
                   </div>
                   <div className="col-lg-4 col-md-10 col-8 mx-auto" style={{ marginTop: 20, paddingLeft: 20 }}>
                     <span className="text-center">Hoặc tiếp tục với</span>
@@ -125,8 +141,8 @@ const SignUp = ({ updateFormData }) => {
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 80 }}>
                     <span className="text-center">
-                      Bạn đã có tài khoản?{" "}
-                      <a href="/login"><b>Đăng nhập ngay.</b></a>
+                      Bạn đã có tài khoản?
+                      <Link to={'/login'}><b>Đăng nhập ngay.</b></Link>
                     </span>
                   </div>
                 </div>

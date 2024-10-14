@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
@@ -11,18 +10,34 @@ import "./js/bootstrap.min.js";
 import "./js/jquery.sticky.js";
 import "./js/click-scroll.js";
 import "./js/custom.js";
-import "./js/sothich.js";
 
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
-const CreateUsername = ({updateFormData}) => {
-  const [userNickname, setuserNickname] = useState("");
-  const navigate = useNavigate();
+import { Link } from "react-router-dom";
 
-  const handleSubmit = () => {
-    updateFormData({ userNickname });
-    navigate("/artist");
+const UserInfomation = () => {
+
+  const [avartar, setAvartar] = useState(images.logoTuneBox);
+  const [name, setName] = useState('');
+
+
+  // Hàm xử lý khi thay đổi ảnh
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvartar(e.target.result); // Cập nhật ảnh logo
+      };
+      reader.readAsDataURL(file);
+    }
   };
+
+  // Hàm mở hộp thoại chọn ảnh
+  const handleLogoClick = () => {
+    document.getElementById("logoInput").click();
+  };
+
 
   return (
     <div>
@@ -30,9 +45,9 @@ const CreateUsername = ({updateFormData}) => {
         <div className="sticky-wrapper">
           <nav className="navbar navbar-expand-lg">
             <div className="container">
-              <a className="fontlogo" href="index.html">
+              <Link to={"/"}>
                 <img src={images.logoTuneBox} alt="logo" width="100px" />
-              </a>
+              </Link>
               <button
                 className="navbar-toggler"
                 type="button"
@@ -52,35 +67,44 @@ const CreateUsername = ({updateFormData}) => {
           <div className="section-overlay" />
           <div className="container">
             <div className="row">
-              <div className>
+              <div className=''>
                 <div className=" d-flex justify-content-center align-items-center user ">
                   <div className="overlay" />
                   <div className="profile-setup-card text-center p-4 rounded-3">
-                    <h5 className="mb-4"> Đặt tên người dùng</h5>
+                    <h5 className="mb-4">Đặt tên người dùng</h5>
                     <p className="text-muted mb-3 fontchu">
                       Hãy đặt tên người dùng để bạn bè và mọi người dễ dàng tìm
                       kiếm bạn trên TuneBox.
                     </p>
-                    <div className="profile-icon bg-primary rounded-circle d-flex justify-content-center align-items-center mb-3">
-                      <span className="text-white display-4">P</span>
-                    </div>
-                    <form className="mb-3" onSubmit={handleSubmit}>
+                    {/* Logo tuneBox */}
+                    <img
+                      src={avartar}
+                      alt="avartar"
+                      className="profile-icon border border-danger rounded-circle d-flex justify-content-center align-items-center mb-3"
+                      onClick={handleLogoClick}
+                      style={{ width: '100px', height: '100px' }}
+                    />
+
+                    {/* Input ẩn để chọn ảnh */}
+                    <input
+                      type="file"
+                      id="logoInput"
+                      style={{ display: "none" }}
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                    <form className="mb-3">
                       <input
                         type="text"
-                        className="form-control l1"
-                        defaultValue
-                        placeholder="Nhập tên"
-                        value={userNickname}
-                        onChange={(e) => setuserNickname(e.target.value)}
-                        required
+                        className="form-control"
+                        placeholder="Enter username"
                       />
                     </form >
                     <button
                       className="btn btn-dark w-100"
-                      onClick={handleSubmit}
+
                     >
-                      {" "}
-                      Tiếp tục
+                      <Link to={'/inspiredBy'}> Tiếp tục</Link>
                     </button>
                   </div>
                 </div>
@@ -94,4 +118,4 @@ const CreateUsername = ({updateFormData}) => {
   );
 };
 
-export default CreateUsername;
+export default UserInfomation;

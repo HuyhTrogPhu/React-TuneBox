@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
@@ -12,47 +11,31 @@ import "./js/bootstrap.min.js";
 import "./js/jquery.sticky.js";
 import "./js/click-scroll.js";
 import "./js/custom.js";
-import "./js/sothich.js";
-
-import { fetchDataSoThich } from "./js/sothich.js";
-import { saveToLocalStorage } from "./js/sothich.js";
-import { sendDataToAPI } from "./js/sothich.js";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
-const SoThich = ({ updateFormData, formData }) => {
-  const navigate = useNavigate();
-  const [talentData, setTalentData] = useState([]);
-  const [selectedArtists, setSelectedArtists] = useState([]);
-  useEffect(() => {
-    const fetchDataAndRender = async () => {
-      const response = await fetchDataSoThich();
-      console.log("Data fetched from API:", response);
-      if (response && response.data) {
-        setTalentData(response.data);
-      }
-    };
+import { listGenres } from "../../service/LoginService.js";
+import { Link } from "react-router-dom";
 
-    fetchDataAndRender();
+
+const Genre = () => {
+  const navigate = useNavigate();
+  const [genre, setGenre] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState([]);
+
+  const fetchGenre = async () => {
+    try {
+      const response = await listGenres();
+      setGenre(response.data);
+    } catch (error) {
+      console.log("Error fetching genre", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchGenre();
   }, []);
 
-  const handleArtistSelect = (artist) => {
-    setSelectedArtists((prevSelectedArtists) => {
-      if (prevSelectedArtists.includes(artist)) {
-        return prevSelectedArtists.filter(item => item !== artist); 
-      } else {
-        return [...prevSelectedArtists, artist]; 
-      }
-    });
-  };
-  
-  const handleSubmit = async () => {
-    const updatedFormData = { ...formData, listTalent: selectedArtists };
-    saveToLocalStorage(updatedFormData); 
-    await sendDataToAPI(updatedFormData);
-    navigate("/");
-  };
 
-  
   return (
     <div>
       <div>
@@ -83,7 +66,7 @@ const SoThich = ({ updateFormData, formData }) => {
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Sở trường của bạn là gì?</h3>
+                  <h3>Bạn yêu thích thể loại nhạc nào?</h3>
                   <p>
                     Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
                     nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
@@ -91,24 +74,23 @@ const SoThich = ({ updateFormData, formData }) => {
                   </p>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm sở trường..."
+                    placeholder="Tìm kiếm thể loại nhạc"
                     className="search-bar"
                   />
                   <div className="row text-center">
-                    {talentData.map((talent) => (
-                      <div className="col-4" key={talent.id}>
+                    {genre.map((genre) => (
+                      <div className="col-4" key={genre.id}>
                         <button
-                          className={` ${
-                            selectedArtists.includes(talent.name) ? 'btn-primary text-light' : 'btn-light text-dark'
-                          }`}
-                          onClick={() => handleArtistSelect(talent.name)}
+                          className=''
                         >
-                          {talent.name}
+                          {genre.name}
                         </button>
                       </div>
                     ))}
                   </div>
-                  <button onClick={handleSubmit}>Tiếp tục</button>
+                  <button>
+                    <Link to={'/welcome'}>Tiếp tục</Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -120,4 +102,4 @@ const SoThich = ({ updateFormData, formData }) => {
   );
 };
 
-export default SoThich;
+export default Genre;
