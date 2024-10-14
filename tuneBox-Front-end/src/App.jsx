@@ -25,7 +25,7 @@ import WelcomeUser from "./pages/GioiThieu/WelcomeUser";
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
-
+import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -84,6 +84,7 @@ function App() {
             <Route path="/CategoryPage" element={<CategoryPage />} />
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
             <Route path="/checkOut" element={<CheckOut/>}/>
+            <Route path="/orderDetail/*" element={<OrderDetail/>}/>
           </Route>
 
           {/* Các route không có Header */}

@@ -5,14 +5,16 @@ import Benefits from '../../../components/Benefits/Benefits';
 import Footer2 from '../../../components/Footer/Footer2';
 import Cookies from "js-cookie";
 import { getUserById } from '../../../service/CheckoutService';
-
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 const GHN_API_KEY = 'f6a2324b-895f-11ef-a76b-8ef8cf9ed7dc';
 const CheckOut = () => {
-    const [userId, setUserId] = useState('');
+    // const [userId, setUserId] = useState('');
     const [user, setUser] = useState({});
     const [cartItems, setCartItems] = useState([]);
-    const [paymentMethod, setPaymentMethod] = useState('cod');
 
+    const userId = Cookies.get("userId");
+    console.log("User ID từ cookie:", userId);
 
     //API GHN 
     const [provinces, setProvinces] = useState([]);
@@ -22,25 +24,26 @@ const CheckOut = () => {
     const [selectedDistrict, setSelectedDistrict] = useState('');
     const [deliveryFee, setDeliveryFee] = useState(0);
 
-    const [shippingMethod, setShippingMethod] = useState('normal');
+    const [shippingMethod, setShippingMethod] = useState('');
     const [selectedWard, setSelectedWard] = useState('');
+
+    const [selectedProvinceName, setSelectedProvinceName] = useState('');
+    const [selectedDistrictName, setSelectedDistrictName] = useState('');
+    const [selectedWardName, setSelectedWardName] = useState('');
+
     // END
-
-    // Lấy userId từ cookie khi component mount
-    useEffect(() => {
-        const storedUserId = Cookies.get('userId');
-        console.log("userId:", storedUserId);
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
-
+    const [houseNumber, setHouseNumber] = useState('');
+    const [phoneNumber, setPhoneNumer] = useState('')
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const navigate = useNavigate()
     // Get user information khi userId có giá trị
     useEffect(() => {
         if (userId) {
+
             const fetchUser = async () => {
                 try {
                     const response = await getUserById(userId);
+
                     setUser(response.data);
 
                 } catch (error) {
@@ -92,15 +95,16 @@ const CheckOut = () => {
             console.error('Invalid province ID');
             return;
         }
-
+    
+        const selectedProvince = provinces.find(province => province.ProvinceID === provinceId);
         setSelectedProvince(provinceId);
-
+        setSelectedProvinceName(selectedProvince ? selectedProvince.ProvinceName : ''); // Cập nhật tên tỉnh
         axios.post('https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
             { "province_id": provinceId },  // Gửi province_id dưới dạng số
             {
                 headers: {
                     'Token': GHN_API_KEY,
-                    'Content-Type': 'application/json'  // Đảm bảo định dạng JSON
+                    'Content-Type': 'application/json'
                 }
             })
             .then(response => {
@@ -111,24 +115,25 @@ const CheckOut = () => {
                 console.error('Error fetching districts:', error);
             });
     };
-
+    
 
     // Lấy danh sách phường/xã khi chọn quận/huyện
     const handleDistrictChange = (e) => {
-        const districtId = parseInt(e.target.value, 10);  // Đảm bảo chuyển đổi sang số nguyên
+        const districtId = parseInt(e.target.value, 10);
         if (!districtId) {
             console.error('Invalid district ID');
             return;
         }
-
+    
+        const selectedDistrict = districts.find(district => district.DistrictID === districtId);
         setSelectedDistrict(districtId);
-
+        setSelectedDistrictName(selectedDistrict ? selectedDistrict.DistrictName : ''); // Cập nhật tên huyện
         axios.post('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
-            { "district_id": districtId },  // Đảm bảo gửi district_id dưới dạng số nguyên
+            { "district_id": districtId },
             {
                 headers: {
                     'Token': GHN_API_KEY,
-                    'Content-Type': 'application/json'  // Đảm bảo định dạng JSON
+                    'Content-Type': 'application/json'
                 }
             })
             .then(response => {
@@ -138,13 +143,17 @@ const CheckOut = () => {
                 console.error('Error fetching wards:', error);
             });
     };
+    
 
 
     // Xử lý chọn phương thức giao hàng
     const handleWardChange = (e) => {
-        const wardCode = e.target.value; // Lấy mã ward từ select
+        const wardCode = e.target.value;
+        const selectedWard = wards.find(ward => ward.WardCode === wardCode); // Tìm tên phường/xã
         setSelectedWard(wardCode);
+        setSelectedWardName(selectedWard ? selectedWard.WardName : ''); // Cập nhật tên xã
     };
+    
 
     const handleShippingChange = async (method) => {
         setShippingMethod(method);
@@ -191,7 +200,100 @@ const CheckOut = () => {
         const costPrice = parseFloat(item.costPrice) || 0; // Chuyển đổi sang số và đảm bảo không bị NaN
         const quantity = parseInt(item.quantity) || 0; // Chuyển đổi sang số nguyên
         return total + costPrice * quantity;
-      }, 0)
+    }, 0)
+
+
+    const handleSubmitOrder = async () => {
+        if (!userId || cartItems.length === 0 || !selectedProvince || !selectedDistrict || !selectedWard || !houseNumber) {
+            Swal.fire('Thông báo', 'Vui lòng điền đầy đủ thông tin trước khi đặt hàng!', 'error');
+            return;
+        }
+
+        const orderData = {
+            userId: userId,
+            orderDate: new Date().toISOString(),
+            deliveryDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            totalPrice: totalPrice + deliveryFee,
+            tax: 5.0,
+            totalItem: cartItems.length,
+            paymentMethod: paymentMethod,
+            status: 'Pending',
+            phoneNumber: phoneNumber,
+            address: `${houseNumber}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`, // Sử dụng tên
+            shippingMethod: shippingMethod,
+            orderDetails: cartItems.map(item => ({
+                quantity: item.quantity,
+                instrumentId: item.instrumentId,
+            })),
+        };
+        
+
+        console.log("Order Data:", JSON.stringify(orderData, null, 2));
+
+        try {
+            const response = await axios.post('http://localhost:8080/customer/checkout/create', orderData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: true
+            });
+
+            console.log("Response Data:", response.data);
+
+            if (response.data.orderId) {
+                const orderId = response.data.orderId;
+                Swal.fire({
+                    title: 'Thành công',
+                    text: 'Đơn hàng của bạn đã được đặt thành công!',
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xem hóa đơn',
+                    cancelButtonText: 'Đóng',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        getOrderDetails(orderId);
+                    } else {
+                        navigate('/cart'); // Điều hướng về trang giỏ hàng
+                    }
+                });
+                localStorage.removeItem('cart');
+                setCartItems([]);
+            } else {
+                Swal.fire('Lỗi', 'Đã có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', 'error');
+            }
+        } catch (error) {
+            console.error('Error creating order:', error.response ? error.response.data : error.message);
+            Swal.fire('Lỗi', 'Đã có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', 'error');
+        }
+    };
+
+
+    // Hàm để gọi API lấy thông tin chi tiết hóa đơn
+    const getOrderDetails = async (orderId) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/customer/checkout/getOrderById/${orderId}`);
+            const orderDetails = response.data;
+
+            // Hiển thị thông tin chi tiết hóa đơn (có thể thay đổi theo cách bạn muốn hiển thị)
+            Swal.fire({
+                title: 'Chi tiết hóa đơn',
+                html: `<p>Mã đơn hàng: ${orderDetails.orderId}</p>
+                       <p>Tổng giá trị: ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
+                       <p>Ngày đặt hàng: ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
+                       <p>Trạng thái: ${orderDetails.status}</p>
+                       <p>Địa chỉ: ${orderDetails.address}</p>`, // Sử dụng tên đã lưu
+                icon: 'info',
+                confirmButtonText: 'Đóng',
+            });
+            
+        } catch (error) {
+            console.error('Error fetching order details:', error.response ? error.response.data : error.message);
+            Swal.fire('Lỗi', 'Không thể lấy thông tin chi tiết hóa đơn. Vui lòng thử lại.', 'error');
+        }
+    };
+
+
+
     return (
         <div>
             <div className='container-fluid' style={{ padding: '50px 100px 50px 100px' }}>
@@ -220,21 +322,23 @@ const CheckOut = () => {
                                         readOnly
                                     />
                                 </div>
-                                <div className='mt-3'>
-                                    <label className='form-label'>Phone Number:</label>
-                                    <input
-                                        type="text"
-                                        className='form-control'
-                                        value={user.phoneNumber || ''}
-                                        readOnly
-                                    />
-                                </div>
+
                             </form>
                         </div>
 
                         {/* Order information (Giao hàng) */}
                         <div className='order-infor'>
+
                             <h1>Giao hàng</h1>
+                            <div className='mt-3'>
+                                <label className='form-label'>Số điện thoại:</label>
+                                <input
+                                    type="text"
+                                    className='form-control'
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumer(e.target.value)}
+                                />
+                            </div>
                             <div className='mt-3'>
                                 <label className='form-label'>Quốc gia:</label>
                                 <input type="text" className='form-control' defaultValue={'Việt Nam'} disabled />
@@ -274,8 +378,13 @@ const CheckOut = () => {
 
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>Số nhà</label>
-                                <input type="text" className='form-control' />
+                                <label className='form-label'>Số nhà:</label>
+                                <input
+                                    type="text"
+                                    className='form-control'
+                                    value={houseNumber}
+                                    onChange={(e) => setHouseNumber(e.target.value)}
+                                />
                             </div>
                         </div>
 
@@ -286,8 +395,8 @@ const CheckOut = () => {
                             <label htmlFor="normal"> Giao hàng thông thường</label>
                         </div>
                         <div className='mt-3'>
-                            <input type="radio" id="fast" name="shipping" value="fast" checked={shippingMethod === 'fast'} onChange={() => handleShippingChange('fast')} />
-                            <label htmlFor="fast"> Giao hàng nhanh</label>
+                            <input type="radio" id="fast" name="shipping" value="fast" checked={shippingMethod === 'ghn'} onChange={() => handleShippingChange('fast')} />
+                            <label htmlFor="ghn"> Giao hàng nhanh</label>
                         </div>
                         {shippingMethod === 'fast' && (
                             <div className='mt-3'>
@@ -355,8 +464,9 @@ const CheckOut = () => {
 
                         {/* Checkout */}
                         <div className='checkout'>
-                            <button className='btn border'>Thanh toán</button>
+                            <button className='btn border' onClick={handleSubmitOrder} >Thanh toán</button>
                         </div>
+
                     </div>
 
                     {/* Order content bên phải */}
