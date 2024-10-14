@@ -92,26 +92,6 @@ function App() {
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
             </Route>
 
-            {/* Các route không có Header */}
-            <Route element={<LayoutWithoutHeader />}>
-              <Route path="/gioithieu" element={<GioiThieu />} />
-              <Route path="/signup" element={<SignUp updateFormData={updateFormData} />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="reset-password" element={<ResetPassword />} />
-              <Route path="forgot-password" element={<ForgotPassword />} />
-              <Route path="/createusername" element={<CreateUsername updateFormData={updateFormData} formData={formData} />} />
-              <Route path="/talent" element={<SoThich updateFormData={updateFormData} formData={formData} />} />
-              <Route path="/artist" element={<NgheSiYeuThich updateFormData={updateFormData} />} />
-              <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData} />} />
-
-              {/* admin start */}
-              <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
-              {/* admin end */}
-            </Route>
-          </Routes>
-        </div>
-      </div>
-    </FollowProvider>
           {/* Các route không có Header */}
           <Route element={<LayoutWithoutHeader />}>
             <Route path="/gioithieu" element={<GioiThieu />} />
@@ -128,9 +108,10 @@ function App() {
             <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
             {/* admin end */}
           </Route>
-        </Routes>
+          </Routes>
+        </div>
       </div>
-    </div>
+    </FollowProvider>
   );
 }
 
