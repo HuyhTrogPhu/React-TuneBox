@@ -94,7 +94,7 @@
     border-radius: 5px; /* Góc bo tròn */
     padding: 10px 15px; /* Padding nhỏ hơn */
     margin: 5px 0; /* Giảm khoảng cách giữa các bình luận */
-    background-color: #f9f9f9; /* Nền sáng */
+    background-color: #f9f9f9; 
     display: flex; /* Sử dụng flex để căn chỉnh tốt hơn */
     align-items: center; /* Căn giữa theo chiều dọc */
   }
@@ -137,6 +137,14 @@
     margin-bottom: 8px; /* Giãn cách giữa các phản hồi lồng nhau */
   }
 
-  .track-infor{
-    height: 200px;
-  }
+.track-infor{
+  background-color: #e2dfdf;
+}
+
+textarea {
+  height: 40px;
+  width: 100%;
+  border: 1px solid #ccc; /* Đường viền */
+  border-radius: 4px; /* Bo tròn góc */
+  resize: none; /* Ngăn người dùng thay đổi kích thước */
+}

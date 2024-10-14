@@ -7,6 +7,8 @@ export const getTrackByUserId = (userId) => axios.get(`${REST_API_BASE_URL}/user
 
 export const getTrackById = (trackId) => axios.get(`${REST_API_BASE_URL}/${trackId}`)
 
+export const getTrackByGenreId = (genreId) => axios.get(`${REST_API_BASE_URL}/genre/${genreId}`)
+
 export const createTrack = (track) => axios.post(REST_API_BASE_URL, track, { 
     headers: {
                 'Content-Type': 'multipart/form-data'
