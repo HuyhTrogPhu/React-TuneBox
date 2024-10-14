@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
 import "./css/header.css";
 import "./css/profile.css";
-
+import "./css/Genre.css";
 import "./js/jquery.min.js";
 import "./js/bootstrap.min.js";
 import "./js/jquery.sticky.js";
@@ -14,13 +14,13 @@ import "./js/custom.js";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
 import { listGenres } from "../../service/LoginService.js";
-import { Link } from "react-router-dom";
-
 
 const Genre = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [genre, setGenre] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchGenre = async () => {
     try {
@@ -29,12 +29,32 @@ const Genre = () => {
     } catch (error) {
       console.log("Error fetching genre", error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchGenre();
   }, []);
 
+  // Xử lý tìm kiếm thể loại
+  const filteredGenres = genre.filter((g) =>
+    g.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleGenreClick = (id) => {
+    setSelectedGenre((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((genreId) => genreId !== id); // Xóa ID nếu đã được chọn
+      } else {
+        return [...prev, id]; // Thêm ID nếu chưa được chọn
+      }
+    });
+  };
+
+  const handleNext = () => {
+    const formData = location.state || {};
+    formData.genres = selectedGenre; // Cập nhật genres
+    navigate('/welcome', { state: formData }); // Chuyển đến trang welcome với formData
+  };
 
   return (
     <div>
@@ -76,20 +96,23 @@ const Genre = () => {
                     type="text"
                     placeholder="Tìm kiếm thể loại nhạc"
                     className="search-bar"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <div className="row text-center">
-                    {genre.map((genre) => (
-                      <div className="col-4" key={genre.id}>
+                    {filteredGenres.map((g) => (
+                      <div className="col-4" key={g.id}>
                         <button
-                          className=''
+                          className={`genre-button ${selectedGenre.includes(g.id) ? 'selected' : ''}`}
+                          onClick={() => handleGenreClick(g.id)}
                         >
-                          {genre.name}
+                          {g.name}
                         </button>
                       </div>
                     ))}
                   </div>
-                  <button>
-                    <Link to={'/welcome'}>Tiếp tục</Link>
+                  <button className="btn" onClick={handleNext}>
+                    Tiếp tục
                   </button>
                 </div>
               </div>

@@ -17,16 +17,16 @@ const SignUp = () => {
   const validateForm = () => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    if(userName.trim()){
+    if(!userName.trim()){
       return "Không được để trống tên người dùng";
     }
 
-    if(email.trim()) {
+    if(!email.trim()) {
       return "Không được để trống email";
     }
 
-    if(password.trim()) {
-      return "Không được để trống mâtj khẩu";
+    if(!password.trim()) {
+      return "Không được để trống mật khẩu";
     }
 
     if (!emailPattern.test(email)) {
@@ -53,8 +53,8 @@ const SignUp = () => {
       name: null,
       avartar: null,
       inspiredBys: [],
-      talent: [],
-      genre: []
+      talents: [],
+      genres: []
     };
 
     navigate('/userInfor', { state: formData });
@@ -114,7 +114,7 @@ const SignUp = () => {
 
                   {/* Hiển thị thông báo lỗi */}
                   {error && (
-                    <div className="row" style={{ marginTop: 10, color: 'red', textAlign: 'center' }}>
+                    <div className="row" style={{ marginTop: 10, marginBottom: 10, color: 'red', textAlign: 'center' }}>
                       {error}
                     </div>
                   )}

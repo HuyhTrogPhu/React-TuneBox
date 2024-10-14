@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
 import "./css/header.css";
 import "./css/profile.css";
-
-import "./js/jquery.min.js";
-import "./js/bootstrap.min.js";
-import "./js/jquery.sticky.js";
-import "./js/click-scroll.js";
+import './css/InspiredBy.css';
 
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
 import { listInspiredBys } from "../../service/LoginService.js";
 import { Link } from "react-router-dom";
 
-
-const InspiredBy = ({ updateFormData }) => {
+const InspiredBy = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [inspiredBy, setInspiredBy] = useState([]);
-  const [selectInspiredBy, setSelectInspireBy] = useState([]);
+  const [selectInspiredBy, setSelectInspiredBy] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Lấy formData từ state
+  const formData = location.state || {};
+  console.log("Form data from UserInformation:", formData);
 
   const fetchInspiredBy = async () => {
     try {
@@ -29,12 +31,32 @@ const InspiredBy = ({ updateFormData }) => {
     } catch (error) {
       console.log("Error fetching inspiredBy", error);
     }
-  }
+  };
+
+    // Xử lý tìm kiếm inspiredBy theo tên
+    const filteredInspiredBy = inspiredBy.filter((ins) =>
+      ins.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+  const handleInspiredByClick = (id) => {
+    setSelectInspiredBy((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((inspiredId) => inspiredId !== id); // Xóa ID nếu đã được chọn
+      } else {
+        return [...prev, id]; // Thêm ID nếu chưa được chọn
+      }
+    });
+  };
 
   useEffect(() => {
     fetchInspiredBy();
-  }, [])
+  }, []);
 
+  // Cập nhật formData khi selectInspiredBy thay đổi
+  const handleNext = () => {
+    formData.inspiredBys = selectInspiredBy; // Cập nhật inspiredBys
+    navigate('/talent', { state: formData }); // Chuyển đến trang talent với formData
+  };
 
   return (
     <div>
@@ -76,20 +98,27 @@ const InspiredBy = ({ updateFormData }) => {
                     type="text"
                     placeholder="Tìm kiếm nghệ sĩ..."
                     className="search-bar"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật từ khóa tìm kiếm
                   />
                   <div className="row text-center">
-                    {inspiredBy.map((ins) => (
+                  {filteredInspiredBy.map((ins) => (
                       <div className="col-4" key={ins.id}>
                         <button
-                          className=''
+                          className={`inspired-by-button ${
+                            selectInspiredBy.includes(ins.id)
+                              ? "selected" // Thêm class 'selected' nếu đã chọn
+                              : ""
+                          }`}
+                          onClick={() => handleInspiredByClick(ins.id)} // Chọn/bỏ chọn inspiredBy
                         >
-                          {ins.id}
+                          {ins.name}
                         </button>
                       </div>
                     ))}
                   </div>
-                  <button>
-                    <Link to={'/talent'}>Tiếp tục</Link>
+                  <button className="btn" onClick={handleNext}>
+                    Tiếp tục
                   </button>
                 </div>
               </div>

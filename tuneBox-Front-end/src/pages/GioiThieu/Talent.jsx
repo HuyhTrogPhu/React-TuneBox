@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
@@ -12,32 +12,56 @@ import "./js/bootstrap.min.js";
 import "./js/jquery.sticky.js";
 import "./js/click-scroll.js";
 import "./js/custom.js";
-
+import './css/Talent.css';
 
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
 import { listTalents } from "../../service/LoginService.js";
-import { Link } from "react-router-dom";
 
 const Talent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [talentData, setTalentData] = useState([]);
   const [selectedTalent, setSelectedTalent] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const formData = location.state || {};
+  console.log("Form data from inspireby:", formData);
 
   const fetchTalent = async () => {
     try {
       const response = await listTalents();
       setTalentData(response.data);
     } catch (error) {
-      console.log("Error fetching talent data", error); 
+      console.log("Error fetching talent data", error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchTalent();
   }, []);
 
-  
+  // Xử lý tìm kiếm Talent theo tên
+  const filteredTalent = talentData.filter((ta) =>
+    ta.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleTalentClick = (id) => {
+    setSelectedTalent((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((talentId) => talentId !== id); // Xóa ID nếu đã được chọn
+      } else {
+        return [...prev, id]; // Thêm ID nếu chưa được chọn
+      }
+    });
+  };
+
+  const handleNext = () => {
+    formData.talents = selectedTalent; // Cập nhật talents
+    navigate('/genre', { state: formData }); // Chuyển đến trang genre với formData
+  };
+
   return (
     <div>
       <div>
@@ -78,20 +102,27 @@ const Talent = () => {
                     type="text"
                     placeholder="Tìm kiếm sở trường..."
                     className="search-bar"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <div className="row text-center">
-                    {talentData.map((talent) => (
+                    {filteredTalent.map((talent) => (
                       <div className="col-4" key={talent.id}>
                         <button
-                          className='btn'
+                          className={`talent-by-button ${selectedTalent.includes(talent.id)
+                            ? "selected"
+                            : ""
+                          }`}
+                          onClick={() => handleTalentClick(talent.id)}
                         >
                           {talent.name}
                         </button>
                       </div>
                     ))}
                   </div>
-                  <button >
-                    <Link to={'/genre'}>Tiếp tục</Link></button>
+                  <button className="btn" onClick={handleNext}>
+                    Tiếp tục
+                  </button>
                 </div>
               </div>
             </div>
