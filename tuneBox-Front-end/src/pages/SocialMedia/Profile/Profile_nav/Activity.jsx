@@ -40,6 +40,7 @@ const Activity = () => {
       setPostId(null);
       postModal.style.display = "flex";
     };
+
     const closePostModal = () => {
       postModal.style.display = "none";
       resetForm();
@@ -121,6 +122,7 @@ const Activity = () => {
       formData.append("images", image);
     });
 
+
     try {
       if (postId) {
         await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
@@ -148,6 +150,16 @@ const Activity = () => {
       );
     }
   };
+
+  // Hàm xử lý thay đổi input file
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setPostImages(files);
+    const imageUrls = files.map((file) => URL.createObjectURL(file));
+    setPostImageUrls(imageUrls);
+  };
+
+  // Hàm xóa bài viết
   const handleDeletePost = async (postId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this post?"
@@ -386,6 +398,14 @@ const Activity = () => {
                   >
                     Post
                   </button>
+                                {/* Hiển thị ảnh đã chọn */}
+              {postImageUrls.length > 0 && (
+                <div className="selected-images mt-3">
+                  {postImageUrls.map((url, index) => (
+                    <img key={index} src={url} alt={`Selected ${index}`} style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '5px' }} />
+                  ))}
+                </div>
+              )}
                 </div>
               </div>
             </div>
@@ -417,290 +437,65 @@ const Activity = () => {
                       ? format(createdAt, "hh:mm a, dd MMM yyyy")
                       : "Invalid date"}
                   </div>
-                </div>
-                <div className="dropdown position-absolute top-0 end-0">
-                  <button
-                    className="btn btn-options dropdown-toggle"
-                    type="button"
-                    id={`dropdownMenuButton-${post.id}`}
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    ...
-                  </button>
-                  <ul
-                    className="dropdown-menu"
-                    aria-labelledby={`dropdownMenuButton-${post.id}`}
-                  >
-                    <li>
-                      <button
-                        className="dropdown-item"
-                        onClick={() => handleEditPost(post)}
-                      >
-                        Edit
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className="dropdown-item"
-                        onClick={() => handleDeletePost(post.id)}
-                      >
-                        Delete
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="post-content">{post.content}</div>
-
-              {post.images && post.images.length > 0 && (
-                <div className="post-images">
-                  {post.images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={`data:image/jpeg;base64,${image.postImage}`}
-                      alt="Post"
-                    />
-                  ))}
-                </div>
-              )}
-
-              <div className="comment-section mt-4">
-                {/* Comment input box */}
-                <textarea
-                  className="comment-input"
-                  style={{ resize: "none" }}
-                  rows={3}
-                  placeholder="Write a comment..."
-                  value={commentContent[post.id] || ""}
-                  onChange={(e) => handleCommentChange(post.id, e.target.value)}
-                />
-                <div className="text-end">
-                  <button
-                    className="btn btn-primary mt-2"
-                    onClick={() => handleAddComment(post.id)}
-                  >
-                    Comment
-                  </button>
-                </div>
-
-                {/* Display comment count */}
-                <div className="comment-count mt-2">
-                  <span>{post.comments.length} Comment(s)</span>
-                </div>
-
-                {/* Comment list */}
-                <div className=" mt-4">
-                  {(showAll ? post.comments : post.comments.slice(0, 3)).map(
-                    (comment) => (
-                      <div key={comment.id} className="comment mt-2">
-                        <div className="container">
-                          <div className="row justify-content-start">
-                            <div className="comment-content position-relative">
-                              <img
-                                src="/src/UserImages/Avatar/avt.jpg"
-                                className="avatar_small"
-                                alt="Avatar"
-                              />
-                              <div>
-                                <div className="comment-author">
-                                  {comment.userNickname}
-                                </div>
-                                <div className="comment-time">
-                                  {format(
-                                    new Date(comment.creationDate),
-                                    "hh:mm a, dd MMM yyyy"
-                                  )}
-                                  {comment.edited && (
-                                    <span className="edited-notice">
-                                      {" "}
-                                      (Đã chỉnh sửa)
-                                    </span>
-                                  )}
-                                </div>
-                                {editingCommentId === comment.id ? (
-                                  <div>
-                                    <textarea
-                                      className="form-control"
-                                      rows={2}
-                                      value={editingCommentContent}
-                                      onChange={(e) =>
-                                        setEditingCommentContent(e.target.value)
-                                      }
-                                    />
-                                    <button
-                                      className="btn btn-primary mt-2"
-                                      onClick={() =>
-                                        handleUpdateComment(comment.id, post.id)
-                                      }
-                                    >
-                                      Save
-                                    </button>
-                                    <button
-                                      className="btn btn-secondary mt-2 ms-2"
-                                      onClick={() => {
-                                        setEditingCommentId(null);
-                                        setEditingCommentContent("");
-                                      }}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <p>{comment.content}</p>
-                                )}
-                              </div>
-                              <div className="dropdown position-absolute top-0 end-0">
-                                <button
-                                  className="btn btn-options dropdown-toggle"
-                                  type="button"
-                                  id={`dropdownMenuButton-${comment.id}`}
-                                  data-bs-toggle="dropdown"
-                                  aria-expanded="false"
-                                >
-                                  ...
-                                </button>
-                                <ul
-                                  className="dropdown-menu"
-                                  aria-labelledby={`dropdownMenuButton-${comment.id}`}
-                                >
-                                  <li>
-                                    <button
-                                      className="dropdown-item"
-                                      onClick={() => {
-                                        setEditingCommentId(comment.id);
-                                        setEditingCommentContent(
-                                          comment.content
-                                        );
-                                      }}
-                                    >
-                                      Edit
-                                    </button>
-                                  </li>
-                                  <li>
-                                    <button
-                                      className="dropdown-item"
-                                      onClick={() =>
-                                        handleDeleteComment(comment.id, post.id)
-                                      }
-                                    >
-                                      Delete
-                                    </button>
-                                  </li>
-                                </ul>
-                              </div>
-
-                              {/* Reply button */}
-                              <button
-                                className="btn btn-link mt-2"
-                                onClick={() => handleReplyClick(comment.id)}
-                              >
-                                Reply
-                              </button>
-
-                              {/* Reply input box */}
-                              {replyingTo[comment.id] && (
-                                <div className="reply-input-container">
-                                  <textarea
-                                    className="reply-input mt-2 form-control"
-                                    rows={1}
-                                    placeholder="Write a reply..."
-                                    value={replyContent[comment.id] || ""}
-                                    onChange={(e) =>
-                                      handleReplyChange(
-                                        comment.id,
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                  <button
-                                    className="btn btn-primary mt-2"
-                                    onClick={() =>
-                                      handleAddReply(comment.id, post.id)
-                                    }
-                                  >
-                                    Reply
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="row justify-content-center">
-                            {/* Display replies if exist */}
-                            {comment.replies && comment.replies.length > 0 && (
-                              <div className="replies-list mt-2">
-                                {(showAllReplies[comment.id]
-                                  ? comment.replies
-                                  : comment.replies.slice(0, 2)
-                                ).map((reply) => (
-                                  <div key={reply.id} className="reply">
-                                    <img
-                                      src="/src/UserImages/Avatar/avt.jpg"
-                                      className="avatar_small"
-                                      alt="Avatar"
-                                    />
-                                    <div className="reply-content">
-                                      <div className="d-flex align-items-center">
-                                        <span className="comment-author pe-3">
-                                          {reply.userNickname}
-                                        </span>
-                                        <span className="reply-time">
-                                          {format(
-                                            new Date(reply.creationDate),
-                                            "hh:mm a, dd MMM yyyy"
-                                          ) &&
-                                          !isNaN(
-                                            new Date(
-                                              reply.creationDate
-                                            ).getTime()
-                                          )
-                                            ? format(
-                                                new Date(reply.creationDate),
-                                                "hh:mm a, dd MMM yyyy"
-                                              )
-                                            : "Invalid date"}
-                                        </span>
-                                      </div>
-                                      <p>{reply.content}</p>
-                                    </div>
-                                  </div>
-                                ))}
-
-                                {/* View all/Hide replies button */}
-                                {comment.replies.length > 2 && (
-                                  <button
-                                    className="btn btn-link"
-                                    onClick={() =>
-                                      handleToggleReplies(comment.id)
-                                    }
-                                  >
-                                    {showAllReplies[comment.id]
-                                      ? "Hide replies"
-                                      : "View all replies"}
-                                  </button>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  )}
-                  {/* View all/Hide comments button */}
-                  {post.comments.length > 3 && (
-                    <button
-                      className="btn btn-link"
-                      onClick={() => handleToggleComments(post.id)}
-                    >
-                      {showAll ? "Hide comments" : "View all comments"}
+                  {/* Dropdown button */}
+                  <div className="dropdown">
+                    <button 
+                      className="btn btn-options dropdown-toggle" 
+                      type="button" 
+                      id={`dropdownMenuButton-${post.id}`} 
+                      data-bs-toggle="dropdown" 
+                      aria-expanded="false">
+                      ...
                     </button>
-                  )}
+                    <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${post.id}`}>
+                      <li><button className="dropdown-item" onClick={() => handleEditPost(post)}>Edit</button></li>
+                      <li><button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>Delete</button></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="post-content">
+                  {post.content} {/* Hiện nội dung bài viết */}
+                </div>
+                {/* Hiện hình ảnh nếu có */}
+                {post.images && post.images.length > 0 && (
+                  <div className="post-images">
+                    {post.images.map((image, index) => (
+                      <img key={index} src={`data:image/jpeg;base64,${image.postImage}`} alt="Post" />
+                    ))}
+                  </div>
+                )}
+                {/* Phần nút Like và Comment */}
+                <div className="interaction-buttons mt-3">
+                  <button type="button" className="btn">
+                    <img src={images.heart} className="btn-icon" alt="Like" />
+                    <span>Like</span>
+                  </button>
+                </div>
+
+                {/* Phần comment-section */}
+                <div className="comment-section mt-4">
+                  <textarea className="comment-input" style={{ resize: 'none' }} rows={3} placeholder="Write a comment..." defaultValue={""} />
+                  <div className="row">
+                    <div className="col text-start">
+                      <a href="/#" className="text-black text-decoration-none">View Comment</a>
+                    </div>
+                    <div className="col text-end">
+                      <span>1 Comment</span>
+                    </div>
+                  </div>
+                  <div className="comment mt-2">
+                    <img src={images.ava} alt="Commenter" />
+                    <div className="comment-content">
+                      <div className="comment-author">Huynh Trong Phu</div>
+                      <div className="comment-time">12:00 AM, 8 Sep 2024</div>
+                      <p>Chao em nhe nguoi dep!</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

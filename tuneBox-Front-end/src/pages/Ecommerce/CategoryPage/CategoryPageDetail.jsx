@@ -3,7 +3,7 @@ import Bebefits from '../../../components/Benefits/Benefits'
 import Footer2 from '../../../components/Footer/Footer2'
 import './CategoryPageDetail.css'
 import { useLocation } from 'react-router-dom';
-import { listBrands, listCategories, listInstrumentsByCategory } from '../../../service/InstrumentServiceCus';
+import {  listBrands, listCategories, listInstrumentsByCategory } from '../../../service/InstrumentServiceCus';
 
 
 const ITEMS_PER_PAGE = 12;
@@ -32,10 +32,9 @@ const CategoryPageDetail = () => {
     const fetchBrands = async () => {
       try {
         const response = await listBrands();
-        const filterBrands = response.data.filter(brand => brand.status === true);
-        setBrands(filterBrands);
+        setBrands(response); // response đã là danh sách id và name
       } catch (error) {
-        console.error("Error fetching brand", error);
+        console.error("Error fetching brands", error);
       }
     };
     fetchBrands();
@@ -44,15 +43,15 @@ const CategoryPageDetail = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await listCategories();
-        const filterCategories = response.data.filter(category => categories.status === true);
-        setCategories(filterCategories);
+        const response = await listCategories
+        setCategories(response); // response đã là danh sách id và name
       } catch (error) {
-        console.error("Error fetching category", error);
+        console.error("Error fetching categories", error);
       }
     };
     fetchCategories();
   }, []);
+
 
 
 
@@ -142,7 +141,7 @@ const CategoryPageDetail = () => {
         <div className='gioithieu1'>
           <div className='grid-container'>
             <div className='grid-item image'>
-              <img src={`${imageBase64Prefix}${category.image}`}
+              <img src={category.image}
                 alt={category.name}
                 className='banner-img'
               />
@@ -204,7 +203,7 @@ const CategoryPageDetail = () => {
                 </div>
               </div>
 
-              {/* Sort by brnad */}
+              {/* Sort by brand */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
                   <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -230,9 +229,9 @@ const CategoryPageDetail = () => {
                       </div>
                     </form>
                     <div className='mt-3'>
-                      {categories.map((category) => {
-                        <input type="checkbox" key={category.id} value={category.id} > {category.name} </input>
-                      })}
+                      {brands.map((brand) => (
+                        <input type="checkbox" key={brand.id} value={brand.name}/>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -250,9 +249,9 @@ const CategoryPageDetail = () => {
                 <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
                   <div className="accordion-body">
                     <div className='mt-3'>
-                      {brands.map((brand) => {
-                        <input type="checkbox" key={brand.id} value={brand.id} > {brand.name} </input>
-                      })}
+                      {categories.map((category) => (
+                        <input type="checkbox" key={category.id} value={category.name}/>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -324,19 +323,12 @@ const CategoryPageDetail = () => {
 
                     return (
                       <div className='col-3 mb-4' key={instrument.id}>
-                        {Array.isArray(instrument.image) && instrument.image.length > 0 ? (
                           <img
-                            src={`data:image/png;base64,${instrument.image[0]}`} // Chỉ hiển thị ảnh đầu tiên
-                            alt={`${instrument.name} 0`}
+                            src={instrument.image}
+                            alt={instrument.name}
                             style={{ width: '100px', margin: '0 5px' }}
                           />
-                        ) : (
-                          <img
-                            src='default-image-url'
-                            alt={ins.name}
-                            style={{ width: '100px' }}
-                          />
-                        )}
+                        
                         <h5 className='card-title2'>{instrument.name}</h5>
                         <p className='card-price'>
                           {instrument.costPrice.toLocaleString()}đ

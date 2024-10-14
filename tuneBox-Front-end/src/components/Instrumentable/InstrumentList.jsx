@@ -263,7 +263,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 <td>{ins.name}</td>
                 <td>{ins.categoryIns ? ins.categoryIns.name : 'No category'}</td>
                 <td>{ins.brand ? ins.brand.name : 'No brand'}</td>
-                <td>{ins.costPrice}</td>
+                <td>{ins.costPrice.toLocaleString()}đ</td>
                 <td>{ins.color}</td>
                 <td>{ins.quantity}</td>
                 <td>{ins.status ? 'Available' : 'Unavailable'}</td>

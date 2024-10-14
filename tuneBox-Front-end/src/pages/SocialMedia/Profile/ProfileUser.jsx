@@ -44,7 +44,6 @@ const ProfileUser = () => {
           backgroundImage: "url(/src/UserImages/Background/anime-girl.jpg)",
         }}
       />
-
       <div className="row container">
         <aside className="col-sm-3">
           <div>
@@ -60,11 +59,7 @@ const ProfileUser = () => {
           </div>
           <div className="row mt-4">
             <div className="col text-start">
-              <button
-                type="button"
-                style={{ width: 180 }}
-                className="btn btn-dark"
-              >
+              <button type="button" style={{ width: 180 }} className="btn btn-dark">
                 <img
                   alt="leverup"
                   src={images.level_up}
@@ -76,7 +71,7 @@ const ProfileUser = () => {
               </button>
             </div>
             <div className="col text-end">
-              <Link to={"/ProfileSetting"}>
+              <Link to="/ProfileSetting">
                 <button type="button" className="btn btn-secondary">
                   <img
                     src={images.pen}
@@ -102,10 +97,7 @@ const ProfileUser = () => {
             <label>Nghệ sĩ ưu thích</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
               userData.inspiredBy.map((Mapdata) => (
-                <span
-                  key={Mapdata.id}
-                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
-                >
+                <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
                   {Mapdata.name}
                 </span>
               ))
@@ -116,10 +108,7 @@ const ProfileUser = () => {
             <label>Sở trường</label> <br />
             {userData.talent && userData.talent.length > 0 ? (
               userData.talent.map((Mapdata) => (
-                <span
-                  key={Mapdata.id}
-                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
-                >
+                <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
                   {Mapdata.name}
                 </span>
               ))
@@ -127,13 +116,11 @@ const ProfileUser = () => {
               <p>Chưa chọn sở trường.</p>
             )}
             <br />
+            <br />
             <label>Dòng nhạc ưu thích</label> <br />
             {userData.genre && userData.genre.length > 0 ? (
               userData.genre.map((Mapdata) => (
-                <span
-                  key={Mapdata.id}
-                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
-                >
+                <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
                   {Mapdata.name}
                 </span>
               ))
@@ -145,18 +132,10 @@ const ProfileUser = () => {
 
         <div className="col-sm-9 d-flex flex-column ">
           <nav className="nav flex-column flex-md-row p-5">
-            <Link to="activity" className="nav-link">
-              Activity
-            </Link>
-            <Link to="track" className="nav-link">
-              Track
-            </Link>
-            <Link to="albums" className="nav-link">
-              Albums
-            </Link>
-            <Link to="playlists" className="nav-link">
-              Playlists
-            </Link>
+            <Link to="activity" className="nav-link">Activity</Link>
+            <Link to="track" className="nav-link">Track</Link>
+            <Link to="albums" className="nav-link">Albums</Link>
+            <Link to="playlists" className="nav-link">Playlists</Link>
           </nav>
 
           <article className="p-5">
@@ -165,6 +144,7 @@ const ProfileUser = () => {
               <Route path="track" element={<Track />} />
               <Route path="albums" element={<Albums />} />
               <Route path="playlists" element={<Playlists />} />
+              <Route path="/" element={<Navigate to="activity" />} />
               <Route path="/" element={<Navigate to="activity" />} />
             </Routes>
           </article>

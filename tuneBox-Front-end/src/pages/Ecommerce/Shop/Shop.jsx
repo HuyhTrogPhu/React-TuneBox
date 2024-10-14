@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import '../../../pages/Ecommerce/Shop/Shop.css'
+import Footer2 from '../../../components/Footer/Footer2'
 import { images } from '../../../assets/images/images'
-import { listCategories, listInstruments, listBrands } from '../../../service/InstrumentServiceCus'
+import { listCategories, listInstruments, listBrands } from '../../../service/EcommerceHome'
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 const Shop = () => {
 
   const [brands, setBrands] = useState([]);
@@ -10,7 +12,7 @@ const Shop = () => {
   const [instruments, setInstruments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12; // Số sản phẩm hiển thị trên mỗi trang
-  const imageBase64Prefix = "data:image/png;base64,";
+
 
 
   const [selectedBrands, setSelectedBrands] = useState([]);
@@ -32,16 +34,21 @@ const Shop = () => {
       const categoriesResponse = await listCategories();
       const instrumentsResponse = await listInstruments();
 
-      console.log("Brands Data:", brandsResponse); // Kiểm tra lại dữ liệu
-      console.log("Instruments Data:", instrumentsResponse.data);
-      // Truy cập vào thuộc tính data của phản hồi
-      setBrands(Array.isArray(brandsResponse.data) ? brandsResponse.data : []);
+      console.log("Brands Data:", brandsResponse); // Check the brand data
+
+      // Filter brands with status === false
+      const filteredBrands = Array.isArray(brandsResponse.data)
+        ? brandsResponse.data.filter(brand => brand.status === false)
+        : [];
+
+      setBrands(filteredBrands); // Set the filtered brands
       setCategories(Array.isArray(categoriesResponse.data) ? categoriesResponse.data.filter(cate => cate.status === false) : []);
       setInstruments(Array.isArray(instrumentsResponse.data) ? instrumentsResponse.data : []);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+
 
 
 
@@ -225,7 +232,7 @@ const Shop = () => {
                               onChange={() => handleCategoryChange(cate.name)} // Gọi hàm handleCategoryChange
 
                             />
-                            <label htmlFor className="form-check-label">{cate.name}</label>
+                            <label  className="form-check-label">{cate.name}</label>
                           </div>
 
                         ))
@@ -240,49 +247,81 @@ const Shop = () => {
               </div>
             </div>
             {/* sanPham */}
-            <div className="col-9">
+            <div className="col-9 mt-3">
+
+              {/* Sort */}
+
               <div className="row">
-                <div class="custom-dropdown">
-                  <button class="btn custom-dropdown-toggle   btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Sắp xếp
+                <div className="custom-dropdown">
+                  <button className="btn custom-dropdown-toggle border mb-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i className="fa-solid fa-filter"></i>
                   </button>
-                  <ul class="custom-dropdown-menu">
+                  <ul className="custom-dropdown-menu">
                     <li>
-                      <a class="custom-dropdown-item" href="#" onClick={() => handleSort('desc')}>
-                        Giá cao nhất
-                      </a>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName(''); setSortByPrice(''); setCurrentPage(1); }}>
+                        Default
+                      </button>
                     </li>
                     <li>
-                      <a class="custom-dropdown-item" href="#" onClick={() => handleSort('asc')}>
-                        Giá thấp nhất
-                      </a>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('asc'); setSortByName(''); setCurrentPage(1); }}>
+                        Price: Low to high
+                      </button>
                     </li>
+                    <li>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('desc'); setSortByName(''); setCurrentPage(1); }}>
+                        Price: High to low
+                      </button>
+                    </li>
+                    <li>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName('asc'); setSortByPrice(''); setCurrentPage(1); }}>
+                        Name: A to Z
+                      </button>
+                    </li>
+                    <li>
+                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName('desc'); setSortByPrice(''); setCurrentPage(1); }}>
+                        Name: Z to A
+                      </button>
+                    </li>
+
                   </ul>
                 </div>
-
               </div>
-              <div className="sanPham mt-2">
+
+              {/* San pham */}
+              <div className="sanPham mt-5">
                 <div className="row">
                   {currentItems.map((instrument) => (
                     <div className="col-3 mb-4" key={instrument.id}>
-                      <div className="card" style={{ width: '100%', border: 'none' }}>
-                        <img
-                          src={instrument.image ? `data:image/${instrument.image.split('.').pop()};base64,${instrument.image}` : 'default-image-url'}
-                          className="card-img-top"
-                          alt={instrument.name}
-                        />
-                        <div className="card-body">
-                          <p className="card-title">{instrument.name}</p>
-                          <p className="card-price"> {instrument.costPrice.toLocaleString()}đ</p>
-                          <p className="card-status text-center">{getStockStatus(instrument.quantity)}</p> {/* Hiển thị trạng thái */}
+
+                      <Link to={{
+                        pathname: `/DetailProduct/${instrument.id}`,
+                        state: { instrument }
+                      }} className="card-link">
+                        <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                          <div className="card-img-wrapper">
+                            <img
+                              src={instrument.image}
+                              className="card-img-top"
+                              alt={instrument.name}
+                            />
+                          </div>
+                          <div className="card-body text-center">
+                            <p className="card-title">{instrument.name}</p>
+                            <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                            <p className="card-status">{getStockStatus(instrument.quantity)}</p>
+                          </div>
+
                         </div>
-                      </div>
+                      </Link>
                     </div>
                   ))}
                 </div>
 
+
+
                 {/* Pagination */}
-                <div className="phantrangdetail">
+
+                <div className="phantrangdetail ">
                   <nav aria-label="Page navigation example">
                     <ul className="pagination justify-content-center text-center">
                       <li className="page-item">
@@ -307,12 +346,13 @@ const Shop = () => {
                     </ul>
                   </nav>
                 </div>
-
               </div>
+
             </div>
           </div>
         </div>
       </div>
+      <Footer2 />
     </div>
 
 

@@ -21,9 +21,9 @@ import Cookies from 'js-cookie';
 const Login = () => {
   const [userName, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showModal, setShowModal] = useState(false); 
-  const [forgotEmailOrUsername, setForgotEmailOrUsername] = useState('');
-  const [forgotMessage, setForgotMessage] = useState('');
+  // const [showModal, setShowModal] = useState(false); 
+  // const [forgotEmailOrUsername, setForgotEmailOrUsername] = useState('');
+  // const [forgotMessage, setForgotMessage] = useState('');
   const navigate = useNavigate(); 
   const [errorMessage, setErrorMessage] = useState('');
   const [postId, setPostId] = useState(null); // State để lưu ID bài viết khi chỉnh sửa
@@ -105,11 +105,6 @@ const Login = () => {
             <div className="col-lg-6 col-10 mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
-                {errorMessage && (
-                  <div className="alert alert-danger text-center" role="alert">
-                    {errorMessage}
-                  </div>
-                )}
                 <div className="ticket-form-body">
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>

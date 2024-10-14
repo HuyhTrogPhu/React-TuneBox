@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { updateCateIns } from "../../service/CategoryService";
 import { useNavigate } from "react-router-dom";
 
@@ -13,10 +13,12 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
 
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
-
+  const [loading, setLoading] = useState(false); 
   const navigator = useNavigate();
   const [errors, setErrors] = useState({
-    editCategoryName: ''
+    editCategoryName: '',
+    editCategoryDesc: '',
+    editCategoryImage: ''
   })
 
   //lưu trữ giá trị tìm kiếm
@@ -39,31 +41,36 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   };
 
   const handUpdate = () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    if (selectedCategory) {
+    if (selectedCategory && validateForm()) {
+      setLoading(true); // Bắt đầu loading
 
       const updatedCategory = {
         name: editCategoryName,
         description: editCategoryDesc,
         image: editCategoryImage || currentImage,
         status: selectedCategory.status
-      }
+      };
 
-      updateCateIns(selectedCategory.id, updatedCategory)
-        .then((response) => {
-          onUpdate(); // Gọi hàm onUpdate để cập nhật lại danh sách
-          const modal = window.bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
-          modal.hide(); // Ẩn modal sau khi lưu
-          setSuccessMessage("Category update successfully!");
+      updateCateIns(updatedCategory, selectedCategory.id)
+        .then(() => {
+          setTimeout(() => { // Mô phỏng thời gian chờ 6 giây
+            setLoading(false); // Tắt loading sau khi hoàn thành
+            onUpdate();
+            setSuccessMessage("Categories updated successfully");
+
+            const modalElement = document.getElementById('editCategoryModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+            modalInstance.hide();
+          }, 1000); 
         })
         .catch((error) => {
+          setLoading(false); // Tắt loading khi có lỗi
           console.error(error);
         });
     }
   };
+
+
 
   useEffect(() => {
     if (successMessage) {
@@ -90,61 +97,66 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
   function removeCateIns(id) {
     const categoryToUpdate = categories.find((cate) => cate.id === id);
 
-
     if (categoryToUpdate) {
       const updatedStatus = !categoryToUpdate.status;
       const dataToSend = {
         ...categoryToUpdate,
-        status: updatedStatus,
-        name: categoryToUpdate.name,
-        description: categoryToUpdate.description,
-      }
-    }
+        status: updatedStatus // Chuyển đổi trạng thái
+      };
 
-    updateCateIns(id, updatedCategory)
-      .then((response) => {
-        onUpdate(); // Gọi hàm onUpdate để cập nhật lại danh sách trong component cha
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      updateCateIns(dataToSend, id)
+        .then((response) => {
+          onUpdate(); // Gọi hàm onUpdate để cập nhật lại danh sách trong component cha
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   }
+
 
   // Validation function
   function validateForm() {
     let valid = true;
     const errorsCopy = { editCategoryName: '', editCategoryImage: '', editCategoryDesc: '' };
 
-    if (editCategoryName.trim()) {
-      errorsCopy.editCategoryName = '';
-    } else {
-      errorsCopy.editCategoryName = 'Category name is required'; // Có lỗi
+    // Kiểm tra tên danh mục
+    if (!editCategoryName.trim()) {
+      errorsCopy.editCategoryName = 'Category name is required';
       valid = false;
     }
+        // Kiểm tra tên danh mục có trùng hay không
+        const isDuplicate = categories.some(
+          (cate) => cate.name.toLowerCase() === editCategoryName.toLowerCase() && cate.id !== selectedCategory.id
+      );
+  
+      if (isDuplicate) {
+          errorsCopy.editCategoryName = 'Category name must be unique';
+          valid = false;
+      }
 
+    // Kiểm tra hình ảnh
     if (!editCategoryImage && !currentImage) {
-      errorsCopy.editCategoryImage = 'Brand image is required';
+      errorsCopy.editCategoryImage = 'Category image is required';
       valid = false;
-    } else {
-      errorsCopy.editCategoryImage = '';
     }
 
+    // Kiểm tra mô tả
     if (!editCategoryDesc.trim()) {
       errorsCopy.editCategoryDesc = 'Category description is required';
       valid = false;
-    } else {
-      errorsCopy.editCategoryDesc = '';
     }
 
     setErrors(errorsCopy); // Cập nhật trạng thái lỗi
     return valid; // Trả về kết quả xác thực
   }
 
+
   return (
     <div>
       {/* Hiển thị thông báo thành công */}
       {successMessage && (
-        <div className="alert alert-success" role="alert">
+        <div className="alert alert-success " role="alert" style={{marginTop: 10}}>
           {successMessage} This notice will be closed in <b>{countdown}s.</b>
         </div>
       )}
@@ -155,6 +167,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
             <th scope="col">#</th>
             <th scope="col">Image</th>
             <th scope="col">Categories Name</th>
+            <th scope="col">Desc</th>
             <th scope="col">Status</th>
             <th scope="col">Action</th>
 
@@ -164,15 +177,23 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
           {filteredCategories.map((cate, index) => (
             <tr key={cate.id} className="ps-0">
               <td>{index + 1}</td>
-              <td>
+              {/* <td>
                 <img src={cate.image
                   ? `data:image/jpeg;base64,${cate.image}`
                   : `default-image-path.jpg`
                 } alt={cate.name}
                   style={{ width: '50px' }} />
+              </td> */}
+              <td>
+                <img
+                  src={cate.image ? cate.image : 'default-image-path.jpg'} // Sử dụng URL hình ảnh từ Cloudinary
+                  alt={cate.name}
+                  style={{ width: '50px' }} // Điều chỉnh kích thước nếu cần
+                />
               </td>
               <td>{cate.name}</td>
-              <td>{cate.status ? 'Available' : 'Unavailable'}</td>
+              <td>{cate.description}</td>
+              <td>{cate.status ? 'Unavailable' : 'Available'}</td>
               <td>
                 <button className="btn btn-warning" onClick={() => openEditModal(cate)}>
                   Edit
@@ -228,24 +249,26 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
                   {errors.editCategoryDesc && <div className='invalid-feedback'>{errors.editCategoryDesc}</div>}
                 </div>
 
+
+
                 <div className="mt-3">
                   <label className="form-label">Image:</label>
-                  <input 
-                  type="file" 
-                  className={`form-control ${errors.editCategoryImage ? 'is-invalid' : ''}`}
-                  onChange={(e) => setEditCategoryImage(e.target.files[0])}
+                  <input
+                    type="file"
+                    className={`form-control ${errors.editCategoryImage ? 'is-invalid' : ''}`}
+                    onChange={(e) => setEditCategoryImage(e.target.files[0])}
                   />
-                  {errors.editCategoryImage && <div className="invalid-feedback">{errors.editCategoryImage}</div> }
+                  {errors.editCategoryImage && <div className="invalid-feedback">{errors.editCategoryImage}</div>}
                 </div>
 
                 {/* Curren image */}
                 {currentImage && (
                   <div className="mt-3">
                     <label className="form-label">Current Image:</label>
-                    <img 
-                    src={`data:image/jpeg;base64, ${currentImage}`} 
-                    alt="Current image"
-                    style={{ width: '100%', maxHeight: '200px', objectFit: 'contain'}} 
+                    <img
+                      src={currentImage} // Sử dụng URL hình ảnh từ Cloudinary
+                      alt="Current image"
+                      style={{ width: '100%', maxHeight: '200px', objectFit: 'contain' }}
                     />
                   </div>
                 )}
@@ -254,7 +277,9 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" className="btn btn-primary" onClick={handUpdate}>Save update</button>
+                <button type="button" className="btn btn-primary" onClick={handUpdate} disabled={loading}>
+                {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}
+              </button>
             </div>
           </div>
         </div>
