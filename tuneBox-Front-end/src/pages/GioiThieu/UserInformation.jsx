@@ -8,7 +8,7 @@ const UserInformation = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [avartar, setAvartar] = useState(images.logoTuneBox);
+  const [avatar, setAvatar] = useState(images.logoTuneBox);
   const [name, setName] = useState('');
 
   const formData = location.state || {}; // Lấy dữ liệu từ trang trước
@@ -21,7 +21,7 @@ const UserInformation = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setAvartar(e.target.result); // Cập nhật ảnh logo
+        setAvatar(e.target.result); // Cập nhật ảnh logo
       };
       reader.readAsDataURL(file);
     }
@@ -35,7 +35,7 @@ const UserInformation = () => {
   const handleNext = () => {
     // Cập nhật thêm thông tin người dùng
     formData.name = name;
-    formData.avartar = avartar;
+    formData.avatar = avatar;
     navigate('/inspiredBy', { state: formData });
   };
 
@@ -57,7 +57,7 @@ const UserInformation = () => {
 
                     {/* Logo */}
                     <img
-                      src={avartar}
+                      src={avatar}
                       alt="avartar"
                       className="profile-icon border border-danger rounded-circle d-flex justify-content-center align-items-center mb-3"
                       onClick={handleLogoClick}

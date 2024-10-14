@@ -51,7 +51,7 @@ const SignUp = () => {
       email: email,
       password: password,
       name: null,
-      avartar: null,
+      avatar: null,
       inspiredBys: [],
       talents: [],
       genres: []

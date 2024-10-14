@@ -1,25 +1,57 @@
-import React from 'react'
+import React from 'react';
 import './css/bootstrap.min.css';
 import './css/bootstrap-icons.css';
-// import './css/style.css';
 import './css/header.css';
 import './css/profile.css';
 
-import './js/jquery.min.js';
-import './js/bootstrap.min.js';
-import './js/jquery.sticky.js';
-import './js/click-scroll.js';
-import './js/custom.js';
-
-
-
-import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
 import { images } from '../../assets/images/images.js';
-import { Link } from 'react-router-dom';
-
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { register } from '../../service/LoginService.js';
 
 const WelcomeUser = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const formData = location.state || {};
+  console.log("Form data from genre:", formData);
+
+  const handleRegister = async () => {
+    const { userName, name, avatar, email, password, talents, genres, inspiredBys } = formData;
+
+    // Tạo FormData để gửi nhiều loại dữ liệu
+    const formDataToSend = new FormData();
+  
+    // Thêm các trường của userDto vào FormData
+    formDataToSend.append("userName", userName);
+    formDataToSend.append("email", email);
+    formDataToSend.append("password", password);
+    
+    // Thêm các danh sách talents, genres, inspiredBys (nếu là array)
+    talents.forEach(talent => formDataToSend.append("talent", talent));
+    genres.forEach(genre => formDataToSend.append("genre", genre));
+    inspiredBys.forEach(inspiredBy => formDataToSend.append("inspiredBy", inspiredBy));
+  
+    // Thêm các trường của userInformationDto vào FormData
+    formDataToSend.append("name", name);
+    
+    // Tải hình ảnh từ URL và thêm vào FormData
+    const response = await fetch(avatar);
+    const blob = await response.blob();
+    formDataToSend.append("image", blob, "avatar.png");
+  
+    try {
+      await register(formDataToSend); 
+      alert('Đăng ký thành công!');
+      navigate('/login'); 
+    } catch (error) {
+      console.log("Error during registration", error);
+      alert('Đăng ký không thành công!');
+    }
+  };
+  
+  
+
   return (
     <div>
       <div>
@@ -33,12 +65,9 @@ const WelcomeUser = () => {
               <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span className="navbar-toggler-icon" />
               </button>
-
             </div>
           </nav>
-
         </div>
-
       </div>
       <div>
         <section className="hero-section" id="section_1">
@@ -47,10 +76,11 @@ const WelcomeUser = () => {
             <div className="row">
               <div className="col-lg-6 col-12 mb-4 mb-lg-0 d-flex align-items-center">
                 <div className="services-info">
-                  <h2 className="text-white mb-4">Welcome </h2>
+                  <h2 className="text-white mb-4">Welcome {formData.name}</h2>
                   <p className="text-white fontchu">Start exploring unique musical ideas curated just for you. Connect with others through TuneBox. Join us in enjoying an amazing music space made just for you.</p>
                   <p className="text-white">
-                    <Link to={'/'} className='btn custom-btn smoothscroll'>Get started now!</Link>
+                    {/* Gọi handleRegister khi nhấn nút */}
+                    <button className='btn custom-btn smoothscroll' onClick={handleRegister}>Get started now!</button>
                   </p>
                 </div>
               </div>
@@ -63,17 +93,14 @@ const WelcomeUser = () => {
           </div>
           <div className="video-wrap">
             <video autoPlay loop muted className="custom-video" poster={images.backg}>
-              {/* Nội dung trong video không nên chứa thẻ <img> */}
               Your browser does not support the video tag.
             </video>
           </div>
         </section>
-
-
       </div>
       <Footer2 />
     </div>
-  )
-}
+  );
+};
 
-export default WelcomeUser
+export default WelcomeUser;

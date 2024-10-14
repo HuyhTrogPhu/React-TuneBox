@@ -17,7 +17,9 @@ import { images } from "../../assets/images/images.js";
 
 const Login = () => {
   
-
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <div>
