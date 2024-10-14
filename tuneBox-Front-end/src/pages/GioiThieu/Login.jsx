@@ -35,35 +35,40 @@ const Login = () => {
     const isEmail = userName.includes('@');
   
     const loginData = {
-        [isEmail ? 'email' : 'userName']: userName,
-        password: password
+      [isEmail ? 'email' : 'userName']: userName,
+      password: password
     };
   
     try {
-      const response = await axios.post('http://localhost:8080/user/log-in', loginData);
-  
-        if (response.data && response.data.status) {
-            console.log('Đăng nhập thành công:', response.data);
-            Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
-            // Lưu thông tin người dùng vào localStorage
-            localStorage.setItem('user', JSON.stringify(response.data.data));
-  
-            navigate('/'); // Chuyển hướng đến trang chính
-        } else {
-            console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
-            setErrorMessage(response.data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+      const response = await axios.post('http://localhost:8080/user/log-in', loginData, {
+        headers: {
+          'Content-Type': 'application/json', // Đảm bảo yêu cầu gửi với Content-Type đúng
         }
+      });
+  
+      if (response.data && response.data.status) {
+        console.log('Đăng nhập thành công:', response.data);
+        Cookies.set("UserID", response.data.data.id, { expires: 7 }); 
+        localStorage.setItem('user', JSON.stringify(response.data.data));
+  
+        navigate('/'); // Chuyển hướng đến trang chính
+      } else {
+        console.log(response.data)
+        console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
+        setErrorMessage(response.data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+      }
     } catch (error) {
-        console.error('Lỗi đăng nhập:', error);
-        if (error.response) {
-            setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
-        } else if (error.request) {
-            setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');
-        } else {
-            setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
-        }
+      console.error('Lỗi đăng nhập:', error);
+      if (error.response) {
+        setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
+      } else if (error.request) {
+        setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');
+      } else {
+        setErrorMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
+      }
     }
-};
+  };
+  
 
   
   
