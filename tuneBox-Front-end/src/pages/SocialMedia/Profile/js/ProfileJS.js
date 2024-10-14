@@ -10,8 +10,6 @@ export const fetchDataUser = async (userId) => {
         if (!data) {
             throw new Error('No data returned');
         }
-
-        console.log('User data fetched from API:', data); // In dữ liệu nhận được
         return data; 
     } catch (error) {
         console.error('Error fetching user data:', error); // In lỗi nếu có

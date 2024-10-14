@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './css/bootstrap.min.css';
@@ -12,8 +13,10 @@ import './js/click-scroll.js';
 import './js/custom.js';
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
-import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Cookies from 'js-cookie';
+
 
 const Login = () => {
   const [userName, setUsername] = useState('');
@@ -23,6 +26,7 @@ const Login = () => {
   const [forgotMessage, setForgotMessage] = useState('');
   const navigate = useNavigate(); 
   const [errorMessage, setErrorMessage] = useState('');
+  const [postId, setPostId] = useState(null); // State để lưu ID bài viết khi chỉnh sửa
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -36,15 +40,14 @@ const Login = () => {
     };
   
     try {
-        const response = await axios.post('http://localhost:8080/user/log-in', loginData);
+      const response = await axios.post('http://localhost:8080/user/log-in', loginData);
   
         if (response.data && response.data.status) {
             console.log('Đăng nhập thành công:', response.data);
-  
+            Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
             // Lưu thông tin người dùng vào localStorage
             localStorage.setItem('user', JSON.stringify(response.data.data));
-            Cookies.set("UserID", response.data.data.id, { expires: 7 }); // Cookie sẽ hết hạn sau 7 ngày
-            Cookies.set("Nickname",  response.data.data.userNickname, {expires: 7})
+  
             navigate('/'); // Chuyển hướng đến trang chính
         } else {
             console.error('Đăng nhập thất bại:', response.data.message || 'Lỗi không xác định');
@@ -53,7 +56,6 @@ const Login = () => {
     } catch (error) {
         console.error('Lỗi đăng nhập:', error);
         if (error.response) {
-          console.error('Phản hồi từ server:', error.response);
             setErrorMessage(error.response.data.message || 'Lỗi server. Vui lòng thử lại sau.');
         } else if (error.request) {
             setErrorMessage('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng của bạn.');
@@ -98,6 +100,11 @@ const Login = () => {
             <div className="col-lg-6 col-10 mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
+                {errorMessage && (
+                  <div className="alert alert-danger text-center" role="alert">
+                    {errorMessage}
+                  </div>
+                )}
                 <div className="ticket-form-body">
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
@@ -157,7 +164,6 @@ const Login = () => {
         </div>
       </section>
       <Footer2 />
-
     </div>
   );
 };

@@ -12,25 +12,29 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { fetchDataUser } from "./js/ProfileJS";
-import { FollowContext } from './FollowContext'; // Đảm bảo import đúng context
+import { FollowContext } from './FollowContext';
 
 const ProfileUser = () => {
   const userId = Cookies.get("UserID");
-  const { followerCount, setFollowerCount, followingCount, setFollowingCount } = useContext(FollowContext);
   const [userData, setUserData] = useState([]);
+  const { followerCounts, updateFollowerCount, followingCounts, updateFollowingCount } = useContext(FollowContext);
 
   useEffect(() => {
-    const fetchDataAndRender = async () => {
-      const response = await fetchDataUser(userId);
-      if (response && response.data) {
-        setUserData(response.data);
-        setFollowerCount(response.data.followers.length); // Cập nhật số lượng người theo dõi
-        setFollowingCount(response.data.following.length); // Cập nhật số lượng người đang theo dõi
+    const fetchCounts = async () => {
+      // Fetch lại số lượng người theo dõi và đang theo dõi
+      try {
+          const response = await fetchDataUser(userId);
+          const newFollowerCount = response.data.followers ? response.data.followers.length : 0;
+          const newFollowingCount = response.data.following ? response.data.following.length : 0;
+          updateFollowerCount(newFollowerCount);
+          updateFollowingCount(newFollowingCount);
+      } catch (error) {
+          console.error("Error fetching user data:", error);
       }
     };
 
-    fetchDataAndRender();
-  }, [userId, setFollowerCount, setFollowingCount]);
+    fetchCounts();
+}, [userId, updateFollowerCount, updateFollowingCount]);
 
   return (
     <div className="container">
@@ -45,7 +49,7 @@ const ProfileUser = () => {
         <aside className="col-sm-3">
           <div>
             <img
-              src="/src/UserImages/Avatar/avt.jpg"
+              src={userData.avatar || "/src/UserImages/Avatar/avt.jpg"}
               className="avatar"
               alt="avatar"
             />
@@ -84,18 +88,16 @@ const ProfileUser = () => {
               </Link>
             </div>
           </div>
-
           <div className="row mt-4">
-            <div className="col text-center">
-              <span>{followerCount}</span> <br />
-              <span>Follower</span>
-            </div>
-            <div className="col text-center">
-              <span>{followingCount}</span> <br />
-              <span>Following</span>
-            </div>
-          </div>
-
+        <div className="col text-center">
+          <span>{followerCounts[userId] || 0}</span> <br />
+          <span>Follower</span>
+        </div>
+        <div className="col text-center">
+          <span>{followingCounts[userId] || 0}</span> <br />
+          <span>Following</span>
+        </div>
+      </div>
           <div style={{ paddingTop: 30 }}>
             <label>Nghệ sĩ ưu thích</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
@@ -159,10 +161,10 @@ const ProfileUser = () => {
 
           <article className="p-5">
             <Routes>
-              <Route path="/activity" element={<Activity />} />
-              <Route path="/track" element={<Track />} />
-              <Route path="/albums" element={<Albums />} />
-              <Route path="/playlists" element={<Playlists />} />
+              <Route path="activity" element={<Activity />} />
+              <Route path="track" element={<Track />} />
+              <Route path="albums" element={<Albums />} />
+              <Route path="playlists" element={<Playlists />} />
               <Route path="/" element={<Navigate to="activity" />} />
             </Routes>
           </article>

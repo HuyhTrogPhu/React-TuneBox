@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"; // Import useParams để lấy userId từ URL
 import Cookies from "js-cookie";
 import axios from "axios";
-
+import { format } from 'date-fns';
 import "./css/activity.css";
 import { images } from "../../../../assets/images/images";
 
@@ -397,8 +397,8 @@ const Activity = () => {
       <div className="container mt-2 mb-5">
         {posts.map((post) => {
           const createdAt = post.createdAt
-            ? new Date(post.createdAt) // Nếu backend gửi một chuỗi định dạng ISO, sử dụng trực tiếp
-            : null;
+          ? new Date(post.createdAt) // Nếu backend gửi một chuỗi định dạng ISO, sử dụng trực tiếp
+          : null;
           const showAll = showAllComments[post.id];
           return (
             <div key={post.id} className="post">
@@ -413,9 +413,9 @@ const Activity = () => {
                     {post.userNickname || "Unknown User"}
                   </div>
                   <div className="time">
-                    {/* {createdAt && !isNaN(createdAt.getTime())
+                  {createdAt && !isNaN(createdAt.getTime())
                       ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                      : "Invalid date"} */}
+                      : "Invalid date"}
                   </div>
                 </div>
                 <div className="dropdown position-absolute top-0 end-0">
@@ -508,10 +508,10 @@ const Activity = () => {
                                   {comment.userNickname}
                                 </div>
                                 <div className="comment-time">
-                                  {/* {format(
+                                  {format(
                                     new Date(comment.creationDate),
                                     "hh:mm a, dd MMM yyyy"
-                                  )} */}
+                                  )}
                                   {comment.edited && (
                                     <span className="edited-notice">
                                       {" "}
@@ -642,11 +642,11 @@ const Activity = () => {
                                     />
                                     <div className="reply-content">
                                       <div className="d-flex align-items-center">
-                                        <span className="reply-author">
+                                        <span className="comment-author pe-3">
                                           {reply.userNickname}
                                         </span>
                                         <span className="reply-time">
-                                          {/* {format(
+                                          {format(
                                             new Date(reply.creationDate),
                                             "hh:mm a, dd MMM yyyy"
                                           ) &&
@@ -659,7 +659,7 @@ const Activity = () => {
                                                 new Date(reply.creationDate),
                                                 "hh:mm a, dd MMM yyyy"
                                               )
-                                            : "Invalid date"} */}
+                                            : "Invalid date"}
                                         </span>
                                       </div>
                                       <p>{reply.content}</p>
