@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
 
+
 const Navbar = () => {
+
+  const [user, setUser] = useState('');
+
+  const userId = Cookies.get('userId');
+  
+
   return (
     <header
       className="row"
