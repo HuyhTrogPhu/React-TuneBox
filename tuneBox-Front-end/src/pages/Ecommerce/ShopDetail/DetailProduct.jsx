@@ -8,7 +8,8 @@ import { getInstrumentById } from '../../../service/EcommerceHome';
 import { Link } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { addToLocalCart, getLocalCart } from "../../../service/CartService";
-
+import { BounceLoader } from 'react-spinners';
+import { Audio } from 'react-loader-spinner'
 const DetailProduct = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -25,7 +26,7 @@ const DetailProduct = () => {
 
   const [cartItems, setCartItems] = useState({});
 
-
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   useEffect(() => {
     // Lấy userId từ cookie khi component mount
     const storedUserId = Cookies.get('userId');
@@ -87,11 +88,17 @@ const DetailProduct = () => {
 
 
   const handleAddToCart = async () => {
-    addToLocalCart(instrument, quantity); // Sử dụng hàm đã có
-    alert('Đã thêm vào giỏ hàng thành công.');
+    setIsAddingToCart(true); // Bắt đầu loading
+    setTimeout(() => {
+      addToLocalCart(instrument, quantity);
+      setIsAddingToCart(false); // Kết thúc loading
+      alert('Đã thêm vào giỏ hàng thành công.');
+    }, 1000); // Giả lập thời gian xử lý
   };
 
-
+  if (loading) return <p>Đang tải sản phẩm...</p>;
+  if (error) return <p>{error}</p>;
+  if (!instrument) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
 
   return (
     <div>
@@ -112,10 +119,13 @@ const DetailProduct = () => {
           <div className="row mt-5">
             {/* Instrument content */}
             <div className="col-6">
+              <div className="mt-5">
               <h3>About the product</h3>
               <div className="gioiThieu mt-4 p-3">
                 <p>{instrument.description}</p>
               </div>
+              </div>
+             
             </div>
             <div className="col-5">
               <div className="mt-4 mb-3 noidungSP">
@@ -149,8 +159,24 @@ const DetailProduct = () => {
 
                   {/* Add to cart */}
                   <div className="btn-cart mt-4">
-                    <button className="add-to-cart" value={instrument.id} onClick={handleAddToCart}>Add to cart</button>
+                    <button className="add-to-cart" onClick={handleAddToCart} disabled={isAddingToCart}>
+                      {!isAddingToCart ? "Add to cart" : null}
+                    </button>
+                    {isAddingToCart && (
+                      <div className="loader-overlay">
+                        <Audio
+                          height="80"
+                          width="80"
+                          radius="9"
+                          color="#e94f37"
+                          ariaLabel="three-dots-loading"
+                          wrapperStyle
+                          wrapperClass
+                        />
+                      </div>
+                    )}
                   </div>
+
                 </div>
 
                 {/* Service */}

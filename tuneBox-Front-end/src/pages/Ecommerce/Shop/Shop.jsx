@@ -105,6 +105,8 @@ const Shop = () => {
     if (quantity > 0 && quantity <= 5) return 'Sắp hết hàng';
     return 'Còn hàng';
   };
+
+  
   useEffect(() => {
     const filtered = instruments.filter(instrument => {
       // Lọc theo trạng thái
@@ -135,11 +137,17 @@ const Shop = () => {
       return true;
     })
       .sort((a, b) => {
-        if (sortOrder === 'asc') {
+        if (sortOrder === 'priceAsc') {
           return parseFloat(a.costPrice) - parseFloat(b.costPrice);
         }
-        if (sortOrder === 'desc') {
+        if (sortOrder === 'priceDesc') {
           return parseFloat(b.costPrice) - parseFloat(a.costPrice);
+        }
+        if (sortOrder === 'nameAsc') {
+          return a.name.localeCompare(b.name);
+        }
+        if (sortOrder === 'nameDesc') {
+          return b.name.localeCompare(a.name);
         }
         return 0;
       });
@@ -274,13 +282,14 @@ const Shop = () => {
                 <div className='col-9'>Total product</div>
 
                 <div className='col-3'>
-                  <select className="form-select">
-                    <option selected>Default</option>
-                    <option value="" onClick={() => { setSortByName(''); setSortByPrice(''); setCurrentPage(1); }}>Price: Low to high</option>
-                    <option value="" onClick={() => { setSortByPrice('asc'); setSortByName(''); setCurrentPage(1); }}>Price: High to low</option>
-                    <option value="" onClick={() => { setSortByPrice('desc'); setSortByName(''); setCurrentPage(1); }}>Name: A to Z</option>
-                    <option value="" onClick={() => { setSortByName('asc'); setSortByPrice(''); setCurrentPage(1); }}>Name: Z to A</option>
+                  <select className="form-select" onChange={(e) => handleSort(e.target.value)}>
+                    <option value="" selected>Default</option>
+                    <option value="priceAsc">Price: Low to high</option>
+                    <option value="priceDesc">Price: High to low</option>
+                    <option value="nameAsc">Name: A to Z</option>
+                    <option value="nameDesc">Name: Z to A</option>
                   </select>
+
                 </div>
               </div>
 
