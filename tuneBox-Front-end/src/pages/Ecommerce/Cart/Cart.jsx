@@ -107,7 +107,7 @@ const Cart = () => {
                                       </button>
                                     </div>
                                     <div className="col-md-3 col-lg-2 col-xl-3 offset-lg-1">
-                                    <h6 className="mb-0">{(item.costPrice * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h6>
+                                      <h6 className="mb-0">{(item.costPrice * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h6>
                                     </div>
                                     <div className="col-md-1 col-lg-1 col-xl-1 text-end">
                                       <a href="#!" className="text-muted" onClick={() => removeItem(item.instrumentId)}>
@@ -120,7 +120,7 @@ const Cart = () => {
                               <hr className="hr-100" />
                               <div className="pt-5">
                                 <h6 className="mb-0">
-                                  <Link to={{pathname : `/Shop`}} className="text-body">
+                                  <Link to={{ pathname: `/Shop` }} className="text-body">
                                     <i className="fas fa-long-arrow-alt-left me-2" />Back to shop
                                   </Link>
                                 </h6>
@@ -130,13 +130,16 @@ const Cart = () => {
                           <div className="col-lg-4 bg-body-tertiary">
                             <div className="p-5">
                               <h3 className="fw-bold mb-5 mt-2 pt-1">Summary</h3>
-                              
+
                               <hr className="hr-100" />
                               <div className="d-flex justify-content-between mb-5">
                                 <h5 className="text-uppercase">Total price</h5>
                                 <h5>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h5>
                               </div>
-                              <button type="button" className="btn btn-dark btn-block btn-lg">Check out</button>
+
+                              <Link to={"/checkOut"}>
+                                <button type="button" className="btn btn-dark btn-block btn-lg">Check out</button>
+                              </Link>
                             </div>
                           </div>
                         </div>

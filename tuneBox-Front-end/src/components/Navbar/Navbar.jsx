@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
-
 const Navbar = () => {
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCartCount = () => {
+      const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+      const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+      setCartCount(totalCount);
+    };
+
+    fetchCartCount();
+  }, []);
   return (
     <header
       className="row"
@@ -133,20 +143,28 @@ const Navbar = () => {
           </Link>
         </button>
         {/* Trang giỏ hàng */}
-        <button className="btn">
-          <Link to={'/Cart'}>
-            <span>
-              <img
-                alt="icon-giohang"
-                src={images.shopping_bag}
-                style={{
-                  marginBottom: "15px",
-                  marginRight: "30px",
-                }}
-              />
-            </span>
-          </Link>
+
+         <button className="btn position-relative">
+            <Link to={'/Cart'} className="d-flex align-items-center">
+                <span>
+                    <img
+                        alt="icon-giohang"
+                        src={images.shopping_bag}
+                        style={{
+                            marginBottom: "15px",
+                            marginRight: "10px",
+                        }}
+                    />
+                </span>
+                {/* Hiển thị badge nếu có sản phẩm trong giỏ hàng */}
+                {cartCount > 0 && (
+                   <span className="badge text-bg-secondary">
+                        {cartCount}
+                    </span>
+                )}
+            </Link>
         </button>
+        
         {/* Trang tạo track */}
         <button
           className="btn btn-danger"
@@ -169,6 +187,8 @@ const Navbar = () => {
           />{" "}
           <b>Create</b>{" "}
         </button>
+
+
       </div>
       <hr />
     </header>
