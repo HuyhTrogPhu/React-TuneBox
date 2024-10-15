@@ -42,8 +42,7 @@ const Brand = () => {
             <Link to={'/BrandPage'}>
               <img
                 key={index}
-                src={brand.brandImage ? `data:image/png;base64, ${brand.brandImage}`
-                  : 'default-image-path.jpg'}
+                src={brand.brandImage ? brand.brandImage : 'default-image-path.jpg'}
                 alt={brand.name}
                 style={{ width: '50px' }}
               />

@@ -73,7 +73,7 @@ const Navbar = () => {
           </Link>
         </button>
       </div>
-      <div className="col text-end" style={{ alignItems: "center",}}>
+      <div className="col text-end" style={{ alignItems: "center", }}>
         <span>
           <img
             alt="icon-chuong"
@@ -86,7 +86,7 @@ const Navbar = () => {
         </span>
         <span>
           <img
-          alt="icon-chat"
+            alt="icon-chat"
             src={images.conversstion}
             style={{
               marginBottom: "15px",
@@ -107,7 +107,7 @@ const Navbar = () => {
             <b>Get</b>
           </span>{" "}
           <img
-          alt="icon-crow"
+            alt="icon-crow"
             height="32px"
             src={images.crown}
             style={{
@@ -137,7 +137,7 @@ const Navbar = () => {
           <Link to={'/Cart'}>
             <span>
               <img
-              alt="icon-giohang"
+                alt="icon-giohang"
                 src={images.shopping_bag}
                 style={{
                   marginBottom: "15px",
@@ -158,7 +158,7 @@ const Navbar = () => {
         >
           {" "}
           <img
-          alt="icon-plus"
+            alt="icon-plus"
             height="20px"
             src={images.plus_white}
             style={{

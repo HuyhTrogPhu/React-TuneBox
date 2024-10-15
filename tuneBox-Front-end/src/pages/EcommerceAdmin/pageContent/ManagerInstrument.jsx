@@ -9,7 +9,7 @@ const ManagerInstrument = () => {
   const [newInsPrice, setInsPrice] = useState("");
   const [newInsQuantity, setInsQuantity] = useState("");
   const [newInsColor, setInsColor] = useState("");
-  const [newInsImage, setInsImage] = useState([]);
+  const [newInsImage, setInsImage] = useState(null);
   const [newInsCategory, setInsCategory] = useState("");
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");
@@ -26,7 +26,7 @@ const ManagerInstrument = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState('asc');
 
-
+  const [loading, setLoading] = useState(false);
   //Sort theo cate  và brand
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
@@ -82,13 +82,16 @@ const ManagerInstrument = () => {
     let valid = true;
     const errorsCopy = { ...errors };
 
-    if (!newInsName.trim()) {
+    const isDuplicateName = instruments.some(ins => ins.name.toLowerCase() === newInsName.toLowerCase());
+    if (isDuplicateName) {
+      errorsCopy.newInsName = 'Instrument name already exists';
+      valid = false;
+    } else if (!newInsName.trim()) {
       errorsCopy.newInsName = 'Instrument name is required';
       valid = false;
     } else {
       errorsCopy.newInsName = '';
     }
-
     const priceRegex = /^\d+(\.\d+)?$/; // Regex để kiểm tra giá (chỉ cho phép số và số thập phân)
     if (!newInsPrice.trim() || !priceRegex.test(newInsPrice) || parseFloat(newInsPrice) < 0) {
       errorsCopy.newInsPrice = 'Instrument price must be a positive number';
@@ -148,7 +151,7 @@ const ManagerInstrument = () => {
     if (!validateForm()) {
       return;
     }
-
+    setLoading(true);
     const newInstrument = new FormData();
     newInstrument.append('name', newInsName);
     newInstrument.append('costPrice', parseFloat(newInsPrice));
@@ -160,23 +163,21 @@ const ManagerInstrument = () => {
     newInstrument.append('categoryId', newInsCategory);
     newInstrument.append('brandId', newInsBrand);
 
-    // Gửi tất cả hình ảnh
-    newInsImage.forEach((image) => {
-      newInstrument.append('image', image); // Thêm từng hình ảnh vào FormData
-    });
+    createInstrument(newInstrument)
+      .then((response) => {
+        console.log("Instrument created:", response.data);
 
-    createInstrument(newInstrument).then((response) => {
-      console.log("Instrument created:", response.data);
+        // Đóng modal
+        document.getElementById("closeModal").click();
 
-      // Đóng modal
-      document.getElementById("closeModal").click();
-
-      // Cập nhật danh sách nhạc cụ
-      getAllInstrument();
-      setMessage("Add done!")
-    }).catch((error) => {
-      console.error("Error creating instrument", error);
-    });
+        // Cập nhật danh sách nhạc cụ
+        getAllInstrument();
+        setMessage("Add done!")
+      }).catch((error) => {
+        console.error("Error creating instrument", error);
+      }).finally(() => {
+        setLoading(false)
+      })
   };
 
 
@@ -274,7 +275,7 @@ const ManagerInstrument = () => {
                 )}
               </select>
               <button
-                className="btn btn-outline-danger mt-3"
+                className="btn btn-secondary mt-3"
                 onClick={() => setSelectedCategory("")} // Đặt lại giá trị selectedBrand
               >
                 Reset
@@ -306,7 +307,7 @@ const ManagerInstrument = () => {
                 )}
               </select>
               <button
-                className="btn btn-outline-danger mt-3"
+                className="btn btn-secondary mt-3"
                 onClick={() => setSelectedBrand("")} // Đặt lại giá trị selectedBrand
               >
                 Reset
@@ -318,7 +319,7 @@ const ManagerInstrument = () => {
           </div>
 
         </div>
-        <button className="btn btn-outline-info" onClick={handleSort}>
+        <button className="btn btn-secondary" onClick={handleSort}>
           Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
         </button>
         <button
@@ -336,7 +337,6 @@ const ManagerInstrument = () => {
           tabIndex={-1}
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
-          data-bs-backdrop="false"
         >
           <div className="modal-dialog modal-xl">
             <div className="modal-content">
@@ -395,16 +395,8 @@ const ManagerInstrument = () => {
                       {errors.newInsQuantity && <div className="alert alert-danger mt-3">{errors.newInsQuantity}</div>}
                       <div className="mt-3">
                         <label className="form-label">Instrument Image</label>
-                        <input
-                          type="file"
-                          className={`form-control`}
-                          multiple // Thêm thuộc tính multiple
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files); // Chuyển đổi FileList thành mảng
-                            setInsImage(files); // Cập nhật state với mảng hình ảnh
-                          }}
-                        />
-
+                        <input type="file" className={`form-control `}
+                          onChange={(e) => setInsImage(e.target.files[0])} />
                       </div>
                       {errors.newInsImage && <div className="alert alert-danger mt-3">{errors.newInsImage}</div>}
                     </div>
@@ -483,8 +475,15 @@ const ManagerInstrument = () => {
                       >
                         Reset Form
                       </button>
-                      <button type="button" className="btn btn-primary" onClick={handleSave}>
-                        Save
+                      <button type="button" className="btn btn-primary" onClick={handleSave} disabled={loading} >
+
+                        {loading ? (
+                          <span>
+                            <i className="fa fa-spinner fa-spin" /> Saving...
+                          </span>
+                        ) : (
+                          "Save"
+                        )}
                       </button>
                     </div>
 

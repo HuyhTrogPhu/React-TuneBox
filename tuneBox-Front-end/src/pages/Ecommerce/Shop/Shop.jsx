@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import '../../../pages/Ecommerce/Shop/Shop.css'
+import Footer2 from '../../../components/Footer/Footer2'
+import Benefits from '../../../components/Benefits/Benefits'
 import { images } from '../../../assets/images/images'
-import { listCategories, listInstruments, listBrands } from '../../../service/InstrumentServiceCus'
+import { listCategories, listInstruments, listBrands } from '../../../service/EcommerceHome'
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 const Shop = () => {
 
   const [brands, setBrands] = useState([]);
@@ -10,7 +13,6 @@ const Shop = () => {
   const [instruments, setInstruments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12; // Số sản phẩm hiển thị trên mỗi trang
-  const imageBase64Prefix = "data:image/png;base64,";
 
 
   const [selectedBrands, setSelectedBrands] = useState([]);
@@ -20,6 +22,17 @@ const Shop = () => {
   const [sortOrder, setSortOrder] = useState(''); // 'asc' cho giá thấp nhất, 'desc' cho giá cao nhất
 
   const [filteredInstruments, setFilteredInstruments] = useState([]);
+
+  // Tạo trạng thái để lưu trữ trạng thái mở/đóng cho từng accordion
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
+  const [isPriceOpen, setIsPriceOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
+  // Hàm toggle cho các accordion
+  const toggleBrandAccordion = () => setIsBrandOpen(!isBrandOpen);
+  const togglePriceAccordion = () => setIsPriceOpen(!isPriceOpen);
+  const toggleCategoryAccordion = () => setIsCategoryOpen(!isCategoryOpen);
+
 
   const navigate = useNavigate();
   // Fetch dữ liệu từ API khi component được mount
@@ -32,16 +45,21 @@ const Shop = () => {
       const categoriesResponse = await listCategories();
       const instrumentsResponse = await listInstruments();
 
-      console.log("Brands Data:", brandsResponse); // Kiểm tra lại dữ liệu
-      console.log("Instruments Data:", instrumentsResponse.data);
-      // Truy cập vào thuộc tính data của phản hồi
-      setBrands(Array.isArray(brandsResponse.data) ? brandsResponse.data : []);
+      console.log("Brands Data:", brandsResponse); // Check the brand data
+
+      // Filter brands with status === false
+      const filteredBrands = Array.isArray(brandsResponse.data)
+        ? brandsResponse.data.filter(brand => brand.status === false)
+        : [];
+
+      setBrands(filteredBrands); // Set the filtered brands
       setCategories(Array.isArray(categoriesResponse.data) ? categoriesResponse.data.filter(cate => cate.status === false) : []);
       setInstruments(Array.isArray(instrumentsResponse.data) ? instrumentsResponse.data : []);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+
 
 
 
@@ -80,6 +98,7 @@ const Shop = () => {
   const handleSort = (order) => {
     setSortOrder(order);
   };
+
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
     if (quantity === 0) return 'Hết hàng';
@@ -142,16 +161,21 @@ const Shop = () => {
         <div className="content">
           <div className="row">
             <div className="col-3 phamloai">
+              {/* Filter */}
               <div className="accordion" id="accordionPanelsStayOpenExample">
-                {/* Khung tim kiem theo thuong hieu */}
+                {/* Khung tìm kiếm theo thương hiệu */}
                 <div className="accordion" id="accordionExample">
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      <button
+                        className={`accordion-button ${isBrandOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={toggleBrandAccordion}
+                      >
                         Thương hiệu
                       </button>
                     </h2>
-                    <div id="collapseOne" className="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isBrandOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
                         {brands.length > 0 ? (
                           brands.map((brand) => (
@@ -161,7 +185,6 @@ const Shop = () => {
                                 className="form-check-input"
                                 value={brand.name}
                                 onChange={() => handleBrandChange(brand.name)}
-
                               />
                               <label className="form-check-label">{brand.name}</label>
                             </div>
@@ -170,16 +193,20 @@ const Shop = () => {
                           <p>Không có thương hiệu nào</p>
                         )}
                       </div>
-
                     </div>
                   </div>
+
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      <button
+                        className={`accordion-button ${isPriceOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={togglePriceAccordion}
+                      >
                         Mức giá
                       </button>
                     </h2>
-                    <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isPriceOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
                         <div className="input-group mb-3">
                           <input
@@ -204,18 +231,22 @@ const Shop = () => {
                           </button>
                         </div>
                       </div>
-
                     </div>
                   </div>
+
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      <button
+                        className={`accordion-button ${isCategoryOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={toggleCategoryAccordion}
+                      >
                         Loại sản phẩm
                       </button>
                     </h2>
-                    <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isCategoryOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
-                        {/* check box */}
+                        {/* checkbox */}
                         {categories.map((cate) => (
                           <div className="form-check" key={cate.id}>
                             <input
@@ -223,66 +254,71 @@ const Shop = () => {
                               className="form-check-input"
                               value={cate.name}
                               onChange={() => handleCategoryChange(cate.name)} // Gọi hàm handleCategoryChange
-
                             />
-                            <label htmlFor className="form-check-label">{cate.name}</label>
+                            <label className="form-check-label">{cate.name}</label>
                           </div>
-
-                        ))
-
-                        }
-
+                        ))}
                       </div>
-
                     </div>
                   </div>
                 </div>
               </div>
+
             </div>
             {/* sanPham */}
-            <div className="col-9">
-              <div className="row">
-                <div class="custom-dropdown">
-                  <button class="btn custom-dropdown-toggle   btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Sắp xếp
-                  </button>
-                  <ul class="custom-dropdown-menu">
-                    <li>
-                      <a class="custom-dropdown-item" href="#" onClick={() => handleSort('desc')}>
-                        Giá cao nhất
-                      </a>
-                    </li>
-                    <li>
-                      <a class="custom-dropdown-item" href="#" onClick={() => handleSort('asc')}>
-                        Giá thấp nhất
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+            <div className="col-9 mt-3">
 
+              {/* Sort */}
+
+              <div className="row">
+                <div className='col-9'>Total product</div>
+
+                <div className='col-3'>
+                  <select className="form-select">
+                    <option selected>Default</option>
+                    <option value="" onClick={() => { setSortByName(''); setSortByPrice(''); setCurrentPage(1); }}>Price: Low to high</option>
+                    <option value="" onClick={() => { setSortByPrice('asc'); setSortByName(''); setCurrentPage(1); }}>Price: High to low</option>
+                    <option value="" onClick={() => { setSortByPrice('desc'); setSortByName(''); setCurrentPage(1); }}>Name: A to Z</option>
+                    <option value="" onClick={() => { setSortByName('asc'); setSortByPrice(''); setCurrentPage(1); }}>Name: Z to A</option>
+                  </select>
+                </div>
               </div>
-              <div className="sanPham mt-2">
+
+              {/* San pham */}
+              <div className="sanPham mt-5">
                 <div className="row">
                   {currentItems.map((instrument) => (
                     <div className="col-3 mb-4" key={instrument.id}>
-                      <div className="card" style={{ width: '100%', border: 'none' }}>
-                        <img
-                          src={instrument.image ? `data:image/${instrument.image.split('.').pop()};base64,${instrument.image}` : 'default-image-url'}
-                          className="card-img-top"
-                          alt={instrument.name}
-                        />
-                        <div className="card-body">
-                          <p className="card-title">{instrument.name}</p>
-                          <p className="card-price"> {instrument.costPrice.toLocaleString()}đ</p>
-                          <p className="card-status text-center">{getStockStatus(instrument.quantity)}</p> {/* Hiển thị trạng thái */}
+
+                      <Link to={{
+                        pathname: `/DetailProduct/${instrument.id}`,
+                        state: { instrument }
+                      }} className="card-link">
+                        <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                          <div className="card-img-wrapper">
+                            <img
+                              src={instrument.image}
+                              className="card-img-top"
+                              alt={instrument.name}
+                            />
+                          </div>
+                          <div className="card-body text-center">
+                            <p className="card-title">{instrument.name}</p>
+                            <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                            <p className="card-status">{getStockStatus(instrument.quantity)}</p>
+                          </div>
+
                         </div>
-                      </div>
+                      </Link>
                     </div>
                   ))}
                 </div>
 
+
+
                 {/* Pagination */}
-                <div className="phantrangdetail">
+
+                <div className="phantrangdetail ">
                   <nav aria-label="Page navigation example">
                     <ul className="pagination justify-content-center text-center">
                       <li className="page-item">
@@ -307,12 +343,14 @@ const Shop = () => {
                     </ul>
                   </nav>
                 </div>
-
               </div>
+
             </div>
           </div>
         </div>
       </div>
+      <Benefits />
+      <Footer2 />
     </div>
 
 
