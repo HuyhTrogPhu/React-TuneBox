@@ -26,7 +26,6 @@ const Login = () => {
   // const [forgotMessage, setForgotMessage] = useState('');
   const navigate = useNavigate(); 
   const [errorMessage, setErrorMessage] = useState('');
-  const [postId, setPostId] = useState(null); // State để lưu ID bài viết khi chỉnh sửa
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -48,7 +47,8 @@ const Login = () => {
   
       if (response.data && response.data.status) {
         console.log('Đăng nhập thành công:', response.data);
-        Cookies.set("UserID", response.data.data.id, { expires: 7 }); 
+        Cookies.set("UserID", response.data.data.id, { expires: 7 });
+        Cookies.set('userNickname', response.data.data.userNickname , { expires: 7 });
         localStorage.setItem('user', JSON.stringify(response.data.data));
   
         navigate('/'); // Chuyển hướng đến trang chính

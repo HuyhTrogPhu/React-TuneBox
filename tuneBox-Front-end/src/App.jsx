@@ -90,6 +90,7 @@ function App() {
               <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
+              <Route path="/track/:id" element={<TrackDetail />} />
             </Route>
 
           {/* Các route không có Header */}
