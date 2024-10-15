@@ -15,7 +15,7 @@ const CheckOut = () => {
 
     const userId = Cookies.get("userId");
     console.log("User ID từ cookie:", userId);
-
+    const [errors, setErrors] = useState('');
     //API GHN 
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -36,6 +36,30 @@ const CheckOut = () => {
     const [phoneNumber, setPhoneNumer] = useState('')
     const [paymentMethod, setPaymentMethod] = useState('');
     const navigate = useNavigate()
+
+    const validateForm = () => {
+        let valid = true;
+        const errorsCopy = { ...errors };
+    
+        // Kiểm tra số điện thoại
+        if (phoneNumber) {
+            const phoneRegex = /^[0-9]{10,11}$/; // Chỉ cho phép 10 đến 11 chữ số
+            if (!phoneRegex.test(phoneNumber)) {
+                errorsCopy.phoneNumber = 'Số điện thoại phải bao gồm 10 đến 11 chữ số';
+                valid = false;
+            } else {
+                errorsCopy.phoneNumber = ''; // Không có lỗi
+            }
+        } else {
+            errorsCopy.phoneNumber = 'Vui lòng nhập số điện thoại';
+            valid = false;
+        }
+    
+        setErrors(errorsCopy);
+        return valid;
+    };
+    
+
     // Get user information khi userId có giá trị
     useEffect(() => {
         if (userId) {
@@ -95,7 +119,7 @@ const CheckOut = () => {
             console.error('Invalid province ID');
             return;
         }
-    
+
         const selectedProvince = provinces.find(province => province.ProvinceID === provinceId);
         setSelectedProvince(provinceId);
         setSelectedProvinceName(selectedProvince ? selectedProvince.ProvinceName : ''); // Cập nhật tên tỉnh
@@ -115,7 +139,7 @@ const CheckOut = () => {
                 console.error('Error fetching districts:', error);
             });
     };
-    
+
 
     // Lấy danh sách phường/xã khi chọn quận/huyện
     const handleDistrictChange = (e) => {
@@ -124,7 +148,7 @@ const CheckOut = () => {
             console.error('Invalid district ID');
             return;
         }
-    
+
         const selectedDistrict = districts.find(district => district.DistrictID === districtId);
         setSelectedDistrict(districtId);
         setSelectedDistrictName(selectedDistrict ? selectedDistrict.DistrictName : ''); // Cập nhật tên huyện
@@ -143,7 +167,7 @@ const CheckOut = () => {
                 console.error('Error fetching wards:', error);
             });
     };
-    
+
 
 
     // Xử lý chọn phương thức giao hàng
@@ -153,7 +177,7 @@ const CheckOut = () => {
         setSelectedWard(wardCode);
         setSelectedWardName(selectedWard ? selectedWard.WardName : ''); // Cập nhật tên xã
     };
-    
+
 
     const handleShippingChange = async (method) => {
         setShippingMethod(method);
@@ -204,6 +228,10 @@ const CheckOut = () => {
 
 
     const handleSubmitOrder = async () => {
+        if (!validateForm()) {
+            return;
+          }
+        // Kiểm tra thông tin đầu vào
         if (!userId || cartItems.length === 0 || !selectedProvince || !selectedDistrict || !selectedWard || !houseNumber) {
             Swal.fire('Thông báo', 'Vui lòng điền đầy đủ thông tin trước khi đặt hàng!', 'error');
             return;
@@ -219,29 +247,50 @@ const CheckOut = () => {
             paymentMethod: paymentMethod,
             status: 'Pending',
             phoneNumber: phoneNumber,
-            address: `${houseNumber}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`, // Sử dụng tên
+            address: `${houseNumber}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`,
             shippingMethod: shippingMethod,
             orderDetails: cartItems.map(item => ({
                 quantity: item.quantity,
                 instrumentId: item.instrumentId,
             })),
         };
-        
 
         console.log("Order Data:", JSON.stringify(orderData, null, 2));
 
         try {
-            const response = await axios.post('http://localhost:8080/customer/checkout/create', orderData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                withCredentials: true
-            });
+            // Gọi API tạo đơn hàng dựa trên phương thức thanh toán
+            let response;
+            if (paymentMethod === 'vnpay') {
+                response = await axios.post('http://localhost:8080/customer/checkout/create_payment', orderData, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true
+                });
+                // Đảm bảo rằng đơn hàng đã được lưu ở đây
+                if (response.data && response.data.url) {
+                    Swal.fire({
+                        title: 'Yêu cầu thanh toán',
+                        text: 'Bạn sẽ được chuyển hướng đến trang thanh toán VNPay!',
+                        icon: 'info',
+                    }).then(() => {
+                        window.location.href = response.data.url; // Chuyển hướng đến đường dẫn VNPay
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Lỗi',
+                        text: 'Không nhận được URL thanh toán từ VNPay. Vui lòng thử lại.',
+                        icon: 'error',
+                    });
+                }
+            } else {
+                response = await axios.post('http://localhost:8080/customer/checkout/create', orderData, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true
+                });
 
-            console.log("Response Data:", response.data);
-
-            if (response.data.orderId) {
-                const orderId = response.data.orderId;
                 Swal.fire({
                     title: 'Thành công',
                     text: 'Đơn hàng của bạn đã được đặt thành công!',
@@ -251,21 +300,22 @@ const CheckOut = () => {
                     cancelButtonText: 'Đóng',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        getOrderDetails(orderId);
+                        getOrderDetails(response.data.orderId); // Lấy orderId từ response
                     } else {
-                        navigate('/cart'); // Điều hướng về trang giỏ hàng
+                        navigate('/cart');
                     }
                 });
-                localStorage.removeItem('cart');
-                setCartItems([]);
-            } else {
-                Swal.fire('Lỗi', 'Đã có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', 'error');
             }
+
+            // Reset giỏ hàng
+            localStorage.removeItem('cart');
+            setCartItems([]);
         } catch (error) {
             console.error('Error creating order:', error.response ? error.response.data : error.message);
             Swal.fire('Lỗi', 'Đã có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', 'error');
         }
     };
+
 
 
     // Hàm để gọi API lấy thông tin chi tiết hóa đơn
@@ -281,11 +331,11 @@ const CheckOut = () => {
                        <p>Tổng giá trị: ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
                        <p>Ngày đặt hàng: ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
                        <p>Trạng thái: ${orderDetails.status}</p>
-                       <p>Địa chỉ: ${orderDetails.address}</p>`, // Sử dụng tên đã lưu
+                       <p>Địa chỉ: ${orderDetails.address}</p>`, 
                 icon: 'info',
                 confirmButtonText: 'Đóng',
             });
-            
+
         } catch (error) {
             console.error('Error fetching order details:', error.response ? error.response.data : error.message);
             Swal.fire('Lỗi', 'Không thể lấy thông tin chi tiết hóa đơn. Vui lòng thử lại.', 'error');
@@ -334,10 +384,11 @@ const CheckOut = () => {
                                 <label className='form-label'>Số điện thoại:</label>
                                 <input
                                     type="text"
-                                    className='form-control'
+                                    className={`form-control ${errors.phoneNumber ? 'is-invalid' : ''}`}
                                     value={phoneNumber}
                                     onChange={(e) => setPhoneNumer(e.target.value)}
                                 />
+                                 {errors.phoneNumber && <div className='invalid-feedback'>{errors.phoneNumber}</div>}
                             </div>
                             <div className='mt-3'>
                                 <label className='form-label'>Quốc gia:</label>
@@ -439,21 +490,21 @@ const CheckOut = () => {
                                         <button
                                             className="accordion-button collapsed"
                                             type="button"
-                                            onClick={() => handlePaymentChange('paypal')}
+                                            onClick={() => handlePaymentChange('vnpay')}
                                         >
                                             <input
                                                 type="radio"
-                                                id="paypalRadio"
+                                                id="payment-vnpay"
                                                 name="paymentMethod"
-                                                value="paypal"
+                                                value="vnpay"
                                                 className="me-2"
-                                                checked={paymentMethod === 'paypal'}
-                                                onChange={() => handlePaymentChange('paypal')}
+                                                checked={paymentMethod === 'vnpay'}
+                                                onChange={() => handlePaymentChange('vnpay')}
                                             />
-                                            Paypal
+                                            VN Pay
                                         </button>
                                     </h2>
-                                    <div className={`accordion-collapse collapse ${paymentMethod === 'paypal' ? 'show' : ''}`}>
+                                    <div className={`accordion-collapse collapse ${paymentMethod === 'vnpay' ? 'show' : ''}`}>
                                         <div className="accordion-body">
                                             <p>Sau khi nhấn "Thanh toán ngay", bạn sẽ được chuyển tiếp tới trang thanh toán bằng tài khoản ngân hàng.</p>
                                         </div>

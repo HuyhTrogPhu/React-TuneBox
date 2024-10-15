@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Route, Routes, Outlet } from "react-router-dom";
+import { Route, Routes, Outlet, useParams } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -26,6 +26,7 @@ import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
+import ThanhCong from "./pages/Ecommerce/order/doneOr";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -45,6 +46,7 @@ function LayoutWithoutHeader() {
 
 
 function App() {
+  const { orderId } = useParams();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -84,7 +86,8 @@ function App() {
             <Route path="/CategoryPage" element={<CategoryPage />} />
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
             <Route path="/checkOut" element={<CheckOut/>}/>
-            <Route path="/orderDetail/*" element={<OrderDetail/>}/>
+            <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
+            <Route path="/doneorder" element={<ThanhCong/>}/>
           </Route>
 
           {/* Các route không có Header */}
