@@ -1,25 +1,93 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './css/bootstrap.min.css';
-import './css/bootstrap-icons.css';
 import './css/style.css';
-import './css/header.css';
-import './css/profile.css';
-import './js/jquery.min.js';
-import './js/bootstrap.min.js';
-import './js/jquery.sticky.js';
-import './js/click-scroll.js';
-import './js/custom.js';
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
-import { images } from "../../assets/images/images.js";
-
+import { login } from '../../service/LoginService.js';
 
 const Login = () => {
-  
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
+  const [userNameOrEmail, setUserNameOrEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
+
+  // Hàm validate email bằng regex
+  const validateEmail = (email) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailPattern.test(email);
+  };
+
+  const isEmail = (input) => {
+    return validateEmail(input);
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    setError('');
+    setSuccess('');
+
+    if (!userNameOrEmail) {
+      setError('Vui lòng nhập tên tài khoản hoặc email.');
+      return;
+    }
+
+    if (isEmail(userNameOrEmail) && !isEmail(userNameOrEmail)) {
+      setError('Vui lòng nhập đúng định dạng email.');
+      return;
+    }
+
+    if (!password) {
+      setError('Vui lòng nhập mật khẩu.');
+      return;
+    }
+
+    if (password.length < 4) {
+      setError('Mật khẩu phải có ít nhất 4 ký tự!');
+      return;
+    }
+
+    const userDto = {
+      userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
+      email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
+      password: password,
+    };
+
+    try {
+      const response = await login(userDto);
+      alert('Đăng nhập thành công!');
+
+      // Lấy userId từ phản hồi của server
+      console.log('Data trả về: ', response);
+
+      const userId = response;
+
+      if (userId !== undefined && userId !== null) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + 3 * 24 * 60 * 60 * 1000);  // Cookie tồn tại trong 3 ngày
+        document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
+        console.log('Cookie userId set:', document.cookie);
+      } else {
+        console.error('userId is undefined or null');
+      }
+
+
+
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        setError(error.response.data);
+      }
+      //  else {
+      //   setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+      // }
+    }
+  };
 
   return (
     <div>
@@ -29,20 +97,22 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="col-lg-6 col-10 mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0">
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
+                  {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+                  {success && <div style={{ color: 'green', textAlign: 'center' }}>{success}</div>}
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
                     <div className="col-lg-12" style={{ marginTop: -30 }}>
                       <input
                         type="text"
-                        name="name"
-                        id="name"
+                        name="userNameOrEmail"
+                        id="userNameOrEmail"
                         className="form-control"
                         placeholder="Nhập tên đăng nhập hoặc email"
-                       
-                       
+                        value={userNameOrEmail}
+                        onChange={(e) => setUserNameOrEmail(e.target.value)}
                       />
                     </div>
                   </div>
@@ -54,22 +124,13 @@ const Login = () => {
                         className="form-control"
                         name="password"
                         placeholder="Nhập mật khẩu"
-                        
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                       />
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-10 col-8 mx-auto">
                     <button type="submit" className="form-control">Đăng nhập</button>
-                  </div>
-                  <div className="col-lg-4 col-md-10 col-8 mx-auto" style={{ marginTop: 20, paddingLeft: 20 }}>
-                    <span className="text-center">Hoặc tiếp tục với</span>
-                  </div>
-                  <div className="row d-flex justify-content-center" style={{ marginTop: 20 }}>
-                    <div className="col-lg-6 col-md-6 col-12 d-flex justify-content-center image-container">
-                      <div>
-                        <img src={images.google} alt="google" width="65px" height="65px" />
-                      </div>
-                    </div>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 80 }}>
                     <span className="text-center">Bạn chưa có tài khoản?
@@ -88,7 +149,6 @@ const Login = () => {
         </div>
       </section>
       <Footer2 />
-
     </div>
   );
 };

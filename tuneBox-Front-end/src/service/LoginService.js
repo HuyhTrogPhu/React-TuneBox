@@ -17,3 +17,12 @@ export const register = async (formData) => {
   return response.data;
 };
 
+// login
+export const login = async (userDto) => {
+  const response = await axios.post(`${REST_API_BASE_URL}/login`, userDto, {
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+  return response.data;
+};
