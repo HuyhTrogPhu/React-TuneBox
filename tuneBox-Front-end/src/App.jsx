@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Route, Routes, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
@@ -49,28 +49,29 @@ function LayoutWithoutHeader() {
 function App() {
   return (
     <FollowProvider> {/* Đặt FollowProvider ở đây */}
-      <div>
-        <div className="">
-          <Routes>
-            {/* Các route có Header */}
-            <Route element={<LayoutWithHeader />}>
-              <Route path="/" element={<HomeFeed />} />
-              <Route path="/HomeEcommerce" element={<Home />} />
-              <Route path="/Shop" element={<Shop />} />
-              <Route path="/profileUser/*" element={<ProfileUser />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/profileSetting" element={<ProfileSetting />} />
-              <Route path="/CartDetail" element={<CartDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/DetailProduct" element={<DetailProduct />} />
-              <Route path="/BrandPage" element={<BrandPage />} />
-              <Route path="/brand-detail" element={<BrandDetail />} />
-              <Route path="/CategoryPage" element={<CategoryPage />} />
-              <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+    <div>
+      <div className="">
+        <Routes>
+          {/* Các route có Header */}
+          <Route element={<LayoutWithHeader />}>
+            <Route path="/" element={<HomeFeed />} />
+            <Route path="/HomeEcommerce" element={<Home />} />
+            <Route path="/Shop" element={<Shop />} />
+            <Route path="/profileUser/*" element={<ProfileUser />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/profileUser" element={<ProfileUser />} />
+            <Route path="/profileSetting" element={<ProfileSetting />} />
+            <Route path="/CartDetail" element={<CartDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/DetailProduct/:id" element={<DetailProduct />} />
+            <Route path="/BrandPage" element={<BrandPage />} />
+            <Route path="/brand-detail" element={<BrandDetail />} />
+            <Route path="/CategoryPage" element={<CategoryPage />} />
+            <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
-              <Route path="/checkOut" element={<CheckOut/>}/>
-            </Route>
+            <Route path="/checkOut" element={<CheckOut/>}/>
+          </Route>
 
           {/* Các route không có Header */}
           <Route element={<LayoutWithoutHeader />}>
@@ -88,9 +89,9 @@ function App() {
             <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
             {/* admin end */}
           </Route>
-          </Routes>
-        </div>
+        </Routes>
       </div>
+    </div>
     </FollowProvider>
   );
 }
