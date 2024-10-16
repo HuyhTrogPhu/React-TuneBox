@@ -127,10 +127,12 @@ function Trackdetail() {
       try {
         const response = await getCommentsByTrack(id);
         setComments(response); // Cập nhật danh sách bình luận
-
+        console.log("list bình luận:", response);
         // Duyệt qua từng bình luận để lấy replies
+
         for (const comment of response) {
           await fetchReplies(comment.id); // Gọi hàm fetchReplies cho từng comment
+          console.log(`Reply cho comment ${comment.id}:`, replies);
         }
       } catch (error) {
         console.error("Lỗi khi lấy bình luận:", error);
@@ -218,6 +220,15 @@ function Trackdetail() {
   const fetchReplies = async (commentId) => {
     try {
       const replies = await getRepliesByComment(commentId);
+
+      // In ra iduser của từng reply
+      replies.forEach((reply) => {
+        console.log(
+          `userNickname của reply ${reply.userNickname} trong comment ${commentId}:`,
+          reply.userNickname
+        );
+      });
+
       setReplies((prevReplies) => ({
         ...prevReplies,
         [commentId]: replies, // Cập nhật danh sách replies cho bình luận cụ thể
@@ -244,43 +255,14 @@ function Trackdetail() {
     };
 
     try {
-      if (editingReply) {
-        // Nếu đang chỉnh sửa, gọi hàm update với đối tượng replyData
-        const updatedReply = await updateReply(
-          editingReply.replyId,
-          userId,
-          replyData
-        ); // Truyền replyData
+      // Gọi API để thêm reply
+      const newReply = await addReply(commentId, userId, replyData); // Gọi hàm addReply
 
-        // Cập nhật state replies sau khi cập nhật
-        setReplies((prevReplies) => {
-          const updatedReplies = { ...prevReplies };
-          const repliesForComment = updatedReplies[commentId] || [];
-          const index = repliesForComment.findIndex(
-            (reply) => reply.id === editingReply.replyId
-          );
-
-          // Nếu tìm thấy phản hồi, cập nhật nó
-          if (index !== -1) {
-            repliesForComment[index] = updatedReply; // Cập nhật phản hồi
-          }
-
-          updatedReplies[commentId] = repliesForComment; // Cập nhật lại danh sách replies
-          return updatedReplies;
-        });
-
-        setEditingReply(null); // Reset trạng thái chỉnh sửa sau khi cập nhật
-        setEditContentReply(""); // Xóa nội dung chỉnh sửa
-      } else {
-        // Gọi API để thêm reply
-        const newReply = await addReply(commentId, userId, replyData); // Gọi hàm addReply
-
-        // Cập nhật state replies
-        setReplies((prevReplies) => ({
-          ...prevReplies,
-          [commentId]: [...(prevReplies[commentId] || []), newReply],
-        }));
-      }
+      // Cập nhật state replies
+      setReplies((prevReplies) => ({
+        ...prevReplies,
+        [commentId]: [...(prevReplies[commentId] || []), newReply],
+      }));
 
       // Xóa nội dung đã nhập sau khi thêm thành công
       setReplyContent((prevState) => ({
@@ -292,10 +274,54 @@ function Trackdetail() {
     }
   };
 
-  // xóa replly
-  const handleDeleteReply = async (replyId, commentId) => {
+  //  update reply
+  const handleUpdateReply = async () => {
+    //lấy reply từ state
+    const replyId = editingReply.replyId;
+    // Tạo đối tượng replyData với nội dung mới
+    const replyData = {
+      content: editContentReply, // Sử dụng biến này để cập nhật nội dung
+    };
+
     try {
-      await deleteReply(replyId);
+      // Gọi hàm updateReply để cập nhật reply
+      const updatedReply = await updateReply(replyId, userId, replyData);
+
+      // Cập nhật lại danh sách reply trong state
+      setReplies((prevReplies) => {
+        const updatedReplies = { ...prevReplies };
+
+        // Tìm comment mà reply thuộc về
+        for (const commentId in updatedReplies) {
+          const repliesForComment = updatedReplies[commentId] || [];
+          const index = repliesForComment.findIndex(
+            (reply) => reply.id === replyId
+          );
+
+          // Nếu tìm thấy reply, cập nhật nó
+          if (index !== -1) {
+            repliesForComment[index] = updatedReply; // Cập nhật reply mới
+            updatedReplies[commentId] = repliesForComment; // Cập nhật lại danh sách replies
+            break; // Thoát khỏi vòng lặp khi đã tìm thấy
+          }
+        }
+
+        return updatedReplies;
+      });
+
+      // Reset trạng thái chỉnh sửa
+      setEditingReply(null);
+      setEditContentReply("");
+    } catch (error) {
+      console.error("Error updating reply:", error);
+      alert("Failed to update reply");
+    }
+  };
+
+  // xóa reply
+  const handleDeleteReply = async (replyId, commentId, userId) => {
+    try {
+      await deleteReply(replyId, userId); // Truyền thêm userId vào đây
       fetchReplies(commentId); // Cập nhật lại danh sách reply sau khi xóa
     } catch (error) {
       console.error("Lỗi khi xóa reply:", error);
@@ -303,8 +329,8 @@ function Trackdetail() {
   };
 
   // Hàm kích hoạt chỉnh sửa
-  const handleEditReply = (replyId, currentContent) => {
-    console.log("Editing reply:", replyId, currentContent);
+  const handleEditReply = (replyId, userId, currentContent) => {
+    console.log("Editing reply:", replyId, userId, currentContent);
     setEditContentReply(currentContent); // Đặt nội dung hiện tại vào input
     setEditingReply({ replyId }); // Đặt trạng thái chỉnh sửa với replyId
   };
@@ -470,11 +496,14 @@ function Trackdetail() {
                             value={
                               editingReply
                                 ? editContentReply
-                                : replyContent[comment.id] || "" // Hiển thị nội dung đang chỉnh sửa hoặc nội dung mới
+                                : replyContent[comment.id] || ""
                             }
+                            // Hiển thị nội dung đang chỉnh sửa hoặc nội dung mới
                             onChange={(e) => {
-                              if (editingReply?.replyId === comment.id) {
-                                setEditContentReply(e.target.value); // Cập nhật nội dung khi chỉnh sửa
+                              // Cập nhật nội dung tùy thuộc vào trạng thái chỉnh sửa
+                              if (editingReply) {
+                                setEditContentReply(e.target.value);
+                                console.log(e.target.value); // Cập nhật nội dung khi chỉnh sửa
                               } else {
                                 setReplyContent((prevState) => ({
                                   ...prevState,
@@ -485,9 +514,13 @@ function Trackdetail() {
                           />
                           <button
                             className="btn-primary rounded mt-2 p-1"
-                            onClick={() => handleAddReply(comment.id)}
+                            onClick={
+                              editingReply
+                                ? handleUpdateReply
+                                : () => handleAddReply(comment.id)
+                            } // Gọi hàm để thêm hoặc cập nhật phản hồi
                           >
-                            {editingReply ? "Update" : "Reply"}{" "}
+                            {editingReply ? "Update" : "Reply"}
                             {/* Thay đổi nút theo trạng thái */}
                           </button>
                         </div>
@@ -520,7 +553,9 @@ function Trackdetail() {
                                     "dd/MM/yyyy"
                                   )}
                                 </div>
-                                <p>{reply.content}</p>
+                                <p>
+                                  @{comment.userNickname} {reply.content}
+                                </p>
                               </div>
                             </div>
                             <div>
@@ -543,6 +578,7 @@ function Trackdetail() {
                                         onClick={() =>
                                           handleEditReply(
                                             reply.id,
+                                            reply.userId,
                                             reply.content
                                           )
                                         }
@@ -556,7 +592,8 @@ function Trackdetail() {
                                         onClick={() =>
                                           handleDeleteReply(
                                             reply.id,
-                                            comment.id
+                                            comment.id,
+                                            userId
                                           )
                                         }
                                       >
@@ -595,9 +632,7 @@ function Trackdetail() {
               <div className="info-genre">Genre: {track.genreName}</div>
               <p>{track.description}</p>
             </div>
-            
           </div>
-          
 
           {/* list track theo genre */}
 
