@@ -138,7 +138,7 @@ const Login = () => {
                     </span>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
-                    <Link to="/forgot-password" className="text-primary">
+                    <Link to="/forgot-password2" className="text-primary">
                       <b>Quên mật khẩu?</b>
                     </Link>
                   </div>

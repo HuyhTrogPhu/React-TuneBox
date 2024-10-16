@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
 import { Link, Routes, Route } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
@@ -12,12 +12,16 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { getUserInfo } from "../../../service/UserService";
+import { FollowContext } from './FollowContext';
 
 const ProfileUser = () => {
   const userIdCookie = Cookies.get('userId');
-  const [userData, setUserData] = useState({});
 
   // get user info in profile page
+  console.log(userIdCookie);
+  const [userData, setUserData] = useState([]);
+  const { followerCounts, updateFollowerCount, followingCounts, updateFollowingCount } = useContext(FollowContext);
+
   useEffect(() => {
     if (userIdCookie) {
       const fetchUser = async () => {
@@ -33,6 +37,22 @@ const ProfileUser = () => {
     }
   }, [userIdCookie]);
 
+ const fetchCounts = async () => {
+      // Fetch lại số lượng người theo dõi và đang theo dõi
+      try {
+          const response = await fetchDataUser(userIdCookie);
+          const newFollowerCount = response.data.followers ? response.data.followers.length : 0;
+          const newFollowingCount = response.data.following ? response.data.following.length : 0;
+          updateFollowerCount(newFollowerCount);
+          updateFollowingCount(newFollowingCount);
+      } catch (error) {
+          console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchCounts();
+}, [userIdCookie, updateFollowerCount, updateFollowingCount]);
+
   return (
     <div className="container">
       {/* background */}
@@ -42,7 +62,6 @@ const ProfileUser = () => {
           backgroundImage: `url(${userData.background || "/src/UserImages/Background/default-bg.jpg"})`,
         }}
       />
-
       <div className="row container">
         <aside className="col-sm-3">
           <div>
@@ -53,7 +72,6 @@ const ProfileUser = () => {
               alt="avatar"
             />
           </div>
-          {/* 2 nút dưới avatar */}
           <div className="row mt-4">
             <div className="col">
               <div className="fs-4 text-small">
@@ -62,7 +80,7 @@ const ProfileUser = () => {
               <div className="">{userData.userName}</div>
             </div>
             <div className="col text-end">
-              <Link to={"/ProfileSetting"}>
+              <Link to="/ProfileSetting">
                 <button type="button" className="btn btn-secondary">
                   <img
                     src={images.pen}
@@ -76,16 +94,15 @@ const ProfileUser = () => {
           </div>
           {/* Thông tin người theo dõi */}
           <div className="row mt-4">
-            <div className="col text-center">
-              <span>0</span> <br />
-              <span>Follower</span>
-            </div>
-            <div className="col text-center">
-              <span>0</span> <br />
-              <span>Following</span>
-            </div>
-          </div>
-
+        <div className="col text-center">
+          <span>{followerCounts[userId] || 0}</span> <br />
+          <span>Follower</span>
+        </div>
+        <div className="col text-center">
+          <span>{followingCounts[userId] || 0}</span> <br />
+          <span>Following</span>
+        </div>
+      </div>
           <div style={{ paddingTop: 30 }}>
             <label>InspiredBy</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
@@ -133,18 +150,10 @@ const ProfileUser = () => {
 
         <div className="col-sm-9 d-flex flex-column">
           <nav className="nav flex-column flex-md-row p-5">
-            <Link to="activity" className="nav-link">
-              Activity
-            </Link>
-            <Link to="track" className="nav-link">
-              Track
-            </Link>
-            <Link to="albums" className="nav-link">
-              Albums
-            </Link>
-            <Link to="playlists" className="nav-link">
-              Playlists
-            </Link>
+            <Link to="activity" className="nav-link">Activity</Link>
+            <Link to="track" className="nav-link">Track</Link>
+            <Link to="albums" className="nav-link">Albums</Link>
+            <Link to="playlists" className="nav-link">Playlists</Link>
           </nav>
 
           <article className="p-5">
@@ -153,6 +162,7 @@ const ProfileUser = () => {
               <Route path="/track" element={<Track />} />
               <Route path="/albums" element={<Albums />} />
               <Route path="/playlists" element={<Playlists />} />
+              {/* <Route path="/" element={<Navigate to="activity" />} /> Đường dẫn mặc định */}
             </Routes>
           </article>
         </div>
@@ -160,5 +170,6 @@ const ProfileUser = () => {
     </div>
   );
 };
+
 
 export default ProfileUser;

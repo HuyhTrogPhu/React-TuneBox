@@ -1,0 +1,67 @@
+.track-page-player-titles {
+    color: var(--dominant-color-text);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: space-evenly;
+    min-width: 0;
+}
+.track-page-title-name
+    {
+        font-size: 32px;
+        font-weight: 500;
+        line-height: 40px;
+        margin: 0;
+    }
+    .track-page-player-cover-image {
+        border-radius: 8px;
+    }
+    .track-page-player {
+        display: flex;
+        gap: 32px;
+        min-height: 206px;
+    }
+    .track-page-header {
+        background-color: var(--dominant-color-background, #f1f4f6);
+        border-radius: 16px;
+        margin-top: 24px;
+        padding: 32px 32px 20px;
+    }
+    
+.track-page-player-title {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    position: relative;
+}
+
+.track-player-actions-column {
+    display: flex;
+    gap: 8px;
+    position: relative;
+}
+
+.track-player-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 28px;
+}
+.adaptive-content {
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
+}
+.track-page-left-col {
+    border: 1px solid var(--ds-color-border-neutral);
+    border-radius: 8px;
+    padding: 16px 32px;
+}
+.track-related-tile {
+    background-color: var(--ds-color-surface-inactive-neutral);
+    border-radius: 8px;
+    padding: 16px;
+}
+.border-rd-16{
+    border-radius: 16px;
+}
