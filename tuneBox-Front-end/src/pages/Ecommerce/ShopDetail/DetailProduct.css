@@ -4,43 +4,10 @@
   margin: auto;
 }
 
-.img {
-  position: relative;
-  margin-top: 50px;
-}
-
-.button {
-  position: absolute;
-  top: 50%;
-  background-color: white;
-  border: none;
-  color: black;
-  font-size: 15px;
-  cursor: pointer;
-  padding: 10px;
-  z-index: 10;
-}
-.button1{
-  position: absolute;
-  top: 50%;
-  background-color: white;
-  border: none;
-  color: black;
-  font-size: 15px;
-  cursor: pointer;
-  padding: 10px;
-  z-index: 10;
-}
-.button1.left {
-  left: -100px;
-}
-
-.button.right {
-  right: 10px;
-}
-
 .noidungSP {
   margin-left: 20px;
+  padding: 20px;
+  background-color: #F4F4F2;
 }
 
 h3 {
@@ -93,6 +60,19 @@ hr {
   margin: 30px 0;
 }
 
+.btn-prev {
+  margin-right: 10px;
+  width: 40px;
+  height: 40px;
+
+}
+
+.btn-next {
+  margin-left: 10px;
+  width: 40px;
+  height: 40px;
+}
+
 @media (max-width: 768px) {
   .col-md-4, .col-md-8 {
     flex: 100%;
@@ -108,16 +88,96 @@ hr {
   }
 
   .price {
-    font-size: 18px;
+    font-size: 20px;
   }
 }
-.thumbnail img {
-  border: 2px solid transparent; /* Ban đầu không có border */
-  transition: border 0.3s ease;  /* Hiệu ứng chuyển đổi mượt mà khi hover */
+.d-flex {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.thumbnail img:hover {
-  border: 2px solid #515151; 
+.btn-prev:hover, .btn-next:hover {
+  background-color: #0056b3;
+}
 
-  border-radius: 12px;/* Border sẽ hiện lên khi di chuột vào */
+.instrument-brand {
+  text-align: center;
+}
+
+.instrument-brand img {
+  width: 150px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+
+.instrument-brand a:hover {
+  border-bottom: 1px solid #000;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 768px) {
+  .col-5 {
+    flex: 0 0 100%;
+    margin-bottom: 20px;
+  }
+
+  .soluongSP {
+    width: 50px;
+    padding: 6px;
+    font-size: 14px;
+  }
+
+  .instrument-brand img {
+    width: 80px;
+  }
+
+}
+
+.btn-cart {
+  width: 100%;
+}
+
+.add-to-cart {
+  width: 100%;
+  height: 50px;
+  font-weight: 700;
+  border: none;
+  background-color: #E94F37;
+  color: #fff;
+  border-radius: 5px;
+}
+
+.service {
+  width: 100%;
+  padding: 20px;
+}
+
+.buy-service {
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.buy-service i {
+  font-size: 22px;
+}
+
+.product-service {
+  font-size: 16px;
+  margin-top: 15px;
+}
+
+.product-service i {
+  font-size: 22px;
+}
+
+.ship-service {
+  font-size: 16;
+  margin-top: 15px;
+}
+
+.ship-service i {
+  font-size: 22px;
 }

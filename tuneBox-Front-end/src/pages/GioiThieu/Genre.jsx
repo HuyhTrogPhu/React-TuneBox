@@ -1,53 +1,61 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
 import "./css/header.css";
 import "./css/profile.css";
-
+import "./css/Genre.css";
 import "./js/jquery.min.js";
 import "./js/bootstrap.min.js";
 import "./js/jquery.sticky.js";
 import "./js/click-scroll.js";
 import "./js/custom.js";
-
-import "./js/sothich.js";
-import { fetchDataNgheSi } from "./js/sothich.js";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
-const NgheSiYeuThich = ({ updateFormData }) => {
+import { listGenres } from "../../service/LoginService.js";
+
+const Genre = () => {
   const navigate = useNavigate();
-  const [talentData, setTalentData] = useState([]);
-  const [selectedArtists, setSelectedArtists] = useState([]); 
+  const location = useLocation();
+  const [genre, setGenre] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const fetchGenre = async () => {
+    try {
+      const response = await listGenres();
+      setGenre(response.data);
+    } catch (error) {
+      console.log("Error fetching genre", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchDataAndRender = async () => {
-      const response = await fetchDataNgheSi(); // Fetch từ API
-      console.log("Data fetched from API:", response);
-      if (response && response.data) {
-        setTalentData(response.data); // Chỉ cập nhật mảng `data`
-      }
-    };
-
-    fetchDataAndRender();
+    fetchGenre();
   }, []);
 
-  const handleArtistSelect = (artist) => {
-    setSelectedArtists((prevSelectedArtists) => {
-      if (prevSelectedArtists.includes(artist)) {
-        return prevSelectedArtists.filter(item => item !== artist);
+  // Xử lý tìm kiếm thể loại
+  const filteredGenres = genre.filter((g) =>
+    g.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleGenreClick = (id) => {
+    setSelectedGenre((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((genreId) => genreId !== id); // Xóa ID nếu đã được chọn
       } else {
-        return [...prevSelectedArtists, artist];
+        return [...prev, id]; // Thêm ID nếu chưa được chọn
       }
     });
   };
 
-  const handleSubmit = () => {
-    updateFormData({ listInspiredBy: selectedArtists }); 
-    navigate("/categorymusic"); 
+  const handleNext = () => {
+    const formData = location.state || {};
+    formData.genres = selectedGenre; // Cập nhật genres
+    navigate('/welcome', { state: formData }); // Chuyển đến trang welcome với formData
   };
+
   return (
     <div>
       <div>
@@ -78,7 +86,7 @@ const NgheSiYeuThich = ({ updateFormData }) => {
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Nghệ sĩ mà bạn yêu thích là ai?</h3>
+                  <h3>Bạn yêu thích thể loại nhạc nào?</h3>
                   <p>
                     Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
                     nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
@@ -86,24 +94,26 @@ const NgheSiYeuThich = ({ updateFormData }) => {
                   </p>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm nghệ sĩ..."
+                    placeholder="Tìm kiếm thể loại nhạc"
                     className="search-bar"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <div className="row text-center">
-                    {talentData.map((talent) => (
-                      <div className="col-4" key={talent.id}>
+                    {filteredGenres.map((g) => (
+                      <div className="col-4" key={g.id}>
                         <button
-                          className={`btn-category ${
-                            selectedArtists.includes(talent) ? "selected" : ""
-                          }`}
-                          onClick={() => handleArtistSelect(talent.name)}
+                          className={`genre-button ${selectedGenre.includes(g.id) ? 'selected' : ''}`}
+                          onClick={() => handleGenreClick(g.id)}
                         >
-                          {talent.name}
+                          {g.name}
                         </button>
                       </div>
                     ))}
                   </div>
-                  <button onClick={handleSubmit}>Tiếp tục</button>
+                  <button className="btn" onClick={handleNext}>
+                    Tiếp tục
+                  </button>
                 </div>
               </div>
             </div>
@@ -115,4 +125,4 @@ const NgheSiYeuThich = ({ updateFormData }) => {
   );
 };
 
-export default NgheSiYeuThich;
+export default Genre;

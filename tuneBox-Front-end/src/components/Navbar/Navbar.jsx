@@ -141,7 +141,7 @@ const Navbar = () => {
           </Link>
         </button>
       </div>
-      <div className="col text-end" style={{ alignItems: "center" }}>
+      <div className="col text-end" style={{ alignItems: "center",}}>
         <span>
           <img
             alt="icon-chuong"
