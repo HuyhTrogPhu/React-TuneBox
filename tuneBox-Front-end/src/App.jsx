@@ -60,7 +60,7 @@ function App() {
   const updateFormData = (data) => {
     setFormData((prevData) => {
       const updatedData = { ...prevData, ...data };
-      console.warn(formData);
+      console.warn(updatedData); // Thay đổi từ formData thành updatedData
       return updatedData;
     });
   };
