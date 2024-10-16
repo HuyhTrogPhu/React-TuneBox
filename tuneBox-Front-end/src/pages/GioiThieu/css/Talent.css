@@ -1,0 +1,25 @@
+.talent-by-button {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .talent-by-button.selected {
+    background-color: #E94F37; /* Màu nền khi được chọn */
+    color: white;
+    border-color: #000; /* Màu viền khi được chọn */
+  }
+  
+  .search-bar {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+  }
+  
