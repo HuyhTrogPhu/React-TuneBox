@@ -2,8 +2,31 @@ import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
+import Cookies from 'js-cookie';
+import { getAvatarUser } from "../../service/UserService";
+
 const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
+  const [avatarUrl, setAvatarUrl] = useState(null); 
+
+  // Lấy userId từ cookie và fetch avatar
+  useEffect(() => {
+    const userIdCookie = Cookies.get('userId');
+    if (userIdCookie) {
+      const fetchAvatar = async () => {
+        try {
+          const response = await getAvatarUser(userIdCookie);
+          console.log("avatar:", response); // Kiểm tra đường dẫn avatar
+          setAvatarUrl(response); // Set đường dẫn avatar
+        } catch (error) {
+          console.error("Error fetching avatar:", error);
+        }
+      };
+      fetchAvatar();
+    }
+  }, []);
+
+  
 
   useEffect(() => {
     const fetchCartCount = () => {
@@ -14,6 +37,7 @@ const Navbar = () => {
 
     fetchCartCount();
   }, []);
+
   return (
     <header
       className="row"
@@ -127,44 +151,47 @@ const Navbar = () => {
           />
         </button>
         {/* Trang cá nhân */}
-        <button className="btn">
-          <Link to={'/profileUser'}>
-            <img
-              alt="Avatar"
-              className="avatar_small"
-              src={images.avt}
-              style={{
-                height: "50px",
-                marginBottom: "15px",
-                width: "50px",
-                borderRadius: "50%",
-              }}
-            />
+        {/* Avatar */}
+        {avatarUrl && (
+          <button className="btn">
+            <Link to={'/profileUser'}>
+              <img
+                alt="Avatar"
+                className="avatar_small"
+                src={avatarUrl}
+                style={{
+                  height: "50px",
+                  marginBottom: "15px",
+                  width: "50px",
+                  borderRadius: "50%",
+                }}
+              />
+            </Link>
+          </button>
+        )}
+
+        {/* Trang giỏ hàng */}
+        <button className="btn position-relative">
+          <Link to={'/Cart'} className="d-flex align-items-center">
+            <span>
+              <img
+                alt="icon-giohang"
+                src={images.shopping_bag}
+                style={{
+                  marginBottom: "15px",
+                  marginRight: "10px",
+                }}
+              />
+            </span>
+            {/* Hiển thị badge nếu có sản phẩm trong giỏ hàng */}
+            {cartCount > 0 && (
+              <span className="badge text-bg-secondary">
+                {cartCount}
+              </span>
+            )}
           </Link>
         </button>
-        {/* Trang giỏ hàng */}
 
-         <button className="btn position-relative">
-            <Link to={'/Cart'} className="d-flex align-items-center">
-                <span>
-                    <img
-                        alt="icon-giohang"
-                        src={images.shopping_bag}
-                        style={{
-                            marginBottom: "15px",
-                            marginRight: "10px",
-                        }}
-                    />
-                </span>
-                {/* Hiển thị badge nếu có sản phẩm trong giỏ hàng */}
-                {cartCount > 0 && (
-                   <span className="badge text-bg-secondary">
-                        {cartCount}
-                    </span>
-                )}
-            </Link>
-        </button>
-        
         {/* Trang tạo track */}
         <button
           className="btn btn-danger"
@@ -174,7 +201,6 @@ const Navbar = () => {
           }}
           type="button"
         >
-          {" "}
           <img
             alt="icon-plus"
             height="20px"
@@ -187,8 +213,6 @@ const Navbar = () => {
           />{" "}
           <b>Create</b>{" "}
         </button>
-
-
       </div>
       <hr />
     </header>
