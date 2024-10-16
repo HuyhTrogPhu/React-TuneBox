@@ -18,7 +18,7 @@ export const getAvatarUser = async (userId) => {
 // get user info in profile page
 export const getUserInfo = async (userId) => {
     try {
-        const response = await axios.get(`${REST_API_BASE_URL}/users/${userId}/profile`, {
+        const response = await axios.get(`${REST_API_BASE_URL}/${userId}/profile`, {
             withCredentials: true,
         });
         return response.data; // Trả về user info
