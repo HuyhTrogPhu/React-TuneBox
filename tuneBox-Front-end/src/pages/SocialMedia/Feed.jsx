@@ -57,72 +57,76 @@ const HomeFeed = () => {
     }
   };
   
-    // Hàm để lấy các bài viết
-    const fetchPosts = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8080/api/posts`, // Sử dụng targetUserId
-          {
-            withCredentials: true,
-          }
+
+// Hàm để lấy các bài viết
+const fetchPosts = async () => {
+  
+  try {
+    const response = await axios.get(
+      `http://localhost:8080/api/posts/all`, 
+      {
+        params: { currentUserId }, // Truyền currentUserId vào request
+        withCredentials: true,
+      }
+    );
+
+    console.log(response.data); // Kiểm tra dữ liệu nhận được
+
+    const sortedPosts = response.data.sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return dateB - dateA; // Sắp xếp từ mới đến cũ
+    });
+
+    // Lấy comments và replies cho từng post
+    const postsWithCommentsAndLikes = await Promise.all(
+      sortedPosts.map(async (post) => {
+        const commentsResponse = await axios.get(
+          `http://localhost:8080/api/comments/post/${post.id}`
         );
-    
-        console.log(response.data); // Kiểm tra dữ liệu nhận được
-    
-        const sortedPosts = response.data.sort((a, b) => {
-          const dateA = new Date(a.createdAt);
-          const dateB = new Date(b.createdAt);
-          return dateB - dateA; // Sắp xếp từ mới đến cũ
-        });
-    
-        // Lấy comments và replies cho từng post
-        const postsWithCommentsAndLikes = await Promise.all(
-          sortedPosts.map(async (post) => {
-            const commentsResponse = await axios.get(
-              `http://localhost:8080/api/comments/post/${post.id}`
+
+        const commentsWithReplies = await Promise.all(
+          commentsResponse.data.map(async (comment) => {
+            const repliesResponse = await axios.get(
+              `http://localhost:8080/api/replies/comment/${comment.id}`
             );
-    
-            const commentsWithReplies = await Promise.all(
-              commentsResponse.data.map(async (comment) => {
-                const repliesResponse = await axios.get(
-                  `http://localhost:8080/api/replies/comment/${comment.id}`
-                );
-                return { ...comment, replies: repliesResponse.data }; // Kết hợp replies vào comment
-              })
-            );
-    
-            // Lấy số lượng likes cho từng bài viết
-            const likeCountResponse = await axios.get(
-              `http://localhost:8080/api/likes/post/${post.id}/count`
-            );
-    
-            // Kiểm tra xem user đã like bài viết này chưa
-            const userLikeResponse = await axios.get(
-              `http://localhost:8080/api/likes/post/${post.id}/user/${currentUserId}`
-            );
-    
-            const liked = userLikeResponse.data; // true nếu user đã like, false nếu chưa
-    
-            return { 
-              ...post, 
-              comments: commentsWithReplies,
-              likeCount: likeCountResponse.data, // Thêm số lượng likes vào bài viết
-              liked: liked // Thêm trạng thái like
-            }; // Kết hợp comments và likeCount vào post
+            return { ...comment, replies: repliesResponse.data }; // Kết hợp replies vào comment
           })
         );
-    
-        setPosts(postsWithCommentsAndLikes); // Cập nhật state với danh sách bài viết
-        // Cập nhật trạng thái likes cho từng bài viết
-        const updatedLikes = {};
-        postsWithCommentsAndLikes.forEach(post => {
-          updatedLikes[post.id] = post.liked; // Cập nhật trạng thái like cho post
-        });
-        setLikes(updatedLikes); // Cập nhật trạng thái likes
-      } catch (error) {
-        console.error("Error fetching user posts:", error); // Log lỗi nếu có
-      }
-    };
+
+        // Lấy số lượng likes cho từng bài viết
+        const likeCountResponse = await axios.get(
+          `http://localhost:8080/api/likes/post/${post.id}/count`
+        );
+
+        // Kiểm tra xem user đã like bài viết này chưa
+        const userLikeResponse = await axios.get(
+          `http://localhost:8080/api/likes/post/${post.id}/user/${currentUserId}`
+        );
+
+        const liked = userLikeResponse.data; // true nếu user đã like, false nếu chưa
+
+        return { 
+          ...post, 
+          comments: commentsWithReplies,
+          likeCount: likeCountResponse.data, // Thêm số lượng likes vào bài viết
+          liked: liked // Thêm trạng thái like
+        }; // Kết hợp comments và likeCount vào post
+      })
+    );
+
+    setPosts(postsWithCommentsAndLikes); // Cập nhật state với danh sách bài viết
+    // Cập nhật trạng thái likes cho từng bài viết
+    const updatedLikes = {};
+    postsWithCommentsAndLikes.forEach(post => {
+      updatedLikes[post.id] = post.liked; // Cập nhật trạng thái like cho post
+    });
+    setLikes(updatedLikes); // Cập nhật trạng thái likes
+  } catch (error) {
+    console.error("Error fetching user posts:", error); // Log lỗi nếu có
+  }
+};
+
     useEffect(() => {
       const fetchLikesCounts = async () => {
         const counts = await Promise.all(posts.map(post => 
@@ -430,7 +434,6 @@ const HomeFeed = () => {
         alert('Failed to update reply');
       }
     };
-  
     // Hàm để hiển thị tất cả comment hoặc chỉ một số lượng nhất định
     const handleToggleComments = (postId) => {
       setShowAllComments((prevState) => ({
@@ -564,8 +567,6 @@ const HomeFeed = () => {
         console.error('Lỗi mạng:', error);
     }
 };
-
-
   return (
     <div>
       <div className="container-fluid">
@@ -632,20 +633,31 @@ const HomeFeed = () => {
       </div>
             {/* Modal báo cáo */}
             {showReportModal && (
-                <div className="modal-overlay" style={modalOverlayStyle}>
-                    <div className="modal-content" style={modalContentStyle}>
-                        <h3>Báo cáo bài viết</h3>
-                        <textarea
-                            placeholder="Nhập lý do báo cáo"
-                            value={reportReason}
-                            onChange={(e) => setReportReason(e.target.value)} // Cập nhật lý do báo cáo
-                            style={textareaStyle}
-                        />
-                        <button onClick={submitReport}>Gửi báo cáo</button>
-                        <button onClick={() => setShowReportModal(false)}>Đóng</button>
-                    </div>
+    <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+        <div className="modal-dialog">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h5 className="modal-title">Báo cáo bài viết</h5>
+                    <button type="button" className="btn-close" onClick={() => setShowReportModal(false)} aria-label="Close"></button>
                 </div>
-            )}
+                <div className="modal-body">
+                    <textarea
+                        className="form-control"
+                        placeholder="Nhập lý do báo cáo"
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)} // Cập nhật lý do báo cáo
+                        style={{ resize: 'none' }} // Không cho phép thay đổi kích thước
+                    />
+                </div>
+                <div className="modal-footer">
+                    <button className="btn btn-primary" onClick={submitReport}>Gửi báo cáo</button>
+                    <button className="btn btn-secondary" onClick={() => setShowReportModal(false)}>Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+)}
+
       {/* Modal để tạo bài viết */}
       <div
         id="post-modal"
@@ -716,11 +728,18 @@ const HomeFeed = () => {
         <div key={post.id} className="post">
             {/* Phần tiêu đề bài viết */}
             <div className="post-header position-relative">
+            <button
+                type="button"
+                className="btn"
+                onClick={() => handleAvatarClick(post)}
+                aria-label="Avatar"
+              >
                 <img
-                    src="/src/UserImages/Avatar/avt.jpg"
-                    className="avatar_small"
-                    alt="Avatar"
+                  src="/src/UserImages/Avatar/avt.jpg"
+                  className="avatar_small"
+                  alt="Avatar"
                 />
+              </button>
                 <div>
                     <div className="name">{post.userNickname || "Unknown User"}</div>
                     <div className="time">
@@ -755,7 +774,7 @@ const HomeFeed = () => {
         </ul>
     </div>
 ) : (
-<button className="btn btn-report" onClick={() => handleReportPost(post.id)}>
+<button className="btn btn-danger btn-report position-absolute top-0 end-0" onClick={() => handleReportPost(post.id)}>
   Báo cáo
 </button>
 )}

@@ -390,7 +390,6 @@ const Activity = () => {
       const response = await axios.put(`http://localhost:8080/api/replies/reply/${replyId}/user/${userId}`, {
         content: editingReplyContent // Sử dụng biến này để cập nhật nội dung
       });
-
       // Cập nhật lại danh sách reply trong state
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
@@ -416,7 +415,6 @@ const Activity = () => {
       alert('Failed to update reply');
     }
   };
-
   // Hàm để hiển thị tất cả comment hoặc chỉ một số lượng nhất định
   const handleToggleComments = (postId) => {
     setShowAllComments((prevState) => ({
