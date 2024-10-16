@@ -18,7 +18,22 @@ export const getAvatarUser = async (userId) => {
 // get user info in profile page
 export const getUserInfo = async (userId) => {
     try {
-        const response = await axios.get(`${REST_API_BASE_URL}/users/${userId}/profile`, {
+        const response = await axios.get(`${REST_API_BASE_URL}/${userId}/profile`, {
+            withCredentials: true,
+        });
+        return response.data; // Trả về user info
+    } catch (error) {
+        console.error("Error fetching user info:", error);
+        throw error;
+    }
+};
+
+
+// get user in profile setting page
+
+export const getUserSetting = async (userId) => {
+    try {
+        const response = await axios.get(`${REST_API_BASE_URL}/${userId}/setting`, {
             withCredentials: true,
         });
         return response.data; // Trả về user info
