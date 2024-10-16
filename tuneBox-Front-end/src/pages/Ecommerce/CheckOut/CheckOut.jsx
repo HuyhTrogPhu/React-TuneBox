@@ -34,13 +34,14 @@ const CheckOut = () => {
     // END
     const [houseNumber, setHouseNumber] = useState('');
     const [phoneNumber, setPhoneNumer] = useState('')
+    const [paymentStatus, setPaymentStatus] = useState('')
     const [paymentMethod, setPaymentMethod] = useState('');
     const navigate = useNavigate()
 
     const validateForm = () => {
         let valid = true;
         const errorsCopy = { ...errors };
-    
+
         // Kiểm tra số điện thoại
         if (phoneNumber) {
             const phoneRegex = /^[0-9]{10,11}$/; // Chỉ cho phép 10 đến 11 chữ số
@@ -54,11 +55,11 @@ const CheckOut = () => {
             errorsCopy.phoneNumber = 'Vui lòng nhập số điện thoại';
             valid = false;
         }
-    
+
         setErrors(errorsCopy);
         return valid;
     };
-    
+
 
     // Get user information khi userId có giá trị
     useEffect(() => {
@@ -227,16 +228,20 @@ const CheckOut = () => {
     }, 0)
 
 
-    const handleSubmitOrder = async () => {
+    const handleSubmitOrder = async () => { 
         if (!validateForm()) {
             return;
-          }
+        }
+    
         // Kiểm tra thông tin đầu vào
         if (!userId || cartItems.length === 0 || !selectedProvince || !selectedDistrict || !selectedWard || !houseNumber) {
             Swal.fire('Thông báo', 'Vui lòng điền đầy đủ thông tin trước khi đặt hàng!', 'error');
             return;
         }
-
+    
+        // Xác định trạng thái thanh toán dựa trên phương thức thanh toán đã chọn
+        const paymentStatus = paymentMethod === 'vnpay' ? 'Paid' : 'Not Paid';
+    
         const orderData = {
             userId: userId,
             orderDate: new Date().toISOString(),
@@ -249,14 +254,15 @@ const CheckOut = () => {
             phoneNumber: phoneNumber,
             address: `${houseNumber}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`,
             shippingMethod: shippingMethod,
+            paymentStatus: paymentStatus, // Sử dụng biến paymentStatus ở đây
             orderDetails: cartItems.map(item => ({
                 quantity: item.quantity,
                 instrumentId: item.instrumentId,
             })),
         };
-
+    
         console.log("Order Data:", JSON.stringify(orderData, null, 2));
-
+    
         try {
             // Gọi API tạo đơn hàng dựa trên phương thức thanh toán
             let response;
@@ -267,6 +273,8 @@ const CheckOut = () => {
                     },
                     withCredentials: true
                 });
+          
+    
                 // Đảm bảo rằng đơn hàng đã được lưu ở đây
                 if (response.data && response.data.url) {
                     Swal.fire({
@@ -290,7 +298,8 @@ const CheckOut = () => {
                     },
                     withCredentials: true
                 });
-
+         
+          
                 Swal.fire({
                     title: 'Thành công',
                     text: 'Đơn hàng của bạn đã được đặt thành công!',
@@ -302,11 +311,11 @@ const CheckOut = () => {
                     if (result.isConfirmed) {
                         getOrderDetails(response.data.orderId); // Lấy orderId từ response
                     } else {
-                        navigate('/cart');
+                        navigate('/shop');
                     }
                 });
             }
-
+    
             // Reset giỏ hàng
             localStorage.removeItem('cart');
             setCartItems([]);
@@ -315,6 +324,7 @@ const CheckOut = () => {
             Swal.fire('Lỗi', 'Đã có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', 'error');
         }
     };
+    
 
 
 
@@ -331,7 +341,7 @@ const CheckOut = () => {
                        <p>Tổng giá trị: ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
                        <p>Ngày đặt hàng: ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
                        <p>Trạng thái: ${orderDetails.status}</p>
-                       <p>Địa chỉ: ${orderDetails.address}</p>`, 
+                       <p>Địa chỉ: ${orderDetails.address}</p>`,
                 icon: 'info',
                 confirmButtonText: 'Đóng',
             });
@@ -388,7 +398,7 @@ const CheckOut = () => {
                                     value={phoneNumber}
                                     onChange={(e) => setPhoneNumer(e.target.value)}
                                 />
-                                 {errors.phoneNumber && <div className='invalid-feedback'>{errors.phoneNumber}</div>}
+                                {errors.phoneNumber && <div className='invalid-feedback'>{errors.phoneNumber}</div>}
                             </div>
                             <div className='mt-3'>
                                 <label className='form-label'>Quốc gia:</label>
