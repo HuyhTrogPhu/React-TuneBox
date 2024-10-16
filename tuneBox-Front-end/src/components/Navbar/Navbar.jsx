@@ -19,7 +19,7 @@ const Navbar = () => {
   const [errors, setErrors] = useState({});
   const [genres, setGenre] = useState([]);
 
-  const userId = Cookies.get("UserID");
+  const userId = Cookies.get("userId");
   if (!userId) {
     console.error("UserID không tồn tại trong cookies");
   }

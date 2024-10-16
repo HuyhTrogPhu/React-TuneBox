@@ -15,8 +15,8 @@ import { fetchDataUser } from "./js/ProfileJS";
 import { FollowContext } from './FollowContext';
 
 const ProfileUser = () => {
-  const value = Cookies.get("userId");
-  console.log(value);
+  const userId = Cookies.get("userId");
+  console.log(userId);
   const [userData, setUserData] = useState([]);
   const { followerCounts, updateFollowerCount, followingCounts, updateFollowingCount } = useContext(FollowContext);
 

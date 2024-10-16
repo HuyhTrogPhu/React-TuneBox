@@ -19,7 +19,8 @@ import Modal from './Modal.jsx';
 const HomeFeed = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const currentUserId = Cookies.get("UserID");
+  const currentUserId = Cookies.get("userId");
+  console.log('currentUserId: ',currentUserId )
   const [postContent, setPostContent] = useState("");
   const [postImages, setPostImages] = useState([]);
   const [postImageUrls, setPostImageUrls] = useState([]);

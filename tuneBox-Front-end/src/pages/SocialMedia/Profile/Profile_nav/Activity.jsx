@@ -19,7 +19,7 @@ const Activity = () => {
   const [posts, setPosts] = useState([]);
   const [postId, setPostId] = useState(null);
   const { id } = useParams(); // Lấy ID từ URL
-  const userId = Cookies.get("UserID"); // Lấy ID người dùng hiện tại từ cookies
+  const userId = Cookies.get("userId"); // Lấy ID người dùng hiện tại từ cookies
   const [username, setuserName] = useState({});
   const [commentContent, setCommentContent] = useState({});
   const [showAllComments, setShowAllComments] = useState({});
