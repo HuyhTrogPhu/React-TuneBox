@@ -96,7 +96,7 @@ const Login = () => {
         <div className="section-overlay" />
         <div className="container">
           <div className="row">
-            <div className="col-lg-6 col-10 mx-auto">
+            <div className="colcol-10-lg-6  mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">

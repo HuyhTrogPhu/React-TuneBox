@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
 import { Link } from "react-router-dom";
+import Cookies from 'js-cookie';
+import { getAvatarUser } from "../../service/UserService";
 import {
   createTrack,
   listGenre,
@@ -99,6 +101,38 @@ const Navbar = () => {
     setErrors({});
   };
 
+  const [cartCount, setCartCount] = useState(0);
+  const [avatarUrl, setAvatarUrl] = useState(null); 
+
+  // Lấy userId từ cookie và fetch avatar
+  useEffect(() => {
+    const userIdCookie = Cookies.get('userId');
+    if (userIdCookie) {
+      const fetchAvatar = async () => {
+        try {
+          const response = await getAvatarUser(userIdCookie);
+          console.log("avatar:", response); // Kiểm tra đường dẫn avatar
+          setAvatarUrl(response); // Set đường dẫn avatar
+        } catch (error) {
+          console.error("Error fetching avatar:", error);
+        }
+      };
+      fetchAvatar();
+    }
+  }, []);
+
+  
+
+  useEffect(() => {
+    const fetchCartCount = () => {
+      const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+      const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+      setCartCount(totalCount);
+    };
+
+    fetchCartCount();
+  }, []);
+
   return (
     <header className="row" style={{ alignItems: "center" }}>
       <div className="col" style={{ alignItems: "center", display: "flex" }}>
@@ -172,32 +206,48 @@ const Navbar = () => {
             width="32px"
           />
         </button>
-        <button className="btn">
-          <Link to={"/profileUser"}>
-            <img
-              alt="Avatar"
-              className="avatar_small"
-              src={images.avt}
-              style={{
-                height: "50px",
-                marginBottom: "15px",
-                width: "50px",
-                borderRadius: "50%",
-              }}
-            />
-          </Link>
-        </button>
-        <button className="btn">
-          <Link to={"/Cart"}>
+        {/* Trang cá nhân */}
+        {/* Avatar */}
+        {avatarUrl && (
+          <button className="btn">
+            <Link to={'/profileUser'}>
+              <img
+                alt="Avatar"
+                className="avatar_small"
+                src={avatarUrl}
+                style={{
+                  height: "50px",
+                  marginBottom: "15px",
+                  width: "50px",
+                  borderRadius: "50%",
+                }}
+              />
+            </Link>
+          </button>
+        )}
+
+        {/* Trang giỏ hàng */}
+        <button className="btn position-relative">
+          <Link to={'/Cart'} className="d-flex align-items-center">
             <span>
               <img
                 alt="icon-giohang"
                 src={images.shopping_bag}
-                style={{ marginBottom: "15px", marginRight: "30px" }}
+                style={{
+                  marginBottom: "15px",
+                  marginRight: "30px",
+                }}
               />
             </span>
+            {/* Hiển thị badge nếu có sản phẩm trong giỏ hàng */}
+            {cartCount > 0 && (
+              <span className="badge text-bg-secondary">
+                {cartCount}
+              </span>
+            )}
           </Link>
         </button>
+        {/* Trang tạo track */}
         <button
           data-bs-toggle="modal"
           data-bs-target="#addTrackModal"

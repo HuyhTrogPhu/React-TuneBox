@@ -32,6 +32,8 @@
     "tunebox": "file:",
     "update": "^0.4.2",
     "wavesurfer.js": "^7.8.6"
+    "sweetalert2": "^11.14.3",
+    "tunebox": "file:"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
