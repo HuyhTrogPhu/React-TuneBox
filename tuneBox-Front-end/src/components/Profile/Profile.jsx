@@ -120,6 +120,7 @@ const Profile = () => {
                                     width: 600,
                                     marginTop: -20,
                                 }}
+                                defaultValue={userData.location}
                             />
                         </div>
                         <div>
@@ -139,7 +140,7 @@ const Profile = () => {
                                         className="form-select"
                                         style={{ marginTop: -20 }}
                                     >
-                                        <option defaultValue="" disabled hidden>
+                                        <option defaultValue="" disabled >
                                             Add Gender
                                         </option>
                                         <option defaultValue="Female">Female</option>
@@ -216,7 +217,7 @@ const Profile = () => {
                         className="custom-textarea"
                         name="about"
                         id="About"
-                        defaultValue={userData.description}
+                        defaultValue={userData.about}
                     />
                 </div>
 
