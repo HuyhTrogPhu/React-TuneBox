@@ -27,6 +27,7 @@ import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
 import { FollowProvider } from './pages/SocialMedia/Profile/FollowContext';
 import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
+import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 
 // Layout có Header
 function LayoutWithHeader() {
