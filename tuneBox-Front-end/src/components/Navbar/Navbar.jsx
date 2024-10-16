@@ -9,7 +9,6 @@ import {
   listGenre,
   getTrackByUserId,
 } from "../../service/TrackServiceCus";
-import Cookies from "js-cookie";
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
