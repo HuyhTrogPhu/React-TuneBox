@@ -47,24 +47,6 @@ function LayoutWithoutHeader() {
 }
 
 function App() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    userName: "",
-    userNickname: "",
-    listInspiredBy: [], // Chứa danh sách
-    listTalent: [],
-    genreBy: [],
-  });
-
-  const updateFormData = (data) => {
-    setFormData((prevData) => {
-      const updatedData = { ...prevData, ...data };
-      console.warn(updatedData); // Thay đổi từ formData thành updatedData
-      return updatedData;
-    });
-  };
-
   return (
     <FollowProvider> {/* Đặt FollowProvider ở đây */}
       <div>
