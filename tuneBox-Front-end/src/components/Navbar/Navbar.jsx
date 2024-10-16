@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { getAvatarUser } from "../../service/UserService";
-
+import axios from "axios";
 const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
-  const [avatarUrl, setAvatarUrl] = useState(null); 
-
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const navigate = useNavigate()
   // Lấy userId từ cookie và fetch avatar
   useEffect(() => {
     const userIdCookie = Cookies.get('userId');
@@ -26,7 +26,7 @@ const Navbar = () => {
     }
   }, []);
 
-  
+
 
   useEffect(() => {
     const fetchCartCount = () => {
@@ -37,6 +37,18 @@ const Navbar = () => {
 
     fetchCartCount();
   }, []);
+
+    // Hàm đăng xuất
+    const handleLogout = async () => {
+      try {
+        await axios.post('http://localhost:8080/user/logout', {}, { withCredentials: true });
+        Cookies.remove('userId'); // Xóa cookie userId
+        navigate('/login'); // Chuyển hướng đến trang đăng nhập
+      } catch (error) {
+        console.error("Error during logout:", error);
+      }
+    };
+  
 
   return (
     <header
@@ -212,6 +224,10 @@ const Navbar = () => {
             width="20px"
           />{" "}
           <b>Create</b>{" "}
+        </button>
+
+        <button className="btn btn-secondary" onClick={handleLogout}>
+          <b>Đăng xuất</b>
         </button>
       </div>
       <hr />
