@@ -41,3 +41,17 @@ export const getUserSetting = async (userId) => {
         throw error;
     }
 };
+
+
+// get follow count by userId 
+export const getFollowCountByUserId = async (userId) => {
+    try {
+        const response = await axios.get(`${REST_API_BASE_URL}/${userId}/followCount`, {
+            withCredentials: true,
+        });
+        return response.data; // Trả về số lượng follower và following
+    } catch (error) {
+        console.log("Error fetching follow count", error);
+        throw error;
+    }
+};

@@ -18,15 +18,15 @@ const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");
   console.log(userIdCookie);
   const [userData, setUserData] = useState([]);
-  const { followerCounts, updateFollowerCount, followingCounts, updateFollowingCount } = useContext(FollowContext);
+  const [followCount, setFollowCount] = useState({ followerCount: 0, followingCount: 0 });
 
-   // get user info in profile page
-   useEffect(() => {
+  // get user info in profile page
+  useEffect(() => {
     if (userIdCookie) {
       const fetchUser = async () => {
         try {
           const userData = await getUserInfo(userIdCookie);
-          setUserData(userData); 
+          setUserData(userData);
           console.log("User data fetched from API:", userData);
         } catch (error) {
           console.error("Error fetching user", error);
@@ -36,22 +36,21 @@ const ProfileUser = () => {
     }
   }, [userIdCookie]);
 
+  // get follower and following user 
   useEffect(() => {
-    const fetchCounts = async () => {
-      // Fetch lại số lượng người theo dõi và đang theo dõi
-      try {
-          const response = await fetchDataUser(userId);
-          const newFollowerCount = response.data.followers ? response.data.followers.length : 0;
-          const newFollowingCount = response.data.following ? response.data.following.length : 0;
-          updateFollowerCount(newFollowerCount);
-          updateFollowingCount(newFollowingCount);
-      } catch (error) {
-          console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchCounts();
-}, [userId, updateFollowerCount, updateFollowingCount]);
+    if (userIdCookie) {
+      const fetchFollowCount = async () => {
+        try {
+          const followData = await getFollowCountByUserId(userIdCookie);
+          setFollowCount(followData);
+          console.log("Follow count fetched from API:", followData);
+        } catch (error) {
+          console.error("Error fetching follow count", error);
+        }
+      };
+      fetchFollowCount();
+    }
+  }, [userIdCookie]);
 
   return (
     <div className="container">
@@ -92,14 +91,14 @@ const ProfileUser = () => {
               </Link>
             </div>
           </div>
-          {/* Thông tin người theo dõi */}
+          {/* Hiển thị số lượng follower và following */}
           <div className="row mt-4">
             <div className="col text-center">
-              <span>{followerCounts[userId] || 0}</span> <br />
+              <span>{followCount.followerCount}</span> <br />
               <span>Follower</span>
             </div>
             <div className="col text-center">
-              <span>{followingCounts[userId] || 0}</span> <br />
+              <span>{followCount.followingCount}</span> <br />
               <span>Following</span>
             </div>
           </div>

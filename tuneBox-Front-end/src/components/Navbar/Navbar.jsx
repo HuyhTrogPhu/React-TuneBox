@@ -6,12 +6,7 @@ import Cookies from 'js-cookie';
 import { getAvatarUser } from "../../service/UserService";
 import { logout } from "../../service/LoginService";
 import { Link } from "react-router-dom";
-import {
-  createTrack,
-  listGenre,
-  getTrackByUserId,
-} from "../../service/TrackServiceCus";
-import Cookies from "js-cookie";
+import { createTrack, listGenre, getTrackByUserId } from "../../service/TrackServiceCus";
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
@@ -23,7 +18,7 @@ const Navbar = () => {
   const [errors, setErrors] = useState({});
   const [genres, setGenre] = useState([]);
 
-  const userId = Cookies.get("UserID");
+  const userId = Cookies.get("userId");
   if (!userId) {
     console.error("UserID không tồn tại trong cookies");
   }
@@ -139,10 +134,10 @@ const Navbar = () => {
   // Hàm xử lý khi nhấn Logout
   const handleLogout = async () => {
     try {
-      await logout(); 
+      await logout();
       Cookies.remove('userId'); // Xóa cookie userId phía client
-      setAvatarUrl(images.logoTuneBox); 
-      navigate('/');
+      setAvatarUrl(images.logoTuneBox);
+      navigate('/introduce');
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -368,9 +363,8 @@ const Navbar = () => {
                     <label className="form-label">Track Name</label>
                     <input
                       type="text"
-                      className={`form-control ${
-                        errors.name ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.name ? "is-invalid" : ""
+                        }`}
                       value={newTrackName}
                       onChange={(e) => setTrackName(e.target.value)}
                     />
@@ -408,9 +402,8 @@ const Navbar = () => {
                   <div className="mt-3">
                     <label className="form-label">Genre</label>
                     <select
-                      className={`form-select ${
-                        errors.genre ? "is-invalid" : ""
-                      }`}
+                      className={`form-select ${errors.genre ? "is-invalid" : ""
+                        }`}
                       value={newTrackGenre}
                       onChange={(e) => setTrackGenre(e.target.value)}
                     >
@@ -437,9 +430,8 @@ const Navbar = () => {
                     <textarea
                       cols="50"
                       rows="5"
-                      className={`form-control ${
-                        errors.description ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.description ? "is-invalid" : ""
+                        }`}
                       value={newTrackDescription}
                       onChange={(e) => setTrackDescription(e.target.value)}
                     ></textarea>
