@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { Link, Routes, Route,Navigate } from "react-router-dom";
+import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
@@ -11,13 +11,14 @@ import "./css/button.css";
 import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
+import { FollowContext } from './FollowContext';
 import { getUserInfo } from "../../../service/UserService";
 
 const ProfileUser = () => {
-  const userIdCookie = Cookies.get('userId');
-  const [userData, setUserData] = useState({});
-  const [followerCount, setFollowerCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
+  const userIdCookie = Cookies.get("userId");
+  console.log(userIdCookie);
+  const [userData, setUserData] = useState([]);
+  const [followCount, setFollowCount] = useState({ followerCount: 0, followingCount: 0 });
 
   // get user info in profile page
   useEffect(() => {
@@ -25,7 +26,8 @@ const ProfileUser = () => {
       const fetchUser = async () => {
         try {
           const userData = await getUserInfo(userIdCookie);
-          setUserData(userData); // Gán trực tiếp data từ response vào state
+          setUserData(userData);
+          console.log("User data fetched from API:", userData);
         } catch (error) {
           console.error("Error fetching user", error);
         }
@@ -45,7 +47,21 @@ const ProfileUser = () => {
     fetchDataAndRender();
   }, [userIdCookie]);
 
-
+  // get follower and following user 
+  useEffect(() => {
+    if (userIdCookie) {
+      const fetchFollowCount = async () => {
+        try {
+          const followData = await getFollowCountByUserId(userIdCookie);
+          setFollowCount(followData);
+          console.log("Follow count fetched from API:", followData);
+        } catch (error) {
+          console.error("Error fetching follow count", error);
+        }
+      };
+      fetchFollowCount();
+    }
+  }, [userIdCookie]);
 
   return (
     <div className="container">
@@ -86,18 +102,17 @@ const ProfileUser = () => {
               </Link>
             </div>
           </div>
-          {/* thông tin người theo giõi */}
+          {/* Hiển thị số lượng follower và following */}
           <div className="row mt-4">
             <div className="col text-center">
-              <span>{followerCount}</span> <br />
+              <span>{followCount.followerCount}</span> <br />
               <span>Follower</span>
             </div>
             <div className="col text-center">
-              <span>{followingCount}</span> <br />
+              <span>{followCount.followingCount}</span> <br />
               <span>Following</span>
             </div>
           </div>
-
           <div style={{ paddingTop: 30 }}>
             <label>InspiredBy</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
@@ -145,10 +160,18 @@ const ProfileUser = () => {
 
         <div className="col-sm-9 d-flex flex-column">
           <nav className="nav flex-column flex-md-row p-5">
-            <Link to="activity" className="nav-link">Activity</Link>
-            <Link to="track" className="nav-link">Track</Link>
-            <Link to="albums" className="nav-link">Albums</Link>
-            <Link to="playlists" className="nav-link">Playlists</Link>
+            <Link to="activity" className="nav-link">
+              Activity
+            </Link>
+            <Link to="track" className="nav-link">
+              Track
+            </Link>
+            <Link to="albums" className="nav-link">
+              Albums
+            </Link>
+            <Link to="playlists" className="nav-link">
+              Playlists
+            </Link>
           </nav>
 
           <article className="p-5">
@@ -157,7 +180,6 @@ const ProfileUser = () => {
               <Route path="/track" element={<Track />} />
               <Route path="/albums" element={<Albums />} />
               <Route path="/playlists" element={<Playlists />} />
-              <Route path="/" element={<Navigate to="activity" />} />
             </Routes>
           </article>
         </div>

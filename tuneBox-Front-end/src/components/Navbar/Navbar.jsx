@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { getAvatarUser } from "../../service/UserService";
-import {
-  createTrack,
-  listGenre,
-  getTrackByUserId,
-} from "../../service/TrackServiceCus";
+import { logout } from "../../service/LoginService";
+import { Link } from "react-router-dom";
+import { createTrack, listGenre, getTrackByUserId } from "../../service/TrackServiceCus";
 
 import axios from "axios";
 const Navbar = () => {
@@ -102,8 +100,10 @@ const Navbar = () => {
   };
 
   const [cartCount, setCartCount] = useState(0);
-  const [avatarUrl, setAvatarUrl] = useState(null);
-  const navigate = useNavigate()
+  const [avatarUrl, setAvatarUrl] = useState(images.logoTuneBox); // Set avatar mặc định
+  const [dropdownVisible, setDropdownVisible] = useState(false); // Trạng thái cho dropdown
+  const navigate = useNavigate();
+
   // Lấy userId từ cookie và fetch avatar
   useEffect(() => {
     const userIdCookie = Cookies.get('userId');
@@ -121,8 +121,7 @@ const Navbar = () => {
     }
   }, []);
 
-
-
+  // Lấy số lượng sản phẩm trong giỏ hàng từ localStorage
   useEffect(() => {
     const fetchCartCount = () => {
       const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
@@ -133,61 +132,111 @@ const Navbar = () => {
     fetchCartCount();
   }, []);
 
-    // Hàm đăng xuất
-    const handleLogout = async () => {
-      try {
-        await axios.post('http://localhost:8080/user/logout', {}, { withCredentials: true });
-        Cookies.remove('userId'); // Xóa cookie userId
-        navigate('/login'); // Chuyển hướng đến trang đăng nhập
-      } catch (error) {
-        console.error("Error during logout:", error);
-      }
-    };
-  
+  // Hàm xử lý khi nhấn Logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      Cookies.remove('userId'); // Xóa cookie userId phía client
+      setAvatarUrl(images.logoTuneBox);
+      navigate('/introduce');
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  // Điều hướng đến trang profile khi nhấn vào avatar
+  const handleAvatarClick = () => {
+    const userIdCookie = Cookies.get('userId');
+    if (userIdCookie) {
+      navigate('/profileUser');
+    } else {
+      navigate('/login');
+    }
+  };
+
+  // Điều khiển hiển thị dropdown khi hover
+  const handleMouseEnter = () => {
+    setDropdownVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setDropdownVisible(false);
+  };
+
+  // Điều hướng giỏ hàng chỉ khi có userId
+  const handleCartClick = () => {
+    const userIdCookie = Cookies.get('userId');
+    if (userIdCookie) {
+      navigate('/Cart');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
-    <header className="row" style={{ alignItems: "center" }}>
-      <div className="col" style={{ alignItems: "center", display: "flex" }}>
-        <button className="btn">
-          <Link to={"/"}>
-            <img
-              alt="tunebox"
-              src={images.logoTuneBox}
-              style={{ marginLeft: "50px", marginRight: "50px" }}
-              width="150"
-            />
-          </Link>
+    <header
+      className="row"
+      style={{
+        alignItems: "center",
+      }}
+    >
+      {/* navbar left */}
+      <div
+        className="col"
+        style={{
+          alignItems: "center",
+          display: "flex",
+        }}
+      >
+        <button className="btn" onClick={() => navigate('/')}>
+          <img
+            alt="tunebox"
+            src={images.logoTuneBox}
+            style={{
+              marginLeft: "50px",
+              marginRight: "50px",
+            }}
+            width="150"
+          />
         </button>
-        <button className="btn">
-          <Link className="text-decoration-none text-black" to={"/"}>
-            <span style={{ marginRight: "30px" }}>
-              <img
-                alt="icon-home"
-                src={images.home}
-                style={{ marginBottom: "15px", marginRight: "15px" }}
-              />
-              <b>Feed</b>
-            </span>
-          </Link>
-        </button>
-        <button className="btn">
-          <Link
-            className="text-decoration-none text-black"
-            to={"/HomeEcommerce"}
+        {/* Trang feed */}
+        <button className="btn" onClick={() => navigate('/')}>
+          <span
+            className="text-decoration-none"
+            style={{
+              marginRight: "30px",
+            }}
           >
-            <span>
-              <img
-                alt="icon-loa"
-                src={images.speaker}
-                style={{ marginBottom: "15px", marginRight: "15px" }}
-                width="35px"
-              />
-              <b>Shops</b>
-            </span>
-          </Link>
+            <img
+              alt="icon-home"
+              src={images.home}
+              style={{
+                marginBottom: "15px",
+                marginRight: "15px",
+              }}
+            />
+            <b>Feed</b>
+          </span>
+        </button>
+        {/* Trang bán hàng */}
+        <button className="btn" onClick={() => navigate('/HomeEcommerce')}>
+          <span>
+            <img
+              alt="icon-loa"
+              src={images.speaker}
+              style={{
+                marginBottom: "15px",
+                marginRight: "15px",
+              }}
+              width="35px"
+            />
+            <b>Shops</b>
+          </span>
         </button>
       </div>
-      <div className="col text-end" style={{ alignItems: "center" }}>
+
+      {/* navbar right */}
+      <div className="col d-flex text-end" style={{ alignItems: "center", }}>
         <span>
           <img
             alt="icon-chuong"
@@ -221,44 +270,50 @@ const Navbar = () => {
         {/* Trang cá nhân */}
         {/* Avatar */}
         {avatarUrl && (
-          <button className="btn">
-            <Link to={'/profileUser'}>
-              <img
-                alt="Avatar"
-                className="avatar_small"
-                src={avatarUrl}
-                style={{
-                  height: "50px",
-                  marginBottom: "15px",
-                  width: "50px",
-                  borderRadius: "50%",
-                }}
-              />
-            </Link>
-          </button>
+          <div
+            className="dropdown"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <img
+              alt="Avatar"
+              className="avatar_small"
+              src={avatarUrl}
+              style={{ height: "50px", width: "50px", borderRadius: "50%", cursor: "pointer" }}
+              onClick={handleAvatarClick} // Gọi hàm điều hướng khi nhấn vào avatar
+            />
+            {dropdownVisible && (
+              <ul className="dropdown-menu show">
+                <li>
+                  <button onClick={handleLogout} className="dropdown-item">
+                    Log-out
+                  </button>
+                </li>
+              </ul>
+            )}
+          </div>
         )}
 
         {/* Trang giỏ hàng */}
-        <button className="btn position-relative">
-          <Link to={'/Cart'} className="d-flex align-items-center">
-            <span>
-              <img
-                alt="icon-giohang"
-                src={images.shopping_bag}
-                style={{
-                  marginBottom: "15px",
-                  marginRight: "30px",
-                }}
-              />
+        <button className="btn position-relative" onClick={handleCartClick}>
+          <span>
+            <img
+              alt="icon-giohang"
+              src={images.shopping_bag}
+              style={{
+                marginBottom: "15px",
+                marginRight: "10px",
+              }}
+            />
+          </span>
+          {/* Hiển thị badge nếu có sản phẩm trong giỏ hàng */}
+          {cartCount > 0 && (
+            <span className="badge text-bg-secondary">
+              {cartCount}
             </span>
-            {/* Hiển thị badge nếu có sản phẩm trong giỏ hàng */}
-            {cartCount > 0 && (
-              <span className="badge text-bg-secondary">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+          )}
         </button>
+
         {/* Trang tạo track */}
         <button
           data-bs-toggle="modal"
@@ -309,9 +364,8 @@ const Navbar = () => {
                     <label className="form-label">Track Name</label>
                     <input
                       type="text"
-                      className={`form-control ${
-                        errors.name ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.name ? "is-invalid" : ""
+                        }`}
                       value={newTrackName}
                       onChange={(e) => setTrackName(e.target.value)}
                     />
@@ -349,9 +403,8 @@ const Navbar = () => {
                   <div className="mt-3">
                     <label className="form-label">Genre</label>
                     <select
-                      className={`form-select ${
-                        errors.genre ? "is-invalid" : ""
-                      }`}
+                      className={`form-select ${errors.genre ? "is-invalid" : ""
+                        }`}
                       value={newTrackGenre}
                       onChange={(e) => setTrackGenre(e.target.value)}
                     >
@@ -378,9 +431,8 @@ const Navbar = () => {
                     <textarea
                       cols="50"
                       rows="5"
-                      className={`form-control ${
-                        errors.description ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.description ? "is-invalid" : ""
+                        }`}
                       value={newTrackDescription}
                       onChange={(e) => setTrackDescription(e.target.value)}
                     ></textarea>

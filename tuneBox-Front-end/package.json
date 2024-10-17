@@ -31,10 +31,11 @@
     "react-slick": "^0.30.2",
     "react-spinners": "^0.14.1",
     "slick-carousel": "^1.8.1",
-    "sweetalert2": "^11.6.13",
+    "sweetalert2": "^11.14.3",
     "tunebox": "file:",
     "update": "^0.4.2",
     "wavesurfer.js": "^7.8.6"
+
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
