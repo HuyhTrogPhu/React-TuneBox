@@ -4,6 +4,8 @@ import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
 import HomeFeed from "./pages/SocialMedia/Feed";
+import Chat from "./pages/SocialMedia/chat/chat";
+
 import ProfileUser from "./pages/SocialMedia/Profile/ProfileUser";
 import ProfileSetting from "./pages/SocialMedia/Profile/ProfileSetting";
 import SoThich from "./pages/GioiThieu/SoThich";
@@ -22,6 +24,8 @@ import ResetPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ResetPas
 import ForgotPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ForgotPassword2";
 import Trackdetail from "./pages/SocialMedia/Trackdetail";
 import SocialMediaAdmin from "./pages/SocialMediaAdmin";
+// import Chat2 from "./pages/SocialMedia/chat/chat2";
+
 
 // Layout có Header
 function LayoutWithHeader() {
@@ -75,8 +79,14 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/DetailProduct" element={<DetailProduct />} />
             <Route path="/Trackdetail" element= {<Trackdetail />} />
-          </Route>
+            <Route path="/chat" element={<Chat/>} />
+            {/* <Route path="/chat2" element={<Chat2/>} /> */}
 
+
+          </Route>
+          {/* <div className="card-body contacts_body">
+              <UserList users={users} setActiveUser={setActiveUser} />
+            </div> */}
           {/* Các route không có Header */}
           <Route element={<LayoutWithoutHeader />}>
             <Route path="/gioithieu" element={<GioiThieu />} />

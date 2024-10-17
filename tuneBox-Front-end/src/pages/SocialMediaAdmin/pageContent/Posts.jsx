@@ -7,6 +7,7 @@ const Posts = () => {
   const [allPosts, setAllPosts] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [countPost, setCountPost] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Hàm lấy danh sách bài viết mới
   const fetchNewPosts = async () => {
@@ -71,6 +72,18 @@ const Posts = () => {
     fetchAllPosts();
   }, []);
 
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value); // Cập nhật từ khóa tìm kiếm
+  };
+
+  const filteredNewPosts = newPosts.filter((post) =>
+    post.userName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredAllPosts = allPosts.filter((post) =>
+    post.userName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
       <div className="container-fluid p-5">
@@ -97,6 +110,8 @@ const Posts = () => {
                       type="text"
                       className="form-control"
                       placeholder="Search..."
+                      value={searchTerm}
+                      onChange={handleSearch}
                       aria-describedby="button-addon2"
                     />
                     <button
@@ -134,7 +149,7 @@ const Posts = () => {
                 </tr>
               </thead>
               <tbody>
-                {newPosts.map((post, index) => (
+                {filteredNewPosts.map((post, index) => (
                   <tr key={index}>
                     <th scope="row">{index + 1}</th>
                     <td>
@@ -404,6 +419,8 @@ const Posts = () => {
                         className="form-control"
                         placeholder="Search..."
                         aria-describedby="button-addon2"
+                        value={searchTerm}
+                        onChange={handleSearch}
                       />
                       <button
                         className="btn btn-outline-secondary"
@@ -442,7 +459,7 @@ const Posts = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {allPosts.map((post, index) => (
+                  {filteredAllPosts.map((post, index) => (
                     <tr key={post.id}>
                       <th scope="row">{index + 1}</th>
                       <td>
