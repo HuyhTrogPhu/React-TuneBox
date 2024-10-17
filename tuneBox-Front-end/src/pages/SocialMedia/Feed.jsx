@@ -776,7 +776,7 @@ const fetchPosts = async () => {
     </div>
 ) : (
 <button className="btn btn-danger btn-report position-absolute top-0 end-0" onClick={() => handleReportPost(post.id)}>
-  Báo cáo
+  Report
 </button>
 )}
 
