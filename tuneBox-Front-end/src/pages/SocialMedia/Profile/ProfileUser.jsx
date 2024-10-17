@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { Link, Routes, Route } from "react-router-dom";
+import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
@@ -11,18 +11,17 @@ import "./css/button.css";
 import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
-import { getUserInfo } from "../../../service/UserService";
 import { FollowContext } from './FollowContext';
+import { getUserInfo } from "../../../service/UserService";
 
 const ProfileUser = () => {
-  const userIdCookie = Cookies.get('userId');
-
-  // get user info in profile page
+  const userIdCookie = Cookies.get("userId");
   console.log(userIdCookie);
   const [userData, setUserData] = useState([]);
   const { followerCounts, updateFollowerCount, followingCounts, updateFollowingCount } = useContext(FollowContext);
 
-  useEffect(() => {
+   // get user info in profile page
+   useEffect(() => {
     if (userIdCookie) {
       const fetchUser = async () => {
         try {
@@ -37,10 +36,11 @@ const ProfileUser = () => {
     }
   }, [userIdCookie]);
 
- const fetchCounts = async () => {
+  useEffect(() => {
+    const fetchCounts = async () => {
       // Fetch lại số lượng người theo dõi và đang theo dõi
       try {
-          const response = await fetchDataUser(userIdCookie);
+          const response = await fetchDataUser(userId);
           const newFollowerCount = response.data.followers ? response.data.followers.length : 0;
           const newFollowingCount = response.data.following ? response.data.following.length : 0;
           updateFollowerCount(newFollowerCount);
@@ -51,7 +51,7 @@ const ProfileUser = () => {
     };
 
     fetchCounts();
-}, [userIdCookie, updateFollowerCount, updateFollowingCount]);
+}, [userId, updateFollowerCount, updateFollowingCount]);
 
   return (
     <div className="container">
@@ -94,15 +94,15 @@ const ProfileUser = () => {
           </div>
           {/* Thông tin người theo dõi */}
           <div className="row mt-4">
-        <div className="col text-center">
-          <span>{followerCounts[userId] || 0}</span> <br />
-          <span>Follower</span>
-        </div>
-        <div className="col text-center">
-          <span>{followingCounts[userId] || 0}</span> <br />
-          <span>Following</span>
-        </div>
-      </div>
+            <div className="col text-center">
+              <span>{followerCounts[userId] || 0}</span> <br />
+              <span>Follower</span>
+            </div>
+            <div className="col text-center">
+              <span>{followingCounts[userId] || 0}</span> <br />
+              <span>Following</span>
+            </div>
+          </div>
           <div style={{ paddingTop: 30 }}>
             <label>InspiredBy</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
@@ -150,10 +150,18 @@ const ProfileUser = () => {
 
         <div className="col-sm-9 d-flex flex-column">
           <nav className="nav flex-column flex-md-row p-5">
-            <Link to="activity" className="nav-link">Activity</Link>
-            <Link to="track" className="nav-link">Track</Link>
-            <Link to="albums" className="nav-link">Albums</Link>
-            <Link to="playlists" className="nav-link">Playlists</Link>
+            <Link to="activity" className="nav-link">
+              Activity
+            </Link>
+            <Link to="track" className="nav-link">
+              Track
+            </Link>
+            <Link to="albums" className="nav-link">
+              Albums
+            </Link>
+            <Link to="playlists" className="nav-link">
+              Playlists
+            </Link>
           </nav>
 
           <article className="p-5">
@@ -162,7 +170,6 @@ const ProfileUser = () => {
               <Route path="/track" element={<Track />} />
               <Route path="/albums" element={<Albums />} />
               <Route path="/playlists" element={<Playlists />} />
-              {/* <Route path="/" element={<Navigate to="activity" />} /> Đường dẫn mặc định */}
             </Routes>
           </article>
         </div>
