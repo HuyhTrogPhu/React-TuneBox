@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { Link, Routes, Route } from "react-router-dom";
+import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
@@ -11,11 +11,14 @@ import "./css/button.css";
 import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
+import { FollowContext } from './FollowContext';
 import { getUserInfo } from "../../../service/UserService";
 
 const ProfileUser = () => {
-  const userIdCookie = Cookies.get('userId');
-  const [userData, setUserData] = useState({});
+  const userIdCookie = Cookies.get("userId");
+  console.log(userIdCookie);
+  const [userData, setUserData] = useState([]);
+  const [followCount, setFollowCount] = useState({ followerCount: 0, followingCount: 0 });
 
   // get user info in profile page
   useEffect(() => {
@@ -23,12 +26,29 @@ const ProfileUser = () => {
       const fetchUser = async () => {
         try {
           const userData = await getUserInfo(userIdCookie);
-          setUserData(userData); // Gán trực tiếp data từ response vào state
+          setUserData(userData);
+          console.log("User data fetched from API:", userData);
         } catch (error) {
           console.error("Error fetching user", error);
         }
       };
       fetchUser();
+    }
+  }, [userIdCookie]);
+
+  // get follower and following user 
+  useEffect(() => {
+    if (userIdCookie) {
+      const fetchFollowCount = async () => {
+        try {
+          const followData = await getFollowCountByUserId(userIdCookie);
+          setFollowCount(followData);
+          console.log("Follow count fetched from API:", followData);
+        } catch (error) {
+          console.error("Error fetching follow count", error);
+        }
+      };
+      fetchFollowCount();
     }
   }, [userIdCookie]);
 
@@ -41,7 +61,6 @@ const ProfileUser = () => {
           backgroundImage: `url(${userData.background || "/src/UserImages/Background/default-bg.jpg"})`,
         }}
       />
-
       <div className="row container">
         <aside className="col-sm-3">
           <div>
@@ -52,7 +71,6 @@ const ProfileUser = () => {
               alt="avatar"
             />
           </div>
-          {/* 2 nút dưới avatar */}
           <div className="row mt-4">
             <div className="col">
               <div className="fs-4 text-small">
@@ -61,7 +79,7 @@ const ProfileUser = () => {
               <div className="">{userData.userName}</div>
             </div>
             <div className="col text-end">
-              <Link to={"/ProfileSetting"}>
+              <Link to="/ProfileSetting">
                 <button type="button" className="btn btn-secondary">
                   <img
                     src={images.pen}
@@ -73,18 +91,17 @@ const ProfileUser = () => {
               </Link>
             </div>
           </div>
-          {/* Thông tin người theo dõi */}
+          {/* Hiển thị số lượng follower và following */}
           <div className="row mt-4">
             <div className="col text-center">
-              <span>0</span> <br />
+              <span>{followCount.followerCount}</span> <br />
               <span>Follower</span>
             </div>
             <div className="col text-center">
-              <span>0</span> <br />
+              <span>{followCount.followingCount}</span> <br />
               <span>Following</span>
             </div>
           </div>
-
           <div style={{ paddingTop: 30 }}>
             <label>InspiredBy</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
@@ -159,5 +176,6 @@ const ProfileUser = () => {
     </div>
   );
 };
+
 
 export default ProfileUser;

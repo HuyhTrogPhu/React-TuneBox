@@ -139,7 +139,7 @@ const BrandList = ({ brands, onUpdate }) => {
       {/* Hiển thị thông báo thành công */}
       {successMessage && (
         <div className="alert alert-success" role="alert">
-          {successMessage} This notice will be closed in <b>{countdown}s.</b>
+          {successMessage}
         </div>
       )}
       <table className="table table-striped table-hover">

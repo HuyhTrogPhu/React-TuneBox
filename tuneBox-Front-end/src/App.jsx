@@ -21,9 +21,12 @@ import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
 import CategoryPageDetail from "./pages/Ecommerce/CategoryPage/CategoryPageDetail";
+import OtherUserProfile from "./pages/SocialMedia/Profile/OtherUserProfile";
 import WelcomeUser from "./pages/GioiThieu/WelcomeUser";
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+import { FollowProvider } from './pages/SocialMedia/Profile/FollowContext';
+import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 import ThanhCong from "./pages/Ecommerce/order/doneOr";
@@ -36,6 +39,7 @@ function LayoutWithHeader() {
     </>
   );
 }
+
 function LayoutWithoutHeader() {
   return (
     <>
@@ -44,12 +48,12 @@ function LayoutWithoutHeader() {
   );
 }
 
-
 function App() {
 
   const { orderId } = useParams();
   
   return (
+    <FollowProvider> {/* Đặt FollowProvider ở đây */}
     <div>
       <div className="">
         <Routes>
@@ -69,6 +73,8 @@ function App() {
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+              <Route path="/profile/:id/*" element={<OtherUserProfile />} />
+              <Route path="/track/:id" element={<TrackDetail />} />
             <Route path="/checkOut" element={<CheckOut/>}/>
             <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
             <Route path="/doneorder" element={<ThanhCong/>}/>
@@ -93,6 +99,7 @@ function App() {
         </Routes>
       </div>
     </div>
+    </FollowProvider>
   );
 }
 

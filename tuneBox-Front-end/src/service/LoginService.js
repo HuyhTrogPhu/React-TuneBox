@@ -26,3 +26,11 @@ export const login = async (userDto) => {
   });
   return response.data;
 };
+
+// log-out 
+export const logout = async () => {
+  const response = await axios.get(`${REST_API_BASE_URL}/log-out`, {
+    withCredentials: true
+  });
+  return response.data;
+};

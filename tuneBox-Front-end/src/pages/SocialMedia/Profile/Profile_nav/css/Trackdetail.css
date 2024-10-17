@@ -1,0 +1,142 @@
+.track-page-player img {
+    width: 200px;
+    height: 200px;
+}
+.track-page-player-titles {
+    color: var(--dominant-color-text);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: space-evenly;
+    min-width: 0;
+}
+
+.track-page-title-name
+    {
+        font-size: 32px;
+        font-weight: 500;
+        line-height: 40px;
+        margin: 0;
+    }
+    .track-page-player-cover-image {
+        border-radius: 8px;
+    }
+    .track-page-player {
+        display: flex;
+        gap: 32px;
+        min-height: 206px;
+    }
+    .track-page-header {
+        background-color: var(--dominant-color-background, #C0C0C0);
+        border-radius: 16px;
+        margin-top: 24px;
+        padding: 32px 32px 20px;
+    }
+    
+.track-page-player-title {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    position: relative;
+}
+
+.track-player-actions-column {
+    display: flex;
+    gap: 8px;
+    position: relative;
+}
+
+.track-player-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 28px;
+}
+.adaptive-content {
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
+}
+.track-page-left-col {
+    border: 1px solid var(--ds-color-border-neutral);
+    border-radius: 8px;
+    padding: 16px 32px;
+}
+.track-related-tile {
+    background-color: var(--ds-color-surface-inactive-neutral);
+    border-radius: 8px;
+    padding: 16px;
+}
+.border-rd-16{
+    border-radius: 16px;
+}
+
+.dropdown-toggle{
+    background-color: var(--ds-color-border-neutral);
+}
+
+.btn {
+    border: none; /* Bỏ viền */
+    background: none; /* Bỏ nền */
+    cursor: pointer; /* Đổi con trỏ khi di chuột qua nút */
+  }
+
+  .comment-section {
+    display: flex; /* Sử dụng Flexbox để sắp xếp các phần tử trong hàng */
+    align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+    gap: 8px; /* Khoảng cách giữa textarea và nút */
+  }
+  
+
+  /* commnet */
+  .comment {
+    border: 1px solid #ddd; /* Border nhẹ */
+    border-radius: 5px; /* Góc bo tròn */
+    padding: 10px 15px; /* Padding nhỏ hơn */
+    margin: 5px 0; /* Giảm khoảng cách giữa các bình luận */
+    background-color: #f9f9f9; /* Nền sáng */
+    display: flex; /* Sử dụng flex để căn chỉnh tốt hơn */
+    align-items: center; /* Căn giữa theo chiều dọc */
+  }
+  
+  .comment-content {
+    flex: 1; /* Tự động chiếm toàn bộ không gian còn lại */
+    margin-left: 10px; /* Khoảng cách giữa avatar và nội dung bình luận */
+  }
+  
+  .comment-author {
+    font-weight: bold; /* Đậm tên người dùng */
+    font-size: 0.9em; /* Kích thước font nhỏ hơn */
+    color: #333; /* Màu chữ nhẹ nhàng */
+  }
+  
+  .comment-time {
+    font-size: 0.8em; /* Kích thước font nhỏ hơn */
+    color: #888; /* Màu chữ xám cho thời gian */
+    margin-top: 2px; /* Khoảng cách giữa tên người dùng và thời gian */
+  }
+  
+  .reply-input-container {
+    margin-top: 5px; /* Khoảng cách giữa phần bình luận và input reply */
+  }
+  
+  .reply {
+    margin-left: 30px; /* Thụt lề cho reply */
+    border-left: 2px solid #ddd; /* Đường kẻ bên trái */
+    padding-left: 10px; /* Khoảng cách bên trái */
+    margin-bottom: 10px;
+  }
+  
+  .nested-replies {
+    margin-left: 20px; /* Lùi vào bên phải cho các phản hồi lồng nhau */
+    border-left: 1px solid #ccc; /* Vạch bên trái để phân biệt */
+    padding-left: 10px; /* Khoảng cách giữa vạch và nội dung */
+  }
+  
+  .nested-reply {
+    margin-bottom: 8px; /* Giãn cách giữa các phản hồi lồng nhau */
+  }
+
+  .track-infor{
+    height: 200px;
+  }
