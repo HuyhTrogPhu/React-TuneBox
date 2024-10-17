@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { Link, Routes, Route } from "react-router-dom";
+import { Link, Routes, Route,Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
@@ -16,6 +16,8 @@ import { getUserInfo } from "../../../service/UserService";
 const ProfileUser = () => {
   const userIdCookie = Cookies.get('userId');
   const [userData, setUserData] = useState({});
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   // get user info in profile page
   useEffect(() => {
@@ -30,7 +32,20 @@ const ProfileUser = () => {
       };
       fetchUser();
     }
+    const fetchDataAndRender = async () => {
+      const response = await getUserInfo(userIdCookie);
+      console.log("Data fetched from API:", response);
+      if (response && response.data) {
+        setUserData(response.data);
+        console.log(userData);
+        setFollowerCount(userData.followers.length);
+        setFollowingCount(userData.following.length);
+      }
+    };
+    fetchDataAndRender();
   }, [userIdCookie]);
+
+
 
   return (
     <div className="container">
@@ -71,14 +86,14 @@ const ProfileUser = () => {
               </Link>
             </div>
           </div>
-          {/* Thông tin người theo dõi */}
+          {/* thông tin người theo giõi */}
           <div className="row mt-4">
             <div className="col text-center">
-              <span>0</span> <br />
+              <span>{followerCount}</span> <br />
               <span>Follower</span>
             </div>
             <div className="col text-center">
-              <span>0</span> <br />
+              <span>{followingCount}</span> <br />
               <span>Following</span>
             </div>
           </div>
@@ -142,6 +157,7 @@ const ProfileUser = () => {
               <Route path="/track" element={<Track />} />
               <Route path="/albums" element={<Albums />} />
               <Route path="/playlists" element={<Playlists />} />
+              <Route path="/" element={<Navigate to="activity" />} />
             </Routes>
           </article>
         </div>

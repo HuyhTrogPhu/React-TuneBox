@@ -7,14 +7,14 @@ export const FollowContext = createContext();
 export const FollowProvider = ({ children }) => {
   const [followerCounts, setFollowerCounts] = useState({});
   const [followingCounts, setFollowingCounts] = useState({});
-  const userId = Cookies.get("UserID");
+  const userId = Cookies.get("userId");
 
   useEffect(() => {
     const fetchCounts = async () => {
       if (userId) {
         try {
           const followerCountResponse = await axios.get(`http://localhost:8080/api/follow/followers-count?userId=${userId}`);
-          const followingCountResponse = await axios.get(`http://localhost:8080/api/follow/following-count?userId=${userId}`); // Cần thêm API cho số lượng người đang theo dõi
+          const followingCountResponse = await axios.get(`http://localhost:8080/api/follow/following-count?userId=${userId}`);
 
           setFollowerCounts((prev) => ({
             ...prev,
@@ -33,12 +33,13 @@ export const FollowProvider = ({ children }) => {
     fetchCounts();
   }, [userId]);
 
-  const updateFollowerCount = (userId, count) => {
-    setFollowerCounts((prev) => ({
-      ...prev,
-      [userId]: count,
-    }));
-  };
+// Trong FollowContext.jsx
+const updateFollowerCount = (userId, newCount) => {
+  setFollowerCounts((prevCounts) => ({
+    ...prevCounts,
+    [userId]: newCount,
+  }));
+};
 
   const updateFollowingCount = (userId, count) => {
     setFollowingCounts((prev) => ({

@@ -511,7 +511,7 @@ const fetchPosts = async () => {
   
         setPosts((prevPosts) =>
           prevPosts.map((post) => {
-            if (post.id === post.id) { // Thay yourPostId bằng ID bài post thực tế
+            if (post.id === post.id) {
               return {
                 ...post,
                 comments: post.comments.map((comment) => {
