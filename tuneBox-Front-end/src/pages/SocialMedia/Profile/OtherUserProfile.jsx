@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext,useRef  } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import { Link, Routes, Route, Navigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -14,75 +14,117 @@ const OtherUserProfile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const userId = Cookies.get("userId");
+  const { followCounts, updateFollowerCount, updateFollowingCount } = useContext(FollowContext); // Lấy đúng hàm từ context
+  
+  // Cập nhật số lượng người theo dõi từ followCounts
+  const followerCount = useMemo(() => {
+    return followCounts && followCounts[id] ? followCounts[id].followersCount : 0;
+  }, [followCounts, id]);
 
-
-  const { followerCounts, updateFollowerCount } = useContext(FollowContext);
-
-  const followerCountRef = useRef(followerCounts[id] || 0);
   const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
+  const [followCountsLocal, setFollowCountsLocal] = useState({ followersCount: 0, followingCount: 0 });
 
   useEffect(() => {
-    if (!id || !userId) return;
-  
-    const fetchDataAndRender = async () => {
+    const fetchUserData = async () => {
       try {
         const response = await axios.get(`http://localhost:8080/user/${id}/profile`);
-        if (response.data) {
-          setUserData(response.data);
-          const isFollowingResponse = await axios.get(`http://localhost:8080/api/follow/is-following?followerId=${userId}&followedId=${id}`);
-          setIsFollowing(isFollowingResponse.data);
-          const isBlockedResponse = await axios.get(`http://localhost:8080/api/blocks/is-blocked?blockerId=${userId}&blockedId=${id}`);
-          setIsBlocked(isBlockedResponse.data);
-  
-          // Cập nhật số lượng người theo dõi từ response
-          followerCountRef.current = response.data.followerCount || 0;
-          updateFollowerCount(id, followerCountRef.current);
-        }
+        setUserData(response.data);
+        setIsBlocked(response.data.isBlocked); 
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
+
+    fetchUserData();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchFollowCounts = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/follow/${id}/followCounts`);
+        setFollowCountsLocal(response.data); // Cập nhật followCountsLocal từ server
+      } catch (error) {
+        console.error("Error fetching follow counts:", error);
+      }
+    };
   
-    fetchDataAndRender();
-  }, [id, userId, updateFollowerCount]); // Hãy đảm bảo chỉ phụ thuộc vào những gì thực sự cần
+    if (id) {
+      fetchFollowCounts(); // Chỉ tải nếu id tồn tại
+    }
+  }, [id]);
   
+  // Kiểm tra trạng thái theo dõi khi load
+  useEffect(() => {
+    const checkFollowingStatus = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/follow/is-following`, {
+          params: {
+            followerId: userId,
+            followedId: id
+          }
+        });
+        setIsFollowing(response.data); // Cập nhật trạng thái theo dõi
+      } catch (error) {
+        console.error("Error checking follow status:", error);
+      }
+    };
+
+    checkFollowingStatus();
+  }, [id, userId]); // Thêm userId vào phụ thuộc
 
   const toggleFollow = async () => {
-    if (isUpdatingFollow) return; // Nếu đang cập nhật thì không thực hiện thêm
+    if (isUpdatingFollow) return;
     setIsUpdatingFollow(true);
   
     try {
-      const currentCount = followerCounts[id] || 0;
-      let newCount;
+      // Use followCountsLocal to get the current counts
+      let newFollowerCount = followCountsLocal.followersCount; 
+      let newFollowingCount = followCountsLocal.followingCount;
   
       if (isFollowing) {
+        // Unfollow
         await axios.delete(`http://localhost:8080/api/follow/unfollow`, {
           params: {
             followerId: userId,
-            followedId: id
-          }
+            followedId: id,
+          },
         });
+  
+        newFollowerCount = Math.max(newFollowerCount - 1, 0); // Decrease follower count
         setIsFollowing(false);
-        newCount = Math.max(currentCount - 1, 0);
       } else {
+        // Follow
         await axios.post(`http://localhost:8080/api/follow/follow`, null, {
           params: {
             followerId: userId,
-            followedId: id
-          }
+            followedId: id,
+          },
         });
+  
+        newFollowerCount = newFollowerCount + 1; // Increase follower count
         setIsFollowing(true);
-        newCount = currentCount + 1;
       }
   
-      updateFollowerCount(id, newCount);
+      console.log("Updating follow counts:", { newFollowerCount, newFollowingCount });
+  
+      // Update context with the new follower counts
+      updateFollowerCount(id, newFollowerCount); // Update other user's follower count
+      updateFollowingCount(newFollowingCount); // Update current user's following count
+  
+      // Update local follow counts
+      setFollowCountsLocal((prev) => ({
+        ...prev,
+        followersCount: newFollowerCount, // Local update for the count
+        followingCount: newFollowingCount, // You may want to update following count as well if needed
+      }));
+  
     } catch (error) {
       console.error("Error toggling follow status:", error);
     } finally {
-      setIsUpdatingFollow(false); // Đặt lại sau khi hoàn tất
+      setIsUpdatingFollow(false);
     }
   };
-
+  
   const toggleBlock = async () => {
     try {
       if (isBlocked) {
@@ -123,48 +165,18 @@ const OtherUserProfile = () => {
           </div>
         </div>
         <div className="row mt-4">
-          <div className="col text-center">
-          <span>{followerCountRef.current}</span> <br />
-          <span>Follower</span>
-          </div>
-          <div className="col text-center">
-            <span>{followerCounts[userId] || 0}</span> <br />
-            <span>Following</span>
-          </div>
-        </div>
+        <div className="col text-center">
+  <span>{isNaN(followCountsLocal.followersCount) ? 0 : followCountsLocal.followersCount}</span> <br />
+  <span>Follower</span>
+</div>
+  <div className="col text-center">
+    <span>{isNaN(followCountsLocal.followingCount) ? 0 : followCountsLocal.followingCount}</span> <br />
+    <span>Following</span>
+  </div>
+</div>
+        {/* Nghệ sĩ yêu thích, Sở trường, Dòng nhạc ưu thích */}
         <div style={{ paddingTop: 30 }}>
-          <label>Nghệ sĩ ưu thích</label> <br />
-          {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
-            userData.inspiredBy.map((Mapdata) => (
-              <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
-                {Mapdata.name}
-              </span>
-            ))
-          ) : (
-            <p>Không có nghệ sĩ ưu thích nào.</p>
-          )}
-          <br />
-          <label>Sở trường</label> <br />
-          {userData.talent && userData.talent.length > 0 ? (
-            userData.talent.map((Mapdata) => (
-              <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
-                {Mapdata.name}
-              </span>
-            ))
-          ) : (
-            <p>Chưa chọn sở trường.</p>
-          )}
-          <br />
-          <label>Dòng nhạc ưu thích</label> <br />
-          {userData.genre && userData.genre.length > 0 ? (
-            userData.genre.map((Mapdata) => (
-              <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
-                {Mapdata.name}
-              </span>
-            ))
-          ) : (
-            <p>Không có dòng nhạc ưu thích nào.</p>
-          )}
+          {/* Các phần dữ liệu khác */}
         </div>
       </aside>
 
@@ -190,4 +202,3 @@ const OtherUserProfile = () => {
 };
 
 export default OtherUserProfile;
-

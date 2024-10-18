@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { Link, Routes, Route, Navigate } from "react-router-dom";
+import { Link, Routes, Route } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
@@ -12,18 +12,17 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { FollowContext } from './FollowContext';
-import { getUserInfo,getFollowCountByUserId } from "../../../service/UserService";
+import { getUserInfo } from "../../../service/UserService";
 
 const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");
-  console.log(userIdCookie);
-  const [userData, setUserData] = useState([]);
+  const { followCounts } = useContext(FollowContext);
+  const [userData, setUserData] = useState({});
   const [followCount, setFollowCount] = useState({ followerCount: 0, followingCount: 0 });
 
-  // get user info in profile page
   useEffect(() => {
-    if (userIdCookie) {
-      const fetchUser = async () => {
+    const fetchUser = async () => {
+      if (userIdCookie) {
         try {
           const userData = await getUserInfo(userIdCookie);
           setUserData(userData);
@@ -31,41 +30,21 @@ const ProfileUser = () => {
         } catch (error) {
           console.error("Error fetching user", error);
         }
-      };
-      fetchUser();
-    }
-    const fetchDataAndRender = async () => {
-      const response = await getUserInfo(userIdCookie);
-      console.log("Data fetched from API:", response);
-      if (response && response.data) {
-        setUserData(response.data);
-        console.log(userData);
-        setFollowerCount(userData.followers.length);
-        setFollowingCount(userData.following.length);
       }
     };
-    fetchDataAndRender();
+    fetchUser();
   }, [userIdCookie]);
 
-  // get follower and following user 
   useEffect(() => {
-    if (userIdCookie) {
-      const fetchFollowCount = async () => {
-        try {
-          const followData = await getFollowCountByUserId(userIdCookie);
-          setFollowCount(followData);
-          console.log("Follow count fetched from API:", followData);
-        } catch (error) {
-          console.error("Error fetching follow count", error);
-        }
-      };
-      fetchFollowCount();
-    }
-  }, [userIdCookie]);
+    const counts = followCounts[userIdCookie] || { followerCount: 0, followingCount: 0 };
+    setFollowCount(counts);
+    console.log("Updated follow counts:", counts);
+  }, [followCounts, userIdCookie]);
+  
 
   return (
     <div className="container">
-      {/* background */}
+      {/* Background */}
       <div
         className="background border container"
         style={{
@@ -102,7 +81,7 @@ const ProfileUser = () => {
               </Link>
             </div>
           </div>
-          {/* Hiển thị số lượng follower và following */}
+          {/* Display follower and following counts */}
           <div className="row mt-4">
             <div className="col text-center">
               <span>{followCount.followerCount}</span> <br />
@@ -113,6 +92,7 @@ const ProfileUser = () => {
               <span>Following</span>
             </div>
           </div>
+          {/* Display InspiredBy, Talent, and Genre */}
           <div style={{ paddingTop: 30 }}>
             <label>InspiredBy</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
@@ -125,7 +105,7 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>Không có nghệ sĩ ưu thích nào.</p>
+              <p>No favorite artists.</p>
             )}
             <br />
             <label>Talent</label> <br />
@@ -139,7 +119,7 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>Chưa chọn sở trường.</p>
+              <p>No talents selected.</p>
             )}
             <br />
             <label>Genre</label> <br />
@@ -153,7 +133,7 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>Không có dòng nhạc ưu thích nào.</p>
+              <p>No favorite genres.</p>
             )}
           </div>
         </aside>
@@ -174,19 +154,18 @@ const ProfileUser = () => {
             </Link>
           </nav>
 
-          <article className="p-5">
+          <div className="container">
             <Routes>
-              <Route path="/activity" element={<Activity />} />
-              <Route path="/track" element={<Track />} />
-              <Route path="/albums" element={<Albums />} />
-              <Route path="/playlists" element={<Playlists />} />
+              <Route path="activity" element={<Activity />} />
+              <Route path="track" element={<Track />} />
+              <Route path="albums" element={<Albums />} />
+              <Route path="playlists" element={<Playlists />} />
             </Routes>
-          </article>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-
 
 export default ProfileUser;
