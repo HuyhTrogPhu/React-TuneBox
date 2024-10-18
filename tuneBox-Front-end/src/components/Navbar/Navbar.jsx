@@ -46,7 +46,7 @@ const Navbar = () => {
       await logout(); 
       Cookies.remove('userId'); // Xóa cookie userId phía client
       setAvatarUrl(images.logoTuneBox); 
-      navigate('/');
+      navigate('/introduce');
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -256,9 +256,7 @@ const Navbar = () => {
           <b>Create</b>{" "}
         </button>
 
-        <button className="btn btn-secondary" onClick={handleLogout}>
-          <b>Đăng xuất</b>
-        </button>
+      
       </div>
       <hr />
     </header>

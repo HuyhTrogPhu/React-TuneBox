@@ -72,6 +72,10 @@ const OrderDetail = () => {
                                         <strong>Phương thức thanh toán:</strong> <br />
                                         {orderDetails.paymentMethod}
                                     </address>
+                                    <address>
+                                        <strong>Trạng thái thanh toán:</strong> <br />
+                                        {orderDetails.paymentStatus}
+                                    </address>
                                 </div>
                             </div>
                             <div className="row">

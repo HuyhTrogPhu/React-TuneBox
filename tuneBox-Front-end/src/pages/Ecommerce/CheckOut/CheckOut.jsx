@@ -189,18 +189,17 @@ const CheckOut = () => {
                     to_district_id: selectedDistrict,
                     to_ward_code: selectedWard,
                     weight: 1000,
-                    insurance_value: 1000000,
+                    insurance_value:totalPrice,
                     coupon: null
                 });
-
+    
                 const response = await axios.post('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', {
                     "service_type_id": 2,
                     "to_district_id": selectedDistrict,
                     "to_ward_code": selectedWard,
                     "from_district_id": 3695,
-
                     "weight": 1000,
-                    "insurance_value": 1000000,
+                    "insurance_value": totalPrice,
                     "length": 15,
                     "width": 15,
                     "coupon": null
@@ -210,17 +209,32 @@ const CheckOut = () => {
                         'Content-Type': 'application/json'
                     }
                 });
-
+    
                 const fee = response.data.data.total;
                 setDeliveryFee(fee);
             } catch (error) {
+                // Log toàn bộ đối tượng lỗi để xem chi tiết
                 console.error("Error fetching fast delivery fee:", error);
+    
+                // Kiểm tra xem có phản hồi từ API không
+                if (error.response) {
+                    console.error("Response data:", error.response.data); // Nội dung chi tiết từ API
+                    console.error("Response status:", error.response.status); // Mã trạng thái HTTP
+                    console.error("Response headers:", error.response.headers); // Headers của phản hồi
+                } else if (error.request) {
+                    // Yêu cầu đã được gửi nhưng không nhận được phản hồi
+                    console.error("No response received:", error.request);
+                } else {
+                    // Một lỗi khác xảy ra khi thiết lập yêu cầu
+                    console.error("Error setting up request:", error.message);
+                }
+                console.error("Config:", error.config); // Cấu hình của yêu cầu Axios
             }
         } else {
             setDeliveryFee(0);
         }
     };
-
+    
     const totalPrice = cartItems.reduce((total, item) => {
         const costPrice = parseFloat(item.costPrice) || 0; // Chuyển đổi sang số và đảm bảo không bị NaN
         const quantity = parseInt(item.quantity) || 0; // Chuyển đổi sang số nguyên
