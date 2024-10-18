@@ -23,7 +23,8 @@ const ProfileUser = () => {
       const fetchUser = async () => {
         try {
           const userData = await getUserInfo(userIdCookie);
-          setUserData(userData); // Gán trực tiếp data từ response vào state
+          setUserData(userData); 
+          console.log("User data fetched from API:", userData);
         } catch (error) {
           console.error("Error fetching user", error);
         }
