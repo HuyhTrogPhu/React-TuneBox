@@ -15,7 +15,6 @@ const Track = () => {
   const [genres, setGenres] = useState([]); // Store the list of genres
   const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
 
-  const [image, setImage] = useState(null);
 
   useEffect(() => {
     fetchGenre(); // Fetch genres when the component mounts

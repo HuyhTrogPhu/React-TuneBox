@@ -29,6 +29,7 @@ import WelcomeUser from "./pages/GioiThieu/WelcomeUser";
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
 import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
+import AlbumNew from './pages/SocialMedia/Profile/Profile_nav/AlbumNew';
 
 function LayoutWithHeader() {
   return (
@@ -87,6 +88,7 @@ function App() {
             <Route path="/CategoryPage" element={<CategoryPage />} />
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
             <Route path="/track/:id" element={<TrackDetail />} />
+            <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
           </Route>
 
           {/* Các route không có Header */}
