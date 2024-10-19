@@ -21,35 +21,40 @@ const Genre = () => {
   const [genre, setGenre] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const formData = location.state || {};
-  console.log("Form data from inspireby:", formData);
+
   const fetchGenre = async () => {
     try {
       const response = await listGenres();
-      console.log('Fetched Genres:', response.data);
+      console.log("Fetched genres:", response.data); // Kiểm tra dữ liệu
       setGenre(response.data);
     } catch (error) {
       console.log("Error fetching genre", error);
     }
   };
+  
 
   useEffect(() => {
     fetchGenre();
   }, []);
 
   // Xử lý tìm kiếm thể loại
-  const filteredGenres = genre.filter((g) =>
-    g.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredGenres = genre?.length
+  ? genre.filter((g) =>
+      g.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  : [];
 
 
   const handleGenreClick = (id) => {
     setSelectedGenre((prev) => {
-      const newSelection = prev.includes(id) ? prev.filter((genreId) => genreId !== id) : [...prev, id];
-      console.log('Selected Genres:', newSelection);
-      return newSelection;
+      if (prev.includes(id)) {
+        return prev.filter((genreId) => genreId !== id); // Xóa ID nếu đã được chọn
+      } else {
+        return [...prev, id]; // Thêm ID nếu chưa được chọn
+      }
     });
   };
+
   const handleNext = () => {
     const formData = location.state || {};
     formData.genres = selectedGenre; // Cập nhật genres
