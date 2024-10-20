@@ -50,33 +50,28 @@ const Chat = () => {
   const onMessageReceived = useCallback(
     (message) => {
       const newMessage = JSON.parse(message.body);
-      setMessages((prevMessages) => {
-        const messageExists = prevMessages.some(
-          (msg) => msg.id === newMessage.id
-        );
-  
-        if (!messageExists) {
-          // Kiểm tra xem tin nhắn mới có phải là từ người dùng đang active không
-          if (activeUser && 
-              (newMessage.senderId.id === activeUser.id || newMessage.receiverId.id === activeUser.id)) {
-            return [...prevMessages, newMessage];
-          }
-          // Nếu không phải, có thể thêm logic để thông báo có tin nhắn mới từ người dùng khác
+      setMessages((prevMessages) => {        
+        if (
+          activeUser &&
+          (newMessage.senderId.id === activeUser.id || newMessage.receiverId.id === activeUser.id)
+        ) {
+          return [...prevMessages, newMessage];
+        } else if (!activeUser && newMessage.receiverId.id === currentUserId) {
+          return [...prevMessages, newMessage];
         }
         return prevMessages;
       });
-
-      // Cập nhật danh sách người dùng để hiển thị tin nhắn mới nhất
+  
       setUsers((prevUsers) => {
         return prevUsers.map((user) => {
           if (user.id === newMessage.senderId.id || user.id === newMessage.receiverId.id) {
-            return { ...user, lastMessage: newMessage.content };
+            return { ...user, lastMessage: newMessage.content, lastMessageTime: newMessage.creationDate };
           }
           return user;
         });
       });
     },
-    [activeUser]
+    [activeUser, currentUserId]
   );
 
   useEffect(() => {
