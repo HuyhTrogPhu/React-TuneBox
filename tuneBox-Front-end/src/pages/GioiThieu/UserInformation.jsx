@@ -13,7 +13,7 @@ const UserInformation = () => {
 
   const formData = location.state || {}; // Lấy dữ liệu từ trang trước
 
-  console.log("Data register:", formData);
+  // console.log("Data register:", formData);
 
   // Hàm xử lý khi thay đổi ảnh
   const handleImageChange = (event) => {
