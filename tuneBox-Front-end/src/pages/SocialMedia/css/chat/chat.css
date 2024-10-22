@@ -230,3 +230,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .attach-icon {
+    cursor: pointer;
+    font-size: 18px;
+    margin-right: 10px;
+    color: #666;
+  }
+  
