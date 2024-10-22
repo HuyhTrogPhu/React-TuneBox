@@ -7,6 +7,7 @@ import ManagerInstrument from './EcommerceAdmin/pageContent/ManagerInstrument';
 import ManagerCustomer from './EcommerceAdmin/pageContent/ManagerCustomer';
 import UserDetail from '../components/UserDetail/UserDetail';
 import ManagerOrder from './EcommerceAdmin/pageContent/ManagerOrder';
+import OrderDetail from '../components/OrderDetail/OrderDetail';
 
 const EcommerceAdmin = () => {
   return (
@@ -74,6 +75,7 @@ const EcommerceAdmin = () => {
             <Route path="Customer/detail/:userId" element={<UserDetail />} />
 
             <Route path='Order' element={<ManagerOrder />} />
+            <Route path='Order/detail/:orderId' element={<OrderDetail />}/>
           
             <Route path='Brand' element={<ManagerBrand />} />
             <Route path='Categories' element={<ManagerCategories />} />
