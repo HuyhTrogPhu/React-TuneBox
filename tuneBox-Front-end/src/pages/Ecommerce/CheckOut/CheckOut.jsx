@@ -240,7 +240,7 @@ const CheckOut = () => {
         const orderData = {
             userId: userId,
             orderDate: new Date().toISOString(),
-            deliveryDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            deliveryDate: null, // new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
             totalPrice: totalPrice + deliveryFee,
             tax: 5.0,
             totalItem: cartItems.length,
@@ -360,7 +360,7 @@ const CheckOut = () => {
                                         type="email"
                                         className='form-control'
                                         value={user.email || ''}
-                                        readOnly
+                                        
                                     />
                                 </div>
                                 <div className='mt-3'>
@@ -369,7 +369,7 @@ const CheckOut = () => {
                                         type="text"
                                         className='form-control'
                                         value={user.userName || ''}
-                                        readOnly
+                                        
                                     />
                                 </div>
 

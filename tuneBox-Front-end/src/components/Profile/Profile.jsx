@@ -232,7 +232,7 @@ const Profile = () => {
 
                 {/* Modal Inspired By */}
                 {showModal && (
-                    <div className="modal fade show d-block" role="dialog">
+                    <div className="modal fade d-block" role="dialog">
                         <div className="modal-dialog" role="document">
                             <div className="modal-content">
                                 <div className="modal-header">
