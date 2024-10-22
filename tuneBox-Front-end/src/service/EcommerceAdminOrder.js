@@ -9,3 +9,6 @@ export const getOrderByUserId = (userId) => axios.get(`${REST_API_BASE_URL}/orde
 
 // get all orders
 export const getAllOrders = () => axios.get(`${REST_API_BASE_URL}/orders`);
+
+// get orderDetail by orderId
+export const getOrderByOrderId = (orderId) => axios.get(`${REST_API_BASE_URL}/orders/${orderId}`);
