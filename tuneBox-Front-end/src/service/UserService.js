@@ -55,3 +55,4 @@ export const getFollowCountByUserId = async (userId) => {
         throw error;
     }
 };
+

@@ -35,8 +35,6 @@ const Activity = () => {
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
 
-
-
   const handleLike = async (postId) => {
     try {
       const likeDto = {

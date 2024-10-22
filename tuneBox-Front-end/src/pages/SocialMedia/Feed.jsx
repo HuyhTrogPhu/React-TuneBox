@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { images } from "../../assets/images/images";
 import axios from 'axios';
@@ -13,8 +12,6 @@ import "./css/profile.css"
 import "./css/mxh/comment.css"
 import "./css/mxh/button.css"
 import { useParams, useNavigate } from 'react-router-dom';
-import Modal from './Modal.jsx';
-
 
 const HomeFeed = () => {
   const navigate = useNavigate();

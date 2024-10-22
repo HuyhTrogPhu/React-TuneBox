@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import { Link, Routes, Route, Navigate, useParams } from "react-router-dom";
-import axios from "axios";
-import Cookies from "js-cookie";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
 import Playlists from "./Profile_nav/Playlists";
-import { FollowContext } from "./FollowContext"; 
+import axios from "axios";
+import Cookies from "js-cookie";
+import { FollowContext } from "./FollowContext";
+
 
 const OtherUserProfile = () => {
   const { id } = useParams();
@@ -14,9 +15,94 @@ const OtherUserProfile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const userId = Cookies.get("userId");
-  const { followCounts, updateFollowerCount, updateFollowingCount } = useContext(FollowContext); // Lấy đúng hàm từ context
-  
-  // Cập nhật số lượng người theo dõi từ followCounts
+  const { followCounts, updateFollowerCount } = useContext(FollowContext);
+  const [isFriend, setIsFriend] = useState(false);
+  const [friendStatus, setFriendStatus] = useState("Add Friend");
+
+  const toggleFriend = async () => {
+    try {
+      if (friendStatus === "Friends") {
+        await axios.delete(`http://localhost:8080/api/friends/${userId}/${id}`);
+        setIsFriend(false);
+        setFriendStatus("Add Friend");
+      } else if (friendStatus === "Add Friend") {
+        await axios.post(`http://localhost:8080/api/friends/${userId}/${id}`);
+        setIsFriend(true);
+        setFriendStatus("Request Sent");
+      }
+    } catch (error) {
+      console.error("Error toggling friend status:", error);
+    }
+  };
+
+  const cancelFriendRequest = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/friends/cancel-request/${userId}/${id}`);
+      setFriendStatus("Add Friend");
+      setIsFriend(false);
+    } catch (error) {
+      console.error("Error canceling friend request:", error);
+    }
+  };
+
+  const acceptFriendRequest = async () => {
+    try {
+      await axios.post(`http://localhost:8080/api/friends/accept/${id}`);
+      setFriendStatus("Friends");
+    } catch (error) {
+      console.error("Error accepting friend request:", error);
+    }
+  };
+
+  const declineFriendRequest = async () => {
+    try {
+      await axios.post(`http://localhost:8080/api/friends/decline/${id}`);
+      setFriendStatus("Add Friend");
+    } catch (error) {
+      console.error("Error declining friend request:", error);
+    }
+  };
+
+  useEffect(() => {
+    const checkFriendStatus = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/friends/check`, {
+          params: {
+            userId: userId,
+            friendId: id,
+          },
+        });
+        if (response.data === "pending") {
+          setFriendStatus(userId === id ? "pending" : "Request Sent");
+          setIsFriend(false);
+        } else if (response.data === "accepted") {
+          setIsFriend(true);
+          setFriendStatus("Friends");
+        } else {
+          setIsFriend(false);
+          setFriendStatus("Add Friend");
+        }
+      } catch (error) {
+        console.error("Error checking friend status:", error);
+      }
+    };
+    checkFriendStatus();
+  }, [id, userId]);
+
+  //
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/user/${id}/profile`);
+        setUserData(response.data);
+        setIsBlocked(response.data.isBlocked);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchUserData();
+  }, [id]);
+
   const followerCount = useMemo(() => {
     return followCounts && followCounts[id] ? followCounts[id].followersCount : 0;
   }, [followCounts, id]);
@@ -29,7 +115,7 @@ const OtherUserProfile = () => {
       try {
         const response = await axios.get(`http://localhost:8080/user/${id}/profile`);
         setUserData(response.data);
-        setIsBlocked(response.data.isBlocked); 
+        setIsBlocked(response.data.isBlocked);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -42,89 +128,78 @@ const OtherUserProfile = () => {
     const fetchFollowCounts = async () => {
       try {
         const response = await axios.get(`http://localhost:8080/api/follow/${id}/followCounts`);
-        setFollowCountsLocal(response.data); // Cập nhật followCountsLocal từ server
+        setFollowCountsLocal(response.data);
       } catch (error) {
         console.error("Error fetching follow counts:", error);
       }
     };
-  
+
     if (id) {
-      fetchFollowCounts(); // Chỉ tải nếu id tồn tại
+      fetchFollowCounts();
     }
   }, [id]);
-  
-  // Kiểm tra trạng thái theo dõi khi load
+
   useEffect(() => {
     const checkFollowingStatus = async () => {
       try {
         const response = await axios.get(`http://localhost:8080/api/follow/is-following`, {
           params: {
             followerId: userId,
-            followedId: id
+            followedId: id,
           }
         });
-        setIsFollowing(response.data); // Cập nhật trạng thái theo dõi
+        setIsFollowing(response.data);
       } catch (error) {
         console.error("Error checking follow status:", error);
       }
     };
 
     checkFollowingStatus();
-  }, [id, userId]); // Thêm userId vào phụ thuộc
+  }, [id, userId]);
 
   const toggleFollow = async () => {
     if (isUpdatingFollow) return;
     setIsUpdatingFollow(true);
-  
+
     try {
-      // Use followCountsLocal to get the current counts
-      let newFollowerCount = followCountsLocal.followersCount; 
-      let newFollowingCount = followCountsLocal.followingCount;
-  
+      let newFollowerCount = followCountsLocal.followersCount;
+
       if (isFollowing) {
-        // Unfollow
         await axios.delete(`http://localhost:8080/api/follow/unfollow`, {
           params: {
             followerId: userId,
             followedId: id,
           },
         });
-  
-        newFollowerCount = Math.max(newFollowerCount - 1, 0); // Decrease follower count
+
+        newFollowerCount = Math.max(newFollowerCount - 1, 0);
         setIsFollowing(false);
       } else {
-        // Follow
         await axios.post(`http://localhost:8080/api/follow/follow`, null, {
           params: {
             followerId: userId,
             followedId: id,
           },
         });
-  
-        newFollowerCount = newFollowerCount + 1; // Increase follower count
+
+        newFollowerCount = newFollowerCount + 1;
         setIsFollowing(true);
       }
-  
-      console.log("Updating follow counts:", { newFollowerCount, newFollowingCount });
-  
-      // Update context with the new follower counts
-      updateFollowerCount(id, newFollowerCount); // Update other user's follower count
-      updateFollowingCount(newFollowingCount); // Update current user's following count
-  
-      // Update local follow counts
+
+      updateFollowerCount(id, newFollowerCount);
+
       setFollowCountsLocal((prev) => ({
         ...prev,
-        followersCount: newFollowerCount, // Local update for the count
-        followingCount: newFollowingCount, // You may want to update following count as well if needed
+        followersCount: newFollowerCount,
       }));
-  
+
     } catch (error) {
       console.error("Error toggling follow status:", error);
     } finally {
       setIsUpdatingFollow(false);
     }
   };
-  
+
   const toggleBlock = async () => {
     try {
       if (isBlocked) {
@@ -165,37 +240,50 @@ const OtherUserProfile = () => {
           </div>
         </div>
         <div className="row mt-4">
+          <div className="col text-center">
+            <span>{isNaN(followCountsLocal.followersCount) ? 0 : followCountsLocal.followersCount}</span> <br />
+            <span>Follower</span>
+          </div>
+          <div className="col text-center">
+            <span>{isNaN(followCountsLocal.followingCount) ? 0 : followCountsLocal.followingCount}</span> <br />
+            <span>Following</span>
+          </div>
+        </div>
         <div className="col text-center">
-  <span>{isNaN(followCountsLocal.followersCount) ? 0 : followCountsLocal.followersCount}</span> <br />
-  <span>Follower</span>
-</div>
-  <div className="col text-center">
-    <span>{isNaN(followCountsLocal.followingCount) ? 0 : followCountsLocal.followingCount}</span> <br />
-    <span>Following</span>
-  </div>
-</div>
-        {/* Nghệ sĩ yêu thích, Sở trường, Dòng nhạc ưu thích */}
-        <div style={{ paddingTop: 30 }}>
-          {/* Các phần dữ liệu khác */}
+          {userId === id ? null : (
+            friendStatus === "Request Sent" && userId !== id ? (
+              <button className="btn btn-warning" id="cancelRequestButton" onClick={cancelFriendRequest}>
+                Cancel Request
+              </button>
+            ) : friendStatus === "Add Friend" && userId !== id ? (
+              <button className="btn btn-success" onClick={toggleFriend}>
+                Add Friend
+              </button>
+            ) : friendStatus === "Friends" && userId !== id ? (
+              <span className="text-success">Friends</span>
+            ) : friendStatus === "pending" && userId === id ? (
+              <div>
+                <button className="btn btn-success" onClick={acceptFriendRequest}>
+                  Accept
+                </button>
+                <button className="btn btn-danger" onClick={declineFriendRequest}>
+                  Decline
+                </button>
+              </div>
+            ) : null
+          )}
         </div>
       </aside>
-
-      <div className="col-sm-9 d-flex flex-column ">
-        <nav className="nav flex-column flex-md-row p-5">
-          <Link to="activity" className="nav-link">Activity</Link>
-          <Link to="track" className="nav-link">Track</Link>
-          <Link to="albums" className="nav-link">Albums</Link>
-          <Link to="playlists" className="nav-link">Playlists</Link>
-        </nav>
-        <article className="p-5">
+      <div className="col-sm-9">
+        <div className="bg-light border rounded p-4 mt-4">
           <Routes>
             <Route path="activity" element={<Activity />} />
-            <Route path="track" element={<Track />} />
+            <Route path="tracks" element={<Track />} />
             <Route path="albums" element={<Albums />} />
             <Route path="playlists" element={<Playlists />} />
-            <Route path="/" element={<Navigate to="activity" />} />
+            <Route path="*" element={<Navigate to="activity" />} />
           </Routes>
-        </article>
+        </div>
       </div>
     </div>
   );

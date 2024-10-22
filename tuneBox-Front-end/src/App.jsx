@@ -30,6 +30,7 @@ import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 import ThanhCong from "./pages/Ecommerce/order/doneOr";
+import Post from "./pages/SocialMedia/Post";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -64,7 +65,6 @@ function App() {
             <Route path="/Shop" element={<Shop />} />
             <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
@@ -78,6 +78,7 @@ function App() {
             <Route path="/checkOut" element={<CheckOut/>}/>
             <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
             <Route path="/doneorder" element={<ThanhCong/>}/>
+            <Route path="/post/:postIdurl" element={<Post />}  />
           </Route>
 
           {/* Các route không có Header */}

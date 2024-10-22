@@ -31,9 +31,9 @@
     "react-slick": "^0.30.2",
     "react-spinners": "^0.14.1",
     "slick-carousel": "^1.8.1",
-    "sweetalert2": "^11.14.3",
+    "sweetalert2": "^11.6.13",
     "tunebox": "file:",
-    "update": "^0.4.2",
+    "update": "^0.7.4",
     "wavesurfer.js": "^7.8.6"
   },
   "devDependencies": {
