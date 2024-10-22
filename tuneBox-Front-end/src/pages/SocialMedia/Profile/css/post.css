@@ -56,6 +56,15 @@
     font-size: 0.9rem; 
 }
 
+.post-header-track .no-border {
+  border: none;
+  background: transparent; /*nền trong suốt */
+}
+
+.dropdown-item {
+  font-size: 13px;
+}
+
 .post-header-track .info {
     display: flex;
     flex-direction: column;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Route, Routes, Outlet } from "react-router-dom";
+import { Route, Routes, Outlet, useParams } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -8,13 +8,31 @@ import Chat from "./pages/SocialMedia/chat/chat";
 
 import ProfileUser from "./pages/SocialMedia/Profile/ProfileUser";
 import ProfileSetting from "./pages/SocialMedia/Profile/ProfileSetting";
-import SoThich from "./pages/GioiThieu/SoThich";
-import CreateUsername from "./pages/GioiThieu/CreateUsername";
+import Talent from "./pages/GioiThieu/Talent";
+import UserInfomation from "./pages/GioiThieu/UserInformation";
 import SignUp from "./pages/GioiThieu/SignUp";
 import Login from "./pages/GioiThieu/Login";
-import GioiThieu from "./pages/GioiThieu/GioiThieu";
+import Introduce from "./pages/GioiThieu/Introduce";
 import Cart from "./pages/Ecommerce/Cart/Cart";
 import CartDetail from "./pages/Ecommerce/Cart/Cart_detail";
+import DetailProduct from "./pages/Ecommerce/ShopDetail/DetailProduct";
+import InspiredBy from "./pages/GioiThieu/InspiredBy";
+import Genre from "./pages/GioiThieu/Genre";
+import EcommerceAdmin from './pages/EcommerceAdmin'
+import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
+import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
+import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
+import CategoryPageDetail from "./pages/Ecommerce/CategoryPage/CategoryPageDetail";
+import OtherUserProfile from "./pages/SocialMedia/Profile/OtherUserProfile";
+import WelcomeUser from "./pages/GioiThieu/WelcomeUser";
+import ResetPassword from "./pages/GioiThieu/ResetPassword";
+import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+import { FollowProvider } from './pages/SocialMedia/Profile/FollowContext';
+import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
+import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
+import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
+import ThanhCong from "./pages/Ecommerce/order/doneOr";
+import Post from "./pages/SocialMedia/Post";
 import DetailProduct from "./components/Sellwell/DetailProduct";
 import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
 import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
@@ -36,6 +54,7 @@ function LayoutWithHeader() {
     </>
   );
 }
+
 function LayoutWithoutHeader() {
   return (
     <>
@@ -44,27 +63,12 @@ function LayoutWithoutHeader() {
   );
 }
 
-
 function App() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    userName: "",
-    userNickname:"",
-    listInspiredBy: [], // Chứa danh sách
-    listTalent: [],
-    genreBy: [], 
-  });
 
-  const updateFormData = (data) => {
-    setFormData((prevData) => {
-      const updatedData = { ...prevData, ...data };
-      console.warn(formData);
-      return updatedData;
-    });
-  };
-
+  const { orderId } = useParams();
+  
   return (
+    <FollowProvider> {/* Đặt FollowProvider ở đây */}
     <div>
       <div className="">
         <Routes>
@@ -72,11 +76,24 @@ function App() {
           <Route element={<LayoutWithHeader />}>
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
-            <Route path="/shop" element={<Shop />} />
+            <Route path="/Shop" element={<Shop />} />
             <Route path="/profileUser/*" element={<ProfileUser />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/profileSetting/*" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/DetailProduct/:id" element={<DetailProduct />} />
+            <Route path="/BrandPage" element={<BrandPage />} />
+            <Route path="/brand-detail" element={<BrandDetail />} />
+            <Route path="/CategoryPage" element={<CategoryPage />} />
+            <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+              <Route path="/profile/:id/*" element={<OtherUserProfile />} />
+              <Route path="/track/:id" element={<TrackDetail />} />
+            <Route path="/checkOut" element={<CheckOut/>}/>
+            <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
+            <Route path="/doneorder" element={<ThanhCong/>}/>
+            <Route path="/post/:postIdurl" element={<Post />}  />
             <Route path="/DetailProduct" element={<DetailProduct />} />
             <Route path="/Trackdetail" element= {<Trackdetail />} />
             <Route path="/chat" element={<Chat/>} />
@@ -89,9 +106,16 @@ function App() {
             </div> */}
           {/* Các route không có Header */}
           <Route element={<LayoutWithoutHeader />}>
-            <Route path="/gioithieu" element={<GioiThieu />} />
-            <Route path="/signup" element={<SignUp updateFormData={updateFormData}/>} />
+            <Route path="/introduce" element={<Introduce />} />
+            <Route path="/register" element={<SignUp/>} />
             <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/userInfor" element={<UserInfomation/>} />
+            <Route path="/talent" element={<Talent/>} />
+            <Route path="/inspiredBy" element={<InspiredBy/>} />
+            <Route path="/genre" element={<Genre/>} />
+            <Route path="/welcome" element={<WelcomeUser />} />
             <Route path="reset-password2" element={<ResetPassword2 />} />
             <Route path="forgot-password2" element={<ForgotPassword2 />} />
             <Route path="/createusername" element={<CreateUsername updateFormData={updateFormData} formData={formData} />} />
@@ -100,7 +124,7 @@ function App() {
             <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData}/>} />
 
             {/* admin start */}
-            <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+            <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
             {/* admin end */}
 
             <Route path="/socialadmin/*" element={<SocialMediaAdmin/>} />
@@ -110,6 +134,7 @@ function App() {
         </Routes>
       </div>
     </div>
+    </FollowProvider>
   );
 }
 

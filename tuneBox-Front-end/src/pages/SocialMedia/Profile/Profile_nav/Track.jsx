@@ -1,23 +1,387 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { Link } from "react-router-dom";
+import Cookies from "js-cookie";
+import { listGenre } from "../../../../service/TrackServiceCus";
 
 const Track = () => {
+  const [tracks, setTracks] = useState([]); // State luu track
+  const [userName, setUserName] = useState(""); // State cho username
+  const [selectedTrack, setSelectedTrack] = useState(null); // State cho track duoc chon
+  const userId = Cookies.get("userId"); // Lay userId tu cookies
+
+  const [genres, setGenres] = useState([]); // Store the list of genres
+  const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
+
+  const [image, setImage] = useState(null);
+
+  useEffect(() => {
+    fetchGenre(); // Fetch genres when the component mounts
+  }, []);
+
+  const fetchGenre = async () => {
+    try {
+      const genreResponse = await listGenre(); // Assuming listGenre is your API call
+      console.log(genreResponse.data);
+      setGenres(genreResponse.data); // Store the fetched genres in state
+    } catch (error) {
+      console.log("Error fetching genres:", error);
+    }
+  };
+
+  // Ham lay danh sach track
+  const fetchTrack = async () => {
+    try {
+      if (!userId) throw new Error("User ID not found."); // Kiem tra userId
+      const response = await axios.get(
+        `http://localhost:8080/customer/tracks/user/${userId}`,
+        {
+          withCredentials: true,
+        }
+      );
+      const sortedTrack = response.data.sort(
+        (a, b) => new Date(b.createDate) - new Date(a.createDate)
+      ); // Sap xep track
+      setTracks(sortedTrack); // Luu track vao state
+      console.log(response.data);
+    } catch (error) {
+      console.error(
+        "Error fetching Track:",
+        error.response?.data || error.message
+      ); // Log loi neu co
+    }
+  };
+
+  // Ham xoa track
+  const deleteTrack = async (trackId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this Track?"
+    ); // Xac nhan xoa
+    if (!confirmDelete) return; // Khong xoa neu nguoi dung khong dong y
+    try {
+      await axios.delete(`http://localhost:8080/customer/tracks/${trackId}`, {
+        withCredentials: true,
+      });
+      fetchTrack(); // Cap nhat danh sach track sau khi xoa
+    } catch (error) {
+      console.error(
+        "Error deleting track:",
+        error.response?.data || error.message
+      ); // Log loi neu co
+    }
+  };
+
+  // Goi ham fetchTrack khi component duoc mount
+  useEffect(() => {
+    fetchTrack();
+  }, []);
+
+  // Ham lay ten nguoi dung
+  const fetchUserName = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/user/current`, {
+        params: { userId },
+        withCredentials: true,
+      });
+      return response.data.userName; // Tra ve ten nguoi dung
+    } catch (error) {
+      console.error("Error fetching track data:", error); // Log loi neu co
+      throw error;
+    }
+  };
+
+  // Goi fetchUserName khi component duoc mount
+  useEffect(() => {
+    const getUserName = async () => {
+      try {
+        const name = await fetchUserName(); // Lay ten nguoi dung
+        setUserName(name); // Luu ten vao state
+      } catch (error) {
+        console.error("Error fetching track name:", error); // Log loi neu co
+      }
+    };
+    getUserName();
+  }, []);
+
+  // Handle clicking the Edit button
+  const handleEditClick = (track) => {
+    setSelectedTrack({
+      ...track,
+      trackImage: track.trackImage || null, // Set image if available
+    });
+
+    // Set the selected genre for the track being edited
+    setSelectedGenre(track.genre ? track.genre.id : "");
+
+    const editModal = document.getElementById("editModal");
+    editModal.classList.add("show");
+    editModal.style.display = "block";
+    document.body.classList.add("modal-open");
+  };
+
+  // Save track after editing
+  const handleSave = async () => {
+    if (!selectedTrack) return;
+
+    const formData = new FormData(); // Create formData for the track
+    formData.append("name", selectedTrack.name);
+    formData.append("description", selectedTrack.description);
+    formData.append("status", selectedTrack.status);
+    formData.append("report", selectedTrack.report);
+    formData.append("userId", userId);
+    formData.append("genre", selectedGenre); // Append selected genre
+
+    if (selectedTrack.trackFile) {
+      formData.append("trackFile", selectedTrack.trackFile); // Append track file
+    }
+
+    // Check if the track image is a file before appending
+    if (selectedTrack.trackImage && selectedTrack.trackImage instanceof File) {
+      formData.append("trackImage", selectedTrack.trackImage); // Append track image if it's a new file
+    }
+
+    try {
+      await axios.put(
+        `http://localhost:8080/customer/tracks/${selectedTrack.id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      fetchTrack(); // Fetch updated track list
+      setSelectedTrack(null); // Reset selected track
+
+      const editModal = document.getElementById("editModal");
+      editModal.classList.remove("show");
+      editModal.style.display = "none";
+      document.body.classList.remove("modal-open");
+    } catch (error) {
+      console.error(
+        "Error updating track:",
+        error.response?.data || error.message
+      );
+    }
+  };
   return (
     <div>
-    <div className="post-header-track">
-      <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
-      <div className="info">
-        <div className="name">Cong an vao cuoc</div>
-        <div className="author">Pham Xuan Truong</div>
+      {/* get all track */}
+      {tracks.map(
+        (track) =>
+          !track.status && (
+            <div key={track.id} className="post-header-track">
+              <img
+                src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}
+                className="avatar_small"
+                alt="Avatar"
+              />
+
+              <div className="info">
+                <Link
+                  to={{
+                    pathname: `/track/${track.id}`,
+                    state: { track },
+                  }}
+                >
+                  <div className="name">{track.name || "Unknown Track"}</div>
+                </Link>
+                <div className="author">{userName || "Unknown userName"}</div>
+              </div>
+
+              <div className="btn-group" style={{ marginLeft: 25 }}>
+                <button
+                  className="btn dropdown-toggle no-border"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                ></button>
+                <ul className="dropdown-menu dropdown-menu-lg-end">
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      onClick={() => handleEditClick(track)}
+                    >
+                      Edit
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      onClick={() => deleteTrack(track.id)}
+                    >
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )
+      )}
+
+      {/* Modal for editing track */}
+      <div
+        className="modal fade"
+        id="editModal"
+        tabIndex="-1"
+        aria-labelledby="editTrackModalLabel"
+        aria-hidden="true"
+        data-bs-backdrop="false"
+      >
+        <div className="modal-dialog modal-xl">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="editTrackModalLabel">
+                Edit Track
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => handleSave()}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <form className="row">
+                {/* Track Name */}
+                <div className="mb-3">
+                  <label className="form-label">Track Name
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={selectedTrack ? selectedTrack.name : ""}
+                    onChange={(e) =>
+                      setSelectedTrack({
+                        ...selectedTrack,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Image Track */}
+                <div className="mt-3">
+                  <label className="form-label">Image Track</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setSelectedTrack({
+                        ...selectedTrack,
+                        trackImage: e.target.files[0],
+                      })
+                    }
+                  />
+                  {/* Image preview logic */}
+                  {selectedTrack && selectedTrack.trackImage ? (
+                    typeof selectedTrack.trackImage === "object" &&
+                    selectedTrack.trackImage instanceof File ? (
+                      <img
+                        src={URL.createObjectURL(selectedTrack.trackImage)}
+                        alt="Current Track"
+                        style={{ width: "100px", marginTop: "10px" }}
+                      />
+                    ) : (
+                      <img
+                        src={selectedTrack.trackImage}
+                        alt="Current Track"
+                        style={{ width: "100px", marginTop: "10px" }}
+                      />
+                    )
+                  ) : (
+                    <p>No image available</p>
+                  )}
+                </div>
+
+                {/* File Track */}
+                <div className="mt-3">
+                  <label className="form-label">File Track</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    accept=".mp3"
+                    onChange={(e) =>
+                      setSelectedTrack({
+                        ...selectedTrack,
+                        trackFile: e.target.files[0],
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Select Genre */}
+                <div className="mt-3">
+                  <label className="form-label">Genre</label>
+                  <select
+                    className="form-select"
+                    value={selectedGenre}
+                    onChange={(e) => setSelectedGenre(e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Select genre
+                    </option>
+                    {genres && genres.length > 0 ? (
+                      genres.map((genre) => (
+                        <option key={genre.id} value={genre.id}>
+                          {genre.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>No genres available</option>
+                    )}
+                  </select>
+                </div>
+
+                {/* Description */}
+                <div className="mt-3">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    cols="50"
+                    rows="5"
+                    className="form-control"
+                    value={selectedTrack ? selectedTrack.description : ""}
+                    onChange={(e) =>
+                      setSelectedTrack({
+                        ...selectedTrack,
+                        description: e.target.value,
+                      })
+                    }
+                  ></textarea>
+                </div>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  const editModal = document.getElementById("editModal");
+                  editModal.classList.remove("show");
+                  editModal.style.display = "none";
+                  document.body.classList.remove("modal-open");
+                }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSave}
+              >
+                Save Track
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="time">1:30</div>
-      <div style={{marginLeft: 25}}>
-        <Link to={'/'} style={{color: 'black'}}>
-          <i className="bi bi-three-dots" />
-        </Link>
-      </div>
+      {/* end modal edit */}
     </div>
-    </div>
-    );
-}
+  );
+};
+
 export default Track;

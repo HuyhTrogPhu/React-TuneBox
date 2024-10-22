@@ -1,63 +1,69 @@
-import React from 'react'
-import './Brand.css'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import './Brand.css';
+import { Link, useNavigate } from 'react-router-dom';
+import { listBrands } from '../../service/EcommerceHome';
 
 const Brand = () => {
-    return (
-        // Start brand 
-        <div className='brand-container mt-5'>
-            <div className='d-flex justify-content-between align-items-center mb-4'>
-                <h4 className='brand-title'>Brands</h4>
-                <Link href="" className='view-all'>View all</Link>
-            </div>
-            <hr className='hr-100' />
-            <div className='row'>
-                {/* Brand 1 */}
-                <div className='col-lg-2 col-md-4 text-center mb-3'>
-                    <Link href="">
-                        <img src="" alt=" Ableton" className='brand-image' />
-                        <p>Ableton</p>
-                    </Link>
-                </div>
-                {/* Brand 2 */}
-                <div className='col-lg-2 col-md-4 text-center mb-3'>
-                    <Link href="">
-                        <img src="" alt=" AIAIAi" className='brand-image' />
-                        <p>AIAIAi</p>
-                    </Link>
-                </div>
-                {/* Brand 3 */}
-                <div className='col-lg-2 col-md-4 text-center mb-3'>
-                    <Link href="">
-                        <img src="" alt=" Akai" className='brand-image' />
-                        <p>Akai</p>
-                    </Link>
-                </div>
-                {/* Brand 4 */}
-                <div className='col-lg-2 col-md-4 text-center mb-3'>
-                    <Link href="">
-                        <img src="" alt=" Alesis" className='brand-image' />
-                        <p>Alesis</p>
-                    </Link>
-                </div>
-                {/* Brand 5 */}
-                <div className='col-lg-2 col-md-4 text-center mb-3'>
-                    <Link href="">
-                        <img src="" alt=" Allparts" className='brand-image' />
-                        <p>Allparts</p>
-                    </Link>
-                </div>
-                {/* Brand 6 */}
-                <div className='col-lg-2 col-md-4 text-center mb-3'>
-                    <Link href="">
-                        <img src="" alt=" Arturia" className='brand-image' />
-                        <p>Arturia</p>
-                    </Link>
-                </div>
-            </div>
-        </div>
-        // End brand 
-    )
-}
+  const [brandList, setBrandList] = useState([]);
+  const [randomBrands, setRandomBrands] = useState([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    getAllBrand();
+  }, []);
 
-export default Brand
+  
+
+function getAllBrand() {
+    listBrands()
+      .then((response) => {
+        const filteredBrands = response.data.filter(brand => brand.status === false); // Lọc brand có status là false
+        setBrandList(filteredBrands);
+        setRandomBrands(getRandomBrands(filteredBrands, 6)); // Lấy 6 thương hiệu ngẫu nhiên từ danh sách đã lọc
+      })
+      .catch((error) => {
+        console.error("Error fetching brands", error);
+      });
+  }
+
+  // Hàm lấy n thương hiệu ngẫu nhiên từ danh sách
+  function getRandomBrands(brands, count) {
+    const shuffled = brands.sort(() => 0.5 - Math.random()); // Xáo trộn danh sách
+    return shuffled.slice(0, count); // Lấy n thương hiệu đầu tiên
+  }
+  const handleBrandClick = (brand) => {
+    console.log("Navigating to brand detail with brand ID:", brand.id);
+    navigate('/brand-detail', { state: { brand } });
+  };
+
+
+  return (
+    // Start brand 
+    <div className='brand-container mt-5'>
+    <div className='d-flex justify-content-between align-items-center mb-4'>
+      <h4 className='brand-title'>Brands</h4>
+      <Link to={'/BrandPage'} className='view-all'>View all</Link>
+    </div>
+    <hr className='hr-100' />
+    <div className='row'>
+      {randomBrands.map((brand, index) => (
+        <div className='col-lg-2 col-md-2 col-sm-4 text-center mb-3' key={brand.id}>
+          <div onClick={() => handleBrandClick(brand)}  >
+            <a href="">
+            <img
+              key={index}
+              src={brand.brandImage ? brand.brandImage : 'default-image-path.jpg'}
+              alt={brand.name}
+            />
+            <p>{brand.name}</p>
+            </a>
+            
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+    // End brand 
+  );
+};
+
+export default Brand;

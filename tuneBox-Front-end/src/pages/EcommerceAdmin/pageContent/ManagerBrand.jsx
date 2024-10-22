@@ -16,6 +16,7 @@ const MangerBrand = () => {
   const [countdown, setCountdown] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState('asc');
+  const [loading, setLoading] = useState(false);
   const navigator = useNavigate();
 
   const getAllBrand = () => {
@@ -35,13 +36,23 @@ const MangerBrand = () => {
     let valid = true;
     const errorsCopy = { ...errors };
 
+    // Kiểm tra tên thương hiệu
     if (!newBrandName.trim()) {
       errorsCopy.newBrandName = 'Brand name is required';
       valid = false;
     } else {
-      errorsCopy.newBrandName = '';
-    }
+      // Kiểm tra trùng tên thương hiệu
+      const isDuplicate = brands.some(
+        (brand) => brand.name.toLowerCase() === newBrandName.toLowerCase()
+      );
 
+      if (isDuplicate) {
+        errorsCopy.newBrandName = 'Brand name must be unique';
+        valid = false;
+      } else {
+        errorsCopy.newBrandName = ''; // Nếu không trùng, xóa thông báo lỗi
+      }
+    }
     if (!newBrandImage) {
       errorsCopy.newBrandImage = 'Brand image is required';
       valid = false;
@@ -65,7 +76,7 @@ const MangerBrand = () => {
     if (!validateForm()) {
       return;
     }
-
+    setLoading(true);
     const newBrand = new FormData();
     newBrand.append('name', newBrandName);
     newBrand.append('imageBrand', newBrandImage);
@@ -83,7 +94,10 @@ const MangerBrand = () => {
       })
       .catch((error) => {
         console.error("Error creating brand:", error);
-      });
+      }).finally
+      (() => {
+        setLoading(false)
+      })
   };
 
   useEffect(() => {
@@ -167,12 +181,14 @@ const MangerBrand = () => {
           Add Brand
         </button>
 
+        {/* Modal add */}
         <div
           className="modal fade"
           id="ViewsModal"
           tabIndex={-1}
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
+          data-bs-backdrop="false"
         >
           <div className="modal-dialog">
             <div className="modal-content">
@@ -189,18 +205,17 @@ const MangerBrand = () => {
                 />
               </div>
               <div className="modal-body">
-                
+
                 <form action="">
                   <div className="mt-3">
-                    <div>
+
                     <label className="form-label" >Brand name:</label>
                     <input className={`form-control ${errors.newBrandName ? 'is-invalid' : ''} `}
                       value={newBrandName}
                       onChange={(e) => setBrandName(e.target.value)}
                       type="text"
                       placeholder="Enter brand name" />
-                    </div>
-                  
+
                   </div>
                   {errors.newBrandName && <div className='invalid-feedback'>{errors.newBrandName}</div>}
 
@@ -233,7 +248,13 @@ const MangerBrand = () => {
                   Close
                 </button>
                 <button type="button" className="btn btn-primary" onClick={handleSave}>
-                  Save
+                  {loading ? (
+                    <span>
+                      <i className="fa fa-spinner fa-spin" /> Saving...
+                    </span>
+                  ) : (
+                    "Save"
+                  )}
                 </button>
               </div>
             </div>

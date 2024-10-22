@@ -7,20 +7,24 @@ import Brand from '../../../components/CustomerExploreBrand/Brand'
 import Sellwell from '../../../components/Sellwell/Sellwell'
 import Header from '../../../components/Header/Header'
 import Footer2 from '../../../components/Footer/Footer2'
+import Benefit from '../../../components/Benefits/Benefits'
+import MenuShop from '../../../components/MenuShop/MenuShop'
 
 const Home = () => {
   return (
     <div>
      
       <div className='app-container'>
-      <Carousel/>
-      <Instroduce/>
-      <Brand/>
-      <Category/>
-      <Sellwell/>
-     
+        <MenuShop/>
+        <Carousel />
+        <Instroduce />
+        <Brand />
+        <Category />
+        <Sellwell />
+        
       </div>
-      <Footer2/>
+      <Benefit />
+      <Footer2 />
     </div>
   )
 }

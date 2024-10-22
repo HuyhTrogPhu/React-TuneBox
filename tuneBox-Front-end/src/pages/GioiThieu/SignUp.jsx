@@ -1,8 +1,49 @@
 import React, { useState } from "react";
+import { useNavigate,Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Header2 from "../../components/Navbar/Header2.jsx";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
+const SignUp = () => {
+
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const navigate =  useNavigate();
+
+  const validateForm = () => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if(!userName.trim()){
+      return "Không được để trống tên người dùng";
+    }
+
+    if(!email.trim()) {
+      return "Không được để trống email";
+    }
+
+    if(!password.trim()) {
+      return "Không được để trống mật khẩu";
+    }
+
+    if (!emailPattern.test(email)) {
+      return "Email không hợp lệ!";
+    }
+    if (password.length < 4) {
+      return "Mật khẩu phải có ít nhất 4 ký tự!";
+    }
+    return "";
+  };
+
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 import { Link } from "react-router-dom";
 
 const SignUp = () => {
@@ -58,6 +99,17 @@ const SignUp = () => {
     };
 
     navigate('/userInfor', { state: formData });
+      userName: userName,
+      email: email,
+      password: password,
+      name: null,
+      avatar: null,
+      inspiredBys: [],
+      talents: [],
+      genres: []
+    };
+
+    navigate('/userInfor', { state: formData });
   };
 
   return (
@@ -79,6 +131,7 @@ const SignUp = () => {
                         name="name"
                         id="name"
                         className="form-control"
+                        placeholder="Nhập tên đăng nhập"
                         placeholder="Nhập tên đăng nhập"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}

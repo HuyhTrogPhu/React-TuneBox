@@ -89,6 +89,7 @@ import slide4 from '../images/slide4.webp';
 import slide5 from '../images/slide5.webp';
 import plus from '../images/plus.png';
 import car from '../icon/car.png';
+import heartFilled from '../images/heartFilled.png';
 import adminImage from "./admin.png";
 import karinaImage from "./karina.jpg";
 
@@ -104,7 +105,7 @@ export const images = {
     facebook_logo, favicon,
     fb, feedback, followers, game,
     game2, gg, gg2, gg3, gioithieu1, gioithieu2, google, heart, image, instagram,
-    level_up, like,
+    level_up, like, heartFilled,
     logoMautrang, love, messsenger, more, music, nai,
     nen1, nen2, nen3, nen4, next_button, notification,
     order, pen, play1, play2, playlist,

@@ -1,0 +1,17 @@
+.brand-dropdown {
+    display: none !important;
+    position: absolute;
+    background-color: white;
+    width: 100%;
+    z-index: 1;
+    padding: 10px;
+}
+
+.brand:hover .brand-dropdown {
+    display: block !important;
+}
+
+
+.brand-dropdown {
+    width: 80%; 
+}

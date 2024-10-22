@@ -774,7 +774,7 @@ const fetchPosts = async () => {
     </div>
 ) : (
 <button className="btn btn-danger btn-report position-absolute top-0 end-0" onClick={() => handleReportPost(post.id)}>
-  Báo cáo
+
 </button>
 )}
 
@@ -1144,6 +1144,19 @@ const modalOverlayStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+};
+
+const modalContentStyle = {
+  backgroundColor: "white",
+  padding: "20px",
+  borderRadius: "8px",
+  width: "400px",
+};
+
+const textareaStyle = {
+  width: "100%",
+  height: "100px",
+  marginBottom: "10px",
 };
 
 const modalContentStyle = {
