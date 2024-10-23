@@ -91,12 +91,12 @@ const Cart = () => {
                                       }}>
                                         <i className="fas fa-minus" />
                                       </button>
-                                      <input
+                                      <input 
                                         min={0}
                                         name="quantity"
                                         value={item.quantity}
                                         type="number"
-                                        className="form-control form-control-sm"
+                                        className="form-control" style={{width:'50px'}}
                                         readOnly
                                       />
                                       <button className="btn btn-link px-2" onClick={() => {
