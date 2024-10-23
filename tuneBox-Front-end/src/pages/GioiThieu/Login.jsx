@@ -66,7 +66,7 @@ const Login = () => {
 
       if (userId !== undefined && userId !== null) {
         const expires = new Date();
-        expires.setTime(expires.getTime() + 3 * 24 * 60 * 60 * 1000);  // Cookie tồn tại trong 3 ngày
+        expires.setTime(expires.getTime() +  24 * 60 * 60 * 1000);  // Cookie tồn tại trong 1 ngày
         document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
         console.log('Cookie userId set:', document.cookie);
       } else {
