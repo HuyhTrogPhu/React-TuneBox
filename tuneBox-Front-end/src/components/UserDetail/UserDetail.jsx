@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getEcommerceUserDetails } from '../../service/EcommerceAdminUser';
 import { getOrderByUserId } from '../../service/EcommerceAdminOrder';
+import { images } from '../../assets/images/images';
 
 const UserDetail = () => {
     const { userId } = useParams();
@@ -45,61 +46,97 @@ const UserDetail = () => {
             <div className='container'>
                 <div className='row'>
                     {/* Thông tin chi tiết người dùng */}
-                    <div className='col-4'>
-                        <div className='background'>
-                            <img src={userDetails.background || 'default_background.jpg'} alt="Background" style={{width: '400px', }}/>
+                    <div className='col-3' style={{ position: 'relative' }}>
+
+                        {/* Thông tin chi tiết người dùng */}
+                        <div className='infor' style={{ position: 'absolute', top: '500px', left: '50px', transform: 'translate(-50%, -50%)' }}>
+
+                            <div style={{ textAlign: 'center' }}>
+                                <img src={userDetails.avatar || 'default_avatar.jpg'} alt="Avatar" style={{ width: '200px', borderRadius: '50%' }} />
+                            </div>
+
+                            <div className="card mb-lg-0" style={{ marginTop: '50px' }}>
+                                <div className="card-body p-0">
+                                    <ul className="list-group list-group-flush rounded-3">
+                                        <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <p className="mb-0"><b>  Name:</b> {userDetails.name || 'Chưa cập nhật'}  </p>
+
+                                        </li>
+                                        <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <p className="mb-0"><b>Username:</b> {userDetails.userName || 'Chưa cập nhật'}  </p>
+
+                                        </li>
+                                        <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <p className="mb-0"> <b>Gender: </b> {userDetails.gender || 'Chưa cập nhật'} </p>
+
+                                        </li>
+                                        <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <p className="mb-0"><b>Birthday:</b> {userDetails.birthday || 'Chưa cập nhật'}</p>
+
+                                        </li>
+                                        <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <p className="mb-0"><b>Email:</b> {userDetails.email || 'Chưa cập nhật'}  </p>
+
+                                        </li>
+                                        <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <p className="mb-0"><b>Phone number:</b> {userDetails.phoneNumber || 'Chưa cập nhật'} </p>
+
+                                        </li>
+                                        <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <p className="mb-0"><b>Location:</b> {userDetails.location || 'Chưa cập nhật'} </p>
+
+                                        </li>
+                                        <li className="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <p className="mb-0"><b>About</b> {userDetails.about || 'Chưa cập nhật'} </p>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+
                         </div>
-                        <div className='infor'>
-                            <img src={userDetails.avatar || 'default_avatar.jpg'} alt="Avatar" style={{width: '200px', }}/>
-                            <h6>Name: {userDetails.name}</h6>
-                            <h6>Gender: {userDetails.gender}</h6>
-                            <h6>Birth day: {userDetails.birthday}</h6>
-                            <h6>Username: {userDetails.userName}</h6>
-                            <h6>Email: {userDetails.email}</h6>
-                            <h6>Phone number: {userDetails.phoneNumber}</h6>
-                            <h6>Location: {userDetails.location}</h6>
-                            <h6>About: {userDetails.about}</h6>
-                        </div>
+
                     </div>
+
                     {/* Lịch sử đơn hàng */}
-                    <div className='col-8'>
-                        <h3>Order history</h3>
-                        <h6>Total order: {totalOrderCount}</h6>
-                        <h6>Total order amount: {totalOrderAmount.toLocaleString('vi')} VND</h6>
-                        <table className='table'>
-                            <thead>
+                    <div className='col-9 mt-5' >
+                        <h3 style={{ textAlign: 'center' }}>ORDER HISTORY</h3>
+                        <p>Total order: {totalOrderCount}</p>
+                        <p>Total order amount: {totalOrderAmount.toLocaleString('vi')} VND</p>
+                        <table className='table table-hover' style={{ border: '2px solid #ccc', borderRadius: '10px', overflow: 'hidden' }}>
+                            <thead style={{ backgroundColor: '#f5f5f5' }}>
                                 <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Order date</th>
-                                    <th scope="col">Delivery date</th>
-                                    <th scope="col">Tax</th>
-                                    <th scope="col">Total Price</th>
-                                    <th scope="col">Total Items</th>
-                                    <th scope="col">Payment method</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Shipping method</th>
-                                    <th scope="col">Action</th>
+                                    <th style={{fontSize: '15px', textAlign: "center" }} scope="col">#</th>
+                                    <th style={{fontSize: '15px' , textAlign: "center" }} scope="col">Order date</th>
+                                    <th style={{fontSize: '15px' , textAlign: "center" }} scope="col">Delivery date</th>
+                                    <th style={{fontSize: '15px' , textAlign: "center" }} scope="col">Total Price</th>
+                                    <th style={{fontSize: '15px' , textAlign: "center" }} scope="col">Total Items</th>
+                                    <th style={{fontSize: '15px' , textAlign: "center" }} scope="col">Payment method</th>
+                                    <th style={{fontSize: '15px' , textAlign: "center" }} scope="col">Status</th>
+                                    <th style={{fontSize: '15px' , textAlign: "center" }} scope="col">Shipping method</th>
+                                    <th style={{fontSize: '15px' , textAlign: "center" }}h scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {orderList.map((order, index) => (
                                     <tr key={order.id}>
-                                        <th scope="row">{index + 1}</th>
-                                        <td>{new Date(order.orderDate).toLocaleDateString()}</td>
-                                        <td>{order.deliveryDate|| ''}</td>
-                                        <td>{order.tax} %</td>
+                                        <th style={{textAlign: "center" }} scope="row">{index + 1}</th>
+                                        <td>{new Date(order.orderDate).toLocaleDateString('vi')}</td>
+                                        <td>{order.deliveryDate || ''}</td>
                                         <td>{(order.totalPrice).toLocaleString('vi')} VND</td>
                                         <td>{order.totalItem}</td>
                                         <td>{order.paymentMethod}</td>
                                         <td>{order.status}</td>
                                         <td>{order.shippingMethod}</td>
                                         <td>
-                                            <button className='btn btn-primary' style={{color: '#000'}}>View</button>
+                                            <button className='btn btn-primary' style={{ color: '#ffff' }}>View</button>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+
                         {/* Pagination */}
                     </div>
                 </div>

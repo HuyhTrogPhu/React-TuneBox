@@ -8,6 +8,7 @@ import ManagerCustomer from './EcommerceAdmin/pageContent/ManagerCustomer';
 import UserDetail from '../components/UserDetail/UserDetail';
 import ManagerOrder from './EcommerceAdmin/pageContent/ManagerOrder';
 import OrderDetail from '../components/OrderDetail/OrderDetail';
+import { images } from '../assets/images/images';
 
 const EcommerceAdmin = () => {
   return (
@@ -16,8 +17,8 @@ const EcommerceAdmin = () => {
         <div className="sidebar21 col-lg-2 col-md-3 vh-100">
           {/* Logo */}
           <div className="logo p-3">
-            <a href="#">
-              <img src="admin.png" alt="" width="100%" />
+            <a href="#" style={{}}>
+              <img src={images.logoAdmin} alt="" width="100%" style={{paddingLeft: '50px'}} />
             </a>
           </div>
           {/* Menu */}
