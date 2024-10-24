@@ -165,10 +165,10 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const newImage = reader.result.split(',')[1]; // Lấy dữ liệu base64 của ảnh mới
-  
+
         // Tạo bản sao của danh sách ảnh để không thay đổi state trực tiếp
         const updatedImages = [...image];
-        
+
         // Thay thế ảnh tại vị trí đã click trong danh sách
         if (selectedImageIndex !== null) {
           updatedImages[selectedImageIndex] = newImage;
@@ -178,12 +178,12 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       reader.readAsDataURL(files[0]); // Đọc file đầu tiên được chọn
     }
   };
-  
+
   const handleImageClick = (index) => {
     setSelectedImageIndex(index); // Lưu lại chỉ số ảnh được click
     document.querySelector('input[type="file"]').click(); // Mở hộp thoại chọn ảnh
   };
-  
+
 
 
 
@@ -245,19 +245,11 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 <td>{index + 1}</td>
 
                 <td>
-                  {Array.isArray(ins.image) && ins.image.length > 0 ? (
-                    <img
-                      src={`data:image/png;base64,${ins.image[0]}`} // Chỉ hiển thị ảnh đầu tiên
-                      alt={`${ins.name} 0`}
-                      style={{ width: '50px', margin: '0 5px' }}
-                    />
-                  ) : (
-                    <img
-                      src='default-image-url'
-                      alt={ins.name}
-                      style={{ width: '50px' }}
-                    />
-                  )}
+                  <img
+                    src={ins.image}
+                    alt={`${ins.name} 0`}
+                    style={{ width: '50px', margin: '0 5px' }}
+                  />
                 </td>
 
                 <td>{ins.name}</td>
