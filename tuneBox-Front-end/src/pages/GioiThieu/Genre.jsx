@@ -25,12 +25,14 @@ const Genre = () => {
   const fetchGenre = async () => {
     try {
       const response = await listGenres();
+      console.log("Fetched genres:", response.data); // Kiểm tra dữ liệu
       setGenre(response.data);
       console.log(response.data);
     } catch (error) {
       console.log("Error fetching genre", error);
     }
   };
+  
 
   useEffect(() => {
     fetchGenre();

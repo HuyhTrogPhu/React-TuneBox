@@ -31,11 +31,13 @@ function CategoryPage() {
 
   return (
     <div>
-       <div className="container-fluid">
+       <div className="container">
+  
         <div className="row p-5">
           {categoryList.map((category) => (
-            <div className="col-3 category" key={category.id}>
+            <div className="col-3 mt-5 category" key={category.id}>
               <div className="card" onClick={() => handleCategory(category)}>
+                <a href="">
                 <img
                   className="img"
                   src={category.image ? category.image : 'default-image-path.jpg' }
@@ -44,6 +46,8 @@ function CategoryPage() {
                 <div className="card-body category-content">
                   <h5 className="card-title">{category.name}</h5>
                 </div>
+                </a>
+               
               </div>
             </div>
           ))}

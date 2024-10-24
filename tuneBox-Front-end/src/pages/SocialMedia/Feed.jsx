@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { images } from "../../assets/images/images";
 import axios from 'axios';
@@ -13,13 +12,12 @@ import "./css/profile.css"
 import "./css/mxh/comment.css"
 import "./css/mxh/button.css"
 import { useParams, useNavigate } from 'react-router-dom';
-import Modal from './Modal.jsx';
-
 
 const HomeFeed = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const currentUserId = Cookies.get("UserID");
+  const currentUserId = Cookies.get("userId");
+  console.log('currentUserId: ',currentUserId )
   const [postContent, setPostContent] = useState("");
   const [postImages, setPostImages] = useState([]);
   const [postImageUrls, setPostImageUrls] = useState([]);
@@ -510,7 +508,7 @@ const fetchPosts = async () => {
   
         setPosts((prevPosts) =>
           prevPosts.map((post) => {
-            if (post.id === post.id) { // Thay yourPostId bằng ID bài post thực tế
+            if (post.id === post.id) {
               return {
                 ...post,
                 comments: post.comments.map((comment) => {
@@ -541,13 +539,13 @@ const fetchPosts = async () => {
   };
 
   const submitReport = async () => {
-    // Gửi báo cáo ở đây
     try {
         const response = await fetch('http://localhost:8080/api/reports', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include', // Đảm bảo gửi cookie cùng với request
             body: JSON.stringify({
                 postId: reportPostId,
                 reason: reportReason,
@@ -555,11 +553,9 @@ const fetchPosts = async () => {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            console.log('thành công'); // Thông báo thành công
-            // Đóng modal
+            console.log('thành công');
             setShowReportModal(false);
-            setReportReason(""); // Reset lý do báo cáo
+            setReportReason(""); 
         } else {
             console.error('Có lỗi xảy ra khi gửi báo cáo.');
         }
@@ -567,6 +563,7 @@ const fetchPosts = async () => {
         console.error('Lỗi mạng:', error);
     }
 };
+
   return (
     <div>
       <div className="container-fluid">
@@ -775,7 +772,7 @@ const fetchPosts = async () => {
     </div>
 ) : (
 <button className="btn btn-danger btn-report position-absolute top-0 end-0" onClick={() => handleReportPost(post.id)}>
-  Báo cáo
+  Report
 </button>
 )}
 

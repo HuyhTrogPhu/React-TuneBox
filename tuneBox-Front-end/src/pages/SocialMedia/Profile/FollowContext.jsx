@@ -5,51 +5,108 @@ import Cookies from 'js-cookie';
 export const FollowContext = createContext();
 
 export const FollowProvider = ({ children }) => {
-  const [followerCounts, setFollowerCounts] = useState({});
-  const [followingCounts, setFollowingCounts] = useState({});
-  const userId = Cookies.get("userId");
+  const [followCounts, setFollowCounts] = useState({});
+  const currentUserId = Cookies.get("userId");
 
   useEffect(() => {
-    const fetchCounts = async () => {
-      if (userId) {
+    const fetchFollowCounts = async () => {
+      if (currentUserId) {
         try {
-          const followerCountResponse = await axios.get(`http://localhost:8080/api/follow/followers-count?userId=${userId}`);
-          const followingCountResponse = await axios.get(`http://localhost:8080/api/follow/following-count?userId=${userId}`);
-
-          setFollowerCounts((prev) => ({
+          const response = await axios.get(`http://localhost:8080/api/follow/${currentUserId}/followCounts`);
+          console.log("Fetched follow counts:", response.data); // Kiểm tra dữ liệu nhận được
+          setFollowCounts((prev) => ({
             ...prev,
-            [userId]: followerCountResponse.data,
-          }));
-          setFollowingCounts((prev) => ({
-            ...prev,
-            [userId]: followingCountResponse.data,
+            [currentUserId]: {
+              followerCount: response.data.followersCount,
+              followingCount: response.data.followingCount,
+            },
           }));
         } catch (error) {
-          console.error("Error fetching counts:", error);
+          console.error("Error fetching follow counts:", error);
         }
       }
     };
+    
 
-    fetchCounts();
-  }, [userId]);
+    fetchFollowCounts();
 
-// Trong FollowContext.jsx
-const updateFollowerCount = (userId, newCount) => {
-  setFollowerCounts((prevCounts) => ({
-    ...prevCounts,
-    [userId]: newCount,
-  }));
-};
+    return () => {
+      setFollowCounts({});
+    };
+  }, [currentUserId]);
 
-  const updateFollowingCount = (userId, count) => {
-    setFollowingCounts((prev) => ({
-      ...prev,
-      [userId]: count,
+  const updateFollowerCount = (otherUserId, newCount) => {
+    setFollowCounts((prevCounts) => ({
+      ...prevCounts,
+      [otherUserId]: {
+        ...prevCounts[otherUserId],
+        followerCount: newCount, // sử dụng followerCount nhất quán
+      },
     }));
   };
 
+  const updateFollowingCount = (newCount) => {
+    setFollowCounts((prev) => ({
+      ...prev,
+      [currentUserId]: {
+        ...prev[currentUserId],
+        followingCount: newCount,
+      },
+    }));
+  };
+
+  const toggleFollow = async () => {
+    if (isUpdatingFollow) return;
+    setIsUpdatingFollow(true);
+  
+    try {
+      let newFollowerCount = followerCount; // Dùng followerCount lấy từ useMemo
+      let newFollowingCount = followCounts[currentUserId]?.followingCount || 0;
+  
+      if (isFollowing) {
+        // Unfollow
+        await axios.delete(`http://localhost:8080/api/follow/unfollow`, {
+          params: {
+            followerId: userId,
+            followedId: id,
+          },
+        });
+        newFollowerCount = Math.max(followerCount - 1, 0);
+        newFollowingCount = Math.max(newFollowingCount - 1, 0);
+        setIsFollowing(false);
+      } else {
+        // Follow
+        await axios.post(`http://localhost:8080/api/follow/follow`, null, {
+          params: {
+            followerId: userId,
+            followedId: id,
+          },
+        });
+        newFollowerCount = followerCount + 1;
+        newFollowingCount += 1;
+        setIsFollowing(true);
+      }
+  
+      // Cập nhật ngay lập tức vào FollowContext
+      updateFollowerCount(id, newFollowerCount);
+      updateFollowingCount(newFollowingCount);
+    } catch (error) {
+      console.error("Error toggling follow status:", error);
+    } finally {
+      setIsUpdatingFollow(false);
+    }
+  };
+  
+  
   return (
-    <FollowContext.Provider value={{ followerCounts, updateFollowerCount, followingCounts, updateFollowingCount }}>
+    <FollowContext.Provider
+      value={{
+        followCounts,
+        updateFollowerCount,
+        updateFollowingCount,
+        toggleFollow,
+      }}
+    >
       {children}
     </FollowContext.Provider>
   );
