@@ -84,7 +84,7 @@ function App() {
             <Route path="/doneorder" element={<ThanhCong/>}/>
             <Route path="/post/:postIdurl" element={<Post />}  />
             <Route path="/FriendRequests" element={<FriendRequests />} />
-            <Route path="/FriendList" element={<FriendList />} />
+            <Route path="/FriendList/:userId" element={<FriendList />} />
             <Route path="/Follower/:userId" element={<FollowersPage />} />
             <Route path="/Following/:userId" element={<FollowingPage />} />
 

@@ -244,7 +244,7 @@ const OtherUserProfile = () => {
           </Link>
           </div>
           <div className="col text-center">
-          <Link to={"/FriendList"}>
+          <Link to={`/FriendList/${id}`}>
           <span>{friendCount}</span> <br />
           <span>Friends</span>
           </Link>

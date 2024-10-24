@@ -105,7 +105,7 @@ const ProfileUser = () => {
             </Link>
             </div>
             <div className="col text-center">
-            <Link to={"/FriendList"}>
+            <Link to={`/FriendList/${userIdCookie}`}>
             <span>{friendCount}</span> <br />
             <span>Friends</span>
             </Link>

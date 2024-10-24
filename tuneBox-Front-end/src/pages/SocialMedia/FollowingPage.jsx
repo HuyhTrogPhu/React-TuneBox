@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from "js-cookie";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useParams } from 'react-router-dom';
 
 const FollowingPage = () => {
     const [following, setFollowing] = useState([]);
@@ -10,7 +11,7 @@ const FollowingPage = () => {
     useEffect(() => {
         const fetchFollowing = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/follow/${userId.userId}     /following`);
+                const response = await axios.get(`http://localhost:8080/api/follow/${userId.userId}/following`);
                 setFollowing(response.data);
             } catch (error) {
                 console.error('Error fetching following:', error);
