@@ -180,7 +180,10 @@ const Navbar = () => {
     markAsRead(notification.id);
     navigate(`/post/${notification.postId}`);
   };
-
+  const handleDelete = async (notificationId) => {
+    await axios.delete(`http://localhost:8080/api/notifications/${notificationId}`); // Thay đổi URL theo API của bạn
+    setNotifications(notifications.filter(n => n.id !== notificationId)); // Cập nhật trạng thái
+  };
   return (
     <header className="row" style={{ alignItems: "center" }}>
       {/* Navbar Left */}
@@ -219,21 +222,32 @@ const Navbar = () => {
           </span>
           {notificationVisible && (
             <div className={`notification-dropdown ${notificationVisible ? 'show' : ''}`}>
-              <ul className="notification-list">
-                {notifications.length > 0 ? (
-                  notifications.map((notification, index) => (
-                    <li key={index} className="notification-item" onClick={() => handleNotificationClick(notification)}>
-                      <div className="notification-content">
-                        <span className="message">{notification.message}</span> <br />
-                        <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
-                        <p>{notification.postContent}</p>
-                      </div>
-                    </li>
-                  ))
-                ) : (
-                  <li className="no-notification">Không có thông báo nào.</li>
-                )}
-              </ul>
+<ul className="notification-list">
+  {notifications.length > 0 ? (
+    notifications.map((notification, index) => (
+      <li key={index} className="notification-item" onClick={() => handleNotificationClick(notification)}>
+        <div className="notification-content">
+          {notification.type === 'LIKE_POST' ? (
+            <>
+              <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span><br />
+              <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+              <p>{notification.postContent}</p>
+            </>
+          ) : (
+            <>
+              <span className="message">{notification.message}</span><br />
+              <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+              <p>{notification.postContent}</p>
+            </>
+          )}
+        </div>
+      </li>
+    ))
+  ) : (
+    <li className="no-notification">Không có thông báo nào.</li>
+  )}
+</ul>
+
             </div>
           )}
         </div>

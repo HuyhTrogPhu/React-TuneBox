@@ -5,6 +5,7 @@ import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
 import Playlists from "./Profile_nav/Playlists";
+import { getUserInfo, getFriendCount } from "../../../service/UserService"; // Nhập hàm lấy số lượng bạn bè
 import "./css/profile.css";
 import "./css/post.css";
 import "./css/button.css";
@@ -12,26 +13,35 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { FollowContext } from './FollowContext';
-import { getUserInfo } from "../../../service/UserService";
 
 const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");
   const { followCounts } = useContext(FollowContext);
   const [userData, setUserData] = useState({});
   const [followCount, setFollowCount] = useState({ followerCount: 0, followingCount: 0 });
+  const [friendCount, setFriendCount] = useState(0); // Trạng thái lưu số lượng bạn bè
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
       if (userIdCookie) {
-        try {
-          const userData = await getUserInfo(userIdCookie);
-          setUserData(userData);
-          console.log("User data fetched from API:", userData);
-        } catch (error) {
-          console.error("Error fetching user", error);
-        }
+          try {
+              const userData = await getUserInfo(userIdCookie);
+              setUserData(userData);
+              console.log("User data fetched from API:", userData);
+  
+              // Lấy số lượng bạn bè
+              const count = await getFriendCount(userIdCookie);
+              console.log('Fetched friend count:', count); // Log giá trị friend count
+              setFriendCount(count); // Cập nhật số lượng bạn bè
+              console.log('Updated friend count state:', count); // Log trạng thái bạn bè
+          } catch (error) {
+              console.error("Error fetching user", error);
+          }
       }
-    };
+  };  
+  
     fetchUser();
   }, [userIdCookie]);
 
@@ -40,7 +50,6 @@ const ProfileUser = () => {
     setFollowCount(counts);
     console.log("Updated follow counts:", counts);
   }, [followCounts, userIdCookie]);
-  
 
   return (
     <div className="container">
@@ -81,15 +90,25 @@ const ProfileUser = () => {
               </Link>
             </div>
           </div>
-          {/* Display follower and following counts */}
+          {/* Display follower, following, and friend counts */}
           <div className="row mt-4">
             <div className="col text-center">
+              <Link to={`/Follower/${userIdCookie}`}>
               <span>{followCount.followerCount}</span> <br />
               <span>Follower</span>
+              </Link>
             </div>
             <div className="col text-center">
-              <span>{followCount.followingCount}</span> <br />
-              <span>Following</span>
+            <Link to={`/Following/${userIdCookie}`}>
+            <span>{followCount.followingCount}</span> <br />
+            <span>Following</span>
+            </Link>
+            </div>
+            <div className="col text-center">
+            <Link to={"/FriendList"}>
+            <span>{friendCount}</span> <br />
+            <span>Friends</span>
+            </Link>
             </div>
           </div>
           {/* Display InspiredBy, Talent, and Genre */}

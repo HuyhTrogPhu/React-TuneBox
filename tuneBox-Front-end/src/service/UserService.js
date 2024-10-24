@@ -56,3 +56,16 @@ export const getFollowCountByUserId = async (userId) => {
     }
 };
 
+export const getFriendCount = async (userId) => {
+    const response = await fetch(`http://localhost:8080/api/friends/count/${userId}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch friend count');
+    }
+    const count = await response.json();
+    console.log('Fetched friend count:', count); // Log giá trị trước khi trả về
+    return count;
+};
+
+
+
+

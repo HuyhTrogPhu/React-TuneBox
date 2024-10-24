@@ -539,13 +539,13 @@ const fetchPosts = async () => {
   };
 
   const submitReport = async () => {
-    // Gửi báo cáo ở đây
     try {
         const response = await fetch('http://localhost:8080/api/reports', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include', // Đảm bảo gửi cookie cùng với request
             body: JSON.stringify({
                 postId: reportPostId,
                 reason: reportReason,
@@ -553,11 +553,9 @@ const fetchPosts = async () => {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            console.log('thành công'); // Thông báo thành công
-            // Đóng modal
+            console.log('thành công');
             setShowReportModal(false);
-            setReportReason(""); // Reset lý do báo cáo
+            setReportReason(""); 
         } else {
             console.error('Có lỗi xảy ra khi gửi báo cáo.');
         }
@@ -565,6 +563,7 @@ const fetchPosts = async () => {
         console.error('Lỗi mạng:', error);
     }
 };
+
   return (
     <div>
       <div className="container-fluid">
