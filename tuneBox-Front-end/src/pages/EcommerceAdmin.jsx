@@ -8,6 +8,7 @@ import ManagerCustomer from './EcommerceAdmin/pageContent/ManagerCustomer';
 import UserDetail from '../components/UserDetail/UserDetail';
 import ManagerOrder from './EcommerceAdmin/pageContent/ManagerOrder';
 import OrderDetail from '../components/OrderDetail/OrderDetail';
+import Statistical from './EcommerceAdmin/pageContent/Statistical';
 
 const EcommerceAdmin = () => {
   return (
@@ -76,6 +77,8 @@ const EcommerceAdmin = () => {
 
             <Route path='Order' element={<ManagerOrder />} />
             <Route path='Order/detail/:orderId' element={<OrderDetail />}/>
+
+            <Route path='Statistical' element={<Statistical />} />
           
             <Route path='Brand' element={<ManagerBrand />} />
             <Route path='Categories' element={<ManagerCategories />} />
