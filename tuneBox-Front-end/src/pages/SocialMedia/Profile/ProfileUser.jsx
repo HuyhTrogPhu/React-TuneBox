@@ -12,7 +12,7 @@ import "./css/button.css";
 import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
-import { getUserInfo, getFollowCountByUserId } from "../../../service/UserService";
+import { FollowContext } from './FollowContext';
 
 const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");

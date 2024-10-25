@@ -9,6 +9,11 @@ import UserDetail from '../components/UserDetail/UserDetail';
 import ManagerOrder from './EcommerceAdmin/pageContent/ManagerOrder';
 import OrderDetail from '../components/OrderDetail/OrderDetail';
 import Statistical from './EcommerceAdmin/pageContent/Statistical';
+import UserSellTheMost from '../components/EcomStatisticalUser/UserSellTheMost';
+import UserSellTheLeast from '../components/EcomStatisticalUser/UserSellTheLeast';
+import UserNotSell from '../components/EcomStatisticalUser/UserNotSell';
+import RevenueCurrently from '../components/EcomRevenue/RevenueCurrently';
+import StatisticalInstrument from '../components/EcomStatisticalInstrument/StatisticalInstrument';
 
 const EcommerceAdmin = () => {
   return (
@@ -76,10 +81,17 @@ const EcommerceAdmin = () => {
             <Route path="Customer/detail/:userId" element={<UserDetail />} />
 
             <Route path='Order' element={<ManagerOrder />} />
-            <Route path='Order/detail/:orderId' element={<OrderDetail />}/>
+            <Route path='Order/detail/:orderId' element={<OrderDetail />} />
 
             <Route path='Statistical' element={<Statistical />} />
-          
+            <Route path='Statistical/sell-the-most' element={<UserSellTheMost />} />
+            <Route path='Statistical/sell-the-least' element={<UserSellTheLeast />} />
+            <Route path='Statistical/user-not-sell' element={<UserNotSell />} />
+
+            <Route path='Statistical/revenue-currently' element={<RevenueCurrently />} />
+
+            <Route path='Statistical/statistical-instrument' element={<StatisticalInstrument />} />
+
             <Route path='Brand' element={<ManagerBrand />} />
             <Route path='Categories' element={<ManagerCategories />} />
             <Route path='Instrument' element={<ManagerInstrument />} />

@@ -69,18 +69,18 @@ export const getUserAccountSetting = async (userId) => {
 };
 
 
-// get follow count by userId 
-export const getFollowCountByUserId = async (userId) => {
-    try {
-        const response = await axios.get(`${REST_API_BASE_URL}/${userId}/followCount`, {
-            withCredentials: true,
-        });
-        return response.data; // Trả về số lượng follower và following
-    } catch (error) {
-        console.log("Error fetching follow count", error);
-        throw error;
-    }
-};
+// // get follow count by userId 
+// export const getFollowCountByUserId = async (userId) => {
+//     try {
+//         const response = await axios.get(`${REST_API_BASE_URL}/${userId}/followCount`, {
+//             withCredentials: true,
+//         });
+//         return response.data; // Trả về số lượng follower và following
+//     } catch (error) {
+//         console.log("Error fetching follow count", error);
+//         throw error;
+//     }
+// };
 
 export const getFriendCount = async (userId) => {
     const response = await fetch(`http://localhost:8080/api/friends/count/${userId}`);

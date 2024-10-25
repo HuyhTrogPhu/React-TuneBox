@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const Statistical = () => {
     return (
@@ -7,94 +8,102 @@ const Statistical = () => {
             <div className='container'>
                 {/* Statistical customer */}
                 <section className='row d-flex justify-content-center gap-3'>
-                    <div className='col-3 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                    <div className='col-4 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
+                        <Link to={'/ecomadmin/Statistical/sell-the-most'}>
+                            <div className='row d-flex align-items-center'>
+                                <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
+                                    <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                </div>
+                                <div className='col-9 m-0 '>
+                                    <h6 className='ps-0'>Customer sell the most</h6>
+                                </div>
                             </div>
-                            <div className='col-9 m-0 '>
-                                <h6 className='ps-0'>Customer sell the most</h6>
-                            </div>
-                        </div>
+                        </Link>
                     </div>
-                    <div className='col-3 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                    <div className='col-4 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
+                        <Link to={'/ecomadmin/Statistical/sell-the-least'}>
+                            <div className='row d-flex align-items-center'>
+
+                                <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
+                                    <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                </div>
+                                <div className='col-9 m-0'>
+                                    <h6 className='ps-0'>Customer sell the least</h6>
+                                </div>
+
                             </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>Customer sell the least</h6>
-                            </div>
-                        </div>
+                        </Link>
                     </div>
-                    <div className='col-3 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                    <div className='col-4 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
+                        <Link to={'/ecomadmin/Statistical/user-not-sell'}>
+                            <div className='row d-flex align-items-center'>
+                                <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
+                                    <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                </div>
+                                <div className='col-9 m-0'>
+                                    <h6 className='ps-0 pe-0'>Customer not sell</h6>
+                                </div>
                             </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0 pe-0'>The customer who bought the most</h6>
-                            </div>
-                        </div>
+                        </Link>
                     </div>
-                    <div className='col-3 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
-                            </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0 pe-0'>Customer do not buy the least</h6>
-                            </div>
-                        </div>
-                    </div>
+
                 </section>
 
                 {/* Revenue statistical currently */}
                 <section className='row mt-5'>
                     <div className='col-5 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-2 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-money-bill" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                        <Link to={'/ecomadmin/Statistical/revenue-currently'}>
+                            <div className='row d-flex align-items-center'>
+                                <div className='col-2 m-0 d-flex justify-content-center align-items-center'>
+                                    <i className="fa-solid fa-money-bill" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                </div>
+                                <div className='col-10 m-0'>
+                                    <h6 className='ps-0'>Revenue statistical currently</h6>
+                                </div>
                             </div>
-                            <div className='col-10 m-0'>
-                                <h6 className='ps-0'>Revenue statistical currently</h6>
-                            </div>
-                        </div>
+                        </Link>
                     </div>
                 </section>
 
                 {/* Statistical instrument */}
                 <section className='row mt-5 d-flex justify-content-center gap-3'>
                     <div className='col-4 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                        <Link to={'/ecomadmin/Statistical/statistical-instrument'}>
+                            <div className='row d-flex align-items-center'>
+                                <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
+                                    <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                </div>
+                                <div className='col-9 m-0'>
+                                    <h6 className='ps-0'>Statistical Instrument</h6>
+                                </div>
                             </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>Best selling musical instruments in the month</h6>
-                            </div>
-                        </div>
+                        </Link>
                     </div>
                     <div className='col-4 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                        <Link to={'/ecomadmin/Statistical/statistical-brand'}>
+                            <div className='row d-flex align-items-center'>
+                                <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
+                                    <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                </div>
+                                <div className='col-9 m-0'>
+                                    <h6 className='ps-0'>Statistical Brand</h6>
+                                </div>
                             </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>Least sold musical instruments in the month </h6>
-                            </div>
-                        </div>
+                        </Link>
                     </div>
                     <div className='col-4 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                        <Link to={'/ecomadmin/Statistical/statistical-category'}>
+                            <div className='row d-flex align-items-center'>
+                                <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
+                                    <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                </div>
+                                <div className='col-9 m-0'>
+                                    <h6 className='ps-0'>Statistical Category</h6>
+                                </div>
                             </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>Instruments for sale not for sale in the month</h6>
-                            </div>
-                        </div>
+                        </Link>
                     </div>
+
                 </section>
 
                 {/* Search revenue statistical */}
