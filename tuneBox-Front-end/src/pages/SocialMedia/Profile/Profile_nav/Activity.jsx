@@ -10,9 +10,7 @@ import "../../css/mxh/modal-create-post.css"
 import "../../css/profile.css"
 import "../../css/mxh/comment.css"
 import { images } from "../../../../assets/images/images";
-import data from '@emoji-mart/data'
 import { Picker } from 'emoji-mart'
-
 
 const Activity = () => {
   const [postContent, setPostContent] = useState("");
@@ -21,7 +19,7 @@ const Activity = () => {
   const [posts, setPosts] = useState([]);
   const [postId, setPostId] = useState(null);
   const { id } = useParams(); // Lấy ID từ URL
-  const userId = Cookies.get("userId"); // Lấy ID người dùng hiện tại từ cookies
+  const userId = Cookies.get("userId"); // Lấy ID người dùng hiện tại  từ cookies
   const [username, setuserName] = useState({});
   const [commentContent, setCommentContent] = useState({});
   const [showAllComments, setShowAllComments] = useState({});
