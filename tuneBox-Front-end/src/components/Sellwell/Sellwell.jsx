@@ -24,9 +24,9 @@ const Sellwell = () => {
             });
     }
     const getStockStatus = (quantity) => {
-        if (quantity === 0) return 'Hết hàng';
-        if (quantity > 0 && quantity <= 5) return 'Sắp hết hàng';
-        return 'Còn hàng';
+        if (quantity === 0) return 'Out of stock';
+        if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
+        return 'In stock';
       };
 
     // Hàm để phân trang và lấy danh sách sản phẩm cho trang hiện tại

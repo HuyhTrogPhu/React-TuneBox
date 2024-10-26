@@ -101,9 +101,9 @@ const Shop = () => {
 
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return 'Hết hàng';
-    if (quantity > 0 && quantity <= 5) return 'Sắp hết hàng';
-    return 'Còn hàng';
+    if (quantity === 0) return 'Out of stock';
+    if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
+    return 'In stock';
   };
 
   
@@ -180,7 +180,7 @@ const Shop = () => {
                         type="button"
                         onClick={toggleBrandAccordion}
                       >
-                        Thương hiệu
+                        Brands
                       </button>
                     </h2>
                     <div className={`accordion-collapse collapse ${isBrandOpen ? 'show' : ''}`}>
@@ -198,7 +198,7 @@ const Shop = () => {
                             </div>
                           ))
                         ) : (
-                          <p>Không có thương hiệu nào</p>
+                          <p>There are no brands available</p>
                         )}
                       </div>
                     </div>
@@ -211,7 +211,7 @@ const Shop = () => {
                         type="button"
                         onClick={togglePriceAccordion}
                       >
-                        Mức giá
+                        Price level
                       </button>
                     </h2>
                     <div className={`accordion-collapse collapse ${isPriceOpen ? 'show' : ''}`}>
@@ -235,7 +235,7 @@ const Shop = () => {
                         </div>
                         <div className="d-grid">
                           <button className="btn btn-warning" type="button" onClick={handlePriceFilter}>
-                            Áp dụng
+                          Apply
                           </button>
                         </div>
                       </div>
@@ -249,7 +249,7 @@ const Shop = () => {
                         type="button"
                         onClick={toggleCategoryAccordion}
                       >
-                        Loại sản phẩm
+                        Categories
                       </button>
                     </h2>
                     <div className={`accordion-collapse collapse ${isCategoryOpen ? 'show' : ''}`}>
