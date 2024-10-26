@@ -786,7 +786,7 @@ const fetchPosts = async () => {
                     {post.images.map((image, index) => (
                         <img
                             key={index}
-                            src={`data:image/jpeg;base64,${image.postImage}`}
+                            src={image.postImage}
                             alt="Post"
                         />
                     ))}
