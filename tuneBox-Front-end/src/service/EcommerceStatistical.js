@@ -20,5 +20,8 @@ export const getUserNotSell = () => axios.get(`${REST_API_BASE_URL}/user-not-sel
 // get revenue of day, week, month, year
 export const getRevenueCurrently = () => axios.get(`${REST_API_BASE_URL}/revenue-currently`);
 
+// get revenue before of day, week, month, year
+export const getRevenueBeforeCurrently = () => axios.get(`${REST_API_BASE_URL}/revenue-before-currently`);
+
 // get statistical of day, week, month, year by instrument
 export const getStatisticalOfTime = () => axios.get(`${REST_API_BASE_URL}/instrument`);

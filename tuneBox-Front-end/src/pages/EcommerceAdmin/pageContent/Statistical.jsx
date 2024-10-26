@@ -1,7 +1,46 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { Line } from 'react-chartjs-2';
 
 const Statistical = () => {
+
+    const [currentRevenue, setCurrentRevenue] = useState({});
+    const [previousRevenue, setPreviousRevenue] = useState({});
+
+    useEffect(() => {
+        const fetchRevenueData = async () => {
+            try {
+                const { data: current } = await getRevenueCurrently();
+                const { data: previous } = await getRevenueBeforeCurrently();
+                setCurrentRevenue(current);
+                setPreviousRevenue(previous);
+            } catch (error) {
+                console.error("Error fetching revenue data:", error);
+            }
+        };
+        fetchRevenueData();
+    }, []);
+
+    const createChartData = (currentData, previousData, label) => ({
+        labels: ['Today', 'Yesterday'], // cập nhật nhãn phù hợp cho từng khoảng thời gian
+        datasets: [
+            {
+                label: `${label} - Hiện tại`,
+                data: [currentData, 0], // chỉ số hiện tại
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+            },
+            {
+                label: `${label} - Trước`,
+                data: [0, previousData], // chỉ số trước đó
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: true,
+            }
+        ]
+    });
+
     return (
         <div>
 
@@ -155,10 +194,24 @@ const Statistical = () => {
                 </section>
 
                 {/* Chart revenue statistical */}
-                total revenue of the day-chart<br />
-                total revenue of the week-chart <br />
-                total revenue of the month-chart <br />
-                total revenue of the year-chart <br />
+                <section className='row mt-5 justify-content-between gap-3'>
+                    <div className='col-6'>
+                        <h6>Total revenue of the day: {(currentRevenue.revenueOfDay || 0).toLocaleString('vi')} VND</h6>
+                        <Line data={createChartData(currentRevenue.revenueOfDay, previousRevenue.revenueBeforeOfDay, 'Doanh thu Ngày')} />
+                    </div>
+                    <div className='col-6'>
+                        <h6>Total revenue of the week: {(currentRevenue.revenueOfWeek || 0).toLocaleString('vi')} VND</h6>
+                        <Line data={createChartData(currentRevenue.revenueOfWeek, previousRevenue.revenueBeforeOfWeek, 'Doanh thu Tuần')} />
+                    </div>
+                    <div className='col-6'>
+                        <h6>Total revenue of the month: {(currentRevenue.revenueOfMonth || 0).toLocaleString('vi')} VND</h6>
+                        <Line data={createChartData(currentRevenue.revenueOfMonth, previousRevenue.revenueBeforeOfMonth, 'Doanh thu Tháng')} />
+                    </div>
+                    <div className='col-6'>
+                        <h6>Total revenue of the year: {(currentRevenue.revenueOfYear || 0).toLocaleString('vi')} VND</h6>
+                        <Line data={createChartData(currentRevenue.revenueOfYear, previousRevenue.revenueBeforeOfYear, 'Doanh thu Năm')} />
+                    </div>
+                </section>
 
                 {/* Statistical order */}
                 <section className='row mt-5 d-flex justify-content-between gap-3'>

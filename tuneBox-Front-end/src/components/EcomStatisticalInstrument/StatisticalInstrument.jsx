@@ -28,13 +28,13 @@ const StatisticalInstrument = () => {
   }
 
   const {
-    instrumentSalesTheMostOfDay,
-    instrumentSalesTheMostOfWeek,
-    instrumentSalesTheMostOfMonth,
-    instrumentSalesTheLeastOfDay,
-    instrumentSalesTheLeastOfWeek,
-    instrumentSalesTheLeastOfMonth,
-    statisticalInstrument,
+    mostSoldToday,
+    leastSoldToday,
+    mostSoldThisWeek,
+    leastSoldThisWeek,
+    mostSoldThisMonth,
+    leastSoldThisMonth,
+    statisticalInstruments,
   } = statisticalData;
 
   return (
@@ -46,27 +46,27 @@ const StatisticalInstrument = () => {
         </div>
         <div className="col-4">
           <h6>Of Day:</h6>
-          {instrumentSalesTheMostOfDay.map((instrument) => (
+          {mostSoldToday.map((instrument) => (
             <div key={instrument.id}>
-              <p>Instrument Name: {instrument.name}</p>
+              <p>Instrument Name: {instrument.instrumentName}</p>
               <p>Total Sold: {instrument.totalSold}</p>
             </div>
           ))}
         </div>
         <div className="col-4">
           <h6>Of Week:</h6>
-          {instrumentSalesTheMostOfWeek.map((instrument) => (
+          {mostSoldThisWeek.map((instrument) => (
             <div key={instrument.id}>
-              <p>Instrument Name: {instrument.name}</p>
+              <p>Instrument Name: {instrument.instrumentName}</p>
               <p>Total Sold: {instrument.totalSold}</p>
             </div>
           ))}
         </div>
         <div className="col-4">
           <h6>Of Month:</h6>
-          {instrumentSalesTheMostOfMonth.map((instrument) => (
+          {mostSoldThisMonth.map((instrument) => (
             <div key={instrument.id}>
-              <p>Instrument Name: {instrument.name}</p>
+              <p>Instrument Name: {instrument.instrumentName}</p>
               <p>Total Sold: {instrument.totalSold}</p>
             </div>
           ))}
@@ -80,28 +80,28 @@ const StatisticalInstrument = () => {
         </div>
         <div className="col-4">
           <h6>Of Day:</h6>
-          {instrumentSalesTheLeastOfDay.map((instrument) => (
+          {leastSoldToday.map((instrument) => (
             <div key={instrument.id}>
-              <p>Instrument Name: {instrument.name}</p>
-              <p>Total Sold: {instrument.totalSold}</p>
+              <p>Instrument Name: {instrument.instrumentName}</p>
+              <p>Total Sold: {instrument.totalSold  || 0}</p>
             </div>
           ))}
         </div>
         <div className="col-4">
           <h6>Of Week:</h6>
-          {instrumentSalesTheLeastOfWeek.map((instrument) => (
+          {leastSoldThisWeek.map((instrument) => (
             <div key={instrument.id}>
-              <p>Instrument Name: {instrument.name}</p>
-              <p>Total Sold: {instrument.totalSold}</p>
+              <p>Instrument Name: {instrument.instrumentName}</p>
+              <p>Total Sold: {instrument.totalSold || 0}</p>
             </div>
           ))}
         </div>
         <div className="col-4">
           <h6>Of Month:</h6>
-          {instrumentSalesTheLeastOfMonth.map((instrument) => (
+          {leastSoldThisMonth.map((instrument) => (
             <div key={instrument.id}>
-              <p>Instrument Name: {instrument.name}</p>
-              <p>Total Sold: {instrument.totalSold}</p>
+              <p>Instrument Name: {instrument.instrumentName}</p>
+              <p>Total Sold: {instrument.totalSold || 0}</p>
             </div>
           ))}
         </div>
@@ -112,7 +112,7 @@ const StatisticalInstrument = () => {
         <div className="col-4">
           <label className="form-label">Select instrument</label>
           <select className="form-select">
-            {statisticalInstrument?.map((instrument) => (
+            {statisticalInstruments?.map((instrument) => (
               <option key={instrument.id} value={instrument.id}>
                 {instrument.name}
               </option>
