@@ -96,7 +96,7 @@ const ProfileSetting = () => {
     fetchDataAndRender();
   }, []);
   return (
-    <div className="container">
+    <div className="">
       <div className="row">
         <aside className="col-sm-3">
           <a href className="text-black text-decoration-none">
@@ -180,17 +180,16 @@ const ProfileSetting = () => {
                     </h6>
                   </label>
                   <input
-                  
-                   className="form-control"
-                   type="text"
-                   placeholder={userData.userName || "Name"} // Sử dụng userData.userName nếu có, nếu không thì là "Name"
-                   id="name"
-                   style={{
-                     backgroundColor: 'rgba(64, 102, 128, 0.078)',
-                     height: 40,
-                     width: 600,
-                     marginTop: -20,
-                   }}
+                    className="form-control"
+                    type="text"
+                    placeholder={userData.userName || "Name"} // Sử dụng userData.userName nếu có, nếu không thì là "Name"
+                    id="name"
+                    style={{
+                      backgroundColor: "rgba(64, 102, 128, 0.078)",
+                      height: 40,
+                      width: 600,
+                      marginTop: -20,
+                    }}
                   />
                 </div>
                 <div className="row">

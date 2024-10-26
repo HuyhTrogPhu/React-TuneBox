@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getAlbumsByUserId } from "../../../../service/AlbumsServiceCus";
+import {
+  getAlbumsByUserId,
+  deleteAlbum,
+} from "../../../../service/AlbumsServiceCus";
 import Cookies from "js-cookie";
 import "./css/albums.css";
 import { Link } from "react-router-dom";
@@ -12,25 +15,56 @@ const Albums = () => {
 
   // Fetch initial data
   useEffect(() => {
-    const fetchListAlbum = async () => {
-      setIsLoading(true);
-      try {
-        const albumsResponse = await getAlbumsByUserId(userId);
-
-        setAlbums(albumsResponse || []);
-      } catch (error) {
-        console.error("Error fetching Albums:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchListAlbum();
   }, [userId]);
+
+  // fetch list album
+  const fetchListAlbum = async () => {
+    setIsLoading(true);
+    try {
+      const albumsResponse = await getAlbumsByUserId(userId);
+
+      setAlbums(albumsResponse || []);
+
+      // Đếm số lượng album có status là false
+      const inactiveAlbumsCount = albumsResponse.filter(
+        (album) => album.status === false
+      ).length;
+      console.log(
+        "Number of inactive albums (status = false):",
+        inactiveAlbumsCount
+      );
+    } catch (error) {
+      console.error("Error fetching Albums:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // delete album
+  const handDeleteAlbum = async (albumId) => {
+    if (!window.confirm("Are you sure you want to delete this album?")) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const albumsResponse = await deleteAlbum(albumId);
+      console.log("Album deleted successfully:", albumsResponse);
+      fetchListAlbum();
+      alert("Album deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting album:", error);
+      alert("Failed to delete album. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="albums">
       <div className="btn-container">
+      {/* link album new */}
         <Link
           to={{
             pathname: `/albums/create-newAlbum`,
@@ -60,14 +94,20 @@ const Albums = () => {
               !album.status && (
                 <div key={album.id} className="album-item">
                   <img
-                    src="/src/UserImages/Avatar/avt.jpg"
+                    src={album.albumImage}
                     className="avatar_small"
                     alt="Avatar"
                   />
                   <div className="info">
-                    <a href="#">
+                  {/* link album detail */}
+                    <Link
+                      to={{
+                        pathname: `/album/${album.id}`,
+                        state: { album },
+                      }}
+                    >
                       <div className="title">{album.title}</div>
-                    </a>
+                    </Link>
 
                     <div className="style">{album.description}</div>
 
@@ -86,10 +126,17 @@ const Albums = () => {
                     />
                     <ul className="dropdown-menu dropdown-menu-lg-end">
                       <li>
-                        <a className="dropdown-item">Edit</a>
+                        <Link to={`/albums/album-Edit/${album.id}`}>
+                          <a className="dropdown-item">Edit</a>
+                        </Link>
                       </li>
                       <li>
-                        <a className="dropdown-item">Delete</a>
+                        <a
+                          className="dropdown-item"
+                          onClick={() => handDeleteAlbum(album.id)}
+                        >
+                          Delete
+                        </a>
                       </li>
                     </ul>
                   </div>

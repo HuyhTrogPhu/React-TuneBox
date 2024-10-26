@@ -60,6 +60,20 @@ export const listAlbumStyle = async () => {
   }
 };
 
+// lấy info album theo id
+export const getAlbumById = async (albumId) => {
+  try {
+    if (!albumId) throw new Error("album ID not found"); // Kiem tra
+    const response = await axios.get(`${API_URL}/${albumId}`, {
+      withCredentials: true,
+    });
+    return response; 
+  } catch (error) {
+    console.error("Error get info album by id:", error);
+    throw error;
+  }
+};
+
 // Tạo album mới
 export const createAlbum = async (albumData) => {
   try {
@@ -84,15 +98,39 @@ export const deleteAlbum = async (albumId) => {
 };
 
 // Cập nhật album theo ID
-export const updateAlbum = async (albumId, albumData) => {
+// export const updateAlbum = async (albumId, albumData) => {
+//   try {
+//     const response = await axios.put(`${API_URL}/${albumId}`, albumData, {
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error updating album:", error);
+//     throw error;
+//   }
+// };
+// AlbumsServiceCus.js
+export const updateAlbum = async (albumId, formData) => {
   try {
-    const response = await axios.put(`${API_URL}/${albumId}`, albumData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      withCredentials: true,
-    });
-    return response.data;
+    // Log request data
+    console.log('Updating album with ID:', albumId);
+    console.log('FormData contents:');
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    const response = await axios.put(
+      `${API_URL}/${albumId}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response;
   } catch (error) {
-    console.error("Error updating album:", error);
+    console.error('Error updating album:', error);
+    console.error('Server response:', error.response?.data);
     throw error;
   }
 };

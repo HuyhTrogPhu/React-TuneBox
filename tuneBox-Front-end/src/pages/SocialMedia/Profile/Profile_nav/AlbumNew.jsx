@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState} from "react";
 import "./css/albumNew.css";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
@@ -62,7 +62,7 @@ const AlbumNew = () => {
     fetchType();
   }, [userId]);
 
-  // Lấy Genre
+  // Lấy type
   const fetchType = async () => {
     try {
       const typeResponse = await listAlbumStyle(); // Assuming listGenre is your API call
@@ -110,51 +110,6 @@ const AlbumNew = () => {
   };
 
   // Hàm create album
-  // const handleAddAlbum = (e) => {
-  //   e.preventDefault();
-  //   const formData = new FormData();
-
-  //   // Thêm các trường vào FormData
-  //   formData.append("title", title);
-  //   formData.append("description", description);
-  //   formData.append("albumImage", albumImage);
-  //   formData.append("status", false);
-  //   formData.append("report", false);
-  //   // formData.append("user", userId);
-  //   // formData.append("genre", selectedGenre); // Gửi ID genre được chọn
-  //   // formData.append("albumStyle", selectedType);
-  //   const user = {
-  //     id: Number(userId), // Ensure it's a number
-  //   };
-
-  //   const genre = {
-  //     id: Number(selectedGenre), // Ensure it's a number
-  //   };
-
-  //   const albumStyle = {
-  //     id: Number(selectedType), // Ensure it's a number
-  //   };
-
-  //   formData.append("user", JSON.stringify(user));
-  //   formData.append("genre", JSON.stringify(genre));
-  //   formData.append("albumStyle", JSON.stringify(albumStyle));
-
-  //   // Gửi trackIds từ addedTracks
-  //   if (addedTracks.length > 0) {
-  //     const trackIds = addedTracks.map((track) => track.id); // Lấy track IDs từ addedTracks
-  //     formData.append("trackIds", JSON.stringify(trackIds)); // Gửi trackIds dưới dạng chuỗi JSON
-  //   }
-
-  //   // Gọi hàm tạo album
-  //   createAlbum(formData)
-  //     .then((response) => {
-  //       console.log("Album created successfully: ", response);
-  //       toast.success("Album created successfully!"); //npm install react-toastify
-  //     })
-  //     .catch((error) => {
-  //       console.error("Failed to create album:", error);
-  //     });
-  // };
   const handleAddAlbum = async (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -215,7 +170,7 @@ const AlbumNew = () => {
       description: "",
       genre: "",
       type: "",
-      albumImage:""
+      albumImage: "",
     };
 
     if (!title) {
@@ -339,10 +294,10 @@ const AlbumNew = () => {
       </div>
 
       {/* Content */}
-      <div className="album-create-card border rounded-4">
+      <div className="album-create-card p-5 border rounded-4">
         {activeStep === 0 && ( // Bước 1: Thông tin album
           <div className="album-create-info">
-            <h5 className="text-center mb-5">Album Information</h5>
+            {/* <h5 className="text-center mb-5">Album Information</h5> */}
 
             <div className="info-img me-5">
               <img

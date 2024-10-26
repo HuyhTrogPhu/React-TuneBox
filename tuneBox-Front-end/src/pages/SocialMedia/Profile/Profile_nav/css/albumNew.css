@@ -1,7 +1,6 @@
-/* E:\DATN\React-TuneBox\tuneBox-Front-end */
+
 
 .container {
-    width: 60%; 
     margin: 0 auto; 
   }
 
@@ -27,7 +26,7 @@
 }
 
 .album-create-card{
-    padding: 30px 48px;
+    padding: 100px 100px;
 }
 
 .album-create-info{

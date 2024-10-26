@@ -40,7 +40,7 @@ const ProfileUser = () => {
   }, [userData]);
 
   return (
-    <div className="container">
+    <div className="">
       <div
         className="background border container"
         style={{
