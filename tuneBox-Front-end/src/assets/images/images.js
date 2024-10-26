@@ -89,6 +89,7 @@ import slide4 from '../images/slide4.webp';
 import slide5 from '../images/slide5.webp';
 import plus from '../images/plus.png';
 import car from '../icon/car.png';
+import logoAdmin from '../images/admin_white.png'
 import heartFilled from '../images/heartFilled.png';
 
 
@@ -113,5 +114,5 @@ export const images = {
     us, us2, us3, us4, user_ava,
     user, user2, user3, user4,
     vn, volumn, web_content,
-    slide1, slide2, slide3, slide4, slide5
+    slide1, slide2, slide3, slide4, slide5, logoAdmin
 };

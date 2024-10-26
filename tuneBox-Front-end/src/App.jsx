@@ -60,38 +60,38 @@ function App() {
 
   return (
     <FollowProvider> {/* Đặt FollowProvider ở đây */}
-    <div>
-      <div className="">
-        <Routes>
-          {/* Các route có Header */}
-          <Route element={<LayoutWithHeader />}>
-            <Route path="/" element={<HomeFeed />} />
-            <Route path="/HomeEcommerce" element={<Home />} />
-            <Route path="/Shop" element={<Shop />} />
-            <Route path="/profileUser/*" element={<ProfileUser />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/profileUser" element={<ProfileUser />} />
-            <Route path="/profileSetting" element={<ProfileSetting />} />
-            <Route path="/CartDetail" element={<CartDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/DetailProduct/:id" element={<DetailProduct />} />
-            <Route path="/BrandPage" element={<BrandPage />} />
-            <Route path="/brand-detail" element={<BrandDetail />} />
-            <Route path="/CategoryPage" element={<CategoryPage />} />
-            <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+      <div>
+        <div className="">
+          <Routes>
+            {/* Các route có Header */}
+            <Route element={<LayoutWithHeader />}>
+              <Route path="/" element={<HomeFeed />} />
+              <Route path="/HomeEcommerce" element={<Home />} />
+              <Route path="/Shop" element={<Shop />} />
+              <Route path="/profileUser/*" element={<ProfileUser />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/profileUser" element={<ProfileUser />} />
+              <Route path="/profileSetting" element={<ProfileSetting />} />
+              <Route path="/CartDetail" element={<CartDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/DetailProduct/:id" element={<DetailProduct />} />
+              <Route path="/BrandPage" element={<BrandPage />} />
+              <Route path="/brand-detail" element={<BrandDetail />} />
+              <Route path="/CategoryPage" element={<CategoryPage />} />
+              <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
               <Route path="/checkOut" element={<CheckOut />} />
               <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
               <Route path="/doneorder" element={<ThanhCong />} />
-            <Route path="/post/:postIdurl" element={<Post />}  />
-            <Route path="/FriendRequests" element={<FriendRequests />} />
-            <Route path="/FriendList/:userId" element={<FriendList />} />
-            <Route path="/Follower/:userId" element={<FollowersPage />} />
-            <Route path="/Following/:userId" element={<FollowingPage />} />
+              <Route path="/post/:postIdurl" element={<Post />} />
+              <Route path="/FriendRequests" element={<FriendRequests />} />
+              <Route path="/FriendList/:userId" element={<FriendList />} />
+              <Route path="/Follower/:userId" element={<FollowersPage />} />
+              <Route path="/Following/:userId" element={<FollowingPage />} />
 
 
-          </Route>
+            </Route>
 
             {/* Các route không có Header */}
             <Route element={<LayoutWithoutHeader />}>

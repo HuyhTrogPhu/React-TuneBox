@@ -16,8 +16,8 @@ const ThanhCong = () => {
       if (vnpResponseCode === '00') {
           // Thanh toán thành công
           Swal.fire({
-              title: 'Thành công!',
-              text: 'Thanh toán của bạn đã được xác nhận.',
+              title: 'Success!',
+              text: 'Your payment has been confirmed.',
               icon: 'success',
               confirmButtonText: 'Ok', // Thay đổi tên nút
           }).then((result) => {
@@ -28,8 +28,8 @@ const ThanhCong = () => {
       } else {
           // Thanh toán không thành công
           Swal.fire({
-              title: 'Thất bại!',
-              text: 'Thanh toán của bạn đã bị từ chối.',
+              title: 'Failure!',
+              text: 'Your payment has been declined.',
               icon: 'error',
               confirmButtonText: 'Ok', // Thay đổi tên nút
           }).then((result) => {

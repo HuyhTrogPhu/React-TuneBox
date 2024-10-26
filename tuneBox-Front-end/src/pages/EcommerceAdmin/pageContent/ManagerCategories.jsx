@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoriesTable from "../../../components/CategoriesTable/CategoriesList";
 import { createCategory, listCateIns } from "../../../service/CategoryService";
-
+import "../css/ManagerCategories.css"
 const ManagerCategories = () => {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryImg, setNewCategoryImg] = useState(null);

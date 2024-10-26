@@ -122,16 +122,16 @@ const ManagerOrder = () => {
           <table className='table'>
             <thead>
               <tr>
-                <th scope='col'>#</th>
-                <th scope='col'>Order date</th>
-                <th scope='col'>Delivery date</th>
-                <th scope='col'>Tax</th>
-                <th scope='col'>Total price</th>
-                <th scope='col'>Total Items</th>
-                <th scope='col'>Payment method</th>
-                <th scope='col'>Shipping method</th>
-                <th scope='col'>Status</th>
-                <th scope='col'>Action</th>
+                <th style={{ textAlign: "center" }}  scope='col'>#</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Order date</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Delivery date</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Tax</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Total price</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Total Items</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Payment method</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Shipping method</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Status</th>
+                <th style={{ textAlign: "center" }}  scope='col'>Action</th>
               </tr>
             </thead>
             <tbody>

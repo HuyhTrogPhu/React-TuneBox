@@ -51,9 +51,9 @@ const Cart = () => {
         <nav aria-label="breadcrumb">
           <ol className="breadcrumb" style={{ marginLeft: 70 }}>
             <li className="breadcrumb-item">
-              <Link to={"/Ecommerce"}>Trang chủ</Link>
+              <Link to={"/Ecommerce"}>Home</Link>
             </li>
-            <li className="breadcrumb-item active" aria-current="page">Giỏ hàng</li>
+            <li className="breadcrumb-item active" aria-current="page">Cart</li>
           </ol>
         </nav>
         <hr className="hr-100" />
@@ -69,12 +69,12 @@ const Cart = () => {
                           <div className="col-lg-8">
                             <div className="p-5">
                               <div className="d-flex justify-content-between align-items-center mb-5">
-                                <h1 className="fw-bold mb-0">Shopping Cart</h1>
+                                <h1 className="fw-bold mb-0" style={{fontSize: '30px'}}>Shopping Cart</h1>
                                 <h6 className="mb-0 text-muted">{cartItems.length} items</h6>
                               </div>
                               <hr className="hr-100" />
                               {cartItems.length === 0 ? (
-                                <p>Giỏ hàng của bạn đang trống.</p>
+                                <p>Your shopping cart is empty.</p>
                               ) : (
                                 cartItems.map((item) => (
                                   <div className="row mb-4 d-flex justify-content-between align-items-center" key={item.instrumentId}>
@@ -82,21 +82,21 @@ const Cart = () => {
                                       <img src={item.image} className="img-fluid rounded-3" alt={item.name} />
                                     </div>
                                     <div className="col-md-3 col-lg-3 col-xl-3">
-                                      <h6 className="mb-0">{item.name}</h6>
+                                      <h6 className="mb-0" style={{fontSize: '20px'}}>{item.name}</h6>
                                     </div>
                                     <div className="col-md-3 col-lg-3 col-xl-2 d-flex">
                                       <button className="btn btn-link px-2" onClick={() => {
-                                        const newQuantity = Math.max(0, item.quantity - 1); // Giảm số lượng
+                                        const newQuantity = Math.max(0, item.quantity - 1); 
                                         updateQuantity(item.instrumentId, newQuantity);
                                       }}>
                                         <i className="fas fa-minus" />
                                       </button>
-                                      <input
+                                      <input 
                                         min={0}
                                         name="quantity"
                                         value={item.quantity}
                                         type="number"
-                                        className="form-control form-control-sm"
+                                        className="form-control" style={{width:'50px'}}
                                         readOnly
                                       />
                                       <button className="btn btn-link px-2" onClick={() => {
@@ -107,7 +107,7 @@ const Cart = () => {
                                       </button>
                                     </div>
                                     <div className="col-md-3 col-lg-2 col-xl-3 offset-lg-1">
-                                      <h6 className="mb-0">{(item.costPrice * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h6>
+                                      <h6 className="mb-0" style={{fontSize: '16px'}}>{(item.costPrice * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h6>
                                     </div>
                                     <div className="col-md-1 col-lg-1 col-xl-1 text-end">
                                       <a href="#!" className="text-muted" onClick={() => removeItem(item.instrumentId)}>
@@ -121,7 +121,7 @@ const Cart = () => {
                               <div className="pt-5">
                                 <h6 className="mb-0">
                                   <Link to={{ pathname: `/Shop` }} className="text-body">
-                                    <i className="fas fa-long-arrow-alt-left me-2" />Back to shop
+                                    <i className="fas fa-long-arrow-alt-left me-2"  />Back to shop
                                   </Link>
                                 </h6>
                               </div>
@@ -129,12 +129,10 @@ const Cart = () => {
                           </div>
                           <div className="col-lg-4 bg-body-tertiary">
                             <div className="p-5">
-                              <h3 className="fw-bold mb-5 mt-2 pt-1">Summary</h3>
-
-                              <hr className="hr-100" />
+                          
                               <div className="d-flex justify-content-between mb-5">
-                                <h5 className="text-uppercase">Total price</h5>
-                                <h5>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h5>
+                                <h5 className="text-uppercase" style={{fontSize: '20px'}}>Total price</h5>
+                                <h5 style={{fontSize: '20px'}}>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h5>
                               </div>
 
                               <Link to={"/checkOut"}>
