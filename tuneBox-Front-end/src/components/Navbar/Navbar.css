@@ -1,7 +1,49 @@
+/* Navbar Container */
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 50px; /* Thêm padding cho thanh nav */
+    background-color: #f8f9fa; /* Màu nền sáng */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bóng nhẹ */
+}
+
+/* Logo */
+.logo {
+    cursor: pointer;
+}
+
+/* Navbar Button */
+.navbar-button {
+    display: flex;
+    align-items: center;
+    margin-right: 30px; /* Khoảng cách giữa các nút */
+    background: none; /* Xóa nền mặc định */
+    border: none; /* Xóa viền mặc định */
+    cursor: pointer; /* Hiển thị con trỏ khi hover */
+}
+
+/* Search Input */
+.search-input {
+    padding: 10px;
+    border: 1px solid #ccc; /* Đường viền xám */
+    border-radius: 5px; /* Bo tròn góc */
+    width: 400px; /* Độ rộng */
+}
+
+/* Search Button */
+.search-btn {
+    background-color: #ffffff; /* Màu nền nút */
+    color: rgb(0, 0, 0); /* Màu chữ trắng */
+    border: 1px solid #919191; 
+    border-radius: 5px; /* Bo tròn góc */
+    padding: 10px; /* Padding cho nút */
+    cursor: pointer; /* Hiển thị con trỏ khi hover */
+    margin-left: 5px; /* Khoảng cách với input */
+}
+
 /* Thông báo biểu tượng */
 .notification-icon {
-    margin-bottom: 15px;
-    margin-right: 30px;
     cursor: pointer;
     position: relative; /* Để badge có thể đặt ở vị trí chính xác */
 }
@@ -14,19 +56,20 @@
     background-color: #ff4757; /* Màu nền đỏ */
     color: white; /* Màu chữ trắng */
     border-radius: 50%; /* Đường viền tròn */
-    padding: 5px 8px; /* Khoảng cách cho badge */
-    font-size: 12px; /* Kích thước chữ nhỏ hơn */
+    padding: 3px 7px;/* Khoảng cách cho badge */
+    font-size: 10px; /* Kích thước chữ nhỏ hơn */
 }
 
 /* Dropdown thông báo */
 .notification-dropdown {
+    top: 10%;
     position: absolute;
     background-color: white; /* Màu nền trắng */
     border: 1px solid #ccc; /* Đường viền xám */
     border-radius: 5px; /* Bo tròn góc */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Bóng nhẹ */
     z-index: 1000; /* Đảm bảo ở trên cùng */
-    width: 300px; /* Độ rộng của dropdown (tăng một chút cho vừa avatar và nội dung) */
+    width: 300px; /* Độ rộng của dropdown */
     max-height: 300px; /* Chiều cao tối đa */
     overflow-y: auto; /* Cuộn nếu nội dung vượt quá chiều cao */
     display: none; /* Mặc định ẩn */
@@ -64,7 +107,6 @@
     height: 40px; /* Kích thước avatar nhỏ */
     border-radius: 50%; /* Hình tròn */
     margin-right: 10px; /* Khoảng cách giữa avatar và nội dung */
-    object-fit: cover; /* Đảm bảo ảnh vừa với khung */
 }
 
 /* Nội dung thông báo */
@@ -77,4 +119,18 @@
     padding: 10px; /* Thêm padding */
     text-align: center; /* Căn giữa */
     color: #777; /* Màu chữ xám */
+}
+
+/* Avatar trong thanh nav */
+.avatar {
+    width: 60px !important;
+    height: 60px !important;
+}
+
+.cart-shopping {
+    padding: 6px 10px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 18px;
+    background-color: #E94F37;
 }

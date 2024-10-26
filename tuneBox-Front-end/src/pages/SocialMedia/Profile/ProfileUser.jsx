@@ -13,6 +13,8 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { FollowContext } from './FollowContext';
+
+
 const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");
   const { followCounts } = useContext(FollowContext);

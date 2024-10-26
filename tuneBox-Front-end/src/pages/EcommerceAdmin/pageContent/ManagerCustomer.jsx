@@ -197,19 +197,19 @@ const ManagerCustomer = () => {
                         <table className='table'>
                             <thead>
                                 <tr>
-                                    <th scope='col'>#</th>
-                                    <th scope='col'>Username</th>
-                                    <th scope='col'>Email</th>
-                                    <th scope='col'>location</th>
-                                    <th scope='col'>Total order amount</th>
-                                    <th scope='col'>Total order count</th>
-                                    <th scope='col'>Action</th>
+                                    <th style={{ textAlign: "center" }}  scope='col'>#</th>
+                                    <th style={{ textAlign: "center" }}  scope='col'>Username</th>
+                                    <th style={{ textAlign: "center" }}  scope='col'>Email</th>
+                                    <th style={{ textAlign: "center" }}  scope='col'>location</th>
+                                    <th style={{ textAlign: "center" }}  scope='col'>Total order amount</th>
+                                    <th style={{ textAlign: "center" }}  scope='col'>Total order count</th>
+                                    <th  style={{ textAlign: "center" }}  scope='col'>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {paginateUsers().map((user, index) => (
                                     <tr key={user.id}>
-                                        <th scope='row'>{index + 1 + (currentPage - 1) * rowsPerPage}</th>
+                                        <th  style={{ textAlign: "center" }} scope='row'>{index + 1 + (currentPage - 1) * rowsPerPage}</th>
                                         <td>{user.userName}</td>
                                         <td>{user.email}</td>
                                         <td>location</td>

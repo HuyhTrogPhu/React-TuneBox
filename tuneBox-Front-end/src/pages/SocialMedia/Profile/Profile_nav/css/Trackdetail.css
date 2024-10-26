@@ -77,7 +77,7 @@
 
 .btn {
     border: none; /* Bỏ viền */
-    background: none; /* Bỏ nền */
+ 
     cursor: pointer; /* Đổi con trỏ khi di chuột qua nút */
   }
 
