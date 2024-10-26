@@ -25,3 +25,9 @@ export const getRevenueBeforeCurrently = () => axios.get(`${REST_API_BASE_URL}/r
 
 // get statistical of day, week, month, year by instrument
 export const getStatisticalOfTime = () => axios.get(`${REST_API_BASE_URL}/instrument`);
+
+// get name and id instrument for statistical 
+export const getNameAndIdInstrument = () => axios.get(`${REST_API_BASE_URL}/instrumentForSta`);
+
+// get revenue instrument by instrument id
+export const getRevenueInstrumentByInstrumentId = (instrumentId) => axios.get(`${REST_API_BASE_URL}/revenue-instrument/${instrumentId}`);

@@ -672,7 +672,7 @@ const Activity = () => {
                   {post.images.map((image, index) => (
                     <img
                       key={index}
-                      src={`data:image/jpeg;base64,${image.postImage}`}
+                      src={image.images}
                       alt="Post"
                     />
                   ))}
@@ -701,7 +701,7 @@ const Activity = () => {
         onChange={(e) => handleCommentChange(post.id, e.target.value)}
       />
       <div className="text-end">
-        <button className="btn btn-primary mt-2" onClick={() => handleAddComment(post.id)}>
+        <button className="btn btn-outline-primary mt-2" onClick={() => handleAddComment(post.id)}>
           Comment
         </button>
         <button className="btn btn-secondary mt-2" onClick={() => setShowPicker(!showPicker)}>

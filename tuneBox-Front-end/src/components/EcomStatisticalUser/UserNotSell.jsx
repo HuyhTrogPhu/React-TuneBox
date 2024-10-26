@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getUserNotSell } from '../../service/EcommerceStatistical';
 import { Bar } from 'react-chartjs-2';
+import { Link } from 'react-router-dom';
 import {
   Chart as ChartJS,
   BarElement,
@@ -64,6 +65,7 @@ const UserNotSell = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Location</th>
                 <th style={{ textAlign: 'center' }} scope='col'>Total Order</th>
                 <th style={{ textAlign: 'center' }} scope='col'>Total Revenue</th>
+                <th style={{ textAlign: 'center' }} scope='col'>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -78,6 +80,7 @@ const UserNotSell = () => {
                     <td>{user.location}</td>
                     <td>{user.totalOrder} order</td>
                     <td>{(user.sumTotalPrice).toLocaleString('vi')} VND</td>
+                    <Link className='btn btn-outline-primary' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
                   </tr>
                 ))
               ) : (

@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Line } from 'react-chartjs-2';
+import { getRevenueBeforeCurrently, getRevenueCurrently } from '../../../service/EcommerceStatistical';
 
 const Statistical = () => {
 
@@ -195,21 +196,29 @@ const Statistical = () => {
 
                 {/* Chart revenue statistical */}
                 <section className='row mt-5 justify-content-between gap-3'>
-                    <div className='col-6'>
-                        <h6>Total revenue of the day: {(currentRevenue.revenueOfDay || 0).toLocaleString('vi')} VND</h6>
-                        <Line data={createChartData(currentRevenue.revenueOfDay, previousRevenue.revenueBeforeOfDay, 'Doanh thu Ngày')} />
+                    <div className='d-flex'>
+                        <div className='col-6'>
+                            <h6 className='pb-0'>Total revenue of the day: {(currentRevenue.revenueOfDay || 0).toLocaleString('vi')} VND</h6>
+                            <h6 className='pb-0'>Total revenue before of the day: {(previousRevenue.revenueBeforeOfDay || 0).toLocaleString('vi')} VND</h6>
+                            <Line className='mt-5' data={createChartData(currentRevenue.revenueOfDay, previousRevenue.revenueBeforeOfDay, 'Doanh thu Ngày')} />
+                        </div>
+                        <div className='col-6'>
+                            <h6 className='pb-0'>Total revenue of the week: {(currentRevenue.revenueOfWeek || 0).toLocaleString('vi')} VND</h6>
+                            <h6 className='pb-0'>Total revenue before of the week: {(previousRevenue.revenueBeforeOfWeek || 0).toLocaleString('vi')} VND</h6>
+                            <Line className='mt-5' data={createChartData(currentRevenue.revenueOfWeek, previousRevenue.revenueBeforeOfWeek, 'Doanh thu Tuần')} />
+                        </div>
                     </div>
-                    <div className='col-6'>
-                        <h6>Total revenue of the week: {(currentRevenue.revenueOfWeek || 0).toLocaleString('vi')} VND</h6>
-                        <Line data={createChartData(currentRevenue.revenueOfWeek, previousRevenue.revenueBeforeOfWeek, 'Doanh thu Tuần')} />
-                    </div>
-                    <div className='col-6'>
-                        <h6>Total revenue of the month: {(currentRevenue.revenueOfMonth || 0).toLocaleString('vi')} VND</h6>
-                        <Line data={createChartData(currentRevenue.revenueOfMonth, previousRevenue.revenueBeforeOfMonth, 'Doanh thu Tháng')} />
-                    </div>
-                    <div className='col-6'>
-                        <h6>Total revenue of the year: {(currentRevenue.revenueOfYear || 0).toLocaleString('vi')} VND</h6>
-                        <Line data={createChartData(currentRevenue.revenueOfYear, previousRevenue.revenueBeforeOfYear, 'Doanh thu Năm')} />
+                    <div className='d-flex'>
+                        <div className='col-6'>
+                            <h6 className='pb-0'>Total revenue of the month: {(currentRevenue.revenueOfMonth || 0).toLocaleString('vi')} VND</h6>
+                            <h6 className='pb-0'>Total revenue before of the month: {(previousRevenue.revenueBeforeOfMonth || 0).toLocaleString('vi')} VND</h6>
+                            <Line className='mt-5' data={createChartData(currentRevenue.revenueOfMonth, previousRevenue.revenueBeforeOfMonth, 'Doanh thu Tháng')} />
+                        </div>
+                        <div className='col-6'>
+                            <h6 className='pb-0'>Total revenue of the year: {(currentRevenue.revenueOfYear || 0).toLocaleString('vi')} VND</h6>
+                            <h6 className='pb-0'>Total revenue of the year: {(previousRevenue.revenueBeforeOfYear || 0).toLocaleString('vi')} VND</h6>
+                            <Line className='mt-5' data={createChartData(currentRevenue.revenueOfYear, previousRevenue.revenueBeforeOfYear, 'Doanh thu Năm')} />
+                        </div>
                     </div>
                 </section>
 
