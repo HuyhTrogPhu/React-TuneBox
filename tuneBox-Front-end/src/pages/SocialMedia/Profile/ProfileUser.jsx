@@ -1,77 +1,89 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { Link, Routes, Route, Navigate } from "react-router-dom";
+import { Link, Routes, Route } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
 import Playlists from "./Profile_nav/Playlists";
+import { getUserInfo, getFriendCount } from "../../../service/UserService"; // Nhập hàm lấy số lượng bạn bè
 import "./css/profile.css";
 import "./css/post.css";
 import "./css/button.css";
 import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
-import { fetchDataUser } from "./js/ProfileJS";
-
+import { FollowContext } from "./FollowContext";
 const ProfileUser = () => {
-  const value = Cookies.get("UserID");
+  const userIdCookie = Cookies.get("userId");
+  const { followCounts } = useContext(FollowContext);
   const [userData, setUserData] = useState({});
-  const [followerCount, setFollowerCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
+  const [followCount, setFollowCount] = useState({
+    followerCount: 0,
+    followingCount: 0,
+  });
+  const [friendCount, setFriendCount] = useState(0); // Trạng thái lưu số lượng bạn bè
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchDataAndRender = async () => {
-      const response = await fetchDataUser(value);
-      if (response && response.data) {
-        setUserData(response.data);
+    const fetchUser = async () => {
+      if (userIdCookie) {
+        try {
+          const userData = await getUserInfo(userIdCookie);
+          setUserData(userData);
+          console.log("User data fetched from API:", userData);
+
+          // Lấy số lượng bạn bè
+          const count = await getFriendCount(userIdCookie);
+          console.log("Fetched friend count:", count); // Log giá trị friend count
+          setFriendCount(count); // Cập nhật số lượng bạn bè
+          console.log("Updated friend count state:", count); // Log trạng thái bạn bè
+        } catch (error) {
+          console.error("Error fetching user", error);
+        }
       }
     };
 
-    fetchDataAndRender();
-  }, [value]);
+    fetchUser();
+  }, [userIdCookie]);
 
   useEffect(() => {
-    if (userData.followers) {
-      setFollowerCount(userData.followers.length);
-    }
-    if (userData.following) {
-      setFollowingCount(userData.following.length);
-    }
-  }, [userData]);
+    const counts = followCounts[userIdCookie] || {
+      followerCount: 0,
+      followingCount: 0,
+    };
+    setFollowCount(counts);
+    console.log("Updated follow counts:", counts);
+  }, [followCounts, userIdCookie]);
 
   return (
-    <div className="">
+    <div className="container">
+      {/* Background */}
+
       <div
         className="background border container"
         style={{
-          backgroundImage: "url(/src/UserImages/Background/anime-girl.jpg)",
+          backgroundImage: `url(${
+            userData.background || "/src/UserImages/Background/default-bg.jpg"
+          })`,
         }}
       />
       <div className="row container">
         <aside className="col-sm-3">
           <div>
+            {/* Avatar */}
             <img
-              src="/src/UserImages/Avatar/avt.jpg"
+              src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
               className="avatar"
               alt="avatar"
             />
-            <div className="fs-4 text-small mt-3">
-              <b>{userData.userNickname}</b>
-            </div>
-            <div>{userData.userName}</div>
           </div>
           <div className="row mt-4">
-            <div className="col text-start">
-              <button type="button" style={{ width: 180 }} className="btn btn-dark">
-                <img
-                  alt="leverup"
-                  src={images.level_up}
-                  width="20px"
-                  height="20px"
-                  style={{ marginRight: 20 }}
-                />
-                <b>Get Prime</b>
-              </button>
+            <div className="col">
+              <div className="fs-4 text-small">
+                <b>{userData.name}</b>
+              </div>
+              <div className="">{userData.userName}</div>
             </div>
             <div className="col text-end">
               <Link to="/ProfileSetting">
@@ -86,67 +98,97 @@ const ProfileUser = () => {
               </Link>
             </div>
           </div>
+          {/* Display follower, following, and friend counts */}
           <div className="row mt-4">
             <div className="col text-center">
-              <span>{followerCount}</span> <br />
-              <span>Follower</span>
+              <Link to={`/Follower/${userIdCookie}`}>
+                <span>{followCount.followerCount}</span> <br />
+                <span>Follower</span>
+              </Link>
             </div>
             <div className="col text-center">
-              <span>{followingCount}</span> <br />
-              <span>Following</span>
+              <Link to={`/Following/${userIdCookie}`}>
+                <span>{followCount.followingCount}</span> <br />
+                <span>Following</span>
+              </Link>
+            </div>
+            <div className="col text-center">
+              <Link to={`/FriendList/${userIdCookie}`}>
+                <span>{friendCount}</span> <br />
+                <span>Friends</span>
+              </Link>
             </div>
           </div>
+          {/* Display InspiredBy, Talent, and Genre */}
           <div style={{ paddingTop: 30 }}>
-            <label>Nghệ sĩ ưu thích</label> <br />
+            <label>InspiredBy</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
-              userData.inspiredBy.map((Mapdata) => (
-                <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
-                  {Mapdata.name}
+              userData.inspiredBy.map((name, index) => (
+                <span
+                  key={index}
+                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
+                >
+                  {name}
                 </span>
               ))
             ) : (
-              <p>Không có nghệ sĩ ưu thích nào.</p>
+              <p>No favorite artists.</p>
             )}
             <br />
-            <label>Sở trường</label> <br />
+            <label>Talent</label> <br />
             {userData.talent && userData.talent.length > 0 ? (
-              userData.talent.map((Mapdata) => (
-                <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
-                  {Mapdata.name}
+              userData.talent.map((name, index) => (
+                <span
+                  key={index}
+                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
+                >
+                  {name}
                 </span>
               ))
             ) : (
-              <p>Chưa chọn sở trường.</p>
+              <p>No talents selected.</p>
             )}
             <br />
-            <label>Dòng nhạc ưu thích</label> <br />
+            <label>Genre</label> <br />
             {userData.genre && userData.genre.length > 0 ? (
-              userData.genre.map((Mapdata) => (
-                <span key={Mapdata.id} className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1">
-                  {Mapdata.name}
+              userData.genre.map((name, index) => (
+                <span
+                  key={index}
+                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
+                >
+                  {name}
                 </span>
               ))
             ) : (
-              <p>Không có dòng nhạc ưu thích nào.</p>
+              <p>No favorite genres.</p>
             )}
           </div>
         </aside>
-        <div className="col-sm-9 d-flex flex-column ">
+
+        <div className="col-sm-9 d-flex flex-column">
           <nav className="nav flex-column flex-md-row p-5">
-            <Link to="activity" className="nav-link">Activity</Link>
-            <Link to="track" className="nav-link">Track</Link>
-            <Link to="albums" className="nav-link">Albums</Link>
-            <Link to="playlists" className="nav-link">Playlists</Link>
+            <Link to="activity" className="nav-link">
+              Activity
+            </Link>
+            <Link to="track" className="nav-link">
+              Track
+            </Link>
+            <Link to="albums" className="nav-link">
+              Albums
+            </Link>
+            <Link to="playlists" className="nav-link">
+              Playlists
+            </Link>
           </nav>
-          <article className="p-5">
+
+          <div className="container">
             <Routes>
               <Route path="activity" element={<Activity />} />
               <Route path="track" element={<Track />} />
               <Route path="albums" element={<Albums />} />
               <Route path="playlists" element={<Playlists />} />
-              <Route path="/" element={<Navigate to="activity" />} />
             </Routes>
-          </article>
+          </div>
         </div>
       </div>
     </div>

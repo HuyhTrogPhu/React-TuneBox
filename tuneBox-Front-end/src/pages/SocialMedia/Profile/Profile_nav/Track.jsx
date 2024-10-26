@@ -10,11 +10,10 @@ const Track = () => {
   const [tracks, setTracks] = useState([]); // State luu track
   const [userName, setUserName] = useState(""); // State cho username
   const [selectedTrack, setSelectedTrack] = useState(null); // State cho track duoc chon
-  const userId = Cookies.get("UserID"); // Lay userId tu cookies
+  const userId = Cookies.get("userId"); // Lay userId tu cookies
 
   const [genres, setGenres] = useState([]); // Store the list of genres
   const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
-
 
   useEffect(() => {
     fetchGenre(); // Fetch genres when the component mounts
@@ -247,8 +246,7 @@ const Track = () => {
               <form className="row">
                 {/* Track Name */}
                 <div className="mb-3">
-                  <label className="form-label">Track Name
-                  </label>
+                  <label className="form-label">Track Name</label>
                   <input
                     type="text"
                     className="form-control"

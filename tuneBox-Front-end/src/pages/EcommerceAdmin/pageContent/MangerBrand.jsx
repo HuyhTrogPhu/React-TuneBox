@@ -16,7 +16,7 @@ const MangerBrand = () => {
   const [countdown, setCountdown] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState('asc');
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const navigator = useNavigate();
 
   const getAllBrand = () => {
@@ -36,23 +36,23 @@ const MangerBrand = () => {
     let valid = true;
     const errorsCopy = { ...errors };
 
-     // Kiểm tra tên thương hiệu
-     if (!newBrandName.trim()) {
+    // Kiểm tra tên thương hiệu
+    if (!newBrandName.trim()) {
       errorsCopy.newBrandName = 'Brand name is required';
       valid = false;
-  } else {
+    } else {
       // Kiểm tra trùng tên thương hiệu
       const isDuplicate = brands.some(
-          (brand) => brand.name.toLowerCase() === newBrandName.toLowerCase()
+        (brand) => brand.name.toLowerCase() === newBrandName.toLowerCase()
       );
 
       if (isDuplicate) {
-          errorsCopy.newBrandName = 'Brand name must be unique';
-          valid = false;
+        errorsCopy.newBrandName = 'Brand name must be unique';
+        valid = false;
       } else {
-          errorsCopy.newBrandName = ''; // Nếu không trùng, xóa thông báo lỗi
+        errorsCopy.newBrandName = ''; // Nếu không trùng, xóa thông báo lỗi
       }
-  }
+    }
     if (!newBrandImage) {
       errorsCopy.newBrandImage = 'Brand image is required';
       valid = false;
@@ -248,13 +248,13 @@ const MangerBrand = () => {
                   Close
                 </button>
                 <button type="button" className="btn btn-primary" onClick={handleSave}>
-                {loading ? (
-                  <span>
-                    <i className="fa fa-spinner fa-spin" /> Saving...
-                  </span>
-                ) : (
-                  "Save"
-                )}
+                  {loading ? (
+                    <span>
+                      <i className="fa fa-spinner fa-spin" /> Saving...
+                    </span>
+                  ) : (
+                    "Save"
+                  )}
                 </button>
               </div>
             </div>

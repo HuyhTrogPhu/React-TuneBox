@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import '../../../pages/Ecommerce/Shop/Shop.css'
 import Footer2 from '../../../components/Footer/Footer2'
+import Benefits from '../../../components/Benefits/Benefits'
 import { images } from '../../../assets/images/images'
 import { listCategories, listInstruments, listBrands } from '../../../service/EcommerceHome'
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +15,6 @@ const Shop = () => {
   const itemsPerPage = 12; // Số sản phẩm hiển thị trên mỗi trang
 
 
-
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [minPrice, setMinPrice] = useState('');
@@ -22,6 +22,17 @@ const Shop = () => {
   const [sortOrder, setSortOrder] = useState(''); // 'asc' cho giá thấp nhất, 'desc' cho giá cao nhất
 
   const [filteredInstruments, setFilteredInstruments] = useState([]);
+
+  // Tạo trạng thái để lưu trữ trạng thái mở/đóng cho từng accordion
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
+  const [isPriceOpen, setIsPriceOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
+  // Hàm toggle cho các accordion
+  const toggleBrandAccordion = () => setIsBrandOpen(!isBrandOpen);
+  const togglePriceAccordion = () => setIsPriceOpen(!isPriceOpen);
+  const toggleCategoryAccordion = () => setIsCategoryOpen(!isCategoryOpen);
+
 
   const navigate = useNavigate();
   // Fetch dữ liệu từ API khi component được mount
@@ -87,12 +98,15 @@ const Shop = () => {
   const handleSort = (order) => {
     setSortOrder(order);
   };
+
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
     if (quantity === 0) return 'Hết hàng';
     if (quantity > 0 && quantity <= 5) return 'Sắp hết hàng';
     return 'Còn hàng';
   };
+
+  
   useEffect(() => {
     const filtered = instruments.filter(instrument => {
       // Lọc theo trạng thái
@@ -123,11 +137,17 @@ const Shop = () => {
       return true;
     })
       .sort((a, b) => {
-        if (sortOrder === 'asc') {
+        if (sortOrder === 'priceAsc') {
           return parseFloat(a.costPrice) - parseFloat(b.costPrice);
         }
-        if (sortOrder === 'desc') {
+        if (sortOrder === 'priceDesc') {
           return parseFloat(b.costPrice) - parseFloat(a.costPrice);
+        }
+        if (sortOrder === 'nameAsc') {
+          return a.name.localeCompare(b.name);
+        }
+        if (sortOrder === 'nameDesc') {
+          return b.name.localeCompare(a.name);
         }
         return 0;
       });
@@ -149,16 +169,21 @@ const Shop = () => {
         <div className="content">
           <div className="row">
             <div className="col-3 phamloai">
+              {/* Filter */}
               <div className="accordion" id="accordionPanelsStayOpenExample">
-                {/* Khung tim kiem theo thuong hieu */}
+                {/* Khung tìm kiếm theo thương hiệu */}
                 <div className="accordion" id="accordionExample">
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      <button
+                        className={`accordion-button ${isBrandOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={toggleBrandAccordion}
+                      >
                         Thương hiệu
                       </button>
                     </h2>
-                    <div id="collapseOne" className="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isBrandOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
                         {brands.length > 0 ? (
                           brands.map((brand) => (
@@ -168,7 +193,6 @@ const Shop = () => {
                                 className="form-check-input"
                                 value={brand.name}
                                 onChange={() => handleBrandChange(brand.name)}
-
                               />
                               <label className="form-check-label">{brand.name}</label>
                             </div>
@@ -177,16 +201,20 @@ const Shop = () => {
                           <p>Không có thương hiệu nào</p>
                         )}
                       </div>
-
                     </div>
                   </div>
+
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      <button
+                        className={`accordion-button ${isPriceOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={togglePriceAccordion}
+                      >
                         Mức giá
                       </button>
                     </h2>
-                    <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isPriceOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
                         <div className="input-group mb-3">
                           <input
@@ -211,18 +239,22 @@ const Shop = () => {
                           </button>
                         </div>
                       </div>
-
                     </div>
                   </div>
+
                   <div className="accordion-item">
                     <h2 className="accordion-header">
-                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      <button
+                        className={`accordion-button ${isCategoryOpen ? '' : 'collapsed'}`}
+                        type="button"
+                        onClick={toggleCategoryAccordion}
+                      >
                         Loại sản phẩm
                       </button>
                     </h2>
-                    <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div className={`accordion-collapse collapse ${isCategoryOpen ? 'show' : ''}`}>
                       <div className="accordion-body">
-                        {/* check box */}
+                        {/* checkbox */}
                         {categories.map((cate) => (
                           <div className="form-check" key={cate.id}>
                             <input
@@ -230,21 +262,16 @@ const Shop = () => {
                               className="form-check-input"
                               value={cate.name}
                               onChange={() => handleCategoryChange(cate.name)} // Gọi hàm handleCategoryChange
-
                             />
-                            <label  className="form-check-label">{cate.name}</label>
+                            <label className="form-check-label">{cate.name}</label>
                           </div>
-
-                        ))
-
-                        }
-
+                        ))}
                       </div>
-
                     </div>
                   </div>
                 </div>
               </div>
+
             </div>
             {/* sanPham */}
             <div className="col-9 mt-3">
@@ -252,38 +279,17 @@ const Shop = () => {
               {/* Sort */}
 
               <div className="row">
-                <div className="custom-dropdown">
-                  <button className="btn custom-dropdown-toggle border mb-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i className="fa-solid fa-filter"></i>
-                  </button>
-                  <ul className="custom-dropdown-menu">
-                    <li>
-                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName(''); setSortByPrice(''); setCurrentPage(1); }}>
-                        Default
-                      </button>
-                    </li>
-                    <li>
-                      <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('asc'); setSortByName(''); setCurrentPage(1); }}>
-                        Price: Low to high
-                      </button>
-                    </li>
-                    <li>
-                      <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('desc'); setSortByName(''); setCurrentPage(1); }}>
-                        Price: High to low
-                      </button>
-                    </li>
-                    <li>
-                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName('asc'); setSortByPrice(''); setCurrentPage(1); }}>
-                        Name: A to Z
-                      </button>
-                    </li>
-                    <li>
-                      <button className="btn custom-dropdown-item" onClick={() => { setSortByName('desc'); setSortByPrice(''); setCurrentPage(1); }}>
-                        Name: Z to A
-                      </button>
-                    </li>
+                <div className='col-9'>Total product</div>
 
-                  </ul>
+                <div className='col-3'>
+                  <select className="form-select" onChange={(e) => handleSort(e.target.value)}>
+                    <option value="" selected>Default</option>
+                    <option value="priceAsc">Price: Low to high</option>
+                    <option value="priceDesc">Price: High to low</option>
+                    <option value="nameAsc">Name: A to Z</option>
+                    <option value="nameDesc">Name: Z to A</option>
+                  </select>
+
                 </div>
               </div>
 
@@ -352,6 +358,7 @@ const Shop = () => {
           </div>
         </div>
       </div>
+      <Benefits />
       <Footer2 />
     </div>
 

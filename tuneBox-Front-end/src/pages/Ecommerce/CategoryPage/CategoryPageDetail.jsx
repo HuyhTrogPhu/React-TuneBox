@@ -3,8 +3,8 @@ import Bebefits from '../../../components/Benefits/Benefits'
 import Footer2 from '../../../components/Footer/Footer2'
 import './CategoryPageDetail.css'
 import { useLocation } from 'react-router-dom';
-import {  listBrands, listCategories, listInstrumentsByCategory } from '../../../service/InstrumentServiceCus';
-
+import { listBrands, listCategories, listInstrumentsByCategory } from '../../../service/InstrumentServiceCus';
+import { Link } from 'react-router-dom';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -17,7 +17,6 @@ const CategoryPageDetail = () => {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const imageBase64Prefix = "data:image/png;base64,";
   const [instruments, setInstruments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -27,7 +26,14 @@ const CategoryPageDetail = () => {
   const [sortByName, setSortByName] = useState('desc');
 
   const categoryId = category.id;
-
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
+  const [isPriceOpen, setIsPriceOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const toggleBrandAccordion = () => setIsBrandOpen(!isBrandOpen);
+  const togglePriceAccordion = () => setIsPriceOpen(!isPriceOpen);
+  const toggleCategoryAccordion = () => setIsCategoryOpen(!isCategoryOpen);
+  
+  const [selectedBrands, setSelectedBrands] = useState([]);
   useEffect(() => {
     const fetchBrands = async () => {
       try {
@@ -43,7 +49,7 @@ const CategoryPageDetail = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await listCategories
+        const response = await listCategories();
         setCategories(response); // response đã là danh sách id và name
       } catch (error) {
         console.error("Error fetching categories", error);
@@ -51,10 +57,6 @@ const CategoryPageDetail = () => {
     };
     fetchCategories();
   }, []);
-
-
-
-
 
 
   useEffect(() => {
@@ -91,30 +93,23 @@ const CategoryPageDetail = () => {
   const sortInstruments = (instrumentsToSort) => {
     let sorted = [...instrumentsToSort];
 
-    // Sort by price
+    // Chỉ sắp xếp theo giá nếu được chọn
     if (sortByPrice) {
       sorted = sorted.sort((a, b) => {
-        if (sortByPrice === 'asc') {
-          return a.costPrice - b.costPrice;
-        } else {
-          return b.costPrice - a.costPrice;
-        }
+        return sortByPrice === 'asc' ? a.costPrice - b.costPrice : b.costPrice - a.costPrice;
       });
     }
 
-    // Sort by name
+    // Chỉ sắp xếp theo tên nếu được chọn
     if (sortByName) {
       sorted = sorted.sort((a, b) => {
-        if (sortByName === 'asc') {
-          return a.name.localeCompare(b.name);
-        } else {
-          return b.name.localeCompare(a.name);
-        }
+        return sortByName === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
       });
     }
 
     return sorted;
   };
+
 
 
   const getCurrentInstruments = () => {
@@ -132,6 +127,78 @@ const CategoryPageDetail = () => {
   const currentInstruments = getCurrentInstruments();
   const filteredInstruments = filterInstruments();
   const noResults = filteredInstruments.length === 0;
+
+  //lọc theo giá
+  const handlePriceFilter = () => {
+    if (minPrice !== '' && maxPrice !== '' && parseFloat(minPrice) > parseFloat(maxPrice)) {
+      alert('Giá tối thiểu không được lớn hơn giá tối đa');
+      return;
+    }
+
+
+  };
+  const handleSort = (order) => {
+    switch (order) {
+      case 'priceAsc':
+        setSortByPrice('asc');
+        setSortByName('');  // Clear name sorting
+        break;
+      case 'priceDesc':
+        setSortByPrice('desc');
+        setSortByName('');  // Clear name sorting
+        break;
+      case 'nameAsc':
+        setSortByPrice('');  // Clear price sorting
+        setSortByName('asc');
+        break;
+      case 'nameDesc':
+        setSortByPrice('');  // Clear price sorting
+        setSortByName('desc');
+        break;
+      default:
+        setSortByPrice('');
+        setSortByName('');
+    }
+  };
+
+  //lọc theo sản phẩm và loại
+  const handleBrandChange = (brandName) => {
+    setSelectedBrands(prev => {
+      const updatedBrands = prev.includes(brandName) ? prev.filter(b => b !== brandName) : [...prev, brandName];
+      console.log("Updated Selected Brands:", updatedBrands);
+      return updatedBrands;
+    });
+  };
+  useEffect(() => {
+    const filtered = instruments.filter(instrument => {
+      // Lọc theo trạng thái
+      if (instrument.status === true) {
+        return false;
+      }
+
+      // Lọc theo thương hiệu
+      if (selectedBrands.length > 0 && !selectedBrands.includes(instrument.brand.name)) {
+        console.log(`Filtered out by brand: ${instrument.brand.name}`);
+        return false;
+      }
+
+
+
+      // Lọc theo khoảng giá
+      if (minPrice !== '' && parseFloat(instrument.costPrice) < parseFloat(minPrice)) {
+        return false;
+      }
+      if (maxPrice !== '' && parseFloat(instrument.costPrice) > parseFloat(maxPrice)) {
+        return false;
+      }
+
+      return true;
+    })
+     
+
+    console.log("Filtered Instruments:", filtered);
+  
+  }, [instruments, selectedBrands, minPrice, maxPrice]);
 
 
   return (
@@ -162,100 +229,47 @@ const CategoryPageDetail = () => {
           <div className='col-3 phamloai'>
             <div className="accordion" id="accordionExample">
 
-              {/* Sort by price */}
-              <div className='accordion-item'>
-                <h2 className='accordion-header'>
-                  <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                    Pirce
+              
+
+
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button
+                    className={`accordion-button ${isPriceOpen ? '' : 'collapsed'}`}
+                    type="button"
+                    onClick={togglePriceAccordion}
+                  >
+                    Mức giá
                   </button>
                 </h2>
-
-                <div id="collapseOne" className="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                <div className={`accordion-collapse collapse ${isPriceOpen ? 'show' : ''}`}>
                   <div className="accordion-body">
-
                     <div className="input-group mb-3">
                       <input
-                        type="number"
+                        type="text"
                         className="form-control rounded-3"
                         placeholder="Giá thấp nhất"
                         value={minPrice}
                         onChange={(e) => setMinPrice(e.target.value)}
-                        min="0"
                       />
                       <span style={{ marginLeft: 10, marginRight: 10, marginTop: 6 }}>-</span>
                       <input
-                        type="number"
+                        type="text"
                         className="form-control rounded-3"
                         placeholder="Giá cao nhất"
                         value={maxPrice}
                         onChange={(e) => setMaxPrice(e.target.value)}
-                        min="0"
                       />
                     </div>
-
                     <div className="d-grid">
-                      <button className="btn btn-warning" type="button" onClick={handleFilter}>
-                        Submit
+                      <button className="btn btn-warning" type="button" onClick={handlePriceFilter}>
+                        Áp dụng
                       </button>
                     </div>
-
                   </div>
                 </div>
               </div>
 
-              {/* Sort by brand */}
-              <div className="accordion-item">
-                <h2 className="accordion-header">
-                  <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    Brands
-                  </button>
-                </h2>
-                <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                  <div className="accordion-body">
-
-                    {/* Search */}
-                    <form action="" className="p-3">
-                      <div className="input-group mb-3 mt-3">
-                        <input
-                          className="form-control m-0"
-                          placeholder="Enter keyword"
-                          value={searchTerm} // Gán giá trị cho input
-                          onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật giá trị searchTerm
-                        />
-
-                        <button className="btn border" type="submit">
-                          <i className="fa-solid fa-magnifying-glass" />
-                        </button>
-                      </div>
-                    </form>
-                    <div className='mt-3'>
-                      {brands.map((brand) => (
-                        <input type="checkbox" key={brand.id} value={brand.name}/>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sort by category */}
-              <div className='accordion-item'>
-                <div className='accordion-header'>
-                  <h2 className="accordion-header">
-                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                      Categories
-                    </button>
-                  </h2>
-                </div>
-                <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                  <div className="accordion-body">
-                    <div className='mt-3'>
-                      {categories.map((category) => (
-                        <input type="checkbox" key={category.id} value={category.name}/>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
 
 
 
@@ -263,41 +277,21 @@ const CategoryPageDetail = () => {
             </div>
           </div>
 
-          <div className='col-9'>
+          <div className='col-9 mt-3'>
             {/* Sort */}
             <div className="row">
-              <div className="custom-dropdown">
-                <button className="btn custom-dropdown-toggle btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Sort by:
-                </button>
-                <ul className="custom-dropdown-menu">
-                  <li>
-                    <button className="btn custom-dropdown-item" onClick={() => { setSortByName(''); setSortByPrice(''); setCurrentPage(1); }}>
-                      Default
-                    </button>
-                  </li>
-                  <li>
-                    <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('asc'); setSortByName(''); setCurrentPage(1); }}>
-                      Price: Low to high
-                    </button>
-                  </li>
-                  <li>
-                    <button className="btn custom-dropdown-item" onClick={() => { setSortByPrice('desc'); setSortByName(''); setCurrentPage(1); }}>
-                      Price: High to low
-                    </button>
-                  </li>
-                  <li>
-                    <button className="btn custom-dropdown-item" onClick={() => { setSortByName('asc'); setSortByPrice(''); setCurrentPage(1); }}>
-                      Name: A to Z
-                    </button>
-                  </li>
-                  <li>
-                    <button className="btn custom-dropdown-item" onClick={() => { setSortByName('desc'); setSortByPrice(''); setCurrentPage(1); }}>
-                      Name: Z to A
-                    </button>
-                  </li>
+              <div className='col-9'>Total product</div>
 
-                </ul>
+              <div className='col-3'>
+                <select className="form-select" onChange={(e) => handleSort(e.target.value)}>
+                  <option value="">Default</option>
+                  <option value="priceAsc">Price: Low to high</option>
+                  <option value="priceDesc">Price: High to low</option>
+                  <option value="nameAsc">Name: A to Z</option>
+                  <option value="nameDesc">Name: Z to A</option>
+                </select>
+
+
               </div>
             </div>
 
@@ -322,20 +316,30 @@ const CategoryPageDetail = () => {
 
 
                     return (
-                      <div className='col-3 mb-4' key={instrument.id}>
-                          <img
-                            src={instrument.image}
-                            alt={instrument.name}
-                            style={{ width: '100px', margin: '0 5px' }}
-                          />
-                        
-                        <h5 className='card-title2'>{instrument.name}</h5>
-                        <p className='card-price'>
-                          {instrument.costPrice.toLocaleString()}đ
-                        </p>
-                        <p className='cord-stock-status'>{stockStatus}</p>
-                        <button className='btn btn-primary mt-3 card-button2'>View detail</button>
-                      </div>
+                      <div className="col-3 mb-4" key={instrument.id}>
+
+                      <Link to={{
+                        pathname: `/DetailProduct/${instrument.id}`,
+                        state: { instrument }
+                      }} className="card-link">
+                        <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                          <div className="card-img-wrapper">
+                            <img
+                              src={instrument.image}
+                              className="card-img-top"
+                              alt={instrument.name}
+                            />
+                          </div>
+                          <div className="card-body text-center">
+                            <p className="card-title">{instrument.name}</p>
+                            <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                            <p className="card-status">{stockStatus}</p>
+                          </div>
+
+                        </div>
+                      </Link>
+                    </div>
+                      
                     );
                   })
                 )}
