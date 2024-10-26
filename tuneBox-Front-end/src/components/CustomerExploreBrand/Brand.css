@@ -35,3 +35,35 @@
 .mb-3 {
     margin-bottom: 1rem !important;
 }
+.hr-100 {
+    width: 100%;
+    border: 1px solid #ddd;
+  }
+  
+  .brand-container .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .brand-container .col-lg-2, 
+  .brand-container .col-md-2, 
+  .brand-container .col-sm-4 {
+    flex: 1 1 16%; /* Đảm bảo các phần tử có kích thước cố định và đều nhau */
+    margin: 10px;
+    max-width: 150px;
+  }
+  
+  .brand-container img {
+    width: 100%;
+    height: 100px; /* Đặt chiều cao cố định cho ảnh */
+    object-fit: contain; /* Giữ tỉ lệ hình ảnh mà không bị méo */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .brand-container p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+  }

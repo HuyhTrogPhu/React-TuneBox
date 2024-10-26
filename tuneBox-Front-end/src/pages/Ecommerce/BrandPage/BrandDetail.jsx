@@ -148,20 +148,25 @@ const BrandDetail = () => {
 
             <div className="col-9 mt-3">
               <div className="row">
-                <div className="custom-dropdown">
-                  <button className="btn custom-dropdown-toggle btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Sắp xếp
-                  </button>
-                  <ul className="custom-dropdown-menu">
-                    <li>
-                      <button className="btn custom-dropdown-item" onClick={() => { setSortOrder('asc'); setCurrentPage(1); }}>Giá thấp nhất</button>
-                    </li>
-                    <li>
-                      <button className="btn custom-dropdown-item" onClick={() => { setSortOrder('desc'); setCurrentPage(1); }}>Giá cao nhất</button>
-                    </li>
-                  </ul>
+                <div className='col-9'>Total product</div>
+                <div className="col-3">
+                  <div className="custom-dropdown">
+                    <button className="btn custom-dropdown-toggle btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Sắp xếp
+                    </button>
+                    <ul className="custom-dropdown-menu">
+                      <li>
+                        <button className="btn custom-dropdown-item" onClick={() => { setSortOrder('asc'); setCurrentPage(1); }}>Giá thấp nhất</button>
+                      </li>
+                      <li>
+                        <button className="btn custom-dropdown-item" onClick={() => { setSortOrder('desc'); setCurrentPage(1); }}>Giá cao nhất</button>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
+
               </div>
+
 
               <div className="sanPham mt-2">
                 <div className="row">
@@ -182,27 +187,27 @@ const BrandDetail = () => {
                       }
 
                       return (
-                      
 
-                          <div className="col-3 mb-4" key={instrument.id}>
-                            <a href={`/DetailProduct/${instrument.id}`} className="card-link">
-                              <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
-                                <div className="card-img-wrapper">
-                                  <img
-                                    src={instrument.image}
-                                    className="card-img-top"
-                                    alt={instrument.name}
-                                  />
-                                </div>
-                                <div className="card-body text-center">
-                                  <p className="card-title">{instrument.name}</p>
-                                  <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
-                                  <p className="card-status">{stockStatus}</p>
-                                </div>
+
+                        <div className="col-3 mb-4" key={instrument.id}>
+                          <a href={`/DetailProduct/${instrument.id}`} className="card-link">
+                            <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                              <div className="card-img-wrapper">
+                                <img
+                                  src={instrument.image}
+                                  className="card-img-top"
+                                  alt={instrument.name}
+                                />
                               </div>
-                            </a>
-                          </div>
-                       
+                              <div className="card-body text-center">
+                                <p className="card-title">{instrument.name}</p>
+                                <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                                <p className="card-status">{stockStatus}</p>
+                              </div>
+                            </div>
+                          </a>
+                        </div>
+
                       );
                     })
                   )}

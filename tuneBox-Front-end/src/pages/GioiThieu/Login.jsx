@@ -66,7 +66,7 @@ const Login = () => {
 
       if (userId !== undefined && userId !== null) {
         const expires = new Date();
-        expires.setTime(expires.getTime() + 3 * 24 * 60 * 60 * 1000);  // Cookie tồn tại trong 3 ngày
+        expires.setTime(expires.getTime() +  24 * 60 * 60 * 1000);  // Cookie tồn tại trong 1 ngày
         document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
         console.log('Cookie userId set:', document.cookie);
       } else {
@@ -96,7 +96,7 @@ const Login = () => {
         <div className="section-overlay" />
         <div className="container">
           <div className="row">
-            <div className="col-lg-6 col-10 mx-auto">
+            <div className="colcol-10-lg-6  mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
@@ -138,7 +138,7 @@ const Login = () => {
                     </span>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
-                    <Link to="/forgot-password" className="text-primary">
+                    <Link to="/forgot-password2" className="text-primary">
                       <b>Quên mật khẩu?</b>
                     </Link>
                   </div>

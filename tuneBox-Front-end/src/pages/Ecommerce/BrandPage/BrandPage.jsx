@@ -104,7 +104,10 @@ const BrandPage = () => {
             </div>
           )}
       </div>
+      <div style={{marginTop: '520px'}}>
       <Footer2 />
+      </div>
+    
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { icons } from '../../assets/icon/icon';
 import './Category.css'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { listCategories } from '../../service/EcommerceHome';
 
 
@@ -13,7 +13,7 @@ import { listCategories } from '../../service/EcommerceHome';
 const Category = () => {
 
   const [categoryList, setCategoryList] = useState([]);
-
+  const navigate = useNavigate();
   const settings = {
     speed: 500,
     slidesToShow: 6,
@@ -26,12 +26,17 @@ const Category = () => {
 
   function getListCategory() {
     listCategories().then((response) => {
-      setCategoryList(response.data);
+      const filterCate = response.data.filter(category => category.status === false)
+      setCategoryList(filterCate);
       console.log(response.data);
     }).catch((error) => {
       console.error("Error fetching category", error);
     })
   }
+  const handleCategory = (category) => {
+    console.log("Get category with ID:", category.id);
+    navigate('/InstrumentBelongCategory', { state: { category } });
+  };
 
 
   return (
@@ -47,13 +52,16 @@ const Category = () => {
             <Slider {...settings}>
               {categoryList.map((category) => (
                 <div className="item" key={category.id}>
-                  <Link to={`/CategoryPage/${category.id}`}> {/* Thay đổi đường dẫn đến chi tiết danh mục */}
-                    <img alt={category.name} className=""
+                  <div  onClick={() => handleCategory(category)}> 
+                   <a href=''>
+                   <img alt={category.name} className=""
                       src={category.image}
                       style={{ width: '50px' }}
                     />
                     <h5>{category.name}</h5>
-                  </Link>
+                   </a>
+                    
+                  </div>
                 </div>
               ))}
             </Slider>

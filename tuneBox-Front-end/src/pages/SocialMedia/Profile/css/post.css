@@ -56,6 +56,15 @@
     font-size: 0.9rem; 
 }
 
+.post-header-track .no-border {
+  border: none;
+  background: transparent; /*nền trong suốt */
+}
+
+.dropdown-item {
+  font-size: 13px;
+}
+
 .post-header-track .info {
     display: flex;
     flex-direction: column;
@@ -79,6 +88,18 @@
   margin-right: 15px; 
   padding: 10px;
 }
+.post-images {
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 10px; 
+}
+
+.post-images img {
+  max-width: 100%; 
+  height: auto; 
+  border-radius: 5px; 
+}
+
 
 
 

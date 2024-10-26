@@ -25,11 +25,14 @@ const Genre = () => {
   const fetchGenre = async () => {
     try {
       const response = await listGenres();
+      console.log("Fetched genres:", response.data); // Kiểm tra dữ liệu
       setGenre(response.data);
+      console.log(response.data);
     } catch (error) {
       console.log("Error fetching genre", error);
     }
   };
+  
 
   useEffect(() => {
     fetchGenre();
@@ -37,8 +40,9 @@ const Genre = () => {
 
   // Xử lý tìm kiếm thể loại
   const filteredGenres = genre.filter((g) =>
-    g.name.toLowerCase().includes(searchTerm.toLowerCase())
+    g.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
   const handleGenreClick = (id) => {
     setSelectedGenre((prev) => {

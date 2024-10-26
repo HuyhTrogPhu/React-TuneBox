@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Route, Routes, Outlet } from "react-router-dom";
+import React from "react";
+import { Route, Routes, Outlet, useParams } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -21,11 +21,21 @@ import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
 import CategoryPageDetail from "./pages/Ecommerce/CategoryPage/CategoryPageDetail";
+import OtherUserProfile from "./pages/SocialMedia/Profile/OtherUserProfile";
 import WelcomeUser from "./pages/GioiThieu/WelcomeUser";
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
+import { FollowProvider } from './pages/SocialMedia/Profile/FollowContext';
+import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
-
+import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
+import ThanhCong from "./pages/Ecommerce/order/doneOr";
+import UserDetail from "./components/UserDetail/UserDetail";
+import Post from "./pages/SocialMedia/Post";
+import FriendRequests from "./pages/SocialMedia/FriendRequests";
+import FriendList from "./pages/SocialMedia/FriendList";
+import FollowersPage from "./pages/SocialMedia/FollowersPage";
+import FollowingPage from "./pages/SocialMedia/FollowingPage";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -35,6 +45,7 @@ function LayoutWithHeader() {
     </>
   );
 }
+
 function LayoutWithoutHeader() {
   return (
     <>
@@ -43,9 +54,12 @@ function LayoutWithoutHeader() {
   );
 }
 
-
 function App() {
+
+  const { orderId } = useParams();
+
   return (
+    <FollowProvider> {/* Đặt FollowProvider ở đây */}
     <div>
       <div className="">
         <Routes>
@@ -65,28 +79,40 @@ function App() {
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
-            <Route path="/checkOut" element={<CheckOut/>}/>
+              <Route path="/profile/:id/*" element={<OtherUserProfile />} />
+              <Route path="/track/:id" element={<TrackDetail />} />
+              <Route path="/checkOut" element={<CheckOut />} />
+              <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
+              <Route path="/doneorder" element={<ThanhCong />} />
+            <Route path="/post/:postIdurl" element={<Post />}  />
+            <Route path="/FriendRequests" element={<FriendRequests />} />
+            <Route path="/FriendList/:userId" element={<FriendList />} />
+            <Route path="/Follower/:userId" element={<FollowersPage />} />
+            <Route path="/Following/:userId" element={<FollowingPage />} />
+
+
           </Route>
 
-          {/* Các route không có Header */}
-          <Route element={<LayoutWithoutHeader />}>
-            <Route path="/introduce" element={<Introduce />} />
-            <Route path="/register" element={<SignUp/>} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/userInfor" element={<UserInfomation/>} />
-            <Route path="/talent" element={<Talent/>} />
-            <Route path="/inspiredBy" element={<InspiredBy/>} />
-            <Route path="/genre" element={<Genre/>} />
-            <Route path="/welcome" element={<WelcomeUser />} />
-            {/* admin start */}
-            <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
-            {/* admin end */}
-          </Route>
-        </Routes>
+            {/* Các route không có Header */}
+            <Route element={<LayoutWithoutHeader />}>
+              <Route path="/introduce" element={<Introduce />} />
+              <Route path="/register" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/userInfor" element={<UserInfomation />} />
+              <Route path="/talent" element={<Talent />} />
+              <Route path="/inspiredBy" element={<InspiredBy />} />
+              <Route path="/genre" element={<Genre />} />
+              <Route path="/welcome" element={<WelcomeUser />} />
+              {/* admin start */}
+              <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
+              {/* admin end */}
+            </Route>
+          </Routes>
+        </div>
       </div>
-    </div>
+    </FollowProvider>
   );
 }
 
