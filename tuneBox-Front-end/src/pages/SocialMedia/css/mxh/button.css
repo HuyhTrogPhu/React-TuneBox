@@ -4,3 +4,18 @@
     margin-right: 5px; /* Khoảng cách giữa biểu tượng và văn bản */
   }
   
+
+  .button-like i {
+    display: inline-block;
+    font-size: 25px;
+    transition: color 0.3s; /* Hiệu ứng chuyển đổi */
+  }
+  
+  .button-like i.like {
+    color: red; /* Màu nền khi có like */
+  }
+  
+  .button-like i.noLike {
+    color: #000;
+  }
+  

@@ -12,7 +12,7 @@ const BrandList = ({ brands, onUpdate }) => {
   const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
   const navigator = useNavigate();
   const [errors, setErrors] = useState({ editBrandName: '', editBrandImage: '', editBrandDescription: '' });
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const handleEdit = (brand) => {
     setSelectedBrand(brand);
     setEditName(brand.name);
@@ -46,7 +46,7 @@ const BrandList = ({ brands, onUpdate }) => {
       errorsCopy.editBrandDescription = 'Description must be at least 10 characters';
       valid = false;
     }
-  
+
 
     if (!editImage && !currentImage) { // Chỉ cần yêu cầu hình ảnh mới nếu không có hình ảnh hiện tại
       errorsCopy.editBrandImage = 'Brand image is required';
@@ -98,7 +98,7 @@ const BrandList = ({ brands, onUpdate }) => {
           }, 1000)
         })
         .catch((error) => {
-          setLoading(false); 
+          setLoading(false);
           console.error(error);
         });
     }
@@ -145,13 +145,13 @@ const BrandList = ({ brands, onUpdate }) => {
       <table className="table table-striped table-hover">
         <thead className='text-center'>
           <tr>
-            <th scope="col">#</th>
-            <th scope="col">Brand Image</th>
-            <th scope="col">Brand Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-            <th scope="col">Status Transition</th>
+            <th style={{ textAlign: "center" }} scope="col">#</th>
+            <th style={{ textAlign: "center" }} scope="col">Brand Image</th>
+            <th style={{ textAlign: "center" }} scope="col">Brand Name</th>
+            <th style={{ textAlign: "center" }} scope="col">Description</th>
+            <th style={{ textAlign: "center" }} scope="col">Status</th>
+            <th style={{ textAlign: "center" }} scope="col">Action</th>
+            <th style={{ textAlign: "center" }} scope="col">Status Transition</th>
           </tr>
         </thead>
         <tbody>
@@ -160,17 +160,22 @@ const BrandList = ({ brands, onUpdate }) => {
               <td>{index + 1}</td>
               <td>
                 <img
-                  // src={bra.brandImage
-                  //   ? `data:image/jpeg;base64,${bra.brandImage}`
-                  //   : 'default-image-path.jpg'}
-                    src={bra.brandImage ? bra.brandImage : 'default-image-path.jpg'}
+
+                  src={bra.brandImage ? bra.brandImage : 'default-image-path.jpg'}
 
                   alt={bra.name}
                   style={{ width: '50px' }}
                 />
               </td>
               <td>{bra.name}</td>
-              <td>{bra.description ? bra.description : 'No description available'}</td>
+              <td>
+                {bra.description
+                  ? bra.description.length > 50
+                    ? `${bra.description.substring(0, 50)}...`
+                    : bra.description
+                  : 'No description available'}
+              </td>
+
               <td>{bra.status ? 'Unavailable' : 'Available'}</td>
               <td>
                 <button className='btn btn-warning' onClick={() => handleEdit(bra)}>
@@ -222,7 +227,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   ></textarea>
                   {errors.editBrandDescription && <div className='invalid-feedback'>{errors.editBrandDescription}</div>}
                 </div>
-                
+
                 <div className="mb-3">
                   <label htmlFor="brandImage" className="form-label">Brand Image</label>
                   <input
@@ -238,7 +243,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   <div className="mb-3">
                     <label className="form-label">Current Brand Image</label>
                     <img
-                     src={currentImage}// Sử dụng hình ảnh hiện tại
+                      src={currentImage}// Sử dụng hình ảnh hiện tại
                       alt="Current brand"
                       style={{ width: '100%', maxHeight: '200px', objectFit: 'contain' }}
                     />
@@ -250,7 +255,7 @@ const BrandList = ({ brands, onUpdate }) => {
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="button" className="btn btn-primary" onClick={handleUpdate} disabled={loading}>
 
-              {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}           </button>
+                {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}           </button>
             </div>
           </div>
         </div>

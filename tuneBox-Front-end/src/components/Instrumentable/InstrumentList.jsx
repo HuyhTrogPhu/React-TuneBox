@@ -224,18 +224,18 @@ const InstrumentList = ({ instruments, onUpdate }) => {
         </div>
       )}
       <table className="table table-striped table-hover">
-        <thead className="text-center">
+        <thead className="" >
           <tr>
-            <th scope="col">#</th>
-            <th scope="col">Image</th>
-            <th scope="col">Name</th>
-            <th scope="col">Category</th>
-            <th scope="col">Brand</th>
-            <th scope="col">Price</th>
-            <th scope="col">Color</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
+            <th style={{ textAlign: "center" }}  scope="col">#</th>
+            <th  style={{ textAlign: "center" }}  scope="col">Image</th>
+            <th style={{ textAlign: "center" }}  scope="col">Name</th>
+            <th style={{ textAlign: "center" }}  scope="col">Category</th>
+            <th style={{ textAlign: "center" }}  scope="col">Brand</th>
+            <th style={{ textAlign: "center" }}  scope="col">Price</th>
+            <th style={{ textAlign: "center" }}  scope="col">Color</th>
+            <th style={{ textAlign: "center" }}  scope="col">Quantity</th>
+            <th style={{ textAlign: "center" }}  scope="col">Status</th>
+            <th  style={{ textAlign: "center" }}  scope="col">Action</th>
           </tr>
         </thead>
         <tbody>

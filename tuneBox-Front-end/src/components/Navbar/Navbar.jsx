@@ -17,13 +17,13 @@ const Navbar = () => {
   const [errors, setErrors] = useState({});
   const [genres, setGenre] = useState([]);
   const [cartCount, setCartCount] = useState(0);
-  const [avatarUrl, setAvatarUrl] = useState(images.logoTuneBox); 
-  const [dropdownVisible, setDropdownVisible] = useState(false); 
-  const [notificationVisible, setNotificationVisible] = useState(false); 
+  const [avatarUrl, setAvatarUrl] = useState(images.logoTuneBox);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [notificationVisible, setNotificationVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
-  
+
   const userId = Cookies.get("userId");
 
   useEffect(() => {
@@ -97,7 +97,7 @@ const Navbar = () => {
     if (!newTrackFile) newErrors.file = "Track file is required.";
     if (!newTrackGenre) newErrors.genre = "Track genre is required.";
     if (!newTrackDescription) newErrors.description = "Description is required.";
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -129,7 +129,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      Cookies.remove('userId'); 
+      Cookies.remove('userId');
       setAvatarUrl(images.logoTuneBox);
       navigate('/introduce');
     } catch (error) {
@@ -185,30 +185,40 @@ const Navbar = () => {
     setNotifications(notifications.filter(n => n.id !== notificationId)); // Cập nhật trạng thái
   };
   return (
-    <header className="row" style={{ alignItems: "center" }}>
+    <header className="navbar-container">
       {/* Navbar Left */}
-      <div className="col d-flex align-items-center">
-        <button className="btn" onClick={() => navigate('/')}>
-          <img alt="tunebox" src={images.logoTuneBox} width="150" style={{ marginLeft: "50px", marginRight: "50px" }} />
+      <div className="col-3 d-flex align-items-center">
+        <button className="navbar-button" onClick={() => navigate('/')}>
+          <img alt="tunebox" src={images.logoTuneBox} width="150" />
         </button>
-        <button className="btn" onClick={() => navigate('/')}>
-          <span className="text-decoration-none" style={{ marginRight: "30px" }}>
-            <img alt="icon-home" src={images.home} style={{ marginBottom: "15px", marginRight: "15px" }} />
+        <button className="navbar-button" onClick={() => navigate('/')}>
+          <span className="text-decoration-none">
+            <img alt="icon-home" src={images.home} className="icon" />
             <b>Feed</b>
           </span>
         </button>
-        <button className="btn" onClick={() => navigate('/HomeEcommerce')}>
+        <button className="navbar-button" onClick={() => navigate('/HomeEcommerce')}>
           <span>
-            <img alt="icon-loa" src={images.speaker} width="35" style={{ marginBottom: "15px", marginRight: "15px" }} />
+            <img alt="icon-loa" src={images.speaker} width="35" className="icon" />
             <b>Shops</b>
           </span>
         </button>
       </div>
 
-      {/* Navbar Right */}
-      <div className="col d-flex justify-content-end align-items-center">
-        {/* Thông báo */}
+      {/* Search in social page */}
+      <div className="col-4 d-flex justify-content-center align-items-center">
         <div>
+          <input type="text" placeholder="Search..." className="search-input" />
+          <button className="search-btn">
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+      </div>
+
+      {/* Navbar Right */}
+      <div className="col-5 d-flex justify-content-center align-items-center">
+        {/* Thông báo */}
+        <div className="d-flex align-items-center">
           <span className="notification-icon">
             <img
               alt="icon-chuong"
@@ -222,47 +232,50 @@ const Navbar = () => {
           </span>
           {notificationVisible && (
             <div className={`notification-dropdown ${notificationVisible ? 'show' : ''}`}>
-<ul className="notification-list">
-  {notifications.length > 0 ? (
-    notifications.map((notification, index) => (
-      <li key={index} className="notification-item" onClick={() => handleNotificationClick(notification)}>
-        <div className="notification-content">
-          {notification.type === 'LIKE_POST' ? (
-            <>
-              <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span><br />
-              <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
-              <p>{notification.postContent}</p>
-            </>
-          ) : (
-            <>
-              <span className="message">{notification.message}</span><br />
-              <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
-              <p>{notification.postContent}</p>
-            </>
-          )}
-        </div>
-      </li>
-    ))
-  ) : (
-    <li className="no-notification">Không có thông báo nào.</li>
-  )}
-</ul>
-
+              <ul className="notification-list">
+                {notifications.length > 0 ? (
+                  notifications.map((notification, index) => (
+                    <li key={index} className="notification-item" onClick={() => handleNotificationClick(notification)}>
+                      <div className="notification-content">
+                        {notification.type === 'LIKE_POST' ? (
+                          <>
+                            <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span><br />
+                            <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                            <p>{notification.postContent}</p>
+                          </>
+                        ) : (
+                          <>
+                            <span className="message">{notification.message}</span><br />
+                            <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                            <p>{notification.postContent}</p>
+                          </>
+                        )}
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <li className="no-notification">Không có thông báo nào.</li>
+                )}
+              </ul>
             </div>
           )}
         </div>
-        <span>
-          <img alt="icon-chat" src={images.conversstion} style={{ marginBottom: "15px", marginRight: "30px" }} />
+
+        <span className="mx-3">
+          <img alt="icon-chat" style={{width: '30px', height: '30px'}} src={images.conversstion} className="icon" />
         </span>
-        <button className="btn btn-warning" style={{ marginBottom: "15px", marginRight: "30px" }} onClick={handleCartClick}>
-          Giỏ hàng
+
+        <button className="mx-3 cart-shopping" onClick={handleCartClick}>
+        <i className="fa-solid fa-cart-shopping"></i>
           {cartCount > 0 && (
             <span className="badge bg-danger">{cartCount}</span>
           )}
         </button>
-        <span>
-          <img alt="avatar" src={avatarUrl} className="avatar" onClick={handleAvatarClick} onMouseEnter={handleMouseEnter} />
+
+        <span className="mx-3">
+          <img alt="avatar" src={avatarUrl} className="avatar m-0" onClick={handleAvatarClick} onMouseEnter={handleMouseEnter} />
         </span>
+
         {dropdownVisible && (
           <div className="dropdown-menu dropdown-menu-right show" onMouseLeave={handleMouseLeave}>
             <button className="dropdown-item" onClick={() => navigate("/profileUser")}>Trang cá nhân</button>
@@ -272,6 +285,7 @@ const Navbar = () => {
         )}
       </div>
     </header>
+
   );
 };
 

@@ -64,9 +64,9 @@ function App() {
   const { orderId } = useParams();
 
   return (
-    <FollowProvider>
-      {" "}
-      {/* Đặt FollowProvider ở đây */}
+
+    <FollowProvider> {/* Đặt FollowProvider ở đây */}
+
       <div>
         <div className="">
           <Routes>
@@ -84,20 +84,13 @@ function App() {
               <Route path="/DetailProduct/:id" element={<DetailProduct />} />
               <Route path="/BrandPage" element={<BrandPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
-              <Route path="/CategoryPage" element={<CategoryPage />} />
-              <Route
-                path="/InstrumentBelongCategory"
-                element={<CategoryPageDetail />}
-              />
-
-              <Route path="/track/:id" element={<TrackDetail />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
               <Route
                 path="/albums/album-Edit/:albumId"
                 element={<AlbumEdit />}
               />
               <Route path="/album/:id" element={<AlbumDetail />} />
-
+              <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
               <Route path="/checkOut" element={<CheckOut />} />

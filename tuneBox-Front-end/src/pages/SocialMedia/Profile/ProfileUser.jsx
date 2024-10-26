@@ -12,15 +12,14 @@ import "./css/button.css";
 import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
-import { FollowContext } from "./FollowContext";
+import { FollowContext } from './FollowContext';
+
+
 const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");
   const { followCounts } = useContext(FollowContext);
   const [userData, setUserData] = useState({});
-  const [followCount, setFollowCount] = useState({
-    followerCount: 0,
-    followingCount: 0,
-  });
+  const [followCount, setFollowCount] = useState({ followerCount: 0, followingCount: 0 });
   const [friendCount, setFriendCount] = useState(0); // Trạng thái lưu số lượng bạn bè
   const [pendingRequests, setPendingRequests] = useState([]);
   const [error, setError] = useState("");
@@ -28,30 +27,27 @@ const ProfileUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       if (userIdCookie) {
-        try {
-          const userData = await getUserInfo(userIdCookie);
-          setUserData(userData);
-          console.log("User data fetched from API:", userData);
-
-          // Lấy số lượng bạn bè
-          const count = await getFriendCount(userIdCookie);
-          console.log("Fetched friend count:", count); // Log giá trị friend count
-          setFriendCount(count); // Cập nhật số lượng bạn bè
-          console.log("Updated friend count state:", count); // Log trạng thái bạn bè
-        } catch (error) {
-          console.error("Error fetching user", error);
-        }
+          try {
+              const userData = await getUserInfo(userIdCookie);
+              setUserData(userData);
+              console.log("User data fetched from API:", userData);
+  
+              // Lấy số lượng bạn bè
+              const count = await getFriendCount(userIdCookie);
+              console.log('Fetched friend count:', count); // Log giá trị friend count
+              setFriendCount(count); // Cập nhật số lượng bạn bè
+              console.log('Updated friend count state:', count); // Log trạng thái bạn bè
+          } catch (error) {
+              console.error("Error fetching user", error);
+          }
       }
-    };
-
+  };  
+  
     fetchUser();
   }, [userIdCookie]);
 
   useEffect(() => {
-    const counts = followCounts[userIdCookie] || {
-      followerCount: 0,
-      followingCount: 0,
-    };
+    const counts = followCounts[userIdCookie] || { followerCount: 0, followingCount: 0 };
     setFollowCount(counts);
     console.log("Updated follow counts:", counts);
   }, [followCounts, userIdCookie]);
@@ -59,13 +55,10 @@ const ProfileUser = () => {
   return (
     <div className="container">
       {/* Background */}
-
       <div
         className="background border container"
         style={{
-          backgroundImage: `url(${
-            userData.background || "/src/UserImages/Background/default-bg.jpg"
-          })`,
+          backgroundImage: `url(${userData.background || "/src/UserImages/Background/default-bg.jpg"})`,
         }}
       />
       <div className="row container">
@@ -102,21 +95,21 @@ const ProfileUser = () => {
           <div className="row mt-4">
             <div className="col text-center">
               <Link to={`/Follower/${userIdCookie}`}>
-                <span>{followCount.followerCount}</span> <br />
-                <span>Follower</span>
+              <span>{followCount.followerCount}</span> <br />
+              <span>Follower</span>
               </Link>
             </div>
             <div className="col text-center">
-              <Link to={`/Following/${userIdCookie}`}>
-                <span>{followCount.followingCount}</span> <br />
-                <span>Following</span>
-              </Link>
+            <Link to={`/Following/${userIdCookie}`}>
+            <span>{followCount.followingCount}</span> <br />
+            <span>Following</span>
+            </Link>
             </div>
             <div className="col text-center">
-              <Link to={`/FriendList/${userIdCookie}`}>
-                <span>{friendCount}</span> <br />
-                <span>Friends</span>
-              </Link>
+            <Link to={`/FriendList/${userIdCookie}`}>
+            <span>{friendCount}</span> <br />
+            <span>Friends</span>
+            </Link>
             </div>
           </div>
           {/* Display InspiredBy, Talent, and Genre */}
