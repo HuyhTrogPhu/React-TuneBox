@@ -1,74 +1,117 @@
 import React, { useState, useEffect } from "react";
 import { images } from "../../assets/images/images";
+import './Profile.css';
 import Cookies from 'js-cookie';
-import { getUserSetting } from "../../service/UserService";
+import { getUserProfileSetting, listGenres } from "../../service/UserService";
+import { listTalents, listInspiredBys } from "../../service/LoginService";
 
 const Profile = () => {
-    const [days, setDays] = useState([]);
-    const [months, setMonths] = useState([]);
-    const [years, setYears] = useState([]);
-    const [userData, setUserData] = useState([]);
+    const [listTalent, setListTalent] = useState([]);
+    const [listGenre, setListGenre] = useState([]);
+    const [listInspiredBy, setListInspiredBy] = useState([]);
+    const [searchInspiredBy, setSearchInspiredBy] = useState('');
 
-    // Lấy userId từ cookie và fetch avatar
+    const [avatar, setAvatar] = useState(images.logoTuneBox);
+    const [name, setName] = useState('');
+    const [userName, setUserName] = useState('');
+    const [location, setLocation] = useState('');
+    const [about, setAbout] = useState('');
+    const [userInspiredBy, setInspiredBy] = useState([]);
+    const [userTalent, setTalent] = useState([]);
+    const [userGenre, setGenre] = useState([]);
+
+    // Quản lý modal
+    const [showModal, setShowModal] = useState(false);
+    const [filteredInspiredBy, setFilteredInspiredBy] = useState([]);
+
+    // Fetch danh sách Talent, Genre, InspiredBy từ server
+    useEffect(() => {
+        const fetchTalents = async () => {
+            try {
+                const response = await listTalents();
+                setListTalent(response.data);
+            } catch (error) {
+                console.log("Error fetching talents", error);
+            }
+        };
+        fetchTalents();
+    }, []);
+
+    useEffect(() => {
+        const fetchGenres = async () => {
+            try {
+                const response = await listGenres();
+                setListGenre(response.data);
+            } catch (error) {
+                console.log("Error fetching genres", error);
+            }
+        };
+        fetchGenres();
+    }, []);
+
+    useEffect(() => {
+        const fetchInspiredBys = async () => {
+            try {
+                const response = await listInspiredBys();
+                setListInspiredBy(response.data);
+                setFilteredInspiredBy(response.data);
+            } catch (error) {
+                console.log("Error fetching inspiredBys", error);
+            }
+        };
+        fetchInspiredBys();
+    }, []);
+
+    // Fetch thông tin user
     useEffect(() => {
         const userIdCookie = Cookies.get('userId');
         if (userIdCookie) {
             const fetchUserSetting = async () => {
                 try {
-                    const response = await getUserSetting(userIdCookie);
-                    setUserData(response); // Set đường dẫn avatar
+                    const response = await getUserProfileSetting(userIdCookie);
+                    const { avatar, name, userName, location, about, inspiredBy, talent, genre } = response;
+                    setAvatar(avatar || images.logoTuneBox);
+                    setName(name || '');
+                    setUserName(userName || '');
+                    setLocation(location || '');
+                    setAbout(about || '');
+                    setInspiredBy(inspiredBy || []);
+                    setTalent(talent || []);
+                    setGenre(genre || []);
+                    console.log(response);
                 } catch (error) {
-                    console.error("Error fetching avatar:", error);
+                    console.error("Error fetching user setting:", error);
                 }
             };
             fetchUserSetting();
         }
     }, []);
 
-    // Hàm để populate các ngày
-    const populateDays = () => {
-        const dayList = [];
-        for (let i = 1; i <= 31; i++) {
-            dayList.push(i);
+    // Xử lý tìm kiếm InspiredBy
+    const handleSearch = (e) => {
+        setSearchInspiredBy(e.target.value);
+        const filtered = listInspiredBy.filter(item => item.name.toLowerCase().includes(e.target.value.toLowerCase()));
+        setFilteredInspiredBy(filtered);
+    };
+
+    // Xử lý chọn InspiredBy từ danh sách
+    const handleAddInspiredBy = (inspiredById) => {
+        const selectedInspiredBy = listInspiredBy.find(item => item.id === inspiredById);
+        if (selectedInspiredBy && !inspiredBy.includes(selectedInspiredBy.name)) {
+            setInspiredBy([...inspiredBy, selectedInspiredBy.name]);
         }
-        setDays(dayList);
     };
 
-    // Hàm để populate các tháng
-    const populateMonths = () => {
-        const monthList = [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ];
-        setMonths(monthList);
+    // Mở modal
+    const openModal = () => {
+        setShowModal(true);
     };
 
-    // Hàm để populate các năm
-    const populateYears = () => {
-        const yearList = [];
-        const currentYear = new Date().getFullYear();
-        for (let i = currentYear; i >= 1900; i--) {
-            yearList.push(i);
-        }
-        setYears(yearList);
+    // Đóng modal
+    const closeModal = () => {
+        setShowModal(false);
     };
 
-    // Thực hiện populate các dropdown khi component mount
-    useEffect(() => {
-        populateDays();
-        populateMonths();
-        populateYears();
-    }, []);
 
     return (
         <div>
@@ -78,157 +121,220 @@ const Profile = () => {
                 </h3>
             </div>
             <div className="profile-container">
-                <div className="profile-avatar">
-                    <img src={userData.avatar} className="avatar-setting" alt="Avatar" />
+                <div className="row d-flex">
+                    {/* Avatar */}
+                    <div className="profile-avatar col-3">
+                        <img src={avatar} className="avatar-setting border" alt="Avatar" />
+                    </div>
+                    <div className="profile-container col-9">
+                        {/* Form */}
+                        <form className="g-3">
+                            {/* Name */}
+                            <div className="mt-3">
+                                <label htmlFor="name" style={{ marginLeft: -40 }}>
+                                    <h6><b>Name</b></h6>
+                                </label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Name"
+                                    id="name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    style={{
+                                        backgroundColor: 'rgba(64, 102, 128, 0.078)',
+                                        height: 40,
+                                        width: 600,
+                                        marginTop: -20,
+                                    }}
+                                />
+                            </div>
+                            {/* Username */}
+                            <div className="mt-3">
+                                <label htmlFor="userName" style={{ marginLeft: -40 }}>
+                                    <h6><b>Username</b></h6>
+                                </label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Username"
+                                    id="userName"
+                                    value={userName}
+                                    onChange={(e) => setUserName(e.target.value)}
+                                    style={{
+                                        backgroundColor: 'rgba(64, 102, 128, 0.078)',
+                                        height: 40,
+                                        width: 600,
+                                        marginTop: -20,
+                                    }}
+                                />
+                            </div>
+                            {/* Location */}
+                            <div className="mt-3">
+                                <label htmlFor="location" style={{ marginLeft: -40 }}>
+                                    <h6><b>Location</b></h6>
+                                </label>
+                                <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Search City"
+                                    id="location"
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    style={{
+                                        backgroundColor: "rgba(64, 102, 128, 0.078)",
+                                        height: 40,
+                                        width: 600,
+                                        marginTop: -20,
+                                    }}
+                                />
+                            </div>
+                            {/* About */}
+                            <div className='mt-3'>
+                                <label htmlFor="about" style={{ marginLeft: -25 }}>
+                                    <h6><b>About</b></h6>
+                                </label>
+                                <textarea
+                                    className="form-control"
+                                    id="about"
+                                    value={about}
+                                    onChange={(e) => setAbout(e.target.value)}
+                                />
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div className="profile-container">
-                    <form className="row g-3">
-                        <div className="row">
-                            <label htmlFor="name" style={{ marginLeft: -40 }}>
-                                <h6>
-                                    <b>Name</b>
-                                </h6>
-                            </label>
-                            <input
-                                className="form-control"
-                                type="text"
-                                placeholder="Name"
-                                id="name"
-                                defaultValue={userData.userName}
-                                style={{
-                                    backgroundColor: 'rgba(64, 102, 128, 0.078)',
-                                    height: 40,
-                                    width: 600,
-                                    marginTop: -20,
-                                }}
-                            />
-                        </div>
-                        <div className="row">
-                            <label htmlFor="location" style={{ marginLeft: -40 }}>
-                                <h6>
-                                    <b>Location</b>
-                                </h6>
-                            </label>
-                            <input
-                                className="form-control"
-                                type="text"
-                                placeholder="Search City"
-                                id="location"
-                                style={{
-                                    backgroundColor: "rgba(64, 102, 128, 0.078)",
-                                    height: 40,
-                                    width: 600,
-                                    marginTop: -20,
-                                }}
-                                defaultValue={userData.location}
-                            />
-                        </div>
-                        <div>
-                            <div
-                                className="row g-3 "
-                                style={{ marginLeft: -20, marginRight: 160 }}
-                            >
-                                {/* Gender Selection */}
-                                <div className="col-md-4 form-group">
-                                    <label htmlFor="genderSelect" style={{ marginLeft: -30 }}>
-                                        <h6>
-                                            <b>Gender</b>
-                                        </h6>
-                                    </label>
-                                    <select
-                                        id="genderSelect"
-                                        className="form-select"
-                                        style={{ marginTop: -20 }}
-                                    >
-                                        <option defaultValue="" disabled >
-                                            Add Gender
-                                        </option>
-                                        <option defaultValue="Female">Female</option>
-                                        <option defaultValue="Male">Male</option>
-                                        <option defaultValue="Other">Other</option>
-                                    </select>
+            </div>
+
+            {/* Music Interests */}
+            <div className="music-interests">
+                <h5>Music Interests</h5>
+
+                {/* Inspired By Section */}
+                <div className="inspired-by-section">
+                    <h7><b>Inspired by</b></h7>
+                    <div className="inspired-by-list mt-3">
+                        {userInspiredBy.length > 0 ? (
+                            userInspiredBy.map((inspired, index) => (
+                                <div key={index} className="chip">
+                                    <span>{inspired}</span>
+                                    <i className="fa fa-times" aria-hidden="true"></i>
                                 </div>
-                                {/* Date Selection */}
-                                <div className="col-md-8">
-                                    <div className="date-selectors">
-                                        <section className="form-group">
-                                            <label htmlFor="daySelect" style={{ marginLeft: -25 }}>
-                                                <h6>
-                                                    <b>Day</b>
-                                                </h6>
-                                            </label>
-                                            <div style={{ marginTop: -20 }}>
-                                                <select id="daySelect" className="form-select">
-                                                    {days.map((day, index) => (
-                                                        <option key={index} value={day}>
-                                                            {day}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </section>
-                                        <section className="form-group">
-                                            <label htmlFor="monthSelect" style={{ marginLeft: -25 }}>
-                                                <h6>
-                                                    <b>Month</b>
-                                                </h6>
-                                            </label>
-                                            <div style={{ marginTop: -20 }}>
-                                                <select id="monthSelect" className="form-select">
-                                                    {months.map((month, index) => (
-                                                        <option key={index} value={index + 1}>
-                                                            {month}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </section>
-                                        <section className="form-group">
-                                            <label htmlFor="yearSelect">
-                                                <h6>
-                                                    <b>Year</b>
-                                                </h6>
-                                            </label>
-                                            <div style={{ marginTop: -20 }}>
-                                                <select id="yearSelect" className="form-select">
-                                                    {years.map((year, index) => (
-                                                        <option key={index} value={year}>
-                                                            {year}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </section>
+                            ))
+                        ) : (
+                            <p>No artists added yet.</p>
+                        )}
+                    </div>
+                    <button className="add-inspired-by" onClick={openModal}>
+                        <i className="fa fa-plus" aria-hidden="true"></i> Add Artist
+                    </button>
+                </div>
+
+                {/* Modal Inspired By */}
+                {showModal && (
+                    <div className="modal fade d-block" role="dialog">
+                        <div className="modal-dialog" role="document">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Add Artists</h5>
+                                    <button className="close btn-close" onClick={closeModal} data-bs-dismiss="modal" aria-label="Close" style={{ width: '10px', height: '10px' }}>
+                                    </button>
+                                </div>
+                                <div className="modal-body">
+                                    <input
+                                        type="text"
+                                        placeholder="Search Artists..."
+                                        value={searchInspiredBy}
+                                        onChange={handleSearch}
+                                        className="form-control"
+                                    />
+
+                                    {/* Chỉ hiển thị danh sách select nếu có từ khóa */}
+                                    {searchInspiredBy && filteredInspiredBy.length > 0 && (
+                                        <div className="artist-list mt-3">
+                                            <select
+                                                name="artist"
+                                                id="artist"
+                                                size="5"  // Hiển thị 5 dòng cùng lúc
+                                                className="form-control"
+                                                onChange={(e) => handleAddInspiredBy(e.target.value)}  // Bắt sự kiện khi chọn nghệ sĩ
+                                            >
+                                                {filteredInspiredBy.map((artist) => (
+                                                    <option key={artist.id} value={artist.id}>
+                                                        {artist.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {/* inspiredBy user */}
+                                    <div className="mt-5">
+                                        <div className="inspired-by-list">
+                                            {userInspiredBy.length > 0 ? (
+                                                userInspiredBy.map((inspired, index) => (
+                                                    <div key={index} className="chip">
+                                                        <span>{inspired}</span>
+                                                        <i className="fa fa-times" aria-hidden="true"></i>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p>No artists added yet.</p>
+                                            )}
+                                        </div>
                                     </div>
+                                </div>
+
+                                <div className="modal-footer" onClick={closeModal}>
+                                    <button className="btn-update">
+                                        Done
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
+                )}
+
+                {/* Talents Section */}
+                <div className="talents-section">
+                    <h7><b>Talents</b></h7>
+                    <div className="talent-list mt-3">
+                        {userTalent.length > 0 ? (
+                            userTalent.map((talentItem, index) => (
+                                <div key={index} className="chip talent">
+                                    <i className="fa fa-music" aria-hidden="true"></i>
+                                    <span>{talentItem}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No talents added yet.</p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Genres Section */}
+                <div className="genres-section">
+                    <h7><b>Favorite genres</b></h7>
+                    <div className="genre-list mt-3">
+                        {userGenre.length > 0 ? (
+                            userGenre.map((genreItem, index) => (
+                                <div key={index} className="chip genre">
+                                    <i className="fa fa-music" aria-hidden="true"></i>
+                                    <span>{genreItem}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No genres added yet.</p>
+                        )}
+                    </div>
                 </div>
             </div>
-            <div style={{ marginLeft: 180, marginRight: 170 }}>
-                <label htmlFor="About" style={{ marginLeft: -25 }}>
-                    <h6>
-                        <b>About</b>
-                    </h6>
-                </label>
-                <div className="profile-container">
-                    <textarea
-                        className="custom-textarea"
-                        name="about"
-                        id="About"
-                        defaultValue={userData.about}
-                    />
-                </div>
 
-                <div className="mt-3 update">
-                    <button className="btn border">Update</button>
-                </div>
+            <div className="update mt-5">
+                <button className="btn text-white">Update</button>
             </div>
-
-
-        </div>
+        </div >
     );
-}
+};
 
 export default Profile;

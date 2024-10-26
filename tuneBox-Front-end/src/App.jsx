@@ -30,6 +30,7 @@ import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 import ThanhCong from "./pages/Ecommerce/order/doneOr";
+import UserDetail from "./components/UserDetail/UserDetail";
 import Post from "./pages/SocialMedia/Post";
 import FriendRequests from "./pages/SocialMedia/FriendRequests";
 import FriendList from "./pages/SocialMedia/FriendList";
@@ -56,7 +57,7 @@ function LayoutWithoutHeader() {
 function App() {
 
   const { orderId } = useParams();
-  
+
   return (
     <FollowProvider> {/* Đặt FollowProvider ở đây */}
     <div>
@@ -69,6 +70,7 @@ function App() {
             <Route path="/Shop" element={<Shop />} />
             <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/profileUser" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
             <Route path="/cart" element={<Cart />} />
@@ -79,9 +81,9 @@ function App() {
             <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
-            <Route path="/checkOut" element={<CheckOut/>}/>
-            <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
-            <Route path="/doneorder" element={<ThanhCong/>}/>
+              <Route path="/checkOut" element={<CheckOut />} />
+              <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
+              <Route path="/doneorder" element={<ThanhCong />} />
             <Route path="/post/:postIdurl" element={<Post />}  />
             <Route path="/FriendRequests" element={<FriendRequests />} />
             <Route path="/FriendList/:userId" element={<FriendList />} />
@@ -91,25 +93,25 @@ function App() {
 
           </Route>
 
-          {/* Các route không có Header */}
-          <Route element={<LayoutWithoutHeader />}>
-            <Route path="/introduce" element={<Introduce />} />
-            <Route path="/register" element={<SignUp/>} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/userInfor" element={<UserInfomation/>} />
-            <Route path="/talent" element={<Talent/>} />
-            <Route path="/inspiredBy" element={<InspiredBy/>} />
-            <Route path="/genre" element={<Genre/>} />
-            <Route path="/welcome" element={<WelcomeUser />} />
-            {/* admin start */}
-            <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
-            {/* admin end */}
-          </Route>
-        </Routes>
+            {/* Các route không có Header */}
+            <Route element={<LayoutWithoutHeader />}>
+              <Route path="/introduce" element={<Introduce />} />
+              <Route path="/register" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/userInfor" element={<UserInfomation />} />
+              <Route path="/talent" element={<Talent />} />
+              <Route path="/inspiredBy" element={<InspiredBy />} />
+              <Route path="/genre" element={<Genre />} />
+              <Route path="/welcome" element={<WelcomeUser />} />
+              {/* admin start */}
+              <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
+              {/* admin end */}
+            </Route>
+          </Routes>
+        </div>
       </div>
-    </div>
     </FollowProvider>
   );
 }
