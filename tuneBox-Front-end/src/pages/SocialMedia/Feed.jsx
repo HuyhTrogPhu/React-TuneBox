@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { images } from "../../assets/images/images";
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -13,6 +13,8 @@ import "./css/mxh/comment.css"
 import "./css/mxh/button.css"
 import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import Picker from '@emoji-mart/react';
+
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -42,6 +44,9 @@ const HomeFeed = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportPostId, setReportPostId] = useState(null);
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+const commentSectionRef = useRef(null);
 
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
@@ -243,7 +248,7 @@ const HomeFeed = () => {
   const handleSubmitPost = async () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
-    formData.append("userId", userId);
+    formData.append("userId", currentUserId);
 
     postImages.forEach((image) => {
       formData.append("images", image);
@@ -305,16 +310,15 @@ const HomeFeed = () => {
     document.getElementById("post-modal").style.display = "flex";
   };
 
-  // update comment
   const handleUpdateComment = async (commentId, postId) => {
     if (!editingCommentContent.trim()) return;
-
+  
     try {
       await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
         content: editingCommentContent,
         edited: true,
       });
-
+  
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post.id === postId) {
@@ -335,32 +339,24 @@ const HomeFeed = () => {
           return post;
         })
       );
-
+  
       setEditingCommentId(null);
       setEditingCommentContent("");
     } catch (error) {
       console.error("Error updating comment:", error);
     }
   };
-
-  // add comment
   const handleAddComment = async (postId) => {
     const content = commentContent[postId] || "";
     if (!content.trim()) return;
-
-    console.log("Adding comment with content:", content);
-    console.log("Post ID:", postId);
-    console.log("User ID:", currentUserId);
-
+  
     try {
       const response = await axios.post(
         `http://localhost:8080/api/comments/post/${postId}/user/${currentUserId}`,
         { content: content }
       );
-
-      console.log("Response from API:", response.data); // Kiểm tra phản hồi từ API
-
-      setPosts(
+  
+      setPosts((posts) =>
         posts.map((post) => {
           if (post.id === postId) {
             return { ...post, comments: [...post.comments, response.data] };
@@ -368,15 +364,25 @@ const HomeFeed = () => {
           return post;
         })
       );
-
+  
+      // Đặt lại commentContent và ẩn emoji picker
       setCommentContent((prev) => ({ ...prev, [postId]: "" }));
+      setShowEmojiPicker(false);  // Ẩn emoji picker sau khi bình luận
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
-
+  const addEmoji = (postId, emoji) => {
+    setCommentContent((prev) => ({
+      ...prev,
+      [postId]: (prev[postId] || "") + emoji.native,
+    }));
+  };
   const handleCommentChange = (postId, value) => {
-    setCommentContent((prev) => ({ ...prev, [postId]: value }));
+    setCommentContent((prev) => ({
+      ...prev,
+      [postId]: value,
+    }));
   };
   const handleDeleteComment = async (commentId, postId) => {
     try {
@@ -592,7 +598,24 @@ const HomeFeed = () => {
       console.error('Lỗi mạng:', error);
     }
   };
+// Hàm để bật/tắt emoji picker
+const toggleEmojiPicker = (id) => {
+  setShowEmojiPicker((prev) => (prev === id ? null : id));
+};
+// Hàm thêm emoji vào nội dung reply
+const addEmojiToReply = (replyId, emoji) => {
+  setReplyContent((prev) => ({
+    ...prev,
+    [replyId]: (prev[replyId] || "") + emoji.native,
+  }));
+  setShowEmojiPicker(null); // Ẩn emoji picker sau khi chọn emoji
+};
 
+const handleClickOutside = (event) => {
+  if (commentSectionRef.current && !commentSectionRef.current.contains(event.target)) {
+    setShowEmojiPicker(false); // Đóng bảng emoji nếu nhấp bên ngoài
+  }
+};
   return (
     <div>
       <div className="container-fluid">
@@ -928,10 +951,30 @@ const HomeFeed = () => {
                                 value={commentContent[post.id] || ""}
                                 onChange={(e) => handleCommentChange(post.id, e.target.value)}
                               />
+                              <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="btn btn-sm">
+      😀
+    </button>
+    
+    {showEmojiPicker && (
+      <div style={{ position: "absolute", bottom: "100%", left: "0", zIndex: 10 }}>
+        <Picker onEmojiSelect={(emoji) => {
+          addEmoji(post.id, emoji);
+          // Không đóng bảng emoji ở đây
+        }} />
+        {/* Nút để đóng bảng emoji */}
+        <button onClick={() => setShowEmojiPicker(false)} className="btn btn-link">
+          Close
+        </button>
+      </div>
+    )}  
                               <div className="button-comment">
                                 <i type='button' className="fa-regular fa-paper-plane mt-2"
                                   style={{ fontSize: "20px" }}
-                                  onClick={() => handleAddComment(post.id)}>
+                                  onClick={() => {
+                                    handleAddComment(post.id);
+                                    setShowEmojiPicker(false); 
+                                  }}
+                                  >
                                 </i>
                               </div>
                             </div>
@@ -1141,7 +1184,6 @@ const HomeFeed = () => {
           </div>
         </div>
       )}
-
       {/* Modal để tạo bài viết */}
       <div
         id="post-modal"
@@ -1203,37 +1245,9 @@ const HomeFeed = () => {
           </div>
         </div>
       </div>
-
-
-
-
     </div>
 
   )
 }
-const modalOverlayStyle = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const modalContentStyle = {
-  backgroundColor: "white",
-  padding: "20px",
-  borderRadius: "8px",
-  width: "400px",
-};
-
-const textareaStyle = {
-  width: "100%",
-  height: "100px",
-  marginBottom: "10px",
-};
 
 export default HomeFeed
