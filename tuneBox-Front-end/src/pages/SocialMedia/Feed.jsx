@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { images } from "../../assets/images/images";
 import axios from 'axios';
 import { format } from 'date-fns';
 import Cookies from 'js-cookie';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./css/mxh/style.css"
 import "./css/mxh/post.css"
 import "./css/mxh/modal-create-post.css"
@@ -12,7 +13,8 @@ import "./css/mxh/comment.css"
 import "./css/mxh/button.css"
 import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { getAvatarUser } from '../../service/UserService';
+import Picker from '@emoji-mart/react';
+
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -42,22 +44,9 @@ const HomeFeed = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportPostId, setReportPostId] = useState(null);
-  const [avatar, setAvatar] = useState(null);
 
-  // get avatar user
-  useEffect(() => {
-    const fetchUserAvatar = async () => {
-      if (currentUserId) {
-        try {
-          const userAvatar = await getAvatarUser(currentUserId);
-          setAvatar(userAvatar);
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    };
-    fetchUserAvatar();
-  }, [currentUserId]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+const commentSectionRef = useRef(null);
 
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
@@ -99,9 +88,6 @@ const HomeFeed = () => {
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
-          
-          console.log("postId:", post.id)
-          console.log("data comment", commentsResponse);
 
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
@@ -262,7 +248,7 @@ const HomeFeed = () => {
   const handleSubmitPost = async () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
-    formData.append("userId", userId);
+    formData.append("userId", currentUserId);
 
     postImages.forEach((image) => {
       formData.append("images", image);
@@ -324,16 +310,15 @@ const HomeFeed = () => {
     document.getElementById("post-modal").style.display = "flex";
   };
 
-  // update comment
   const handleUpdateComment = async (commentId, postId) => {
     if (!editingCommentContent.trim()) return;
-
+  
     try {
       await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
         content: editingCommentContent,
         edited: true,
       });
-
+  
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post.id === postId) {
@@ -354,32 +339,24 @@ const HomeFeed = () => {
           return post;
         })
       );
-
+  
       setEditingCommentId(null);
       setEditingCommentContent("");
     } catch (error) {
       console.error("Error updating comment:", error);
     }
   };
-
-  // add comment
   const handleAddComment = async (postId) => {
     const content = commentContent[postId] || "";
     if (!content.trim()) return;
-
-    console.log("Adding comment with content:", content);
-    console.log("Post ID:", postId);
-    console.log("User ID:", currentUserId);
-
+  
     try {
       const response = await axios.post(
         `http://localhost:8080/api/comments/post/${postId}/user/${currentUserId}`,
         { content: content }
       );
-
-      console.log("Response from API:", response.data); // Kiểm tra phản hồi từ API
-
-      setPosts(
+  
+      setPosts((posts) =>
         posts.map((post) => {
           if (post.id === postId) {
             return { ...post, comments: [...post.comments, response.data] };
@@ -387,15 +364,25 @@ const HomeFeed = () => {
           return post;
         })
       );
-
+  
+      // Đặt lại commentContent và ẩn emoji picker
       setCommentContent((prev) => ({ ...prev, [postId]: "" }));
+      setShowEmojiPicker(false);  // Ẩn emoji picker sau khi bình luận
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
-
+  const addEmoji = (postId, emoji) => {
+    setCommentContent((prev) => ({
+      ...prev,
+      [postId]: (prev[postId] || "") + emoji.native,
+    }));
+  };
   const handleCommentChange = (postId, value) => {
-    setCommentContent((prev) => ({ ...prev, [postId]: value }));
+    setCommentContent((prev) => ({
+      ...prev,
+      [postId]: value,
+    }));
   };
   const handleDeleteComment = async (commentId, postId) => {
     try {
@@ -611,7 +598,24 @@ const HomeFeed = () => {
       console.error('Lỗi mạng:', error);
     }
   };
+// Hàm để bật/tắt emoji picker
+const toggleEmojiPicker = (id) => {
+  setShowEmojiPicker((prev) => (prev === id ? null : id));
+};
+// Hàm thêm emoji vào nội dung reply
+const addEmojiToReply = (replyId, emoji) => {
+  setReplyContent((prev) => ({
+    ...prev,
+    [replyId]: (prev[replyId] || "") + emoji.native,
+  }));
+  setShowEmojiPicker(null); // Ẩn emoji picker sau khi chọn emoji
+};
 
+const handleClickOutside = (event) => {
+  if (commentSectionRef.current && !commentSectionRef.current.contains(event.target)) {
+    setShowEmojiPicker(false); // Đóng bảng emoji nếu nhấp bên ngoài
+  }
+};
   return (
     <div>
       <div className="container-fluid">
@@ -620,37 +624,37 @@ const HomeFeed = () => {
           <div className="col-3 sidebar bg-light p-4">
             <ul className="list-unstyled">
               <li className="left mb-4">
-                <Link to={'/'} className="d-flex align-items-center " style={{ textAlign: 'center' }}>
+                <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
                   <img src={images.web_content} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>
                     <Link to={'/'}>Bản tin</Link>
                   </span>
-                </Link>
+                </a>
               </li>
               <li className="left mb-4">
-                <Link to={"/"} className="d-flex align-items-center">
+                <a href="/#" className="d-flex align-items-center">
                   <img src={images.followers} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>Đang theo dõi</span>
-                </Link>
+                </a>
               </li>
 
               <li className="left mb-4">
-                <Link to={"/"} className="d-flex align-items-center">
+                <a href="/#" className="d-flex align-items-center">
                   <img src={images.feedback} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>Bài viết đã thích</span>
-                </Link>
+                </a>
               </li>
               <li className="left mb-4">
-                <Link to={"/"} className="d-flex align-items-center">
+                <a href="/#" className="d-flex align-items-center">
                   <img src={images.music} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>Albums đã thích</span>
-                </Link>
+                </a>
               </li>
               <li className="left mb-4">
-                <Link to={"/"} className="d-flex align-items-center">
+                <a href="/#" className="d-flex align-items-center">
                   <img src={images.playlist} alt='icon' width={20} className="me-2 " />
                   <span className='fw-bold'>Playlist đã thích</span>
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -660,7 +664,7 @@ const HomeFeed = () => {
             <div className="container mt-2 mb-5">
               <div className="row align-items-center">
                 <div className="col-auto post-header">
-                  <img src={avatar} className="avatar_small" alt="avatar" />
+                  <img src={images.ava} className="avatar_small" alt="avatar" />
                 </div>
                 <div className="col">
                   <button
@@ -690,14 +694,14 @@ const HomeFeed = () => {
                   <div key={post.id} className="post border">
 
                     {/* Modeal hiển thị comment  */}
-                    <div className="modal fade" id="modalCommentFeed" tabIndex="-1" aria-hidden="true" data-bs-backdrop="false">
-                      <div className="modal-dialog">
-                        <div className="modal-content">
-                          <div className="modal-header">
-                            <h1 className="modal-title fs-5">Comments</h1>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal fade" id="modalComent" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
-                          <div className="modal-body">
+                          <div class="modal-body">
                             {/* Danh sách bình luận */}
                             <div className="mt-4">
                               {(showAllComments[post.id] ? post.comments : post.comments.slice(0, 3)).map((comment) => (
@@ -947,10 +951,30 @@ const HomeFeed = () => {
                                 value={commentContent[post.id] || ""}
                                 onChange={(e) => handleCommentChange(post.id, e.target.value)}
                               />
+                              <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="btn btn-sm">
+      😀
+    </button>
+    
+    {showEmojiPicker && (
+      <div style={{ position: "absolute", bottom: "100%", left: "0", zIndex: 10 }}>
+        <Picker onEmojiSelect={(emoji) => {
+          addEmoji(post.id, emoji);
+          // Không đóng bảng emoji ở đây
+        }} />
+        {/* Nút để đóng bảng emoji */}
+        <button onClick={() => setShowEmojiPicker(false)} className="btn btn-link">
+          Close
+        </button>
+      </div>
+    )}  
                               <div className="button-comment">
                                 <i type='button' className="fa-regular fa-paper-plane mt-2"
                                   style={{ fontSize: "20px" }}
-                                  onClick={() => handleAddComment(post.id)}>
+                                  onClick={() => {
+                                    handleAddComment(post.id);
+                                    setShowEmojiPicker(false); 
+                                  }}
+                                  >
                                 </i>
                               </div>
                             </div>
@@ -1055,7 +1079,7 @@ const HomeFeed = () => {
                             style={{ fontSize: '25px' }}
                             className="fa-regular fa-comment"
                             data-bs-toggle="modal"
-                            data-bs-target="#modalCommentFeed"
+                            data-bs-target="#modalComent"
                           >
                           </i>
                         </div>
@@ -1160,7 +1184,6 @@ const HomeFeed = () => {
           </div>
         </div>
       )}
-
       {/* Modal để tạo bài viết */}
       <div
         id="post-modal"
@@ -1185,7 +1208,7 @@ const HomeFeed = () => {
               <textarea
                 id="post-textarea"
                 className="form-control"
-                rows={3}
+                rows={2}
                 placeholder="Write your post here..."
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
@@ -1222,37 +1245,9 @@ const HomeFeed = () => {
           </div>
         </div>
       </div>
-
-
-
-
     </div>
 
   )
 }
-const modalOverlayStyle = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const modalContentStyle = {
-  backgroundColor: "white",
-  padding: "20px",
-  borderRadius: "8px",
-  width: "400px",
-};
-
-const textareaStyle = {
-  width: "100%",
-  height: "100px",
-  marginBottom: "10px",
-};
 
 export default HomeFeed
