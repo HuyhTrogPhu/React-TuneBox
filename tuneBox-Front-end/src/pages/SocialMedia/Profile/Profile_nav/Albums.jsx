@@ -8,7 +8,8 @@ import "./css/albums.css";
 import { Link } from "react-router-dom";
 
 const Albums = () => {
-  const userId = Cookies.get("UserID");
+  const userId = Cookies.get("userId");
+  console.log("cookie: ", userId);
   const [albums, setAlbums] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +65,7 @@ const Albums = () => {
   return (
     <div className="albums">
       <div className="btn-container">
-      {/* link album new */}
+        {/* link album new */}
         <Link
           to={{
             pathname: `/albums/create-newAlbum`,
@@ -99,7 +100,7 @@ const Albums = () => {
                     alt="Avatar"
                   />
                   <div className="info">
-                  {/* link album detail */}
+                    {/* link album detail */}
                     <Link
                       to={{
                         pathname: `/album/${album.id}`,

@@ -148,3 +148,7 @@ textarea {
   border-radius: 4px; /* Bo tròn góc */
   resize: none; /* Ngăn người dùng thay đổi kích thước */
 }
+
+.d-flex {
+  justify-content:left;
+}

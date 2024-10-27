@@ -6,9 +6,7 @@ const URL = "http://localhost:8080/customer/tracks"; // get listgenre, listTrack
 // Lấy danh sách album theo userId
 export const getAlbumsByUserId = async (userId) => {
   try {
-    const response = await axios.get(`${API_URL}/user/${userId}`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(`${API_URL}/user/${userId}`, {});
     return response.data;
   } catch (error) {
     console.error("Error fetching albums:", error);
@@ -25,7 +23,7 @@ export const listTrackByUserId = async (userId) => {
     });
     const sortedTrack = response.data.sort(
       (a, b) => new Date(b.createDate) - new Date(a.createDate)
-    ); // Sap xep track 
+    ); // Sap xep track
 
     return sortedTrack; // trả về mảng track đã sắp xếp
   } catch (error) {
@@ -67,7 +65,7 @@ export const getAlbumById = async (albumId) => {
     const response = await axios.get(`${API_URL}/${albumId}`, {
       withCredentials: true,
     });
-    return response; 
+    return response;
   } catch (error) {
     console.error("Error get info album by id:", error);
     throw error;
@@ -77,15 +75,14 @@ export const getAlbumById = async (albumId) => {
 // Tạo album mới
 export const createAlbum = async (albumData) => {
   try {
-    const response = await axios.post(API_URL, albumData)
+    const response = await axios.post(API_URL, albumData);
 
     return response.data;
   } catch (error) {
-    console.error('Error creating album:', error.response?.data || error);
+    console.error("Error creating album:", error.response?.data || error);
     throw error;
   }
 };
-
 
 // Xóa album theo ID
 export const deleteAlbum = async (albumId) => {
@@ -112,25 +109,21 @@ export const deleteAlbum = async (albumId) => {
 export const updateAlbum = async (albumId, formData) => {
   try {
     // Log request data
-    console.log('Updating album with ID:', albumId);
-    console.log('FormData contents:');
+    console.log("Updating album with ID:", albumId);
+    console.log("FormData contents:");
     for (let pair of formData.entries()) {
       console.log(pair[0], pair[1]);
     }
 
-    const response = await axios.put(
-      `${API_URL}/${albumId}`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+    const response = await axios.put(`${API_URL}/${albumId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response;
   } catch (error) {
-    console.error('Error updating album:', error);
-    console.error('Server response:', error.response?.data);
+    console.error("Error updating album:", error);
+    console.error("Server response:", error.response?.data);
     throw error;
   }
 };

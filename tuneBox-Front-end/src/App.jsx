@@ -31,6 +31,7 @@ import TrackDetail from "./pages/SocialMedia/Profile/Profile_nav/TrackDetail";
 import AlbumNew from "./pages/SocialMedia/Profile/Profile_nav/AlbumNew";
 import AlbumEdit from "./pages/SocialMedia/Profile/Profile_nav/AlbumEdit";
 import AlbumDetail from "./pages/SocialMedia/Profile/Profile_nav/AlbumDetail";
+import LikePost from "./pages/SocialMedia/Profile/Profile_nav/LikePost";
 
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
@@ -64,9 +65,9 @@ function App() {
   const { orderId } = useParams();
 
   return (
-
-    <FollowProvider> {/* Đặt FollowProvider ở đây */}
-
+    <FollowProvider>
+      {" "}
+      {/* Đặt FollowProvider ở đây */}
       <div>
         <div className="">
           <Routes>
@@ -90,7 +91,10 @@ function App() {
                 element={<AlbumEdit />}
               />
               <Route path="/album/:id" element={<AlbumDetail />} />
-              <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+              <Route
+                path="/InstrumentBelongCategory"
+                element={<CategoryPageDetail />}
+              />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
               <Route path="/checkOut" element={<CheckOut />} />
@@ -101,6 +105,7 @@ function App() {
               <Route path="/FriendList/:userId" element={<FriendList />} />
               <Route path="/Follower/:userId" element={<FollowersPage />} />
               <Route path="/Following/:userId" element={<FollowingPage />} />
+              <Route path="/likepost" element={<LikePost />} />
             </Route>
 
             {/* Các route không có Header */}

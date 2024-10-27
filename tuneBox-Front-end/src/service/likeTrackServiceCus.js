@@ -1,39 +1,63 @@
 import axios from "axios";
 
-
 const API_URL = "http://localhost:8080/api/likes";
 
 // hàm like
-export const addLike = (userId, trackId) => {
-    return axios.post(`${API_URL}/add`, null, {
-      params: {
-        userId: userId,
-        trackId: trackId
-      },
-    });
-  };
+export const addLike = (userId, trackId, postId) => {
+  return axios.post(`${API_URL}/add`, {
+    userId: userId,
+    trackId: trackId,
+    postId: postId,
+  });
+};
 
-  // Hàm xóa Like
+// Hàm xóa Like
 export const removeLike = (userId, trackId) => {
-    return axios.delete(`${API_URL}/remove`, {
-      params: {
-        userId: userId,
-        trackId: trackId
-      },
-      withCredentials: true,
-    });
-  };
+  return axios.delete(`${API_URL}/remove`, {
+    params: {
+      userId: userId,
+      trackId: trackId,
+    },
+    withCredentials: true,
+  });
+};
 
-  // Hàm kiểm tra người dùng đã like bài viết hoặc track hay chưa
-  export const checkUserLikeTrack = async (trackId, userId) => {
-    try {
-      const response = await axios.get(`${API_URL}/track/${trackId}/user/${userId}`);
-      return response; // Trả về response để xử lý ở nơi gọi
-    } catch (error) {
-      console.error("Lỗi khi kiểm tra like:", error);
-      throw error; // Ném lỗi ra ngoài để xử lý
-    }
-  };
+export const removeLikePost = (userId, postId) => {
+  return axios.delete(`${API_URL}/remove`, {
+    params: {
+      userId: userId,
+      postId: postId,
+    },
+    withCredentials: true,
+  });
+};
 
-  // Lấy số lượng like cho track theo trackId
-export const getLikesByTrackId = (trackId) => axios.get(`${API_URL}/track/${trackId}`)
+// Hàm kiểm tra người dùng đã like bài viết hoặc track hay chưa
+export const checkUserLikeTrack = async (trackId, userId) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/track/${trackId}/user/${userId}`
+    );
+    return response; // Trả về response để xử lý ở nơi gọi
+  } catch (error) {
+    console.error(
+      "Lỗi khi kiểm tra like cho track ${trackId} của user ${userId}:",
+      error
+    );
+    throw error; // Ném lỗi ra ngoài để xử lý
+  }
+};
+
+export const getAllLikedByUser = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/all/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching liked posts:", error);
+    throw error; // Ném lỗi để có thể xử lý ở nơi gọi
+  }
+};
+
+// Lấy số lượng like cho track theo trackId
+export const getLikesByTrackId = (trackId) =>
+  axios.get(`${API_URL}/track/${trackId}`);
