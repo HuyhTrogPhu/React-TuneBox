@@ -219,7 +219,7 @@ const Activity = () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
     formData.append("userId", userId);
-    console.log("userId: ",userId)
+
     postImages.forEach((image) => {
       formData.append("images", image);
     });

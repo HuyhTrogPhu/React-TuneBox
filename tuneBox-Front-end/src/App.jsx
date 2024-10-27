@@ -18,7 +18,6 @@ import CartDetail from "./pages/Ecommerce/Cart/Cart_detail";
 import DetailProduct from "./pages/Ecommerce/ShopDetail/DetailProduct";
 import InspiredBy from "./pages/GioiThieu/InspiredBy";
 import Genre from "./pages/GioiThieu/Genre";
-import EcommerceAdmin from './pages/EcommerceAdmin'
 import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
@@ -33,9 +32,7 @@ import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 import ThanhCong from "./pages/Ecommerce/order/doneOr";
 import Post from "./pages/SocialMedia/Post";
-import DetailProduct from "./components/Sellwell/DetailProduct";
-import NgheSiYeuThich from "./pages/GioiThieu/NgheSiYeuThich";
-import TheLoaiNhacYeuThich from "./pages/GioiThieu/TheLoaiNhacYeuThich";
+
 import EcommerceAdmin from "./pages/EcommerceAdmin";
 
 import ResetPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ResetPassword2";
@@ -118,11 +115,7 @@ function App() {
             <Route path="/welcome" element={<WelcomeUser />} />
             <Route path="reset-password2" element={<ResetPassword2 />} />
             <Route path="forgot-password2" element={<ForgotPassword2 />} />
-            <Route path="/createusername" element={<CreateUsername updateFormData={updateFormData} formData={formData} />} />
-            <Route path="/talent" element={<SoThich updateFormData={updateFormData} formData={formData}/>} />
-            <Route path="/artist" element={<NgheSiYeuThich updateFormData={updateFormData}/>} />
-            <Route path="/categorymusic" element={<TheLoaiNhacYeuThich updateFormData={updateFormData}/>} />
-
+    
             {/* admin start */}
             <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
             {/* admin end */}

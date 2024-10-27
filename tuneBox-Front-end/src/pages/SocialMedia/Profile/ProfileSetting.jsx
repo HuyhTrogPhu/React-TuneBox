@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { images } from "../../../assets/images/images";
 import "../../../pages/SocialMedia/Profile/css/setting.css";
 import { fetchDataUser } from "./js/ProfileJS";
+import Cookies from 'js-cookie';
 
 import i18n from "../../../i18n/i18n";
 
@@ -11,6 +12,7 @@ import { useTranslation } from "react-i18next"; // Import hook dịch
 const ProfileSetting = () => {
 
   const { t } = useTranslation();
+  const userId = Cookies.get("userId");
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ

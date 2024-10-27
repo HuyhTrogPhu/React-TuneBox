@@ -12,7 +12,10 @@ const Chat = () => {
   const [activeUser, setActiveUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const currentUserId = parseInt(Cookies.get("UserID"), 10);
+  // const currentUserId = parseInt(Cookies.get("UserID"), 10);
+  const userIdValue = Cookies.get("userId");
+  const currentUserId = userIdValue ? parseInt(userIdValue, 10) : null;
+  console.log("currentUserId: ", currentUserId);
   const messagesEndRef = useRef(null);
   const clientRef = useRef(null);
   const [attachment, setAttachment] = useState(null);

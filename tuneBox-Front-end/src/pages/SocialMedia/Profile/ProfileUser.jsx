@@ -13,6 +13,8 @@ import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { FollowContext } from './FollowContext';
 import { getUserInfo } from "../../../service/UserService";
+import i18n from "../../../i18n/i18n";
+import { useTranslation } from 'react-i18next';
 
 const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");

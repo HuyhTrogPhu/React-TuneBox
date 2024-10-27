@@ -472,4 +472,3 @@ const InstrumentList = ({ instruments, onUpdate }) => {
 
 export default InstrumentList;
 
-export default InstrumentList;  

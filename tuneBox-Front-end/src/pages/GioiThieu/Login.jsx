@@ -7,6 +7,7 @@ import Footer2 from '../../components/Footer/Footer2.jsx';
 import { login } from '../../service/LoginService.js';
 
 const Login = () => {
+  console.log('Cookie userId set:', document.cookie);  // In ra toàn bộ cookie  
   const [userNameOrEmail, setUserNameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
