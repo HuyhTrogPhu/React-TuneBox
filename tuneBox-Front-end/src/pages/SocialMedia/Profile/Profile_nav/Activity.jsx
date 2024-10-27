@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef  } from "react";
 import { useParams } from "react-router-dom"; // Import useParams để lấy userId từ URL
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -10,10 +10,14 @@ import "../../css/mxh/modal-create-post.css"
 import "../../css/profile.css"
 import "../../css/mxh/comment.css"
 import { images } from "../../../../assets/images/images";
+<<<<<<< HEAD
 import data from '@emoji-mart/data'
 import { Picker } from 'emoji-mart'
 import { getUserInfo, getAvatarUser } from "../../../../service/UserService";
 
+=======
+import Picker from '@emoji-mart/react';
+>>>>>>> Quoc-Trung
 
 const Activity = () => {
   const [postContent, setPostContent] = useState("");
@@ -22,7 +26,7 @@ const Activity = () => {
   const [posts, setPosts] = useState([]);
   const [postId, setPostId] = useState(null);
   const { id } = useParams(); // Lấy ID từ URL
-  const userId = Cookies.get("userId"); // Lấy ID người dùng hiện tại từ cookies
+  const userId = Cookies.get("userId"); // Lấy ID người dùng hiện tại  từ cookies
   const [username, setuserName] = useState({});
   const [commentContent, setCommentContent] = useState({});
   const [showAllComments, setShowAllComments] = useState({});
@@ -36,6 +40,7 @@ const Activity = () => {
   const [replyToUser, setReplyToUser] = useState("");
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
+<<<<<<< HEAD
   const [showPicker, setShowPicker] = useState(false);
   const [userData, setUserData] = useState({});
 
@@ -54,6 +59,10 @@ const Activity = () => {
     };
     fetchUser();
   }, [userId]);
+=======
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const commentSectionRef = useRef(null);
+>>>>>>> Quoc-Trung
 
   const handleLike = async (postId) => {
     try {
@@ -297,13 +306,13 @@ const Activity = () => {
   };
   const handleUpdateComment = async (commentId, postId) => {
     if (!editingCommentContent.trim()) return;
-
+  
     try {
       await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
         content: editingCommentContent,
         edited: true,
       });
-
+  
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post.id === postId) {
@@ -324,7 +333,7 @@ const Activity = () => {
           return post;
         })
       );
-
+  
       setEditingCommentId(null);
       setEditingCommentContent("");
     } catch (error) {
@@ -336,13 +345,13 @@ const Activity = () => {
   const handleAddComment = async (postId) => {
     const content = commentContent[postId] || "";
     if (!content.trim()) return;
-
+  
     try {
       const response = await axios.post(
         `http://localhost:8080/api/comments/post/${postId}/user/${userId}`,
         { content: content }
       );
-
+  
       setPosts((posts) =>
         posts.map((post) => {
           if (post.id === postId) {
@@ -351,20 +360,33 @@ const Activity = () => {
           return post;
         })
       );
-
+  
+      // Đặt lại commentContent và ẩn emoji picker
       setCommentContent((prev) => ({ ...prev, [postId]: "" }));
+      setShowEmojiPicker(false);  // Ẩn emoji picker sau khi bình luận
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
+<<<<<<< HEAD
 
   const handleEmojiSelect = (emoji) => {
     const emojiChar = emoji.native; // Lấy ký tự emoji
     handleCommentChange(posts.id, commentContent[posts.id] + emojiChar); // Thêm emoji vào nội dung
     setShowPicker(false); // Đóng emoji picker
+=======
+  const addEmoji = (postId, emoji) => {
+    setCommentContent((prev) => ({
+      ...prev,
+      [postId]: (prev[postId] || "") + emoji.native,
+    }));
+>>>>>>> Quoc-Trung
   };
   const handleCommentChange = (postId, value) => {
-    setCommentContent((prev) => ({ ...prev, [postId]: value }));
+    setCommentContent((prev) => ({
+      ...prev,
+      [postId]: value,
+    }));
   };
   const handleDeleteComment = async (commentId, postId) => {
     try {
@@ -542,8 +564,31 @@ const Activity = () => {
       console.error("Error adding reply:", error.response?.data || error.message);
     }
   };
+// Hàm để bật/tắt emoji picker
+const toggleEmojiPicker = (id) => {
+  setShowEmojiPicker((prev) => (prev === id ? null : id));
+};
+// Hàm thêm emoji vào nội dung reply
+const addEmojiToReply = (replyId, emoji) => {
+  setReplyContent((prev) => ({
+    ...prev,
+    [replyId]: (prev[replyId] || "") + emoji.native,
+  }));
+  setShowEmojiPicker(null); // Ẩn emoji picker sau khi chọn emoji
+};
 
+const handleClickOutside = (event) => {
+  if (commentSectionRef.current && !commentSectionRef.current.contains(event.target)) {
+    setShowEmojiPicker(false); // Đóng bảng emoji nếu nhấp bên ngoài
+  }
+};
 
+useEffect(() => {
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
   return (
     <div>
       {/* Nút tạo bài */}
@@ -972,6 +1017,7 @@ const Activity = () => {
               )}
 
 
+<<<<<<< HEAD
               
 
              
@@ -1006,6 +1052,171 @@ const Activity = () => {
                 </div>
               </div>
 
+=======
+              {/* Phần bình luận */}
+              <div className="comment-section mt-4" style={{ position: "relative" }} ref={commentSectionRef}>
+    <textarea
+      className="comment-input"
+      style={{ resize: "none" }}
+      rows={3}
+      placeholder="Write a comment..."
+      value={commentContent[post.id] || ""}
+      onChange={(e) => handleCommentChange(post.id, e.target.value)}
+    />
+    
+    <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="btn btn-sm">
+      😀
+    </button>
+    
+    {showEmojiPicker && (
+      <div style={{ position: "absolute", bottom: "100%", left: "0", zIndex: 10 }}>
+        <Picker onEmojiSelect={(emoji) => {
+          addEmoji(post.id, emoji);
+          // Không đóng bảng emoji ở đây
+        }} />
+        {/* Nút để đóng bảng emoji */}
+        <button onClick={() => setShowEmojiPicker(false)} className="btn btn-link">
+          Close
+        </button>
+      </div>
+    )}  
+    
+    <div className="text-end">
+      <button
+        className="btn btn-outline-primary mt-2"
+        onClick={() => {
+          handleAddComment(post.id);
+          setShowEmojiPicker(false); // Đóng emoji picker sau khi gửi comment
+        }}
+      >
+        Comment
+      </button>
+    </div>
+  </div>
+              {/* Hiển thị số lượng bình luận */}
+              <div className="comment-count mt-2">
+                <span>{post.comments.length} Comment(s)</span>
+              </div>
+
+{/* Danh sách bình luận */}
+<div className="mt-4">
+  {(showAll ? post.comments : post.comments.slice(0, 3)).map((comment) => (
+    <div key={comment.id} className="comment mt-2">
+      <div className="container">
+        <div className="row justify-content-start">
+          <div className="comment-content position-relative">
+            <img
+              src="/src/UserImages/Avatar/avt.jpg"
+              className="avatar_small"
+              alt="Avatar"
+            />
+            <div>
+              <div className="comment-author">{comment.userNickname}</div>
+              <div className="comment-time">
+                {format(new Date(comment.creationDate), "hh:mm a, dd MMM yyyy")}
+                {comment.edited && <span className="edited-notice"> (Edited)</span>}
+              </div>
+
+              {editingCommentId === comment.id ? (
+                <div>
+                  <textarea
+                    className="form-control"
+                    rows={2}
+                    value={editingCommentContent}
+                    onChange={(e) => setEditingCommentContent(e.target.value)}
+                  />
+                  <button
+                    className="btn btn-primary mt-2"
+                    onClick={() => handleUpdateComment(comment.id, post.id)}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="btn btn-secondary mt-2 ms-2"
+                    onClick={() => {
+                      setEditingCommentId(null);
+                      setEditingCommentContent("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <p>{comment.content}</p>
+              )}
+            </div>
+
+            {/* Kiểm tra nếu người dùng là chủ bài viết hoặc là người dùng đã bình luận */}
+            {(String(post.userId) === String(userId) || String(comment.userId) === String(userId)) && (
+              <div className="dropdown position-absolute top-0 end-0">
+                <button
+                  className="btn btn-options dropdown-toggle"
+                  type="button"
+                  id={`dropdownMenuButton-${comment.id}`}
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  ...
+                </button>
+                <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${comment.id}`}>
+                  {String(post.userId) === String(userId) && (
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => handleDeleteComment(comment.id, post.id)}
+                      >
+                        Delete
+                      </button>
+                    </li>
+                  )}
+                  {String(comment.userId) === String(userId) && (
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => {
+                          setEditingCommentId(comment.id);
+                          setEditingCommentContent(comment.content);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
+
+            {/* Nút trả lời cho bình luận bậc 2 */}
+            <button className="btn btn-link mt-2" onClick={() => handleReplyClick(comment)}>
+              Reply
+            </button>
+
+            {/* Input trả lời cho bình luận bậc 2 */}
+            {replyingTo[comment.id] && (
+              <div className="reply-input-container">
+                <textarea
+                  className="reply-input mt-2 form-control"
+                  rows={1}
+                  placeholder={`Reply to ${replyToUser || "User"}`}
+                  value={replyContent[comment.id] || ""}
+                  onChange={(e) => handleReplyChange(comment.id, e.target.value)}
+                />
+                <button
+                  className="btn btn-primary mt-2"
+                  onClick={() => handleAddCommentReply(comment.id, post.id)}
+                >
+                  Reply
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+>>>>>>> Quoc-Trung
             </div>
           );
         })}
