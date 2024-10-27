@@ -12,3 +12,13 @@ export const getAllOrders = () => axios.get(`${REST_API_BASE_URL}/orders`);
 
 // get orderDetail by orderId
 export const getOrderByOrderId = (orderId) => axios.get(`${REST_API_BASE_URL}/orders/${orderId}`);
+
+// service/EcommerceAdminOrder.js
+export const updateOrderStatus = (orderId, newStatus, deliveryDate, paymentStatus) => {
+    return axios.put(`${REST_API_BASE_URL}/order/${orderId}/status`, {
+      status: newStatus,
+      deliveryDate: deliveryDate,
+      paymentStatus: paymentStatus
+    });
+  };
+  

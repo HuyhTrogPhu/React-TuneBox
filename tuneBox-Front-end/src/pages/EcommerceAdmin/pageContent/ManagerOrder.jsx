@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllOrders } from '../../../service/EcommerceAdminOrder';
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import { getAllOrders, updateOrderStatus } from '../../../service/EcommerceAdminOrder';
+import { jsPDF } from "jspdf";
+import html2canvas from 'html2canvas-pro';
 const ManagerOrder = () => {
-  const [orders, setOrders] = useState([]);    
-  const [currentOrders, setCurrentOrders] = useState([]); 
-  const [currentPage, setCurrentPage] = useState(1);  
-  const rowsPerPage = 7;                       
+  const [orders, setOrders] = useState([]);
+  const [currentOrders, setCurrentOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 7;
   const [searchDate, setSearchDate] = useState('');  // Tìm kiếm theo ngày
   const [fromDate, setFromDate] = useState('');  // Tìm kiếm từ ngày
   const [toDate, setToDate] = useState('');      // Tìm kiếm đến ngày
@@ -20,12 +23,54 @@ const ManagerOrder = () => {
   const fetchOrders = async () => {
     try {
       const response = await getAllOrders();
-      setOrders(response.data); 
-      filterOrdersByToday(response.data); 
+
+      setOrders(response.data);
+      filterOrdersByToday(response.data);
     } catch (error) {
       console.error('Failed to fetch orders', error);
     }
   };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      // Tạo ngày hiện tại nếu trạng thái là 'Đã giao hàng'
+      const deliveryDate = newStatus === 'Đã giao hàng' ? new Date().toISOString().split('T')[0] : null;
+      const paymentStatus = newStatus === 'Đã giao hàng' ? 'Paid' : 'Not Paid';
+      // Cập nhật trạng thái và ngày giao hàng trên backend
+      await updateOrderStatus(orderId, newStatus, deliveryDate, paymentStatus);
+
+      // Cập nhật trạng thái và ngày giao hàng trong danh sách `currentOrders`
+      setCurrentOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === orderId
+            ? {
+              ...order,
+              status: newStatus,
+              deliveryDate: deliveryDate || order.deliveryDate,
+              paymentStatus: paymentStatus
+            }
+            : order
+        )
+      );
+
+      // Cập nhật trạng thái và ngày giao hàng trong danh sách `orders`
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === orderId
+            ? {
+              ...order,
+              status: newStatus,
+              deliveryDate: deliveryDate || order.deliveryDate,
+              paymentStatus: paymentStatus
+            }
+            : order
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update status', error);
+    }
+  };
+
 
   // Hàm lọc đơn hàng của ngày hôm nay
   const filterOrdersByToday = (allOrders) => {
@@ -57,10 +102,59 @@ const ManagerOrder = () => {
 
   // Lấy dữ liệu đơn hàng cho trang hiện tại
   const currentPaginatedOrders = currentOrders.slice(
-    (currentPage - 1) * rowsPerPage, 
+    (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
+  // Hàm xuất dữ liệu ra Excel
+  const exportToExcel = () => {
+    const data = currentOrders.map(order => ({
+      'Order Date': order.orderDate,
+      'Delivery Date': order.deliveryDate,
+      'Total Price': order.totalPrice.toLocaleString('vi'),
+      'Total Items': order.totalItems,
+      'Payment Method': order.paymentMethod,
+      'Shipping Method': order.shippingMethod,
+      'Payment Status': order.paymentStatus,
+      'Status': order.status,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders');
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    saveAs(blob, 'TuneBox_admin_orders.xlsx');
+  };
+
+
+  // Hàm xuất dữ liệu ra PDF
+  const exportToPDF = () => {
+    const input = document.getElementById('orderTable'); // ID của bảng
+    html2canvas(input, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('l', 'mm', 'a4'); // Tạo PDF theo chiều ngang
+      const imgWidth = 210; // Độ rộng A4
+      const pageHeight = 295; // Chiều cao A4
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save('orders.pdf'); // Tải về file PDF
+    });
+  };
   // Chuyển trang
   const paginate = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -77,10 +171,10 @@ const ManagerOrder = () => {
             <form onSubmit={(e) => { e.preventDefault(); searchOrdersByDate(searchDate); }}>
               <div className='mt-3'>
                 <label className='form-label'>Search by day:</label>
-                <input 
-                  type="date" 
-                  className='form-control' 
-                  placeholder='Select day' 
+                <input
+                  type="date"
+                  className='form-control'
+                  placeholder='Select day'
                   value={searchDate}
                   onChange={(e) => setSearchDate(e.target.value)}
                 />
@@ -93,17 +187,17 @@ const ManagerOrder = () => {
             <form onSubmit={(e) => { e.preventDefault(); searchOrdersByRange(fromDate, toDate); }}>
               <div className='mt-3'>
                 <label className='form-label'>From day:</label>
-                <input 
-                  type="date" 
-                  className='form-control' 
+                <input
+                  type="date"
+                  className='form-control'
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                 />
                 <br />
                 <label className='form-label'>To day:</label>
-                <input 
-                  type="date" 
-                  className='form-control' 
+                <input
+                  type="date"
+                  className='form-control'
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                 />
@@ -112,26 +206,32 @@ const ManagerOrder = () => {
             </form>
           </div>
           {/* Daily revenue */}
+
           <div className='col-3'>
             <h6>Daily revenue: {dailyRevenue ? `${(dailyRevenue).toLocaleString('vi')} VND` : 'No data'}</h6>
           </div>
+
+
         </div>
 
         {/* Table */}
         <div className='row mt-5'>
-          <table className='table'>
+
+          <table id="orderTable" className='table'>
             <thead>
               <tr>
-                <th style={{ textAlign: "center" }}  scope='col'>#</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Order date</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Delivery date</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Tax</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Total price</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Total Items</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Payment method</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Shipping method</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Status</th>
-                <th style={{ textAlign: "center" }}  scope='col'>Action</th>
+                <th style={{ textAlign: "center" }} scope='col'>#</th>
+                <th style={{ textAlign: "center" }} scope='col'>Order date</th>
+                <th style={{ textAlign: "center" }} scope='col'>Delivery date</th>
+
+                <th style={{ textAlign: "center" }} scope='col'>Total price</th>
+                <th style={{ textAlign: "center" }} scope='col'>Total Items</th>
+                <th style={{ textAlign: "center" }} scope='col'>Payment method</th>
+
+                <th style={{ textAlign: "center" }} scope='col'>Shipping method</th>
+                <th style={{ textAlign: "center" }} scope='col'>Payment status</th>
+                <th style={{ textAlign: "center" }} scope='col'>Status</th>
+                <th style={{ textAlign: "center" }} scope='col'>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -141,12 +241,27 @@ const ManagerOrder = () => {
                     <th>{(currentPage - 1) * rowsPerPage + index + 1}</th>
                     <td>{order.orderDate}</td>
                     <td>{order.deliveryDate}</td>
-                    <td>{order.tax}</td>
+
                     <td>{(order.totalPrice).toLocaleString('vi')} VND</td>
                     <td>{order.totalItems}</td>
                     <td>{order.paymentMethod}</td>
                     <td>{order.shippingMethod}</td>
-                    <td>{order.status}</td>
+                    <td>{order.paymentStatus}</td>
+                    <td>
+
+                      <select
+                        value={order.status}
+                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        className="form-select"
+                      >
+                        <option value="Chờ xác nhận">Chờ xác nhận</option>
+                        <option value="Đã xác nhận">Đã xác nhận</option>
+
+                        <option value="Đang giao hàng">Đang giao hàng</option>
+                        <option value="Đã giao hàng">Đã giao hàng</option>
+                        <option value="Đã hủy">Đã hủy</option>
+                      </select>
+                    </td>
                     <td>
                       <Link to={`/ecomadmin/orders/detail/${order.id}`}>View</Link>
                     </td>
@@ -159,6 +274,15 @@ const ManagerOrder = () => {
               )}
             </tbody>
           </table>
+          <div className='col-3'>
+            <button onClick={exportToExcel} className="btn btn-outline-success">
+              Xuất Excel
+            </button>
+            <button onClick={exportToPDF} className="btn btn-outline-danger ">
+              Xuất PDF
+            </button>
+          </div>
+        
 
           {/* Pagination */}
           <div className="">

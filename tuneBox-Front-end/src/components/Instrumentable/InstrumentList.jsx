@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { listInstruments, updateInstrument, listBrands, listCategories } from "../../service/InstrumentService";
-
+import * as XLSX from 'xlsx'; 
 const InstrumentList = ({ instruments, onUpdate }) => {
   const navigator = useNavigate();
   const [selectedInstrument, setSelectedInstrument] = useState('');
@@ -115,18 +115,6 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       return;
     }
 
-    // Chuyển đổi hình ảnh thành Base64
-    const base64Images = await Promise.all(
-      image.map(file => {
-        if (typeof file === 'string') return file; // Nếu là Base64, giữ nguyên
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result.split(',')[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      })
-    );
 
     // Tạo đối tượng cập nhật cho nhạc cụ
     const updatedInstrument = {
@@ -139,7 +127,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
       brandId: newInsBrand || selectedInstrument.brandId,
       description: newInsDes || selectedInstrument.description,
       status: newInsStatus !== undefined ? newInsStatus : selectedInstrument.status,
-      image: base64Images // Gán hình ảnh mới vào đối tượng
+      image: image // Gán hình ảnh mới vào đối tượng
     };
 
     console.log("Updating instrument with ID:", selectedInstrument.id);
@@ -211,6 +199,28 @@ const InstrumentList = ({ instruments, onUpdate }) => {
     }
   };
 
+  const exportToExcel = () => {
+    const exportData = instruments.map((ins) => ({
+      id: ins.id,
+      name: ins.name.length > 32767 ? ins.name.substring(0, 32767) : ins.name, // Giới hạn độ dài
+      description: ins.description.length > 32767 ? ins.description.substring(0, 32767) : ins.description, // Giới hạn độ dài
+      cateogryy: ins.categoryIns.name ,
+      brand: ins.brand.name,
+
+      color: ins.color,
+      quanlity: ins.quantity,
+      price: ins.costPrice.toLocaleString('vi') ,
+      status: ins.status ? 'Unavailable' : 'Available',
+    }));
+  
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Instrument');
+  
+    // Xuất file Excel
+    XLSX.writeFile(wb, 'Instrument.xlsx');
+  };
+
   useEffect(() => {
     getAllBrand();
     getAllCategory();
@@ -255,7 +265,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
                 <td>{ins.name}</td>
                 <td>{ins.categoryIns ? ins.categoryIns.name : 'No category'}</td>
                 <td>{ins.brand ? ins.brand.name : 'No brand'}</td>
-                <td>{ins.costPrice.toLocaleString()}đ</td>
+                <td>{ins.costPrice.toLocaleString('vi')}đ</td>
                 <td>{ins.color}</td>
                 <td>{ins.quantity}</td>
                 <td>{ins.status ? 'Available' : 'Unavailable'}</td>
@@ -273,6 +283,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
           )}
         </tbody>
       </table>
+      <button className="btn btn-success mb-3" onClick={exportToExcel}>Export to Excel</button> 
 
       {/* Modal edit */}
       <div

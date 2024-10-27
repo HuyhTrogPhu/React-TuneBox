@@ -76,7 +76,7 @@ const EcommerceAdmin = () => {
             <Route path="Customer/detail/:userId" element={<UserDetail />} />
 
             <Route path='Order' element={<ManagerOrder />} />
-            <Route path='Order/detail/:orderId' element={<OrderDetail />}/>
+            <Route path='order/detail/:orderId' element={<OrderDetail />}/>
           
             <Route path='Brand' element={<ManagerBrand />} />
             <Route path='Categories' element={<ManagerCategories />} />
