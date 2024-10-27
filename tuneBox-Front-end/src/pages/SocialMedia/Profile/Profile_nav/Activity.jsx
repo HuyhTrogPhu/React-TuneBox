@@ -12,6 +12,7 @@ import "../../css/mxh/comment.css"
 import { images } from "../../../../assets/images/images";
 import data from '@emoji-mart/data'
 import { Picker } from 'emoji-mart'
+import { getUserInfo, getAvatarUser } from "../../../../service/UserService";
 
 
 const Activity = () => {
@@ -33,10 +34,26 @@ const Activity = () => {
   const [likes, setLikes] = useState({}); // Trạng thái lưu trữ like cho mỗi bài viết
   const [likesCount, setLikesCount] = useState({});
   const [replyToUser, setReplyToUser] = useState("");
-  const currentUserNickname = Cookies.get('userNickname');
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
   const [showPicker, setShowPicker] = useState(false);
+  const [userData, setUserData] = useState({});
+
+  // get user infor 
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (userId) {
+        try {
+          const userData = await getUserInfo(userId);
+          setUserData(userData);
+          console.log("User data fetched from API:", userData);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+    fetchUser();
+  }, [userId]);
 
   const handleLike = async (postId) => {
     try {
@@ -314,6 +331,8 @@ const Activity = () => {
       console.error("Error updating comment:", error);
     }
   };
+
+  // add comment
   const handleAddComment = async (postId) => {
     const content = commentContent[postId] || "";
     if (!content.trim()) return;
@@ -341,7 +360,7 @@ const Activity = () => {
 
   const handleEmojiSelect = (emoji) => {
     const emojiChar = emoji.native; // Lấy ký tự emoji
-    handleCommentChange(post.id, commentContent[post.id] + emojiChar); // Thêm emoji vào nội dung
+    handleCommentChange(posts.id, commentContent[posts.id] + emojiChar); // Thêm emoji vào nội dung
     setShowPicker(false); // Đóng emoji picker
   };
   const handleCommentChange = (postId, value) => {
@@ -531,7 +550,7 @@ const Activity = () => {
       <div className="container mt-2 mb-5">
         <div className="row align-items-center">
           <div className="col-auto post-header">
-            <img src={images.ava} className="avatar_small" alt="avatar" />
+            <img src={userData.avatar} className="avatar_small" alt="avatar" />
           </div>
           <div className="col">
             <button
@@ -559,9 +578,9 @@ const Activity = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-              <img src={images.ava} className="avatar_small" alt="Avatar" />
+              <img src={userData.avatar} className="avatar_small" alt="Avatar" />
               <div>
-                <div className="name">Phạm Xuân Trường</div>
+                <div className="name">{userData.name}</div>
                 <div className="time">Posting to Feed</div>
               </div>
               <button
@@ -574,7 +593,7 @@ const Activity = () => {
               <textarea
                 id="post-textarea"
                 className="form-control"
-                rows={3}
+                rows={2}
                 placeholder="Write your post here..."
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
@@ -610,6 +629,7 @@ const Activity = () => {
           </div>
         </div>
       </div>
+
       {/* Phần hiển thị bài viết */}
       <div className="container mt-2 mb-5">
         {posts.map((post) => {
@@ -618,10 +638,282 @@ const Activity = () => {
 
           return (
             <div key={post.id} className="post">
+
+              {/* Modal hiển thị comment */}
+              <div class="modal fade" id="modalComent" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      {/* Danh sách bình luận */}
+                      <div className="mt-4">
+                        {(showAllComments[post.id] ? post.comments : post.comments.slice(0, 3)).map((comment) => (
+                          <div key={comment.id} className="comment mt-2">
+                            <div className="container">
+                              <div className="row justify-content-start">
+                                <div className="comment-content position-relative">
+                                  <img
+                                    src="/src/UserImages/Avatar/avt.jpg"
+                                    className="avatar_small"
+                                    alt="Avatar"
+                                  />
+                                  <div>
+                                    <div className="comment-author">{comment.userNickname}</div>
+                                    <div className="comment-time">
+                                      {format(new Date(comment.creationDate), "hh:mm a, dd MMM yyyy")}
+                                      {comment.edited && <span className="edited-notice"> (Edited)</span>}
+                                    </div>
+                                    {editingCommentId === comment.id ? (
+                                      <div>
+                                        <textarea
+                                          className="form-control"
+                                          rows={2}
+                                          value={editingCommentContent}
+                                          onChange={(e) => setEditingCommentContent(e.target.value)}
+                                        />
+                                        <button
+                                          className="btn btn-primary mt-2"
+                                          onClick={() => handleUpdateComment(comment.id, post.id)}
+                                        >
+                                          Save
+                                        </button>
+                                        <button
+                                          className="btn btn-secondary mt-2 ms-2"
+                                          onClick={() => {
+                                            setEditingCommentId(null);
+                                            setEditingCommentContent("");
+                                          }}
+                                        >
+                                          Cancel
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <p>{comment.content}</p>
+                                    )}
+                                  </div>
+
+                                  {String(comment.userId) === String(userId) && (
+                                    <div className="dropdown position-absolute top-0 end-0">
+                                      <button
+                                        className="btn btn-options dropdown-toggle"
+                                        type="button"
+                                        id={`dropdownMenuButton-${comment.id}`}
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                      >
+                                        ...
+                                      </button>
+                                      <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${comment.id}`}>
+                                        <li>
+                                          <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                              setEditingCommentId(comment.id);
+                                              setEditingCommentContent(comment.content);
+                                            }}
+                                          >
+                                            Edit
+                                          </button>
+                                        </li>
+                                        <li>
+                                          <button
+                                            className="dropdown-item"
+                                            onClick={() => handleDeleteComment(comment.id, post.id)}
+                                          >
+                                            Delete
+                                          </button>
+                                        </li>
+                                      </ul>
+                                    </div>
+                                  )}
+
+                                  {/* Nút trả lời cho bình luận bậc 2 */}
+                                  <button className="btn btn-link mt-2" onClick={() => handleReplyClick(comment)}>
+                                    Reply
+                                  </button>
+
+                                  {/* Input trả lời cho bình luận bậc 2 */}
+                                  {replyingTo[comment.id] && (
+                                    <div className="d-flex reply-input-container">
+                                      <textarea
+                                        className="reply-input mt-2 form-control"
+                                        rows={1}
+                                        placeholder={`Reply to ${comment.userNickname}`} // Thay đổi ở đây
+                                        value={replyContent[comment.id] || ""}
+                                        onChange={(e) => handleReplyChange(comment.id, e.target.value)}
+                                      />
+                                      <i
+                                        type='button' className="fa-regular fa-paper-plane ms-3 mt-2"
+                                        style={{ fontSize: "20px" }}
+                                        onClick={() => handleAddCommentReply(comment.id, post.id)}
+                                      >
+
+                                      </i>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Hiển thị danh sách trả lời bậc 2 */}
+                              <div className="row justify-content-center">
+                                {comment.replies && comment.replies.length > 0 && (
+                                  <div className="replies-list mt-2">
+                                    {(showAllReplies[comment.id] ? comment.replies : comment.replies.slice(0, 2)).map((reply) => (
+                                      <div key={reply.id} className="reply">
+                                        <div className="reply-content" style={{ marginLeft: "20px" }}>
+                                          <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
+                                          <div>
+                                            <div className="d-flex align-items-center">
+                                              <span className="comment-author pe-3">{reply.userNickname}</span>
+                                              <span className="reply-time">
+                                                {format(new Date(reply.creationDate), "hh:mm a, dd MMM yyyy") || "Invalid date"}
+                                              </span>
+                                            </div>
+                                            {editingReplyId === reply.id ? (
+                                              <div>
+                                                <textarea
+                                                  className="form-control"
+                                                  rows={2}
+                                                  value={editingReplyContent}
+                                                  onChange={(e) => setEditingReplyContent(e.target.value)}
+                                                />
+                                                <button
+                                                  className="btn btn-primary mt-2"
+                                                  onClick={() => handleUpdateReply(reply.id)}
+                                                >
+                                                  Save
+                                                </button>
+                                                <button
+                                                  className="btn btn-secondary mt-2 ms-2"
+                                                  onClick={() => {
+                                                    setEditingReplyId(null);
+                                                    setEditingReplyContent("");
+                                                  }}
+                                                >
+                                                  Cancel
+                                                </button>
+                                              </div>
+                                            ) : (
+                                              <p>
+                                                <strong>{reply.repliedToNickname}:</strong> {reply.content}
+                                              </p>
+                                            )}
+
+                                            {/* Nút trả lời cho reply bậc 2 */}
+                                            <button className="btn btn-link" onClick={() => handleReplyClick(reply)}>
+                                              Reply
+                                            </button>
+                                            {/* Dropdown cho reply bậc 2 */}
+                                            {String(reply.userId) === String(userId) && (
+                                              <div className="dropdown position-absolute top-0 end-0">
+                                                <button
+                                                  className="btn btn-options dropdown-toggle"
+                                                  type="button"
+                                                  id={`dropdownMenuButton-${reply.id}`}
+                                                  data-bs-toggle="dropdown"
+                                                  aria-expanded="false"
+                                                >
+                                                  ...
+                                                </button>
+                                                <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${reply.id}`}>
+                                                  <li>
+                                                    <button
+                                                      className="dropdown-item"
+                                                      onClick={() => {
+                                                        setEditingReplyId(reply.id); // Thiết lập ID của reply để chỉnh sửa
+                                                        setEditingReplyContent(reply.content); // Đảm bảo biến này được cập nhật với nội dung của reply
+                                                      }}
+                                                    >
+                                                      Edit
+                                                    </button>
+
+                                                  </li>
+                                                  <li>
+                                                    <button
+                                                      className="dropdown-item"
+                                                      onClick={() => handleDeleteReply(reply.id)}
+                                                    >
+                                                      Delete
+                                                    </button>
+                                                  </li>
+                                                </ul>
+                                              </div>
+                                            )}
+
+                                            {/* Input trả lời cho reply bậc 2 */}
+                                            {replyingTo[reply.id] && (
+                                              <div className="d-flex reply-input-container">
+                                                <textarea
+                                                  className="reply-input mt-2 form-control"
+                                                  rows={1}
+                                                  placeholder="Write a reply..."
+                                                  value={replyContent[reply.id] || ""}
+                                                  onChange={(e) => handleReplyChange(reply.id, e.target.value)}
+                                                />
+                                                <i
+                                                  type='button' className="fa-regular fa-paper-plane ms-3 mt-2"
+                                                  onClick={() => handleAddReplyToReply(reply.id, comment.id)}
+                                                >
+
+                                                </i>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {/* Hiển thị nút xem thêm trả lời */}
+                                    {comment.replies.length > 2 && (
+                                      <button className="btn btn-link" onClick={() => handleToggleReplies(comment.id)}>
+                                        {showAllReplies[comment.id] ? "Hide replies" : "View all replies"}
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Hiển thị nút xem thêm bình luận */}
+                        {post.comments.length > 3 && (
+                          <button className="btn btn-link" onClick={() => handleToggleComments(post.id)}>
+                            {showAllComments[post.id] ? "View less comments" : "View all comments"}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Phần bình luận */}
+                      <div className="comment-section d-flex mt-4">
+                        <textarea
+                          className="comment-input"
+                          style={{ resize: "none" }}
+                          rows={1}
+                          placeholder="Write a comment..."
+                          value={commentContent[post.id] || ""}
+                          onChange={(e) => handleCommentChange(post.id, e.target.value)}
+                        />
+                        <div className="button-comment">
+                          <i type='button' className="fa-regular fa-paper-plane mt-2"
+                            style={{ fontSize: "20px" }}
+                            onClick={() => handleAddComment(post.id)}>
+                          </i>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
               {/* Phần tiêu đề bài viết */}
               <div className="post-header position-relative">
                 <img
-                  src="/src/UserImages/Avatar/avt.jpg"
+                  src={userData.avatar}
                   className="avatar_small"
                   alt="Avatar"
                 />
@@ -672,288 +964,48 @@ const Activity = () => {
                   {post.images.map((image, index) => (
                     <img
                       key={index}
-                      src={image.images}
+                      src={image.postImage}
                       alt="Post"
                     />
                   ))}
                 </div>
               )}
 
-              {/* Phần Like */}
-              <div className="like-section mt-2">
-                <div className="like-count">Likes: {post.likeCount || 0}</div>
-                <button
-                  className={`btn ${likes[post.id] ? "btn-danger" : "btn-outline-danger"}`}
-                  onClick={() => handleLike(post.id)}
-                >
-                  {likes[post.id] ? "Unlike" : "Like"}
-                </button>
-              </div>
 
-              {/* Phần bình luận */}
-              <div className="comment-section mt-4">
-      <textarea
-        className="comment-input"
-        style={{ resize: "none" }}
-        rows={3}
-        placeholder="Write a comment..."
-        value={commentContent[post.id] || ""}
-        onChange={(e) => handleCommentChange(post.id, e.target.value)}
-      />
-      <div className="text-end">
-        <button className="btn btn-outline-primary mt-2" onClick={() => handleAddComment(post.id)}>
-          Comment
-        </button>
-        <button className="btn btn-secondary mt-2" onClick={() => setShowPicker(!showPicker)}>
-          Emoji
-        </button>
-      </div>
-      {showPicker && (
-        <Picker onSelect={handleEmojiSelect} style={{ position: 'absolute', zIndex: 2 }} />
-      )}
-    </div>
-              {/* Hiển thị số lượng bình luận */}
-              <div className="comment-count mt-2">
-                <span>{post.comments.length} Comment(s)</span>
-              </div>
+              
 
-              {/* Danh sách bình luận */}
-              <div className="mt-4">
-                {(showAll ? post.comments : post.comments.slice(0, 3)).map((comment) => (
-                  <div key={comment.id} className="comment mt-2">
-                    <div className="container">
-                      <div className="row justify-content-start">
-                        <div className="comment-content position-relative">
-                          <img
-                            src="/src/UserImages/Avatar/avt.jpg"
-                            className="avatar_small"
-                            alt="Avatar"
-                          />
-                          <div>
-                            <div className="comment-author">{comment.userNickname}</div>
-                            <div className="comment-time">
-                              {format(new Date(comment.creationDate), "hh:mm a, dd MMM yyyy")}
-                              {comment.edited && <span className="edited-notice"> (Edited)</span>}
-                            </div>
-                            {editingCommentId === comment.id ? (
-                              <div>
-                                <textarea
-                                  className="form-control"
-                                  rows={2}
-                                  value={editingCommentContent}
-                                  onChange={(e) => setEditingCommentContent(e.target.value)}
-                                />
-                                <button
-                                  className="btn btn-primary mt-2"
-                                  onClick={() => handleUpdateComment(comment.id, post.id)}
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  className="btn btn-secondary mt-2 ms-2"
-                                  onClick={() => {
-                                    setEditingCommentId(null);
-                                    setEditingCommentContent("");
-                                  }}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            ) : (
-                              <p>{comment.content}</p>
-                            )}
-                          </div>
-
-                          {String(comment.userId) === String(userId) && (
-                            <div className="dropdown position-absolute top-0 end-0">
-                              <button
-                                className="btn btn-options dropdown-toggle"
-                                type="button"
-                                id={`dropdownMenuButton-${comment.id}`}
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                              >
-                                ...
-                              </button>
-                              <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${comment.id}`}>
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => {
-                                      setEditingCommentId(comment.id);
-                                      setEditingCommentContent(comment.content);
-                                    }}
-                                  >
-                                    Edit
-                                  </button>
-                                </li>
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => handleDeleteComment(comment.id, post.id)}
-                                  >
-                                    Delete
-                                  </button>
-                                </li>
-                              </ul>
-                            </div>
-                          )}
-
-                          {/* Nút trả lời cho bình luận bậc 2 */}
-                          <button className="btn btn-link mt-2" onClick={() => handleReplyClick(comment)}>
-                            Reply
-                          </button>
-
-                          {/* Input trả lời cho bình luận bậc 2 */}
-                          {replyingTo[comment.id] && (
-                            <div className="reply-input-container">
-                              <textarea
-                                className="reply-input mt-2 form-control"
-                                rows={1}
-                                placeholder={`Reply to ${replyToUser || "User"}`}
-                                value={replyContent[comment.id] || ""}
-                                onChange={(e) => handleReplyChange(comment.id, e.target.value)}
-                              />
-                              <button
-                                className="btn btn-primary mt-2"
-                                onClick={() => handleAddCommentReply(comment.id, post.id)}
-                              >
-                                Reply
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Hiển thị danh sách trả lời bậc 2 */}
-                      <div className="row justify-content-center">
-                        {comment.replies && comment.replies.length > 0 && (
-                          <div className="replies-list mt-2">
-                            {(showAllReplies[comment.id] ? comment.replies : comment.replies.slice(0, 2)).map((reply) => (
-                              <div key={reply.id} className="reply" style={{ position: "relative" }}>
-                                <div className="reply-content" style={{ marginLeft: "20px" }}>
-                                  <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
-                                  <div>
-                                    <div className="d-flex align-items-center">
-                                      <span className="comment-author pe-3">{reply.userNickname}</span>
-                                      <span className="reply-time">
-                                        {format(new Date(reply.creationDate), "hh:mm a, dd MMM yyyy") || "Invalid date"}
-                                      </span>
-                                    </div>
-                                    {editingReplyId === reply.id ? (
-                                      <div>
-                                        <textarea
-                                          className="form-control"
-                                          rows={2}
-                                          value={editingReplyContent}
-                                          onChange={(e) => setEditingReplyContent(e.target.value)}
-                                        />
-                                        <button
-                                          className="btn btn-primary mt-2"
-                                          onClick={() => handleUpdateReply(reply.id)}
-                                        >
-                                          Save
-                                        </button>
-                                        <button
-                                          className="btn btn-secondary mt-2 ms-2"
-                                          onClick={() => {
-                                            setEditingReplyId(null);
-                                            setEditingReplyContent("");
-                                          }}
-                                        >
-                                          Cancel
-                                        </button>
-                                      </div>
-                                    ) : (
-                                      <p>
-                                        <strong>{reply.userNickname}:</strong> {reply.content}
-                                      </p>
-                                    )}
-                                    {/* Nút trả lời cho reply bậc 2 */}
-                                    <button className="btn btn-link" onClick={() => handleReplyClick(reply)}>
-                                      Reply
-                                    </button>
-
-                                    {/* Dropdown cho reply bậc 2 */}
-                                    {String(reply.userId) === String(userId) && (
-                                      <div className="dropdown position-absolute top-0 end-0">
-                                        <button
-                                          className="btn btn-options dropdown-toggle"
-                                          type="button"
-                                          id={`dropdownMenuButton-${reply.id}`}
-                                          data-bs-toggle="dropdown"
-                                          aria-expanded="false"
-                                        >
-                                          ...
-                                        </button>
-                                        <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${reply.id}`}>
-                                          <li>
-                                            <button
-                                              className="dropdown-item"
-                                              onClick={() => {
-                                                setEditingReplyId(reply.id); // Thiết lập ID của reply để chỉnh sửa
-                                                setEditingReplyContent(reply.content); // Đảm bảo biến này được cập nhật với nội dung của reply
-                                              }}
-                                            >
-                                              Edit
-                                            </button>
-
-                                          </li>
-                                          <li>
-                                            <button
-                                              className="dropdown-item"
-                                              onClick={() => handleDeleteReply(reply.id)}
-                                            >
-                                              Delete
-                                            </button>
-                                          </li>
-                                        </ul>
-                                      </div>
-                                    )}
-
-                                    {/* Input trả lời cho reply bậc 2 */}
-                                    {replyingTo[reply.id] && (
-                                      <div className="reply-input-container">
-                                        <textarea
-                                          className="reply-input mt-2 form-control"
-                                          rows={1}
-                                          placeholder="Write a reply..."
-                                          value={replyContent[reply.id] || ""}
-                                          onChange={(e) => handleReplyChange(reply.id, e.target.value)}
-                                        />
-                                        <button
-                                          className="btn btn-primary mt-2"
-                                          onClick={() => handleAddReplyToReply(reply.id, comment.id)}
-                                        >
-                                          Reply
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-
-                            {/* Hiển thị nút xem thêm trả lời */}
-                            {comment.replies.length > 2 && (
-                              <button className="btn btn-link" onClick={() => handleToggleReplies(comment.id)}>
-                                {showAllReplies[comment.id] ? "Hide replies" : "View all replies"}
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+             
+              {/* Interact post */}
+              <div className='row d-flex justify-content-start align-items-center'>
+                {/* like post */}
+                <div className="col-2 mt-2 text-center">
+                  <div className="like-count">
+                    {post.likeCount || 0}
+                    <i
+                      className={`fa-solid fa-heart text-danger ${likes[post.id] ? "like" : "noLike"}`}
+                      onClick={() => handleLike(post.id)}
+                    >
+                      {likes[post.id]}
+                    </i>
                   </div>
-                ))}
+                </div>
 
-                {/* Hiển thị nút xem thêm bình luận */}
-                {post.comments.length > 3 && (
-                  <button className="btn btn-link" onClick={() => handleToggleComments(post.id)}>
-                    {showAllComments[post.id] ? "View less comments" : "View all comments"}
-                  </button>
-                )}
+                {/* comment post */}
+                <div className="col-2 mt-2 text-center">
+                  <div className='d-flex justify-content-center align-items-center'>
+                    {post.comments.length}
+                    <i
+                      type="button"
+                      style={{ fontSize: '25px' }}
+                      className="fa-regular fa-comment"
+                      data-bs-toggle="modal"
+                      data-bs-target="#modalComent"
+                    >
+                    </i>
+                  </div>
+                </div>
               </div>
+
             </div>
           );
         })}

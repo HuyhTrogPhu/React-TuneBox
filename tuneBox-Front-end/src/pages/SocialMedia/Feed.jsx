@@ -3,8 +3,7 @@ import { images } from "../../assets/images/images";
 import axios from 'axios';
 import { format } from 'date-fns';
 import Cookies from 'js-cookie';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 import "./css/mxh/style.css"
 import "./css/mxh/post.css"
 import "./css/mxh/modal-create-post.css"
@@ -13,6 +12,7 @@ import "./css/mxh/comment.css"
 import "./css/mxh/button.css"
 import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { getAvatarUser } from '../../service/UserService';
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -42,6 +42,22 @@ const HomeFeed = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportPostId, setReportPostId] = useState(null);
+  const [avatar, setAvatar] = useState(null);
+
+  // get avatar user
+  useEffect(() => {
+    const fetchUserAvatar = async () => {
+      if (currentUserId) {
+        try {
+          const userAvatar = await getAvatarUser(currentUserId);
+          setAvatar(userAvatar);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+    fetchUserAvatar();
+  }, [currentUserId]);
 
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
@@ -83,6 +99,9 @@ const HomeFeed = () => {
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
+          
+          console.log("postId:", post.id)
+          console.log("data comment", commentsResponse);
 
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
@@ -601,37 +620,37 @@ const HomeFeed = () => {
           <div className="col-3 sidebar bg-light p-4">
             <ul className="list-unstyled">
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
+                <Link to={'/'} className="d-flex align-items-center " style={{ textAlign: 'center' }}>
                   <img src={images.web_content} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>
                     <Link to={'/'}>Bản tin</Link>
                   </span>
-                </a>
+                </Link>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link to={"/"} className="d-flex align-items-center">
                   <img src={images.followers} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>Đang theo dõi</span>
-                </a>
+                </Link>
               </li>
 
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link to={"/"} className="d-flex align-items-center">
                   <img src={images.feedback} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>Bài viết đã thích</span>
-                </a>
+                </Link>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link to={"/"} className="d-flex align-items-center">
                   <img src={images.music} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>Albums đã thích</span>
-                </a>
+                </Link>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link to={"/"} className="d-flex align-items-center">
                   <img src={images.playlist} alt='icon' width={20} className="me-2 " />
                   <span className='fw-bold'>Playlist đã thích</span>
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -641,7 +660,7 @@ const HomeFeed = () => {
             <div className="container mt-2 mb-5">
               <div className="row align-items-center">
                 <div className="col-auto post-header">
-                  <img src={images.ava} className="avatar_small" alt="avatar" />
+                  <img src={avatar} className="avatar_small" alt="avatar" />
                 </div>
                 <div className="col">
                   <button
@@ -671,14 +690,14 @@ const HomeFeed = () => {
                   <div key={post.id} className="post border">
 
                     {/* Modeal hiển thị comment  */}
-                    <div class="modal fade" id="modalComent" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div className="modal fade" id="modalCommentFeed" tabIndex="-1" aria-hidden="true" data-bs-backdrop="false">
+                      <div className="modal-dialog">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <h1 className="modal-title fs-5">Comments</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
-                          <div class="modal-body">
+                          <div className="modal-body">
                             {/* Danh sách bình luận */}
                             <div className="mt-4">
                               {(showAllComments[post.id] ? post.comments : post.comments.slice(0, 3)).map((comment) => (
@@ -1036,7 +1055,7 @@ const HomeFeed = () => {
                             style={{ fontSize: '25px' }}
                             className="fa-regular fa-comment"
                             data-bs-toggle="modal"
-                            data-bs-target="#modalComent"
+                            data-bs-target="#modalCommentFeed"
                           >
                           </i>
                         </div>

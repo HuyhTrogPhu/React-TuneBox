@@ -273,13 +273,12 @@ const Navbar = () => {
         </button>
 
         <span className="mx-3">
-          <img alt="avatar" src={avatarUrl} className="avatar m-0" onClick={handleAvatarClick} onMouseEnter={handleMouseEnter} />
+          <img alt="avatar-nav" src={avatarUrl} className="avatar-nav m-0" onClick={handleAvatarClick} onMouseEnter={handleMouseEnter} />
         </span>
 
         {dropdownVisible && (
-          <div className="dropdown-menu dropdown-menu-right show" onMouseLeave={handleMouseLeave}>
+          <div className="dropdown-menu dropdown-menu-right show dropdo" onMouseLeave={handleMouseLeave}>
             <button className="dropdown-item" onClick={() => navigate("/profileUser")}>Trang cá nhân</button>
-            <button className="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={getAllGenre}>Đăng tải bài hát</button>
             <button className="dropdown-item" onClick={handleLogout}>Đăng xuất</button>
           </div>
         )}

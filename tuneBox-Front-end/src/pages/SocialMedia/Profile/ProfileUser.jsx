@@ -69,6 +69,7 @@ const ProfileUser = () => {
               src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
               className="avatar"
               alt="avatar"
+              style={{width: '100px', height: '100px'}}
             />
           </div>
           <div className="row mt-4">

@@ -122,9 +122,12 @@
 }
 
 /* Avatar trong thanh nav */
-.avatar {
+.avatar-nav {
     width: 60px !important;
     height: 60px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
 }
 
 .cart-shopping {
@@ -133,4 +136,10 @@
     color: #fff;
     font-size: 18px;
     background-color: #E94F37;
+}
+
+
+.dropdown-user {
+    top: 15%;
+    right: 7%;
 }
