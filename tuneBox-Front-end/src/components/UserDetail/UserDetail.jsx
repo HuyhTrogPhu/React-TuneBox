@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas-pro';
+import { Link } from 'react-router-dom';
 const UserDetail = () => {
     const { userId } = useParams();
     const [userDetails, setUserDetails] = useState({});
@@ -93,10 +94,10 @@ const UserDetail = () => {
             <div className='container' >
                 <div className='row'>
                     {/* Thông tin chi tiết người dùng */}
-                    <div className='col-3' style={{ position: 'relative' }}>
+                    <div className='col-4' style={{ position: 'relative'}} >
 
                         {/* Thông tin chi tiết người dùng */}
-                        <div className='infor' style={{ position: 'absolute', top: '500px', left: '50px', transform: 'translate(-50%, -50%)' }}>
+                        <div className='infor' style={{ position: 'absolute', top: '500px', left: '220px', transform: 'translate(-50%, -50%)' }}>
 
                             <div style={{ textAlign: 'center' }}>
                                 <img src={userDetails.avatar || 'default_avatar.jpg'} alt="Avatar" style={{ width: '200px', borderRadius: '50%' }} />
@@ -134,7 +135,7 @@ const UserDetail = () => {
 
                                         </li>
                                         <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                                            <p className="mb-0"><b>About</b> {userDetails.about || 'Chưa cập nhật'} </p>
+                                            <p className="mb-0"><b>About:</b> {userDetails.about || 'Chưa cập nhật'} </p>
 
                                         </li>
                                     </ul>
@@ -147,8 +148,8 @@ const UserDetail = () => {
                     </div>
 
                     {/* Lịch sử đơn hàng */}
-                    <div className='col-9 mt-5' id='orderHistory' >
-                        <h3 style={{ textAlign: 'center' }}>ORDER HISTORY</h3>
+                    <div className='col-8 mt-5' id='orderHistory' >
+                        <h3 style={{ textAlign: 'center' , fontWeight: '1000'}}>ORDER HISTORY</h3>
                         <p>Total order: {totalOrderCount}</p>
                         <p>Total order amount: {totalOrderAmount.toLocaleString('vi')} VND</p>
                         <button className="btn btn-outline-success mb-3" onClick={exportToExcel}>Xuất Excel</button>
@@ -175,11 +176,11 @@ const UserDetail = () => {
                                         <td>{order.deliveryDate || ''}</td>
                                         <td>{(order.totalPrice).toLocaleString('vi')} VND</td>
                                         <td>{order.totalItem}</td>
+                                      
                                         <td>{order.paymentMethod}</td>
                                         <td>{order.status}</td>
                                         <td>{order.shippingMethod}</td>
-                                        <td>
-                                            <button className='btn btn-primary' style={{ color: '#ffff' }}>View</button>
+                                        <td> <Link to={`/ecomadmin/order/detail/${order.id}`}>View</Link>
                                         </td>
                                     </tr>
                                 ))}

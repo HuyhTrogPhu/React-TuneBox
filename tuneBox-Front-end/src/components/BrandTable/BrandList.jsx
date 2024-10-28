@@ -271,7 +271,7 @@ const BrandList = ({ brands, onUpdate }) => {
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="button" className="btn btn-primary" onClick={handleUpdate} disabled={loading}>
 
-                {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}           </button>
+                {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}</button>
             </div>
           </div>
         </div>

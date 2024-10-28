@@ -111,7 +111,7 @@ const ManagerOrder = () => {
     const data = currentOrders.map(order => ({
       'Order Date': order.orderDate,
       'Delivery Date': order.deliveryDate,
-      'Total Price': order.totalPrice.toLocaleString('vi'),
+      'Total Price': order.totalPrice.toLocaleString('vi') + ' VND',
       'Total Items': order.totalItems,
       'Payment Method': order.paymentMethod,
       'Shipping Method': order.shippingMethod,
@@ -129,32 +129,8 @@ const ManagerOrder = () => {
   };
 
 
-  // Hàm xuất dữ liệu ra PDF
-  const exportToPDF = () => {
-    const input = document.getElementById('orderTable'); // ID của bảng
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('l', 'mm', 'a4'); // Tạo PDF theo chiều ngang
-      const imgWidth = 210; // Độ rộng A4
-      const pageHeight = 295; // Chiều cao A4
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      let position = 0;
-
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save('orders.pdf'); // Tải về file PDF
-    });
-  };
+  
+  
   // Chuyển trang
   const paginate = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -254,16 +230,16 @@ const ManagerOrder = () => {
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
                         className="form-select"
                       >
-                        <option value="Chờ xác nhận">Chờ xác nhận</option>
-                        <option value="Đã xác nhận">Đã xác nhận</option>
+                        <option value="Chờ xác nhận">Wait for confirmation</option>
+                        <option value="Đã xác nhận">Confirmed</option>
 
-                        <option value="Đang giao hàng">Đang giao hàng</option>
-                        <option value="Đã giao hàng">Đã giao hàng</option>
-                        <option value="Đã hủy">Đã hủy</option>
+                        <option value="Đang giao hàng">Delivering</option>
+                        <option value="Đã giao hàng">Delivered</option>
+                        <option value="Đã hủy">Canceled</option>
                       </select>
                     </td>
                     <td>
-                      <Link to={`/ecomadmin/orders/detail/${order.id}`}>View</Link>
+                      <Link to={`/ecomadmin/order/detail/${order.id}`}>View</Link>
                     </td>
                   </tr>
                 ))
@@ -276,11 +252,9 @@ const ManagerOrder = () => {
           </table>
           <div className='col-3'>
             <button onClick={exportToExcel} className="btn btn-outline-success">
-              Xuất Excel
+              Export Excel
             </button>
-            <button onClick={exportToPDF} className="btn btn-outline-danger ">
-              Xuất PDF
-            </button>
+           
           </div>
         
 

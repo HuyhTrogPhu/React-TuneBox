@@ -209,7 +209,7 @@ const InstrumentList = ({ instruments, onUpdate }) => {
 
       color: ins.color,
       quanlity: ins.quantity,
-      price: ins.costPrice.toLocaleString('vi') ,
+      price: ins.costPrice.toLocaleString('vi') + ' VND' ,
       status: ins.status ? 'Unavailable' : 'Available',
     }));
   
