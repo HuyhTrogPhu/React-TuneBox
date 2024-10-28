@@ -1,0 +1,135 @@
+
+.album-info-cover {
+    display: flex; 
+    align-items: self-start;
+    gap: 20px; 
+    padding: 30px;
+    background-color: #e9e9eb;
+    border-radius: 10px;
+  }
+  
+  .album-info{
+    border-bottom: 1px solid rgb(221, 219, 219);
+  }
+  .album-info-img {
+    width: 200px;
+    height: 200px;
+    position: relative;
+  }
+  
+  .album-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Giúp ảnh vừa với khung mà không bị méo */
+    border-radius: 10px; 
+  }
+
+  .player-audio-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Đưa nút vào chính giữa */
+    background-color: rgba(83, 83, 83, 0.5); 
+    color: white;
+    border: none;
+    border-radius: 50%; 
+    padding: 10px;
+    cursor: pointer;
+    font-size: 24px; /* Để làm nút lớn hơn */
+  }
+
+  .album-info-description {
+    margin-left: 20px;
+    flex-grow: 1;
+  }
+  
+  .album-name {
+    font-size: 25px;
+    font-weight: bold;
+  }
+  
+  .author {
+    font-size: 16px;
+    color: gray;
+  }
+  
+  .album-description {
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .album-information {
+    color: rgb(77, 77, 77);
+  }
+  
+  .info-date, .info-type {
+    font-size: 14px;
+  }
+
+  .album-info-actions {
+    background-color: #e9e9eb;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between; /* Giúp căn các phần tử xa nhau */
+    align-items: center; /*dọc */
+    gap: 20px; /* khcach giữa các phần tử */
+    margin: 1px;
+  }
+
+  
+  .btn-group .btn {
+    background-color: transparent; /* Loại bỏ nền nút */
+    border: none; /* Loại bỏ đường viền nút */
+    cursor: pointer;
+  }
+  
+  .table td {
+    text-align: left;
+    font-size: 16px;
+  }
+
+  
+.player-track-button {
+margin-left: 30%;
+  border: none; /* Loại bỏ viền */
+  border-radius: 5px; /* Bo tròn góc */
+  padding: 8px 12px; /* Khoảng cách bên trong nút */
+  font-size: 18px; /* Kích thước chữ */
+  cursor: pointer; /* Con trỏ khi di chuột */
+  transition: background-color 0.3s, transform 0.2s; /* Hiệu ứng chuyển động */
+}
+
+.player-track-button:hover {
+  transform: scale(1.05); /* Tăng kích thước một chút khi di chuột */
+}
+
+
+.audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #f8f9fa; /* Màu nền tùy chỉnh */
+  padding: 10px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Tạo hiệu ứng đổ bóng */
+  z-index: 1000; /* Đảm bảo rằng player luôn nổi trên các thành phần khác */
+}
+
+.track-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.track-controls .btn {
+  margin: 0 10px;
+  /* padding: 5px 15px; */
+  font-size: 16px;
+  cursor: pointer;
+}
+
+audio {
+  width: 60%;
+  outline: none;
+}
