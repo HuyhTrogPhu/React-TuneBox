@@ -84,3 +84,9 @@
     background-color: #333;
     border-radius: 50px;
 }
+.chip.selected {
+    background-color:  #E94F37; /* Màu nền cam */
+    color: white; /* Màu chữ trắng, có thể thay đổi theo ý thích */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+}
+

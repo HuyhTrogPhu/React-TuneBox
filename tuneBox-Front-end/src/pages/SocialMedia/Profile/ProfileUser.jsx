@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { Link, Routes, Route } from "react-router-dom";
+import { Link, Routes, Route,Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
@@ -176,6 +176,7 @@ const ProfileUser = () => {
 
           <div className="container">
             <Routes>
+            <Route path="/" element={<Navigate to="activity" />} />
               <Route path="activity" element={<Activity />} />
               <Route path="track" element={<Track />} />
               <Route path="albums" element={<Albums />} />
