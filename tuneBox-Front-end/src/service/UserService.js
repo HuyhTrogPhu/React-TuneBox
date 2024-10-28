@@ -2,6 +2,21 @@ import axios from "axios";
 
 const REST_API_BASE_URL = 'http://localhost:8080/user';
 
+// Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+axios.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token').trim();
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+
 // get all list talents
 export const listTalents = () => axios.get(`${REST_API_BASE_URL}/list-talent`);
 
@@ -17,7 +32,7 @@ export const listInspiredBys = () => axios.get(`${REST_API_BASE_URL}/list-inspir
 export const getAvatarUser = async (userId) => {
     try {
         const response = await axios.get(`${REST_API_BASE_URL}/${userId}/avatar`, {
-            withCredentials: true
+            withCredentials: true,
         });
         return response.data; // Trả về avatar
     } catch (error) {
@@ -59,6 +74,7 @@ export const updateUserEmail = async (userId, newEmail) => {
             headers: {
                 'Content-Type': 'application/json',
             },
+            withCredentials: true
         });
         return response.data; // Trả về dữ liệu phản hồi
     } catch (error) {
@@ -99,7 +115,7 @@ export const updateUserName = async (userId, newUserName) => {
         const response = await axios.put(`${REST_API_BASE_URL}/${userId}/username`, newUserName, {
             headers: {
                 'Content-Type': 'application/json',
-              }
+            }
         });
         return response.data;
     } catch (error) {
@@ -114,7 +130,7 @@ export const updatePassword = async (userId, newPassword) => {
         const response = await axios.put(`${REST_API_BASE_URL}/${userId}/password`, newPassword, {
             headers: {
                 'Content-Type': 'application/json',
-              }
+            }
         });
         return response.data;
     } catch (error) {
@@ -143,7 +159,7 @@ export const updateUserBirthday = async (userId, newBirthday) => {
 
 // Hàm kiểm tra định dạng ngày sinh
 const isValidBirthday = (birthday) => {
-    const regex = /^\d{4}-\d{2}-\d{2}$/; 
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
     return regex.test(birthday);
 };
 

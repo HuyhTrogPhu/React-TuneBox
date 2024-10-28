@@ -13,6 +13,7 @@ import "./css/comment.css";
 import "./css/modal-create-post.css";
 import { images } from "../../../assets/images/images";
 import { FollowContext } from './FollowContext';
+import axios from "axios";
 
 
 const ProfileUser = () => {
@@ -23,6 +24,20 @@ const ProfileUser = () => {
   const [friendCount, setFriendCount] = useState(0); // Trạng thái lưu số lượng bạn bè
   const [pendingRequests, setPendingRequests] = useState([]);
   const [error, setError] = useState("");
+
+  // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
+      if (token) {
+          config.headers['Authorization'] = token; 
+      }
+      return config;
+  },
+  (error) => {
+      return Promise.reject(error);
+  }
+);
 
   useEffect(() => {
     const fetchUser = async () => {

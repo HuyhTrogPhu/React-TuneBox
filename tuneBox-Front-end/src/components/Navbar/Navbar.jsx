@@ -7,6 +7,8 @@ import { getAvatarUser } from "../../service/UserService";
 import { createTrack, listGenre, getTrackByUserId } from "../../service/TrackServiceCus";
 import { getNotifications } from "../../service/NotificationService.js";
 import { logout } from "../../service/LoginService";
+import axios from "axios";
+
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
@@ -25,6 +27,19 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const userId = Cookies.get("userId");
+  // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+  axios.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
   useEffect(() => {
     if (!userId) {
@@ -126,11 +141,21 @@ const Navbar = () => {
     }
   };
 
+
+  // log-out
   const handleLogout = async () => {
     try {
-      await logout();
+      const response = await logout();
+      console.log(response);
+
+      // Xóa cookie userId
       Cookies.remove('userId');
+
+      // Xóa token JWT (nếu lưu trữ trong localStorage)
+      localStorage.removeItem('token');
+
       setAvatarUrl(images.logoTuneBox);
+
       navigate('/introduce');
     } catch (error) {
       console.error("Error logging out:", error);
@@ -262,11 +287,11 @@ const Navbar = () => {
         </div>
 
         <span className="mx-3">
-          <img alt="icon-chat" style={{width: '30px', height: '30px'}} src={images.conversstion} className="icon" />
+          <img alt="icon-chat" style={{ width: '30px', height: '30px' }} src={images.conversstion} className="icon" />
         </span>
 
         <button className="mx-3 cart-shopping" onClick={handleCartClick}>
-        <i className="fa-solid fa-cart-shopping"></i>
+          <i className="fa-solid fa-cart-shopping"></i>
           {cartCount > 0 && (
             <span className="badge bg-danger">{cartCount}</span>
           )}

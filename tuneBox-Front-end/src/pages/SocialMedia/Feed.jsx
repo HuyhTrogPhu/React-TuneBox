@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { images } from "../../assets/images/images";
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -40,17 +40,33 @@ const HomeFeed = () => {
   const currentUserNickname = Cookies.get('userNickname');
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportPostId, setReportPostId] = useState(null);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-const commentSectionRef = useRef(null);
+  const commentSectionRef = useRef(null);
 
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
     console.log("Post User ID:", post.userId);
+
+// Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
+      if (token) {
+          config.headers['Authorization'] = token; 
+      }
+      return config;
+  },
+  (error) => {
+      return Promise.reject(error);
+  }
+);
+
 
     if (String(post.userId) === String(currentUserId)) {
       console.log("Navigating to ProfileUser");
@@ -60,6 +76,7 @@ const commentSectionRef = useRef(null);
       navigate(`/profile/${post.userId}`);
     }
   };
+
 
 
   // Hàm để lấy các bài viết
@@ -88,7 +105,7 @@ const commentSectionRef = useRef(null);
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
-
+          console.log('post Id:', post.id);
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
               const repliesResponse = await axios.get(
@@ -129,6 +146,12 @@ const commentSectionRef = useRef(null);
     } catch (error) {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
+  };
+
+  // set post id for comments modal
+  const handleOpenModal = (postId) => {
+    console.log("Open modal with post id: " + postId);
+    setSelectedPostId(postId);
   };
 
   useEffect(() => {
@@ -312,13 +335,13 @@ const commentSectionRef = useRef(null);
 
   const handleUpdateComment = async (commentId, postId) => {
     if (!editingCommentContent.trim()) return;
-  
+
     try {
       await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
         content: editingCommentContent,
         edited: true,
       });
-  
+
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post.id === postId) {
@@ -339,7 +362,7 @@ const commentSectionRef = useRef(null);
           return post;
         })
       );
-  
+
       setEditingCommentId(null);
       setEditingCommentContent("");
     } catch (error) {
@@ -349,13 +372,13 @@ const commentSectionRef = useRef(null);
   const handleAddComment = async (postId) => {
     const content = commentContent[postId] || "";
     if (!content.trim()) return;
-  
+
     try {
       const response = await axios.post(
         `http://localhost:8080/api/comments/post/${postId}/user/${currentUserId}`,
         { content: content }
       );
-  
+
       setPosts((posts) =>
         posts.map((post) => {
           if (post.id === postId) {
@@ -364,7 +387,7 @@ const commentSectionRef = useRef(null);
           return post;
         })
       );
-  
+
       // Đặt lại commentContent và ẩn emoji picker
       setCommentContent((prev) => ({ ...prev, [postId]: "" }));
       setShowEmojiPicker(false);  // Ẩn emoji picker sau khi bình luận
@@ -598,24 +621,24 @@ const commentSectionRef = useRef(null);
       console.error('Lỗi mạng:', error);
     }
   };
-// Hàm để bật/tắt emoji picker
-const toggleEmojiPicker = (id) => {
-  setShowEmojiPicker((prev) => (prev === id ? null : id));
-};
-// Hàm thêm emoji vào nội dung reply
-const addEmojiToReply = (replyId, emoji) => {
-  setReplyContent((prev) => ({
-    ...prev,
-    [replyId]: (prev[replyId] || "") + emoji.native,
-  }));
-  setShowEmojiPicker(null); // Ẩn emoji picker sau khi chọn emoji
-};
+  // Hàm để bật/tắt emoji picker
+  const toggleEmojiPicker = (id) => {
+    setShowEmojiPicker((prev) => (prev === id ? null : id));
+  };
+  // Hàm thêm emoji vào nội dung reply
+  const addEmojiToReply = (replyId, emoji) => {
+    setReplyContent((prev) => ({
+      ...prev,
+      [replyId]: (prev[replyId] || "") + emoji.native,
+    }));
+    setShowEmojiPicker(null); // Ẩn emoji picker sau khi chọn emoji
+  };
 
-const handleClickOutside = (event) => {
-  if (commentSectionRef.current && !commentSectionRef.current.contains(event.target)) {
-    setShowEmojiPicker(false); // Đóng bảng emoji nếu nhấp bên ngoài
-  }
-};
+  const handleClickOutside = (event) => {
+    if (commentSectionRef.current && !commentSectionRef.current.contains(event.target)) {
+      setShowEmojiPicker(false); // Đóng bảng emoji nếu nhấp bên ngoài
+    }
+  };
   return (
     <div>
       <div className="container-fluid">
@@ -694,17 +717,17 @@ const handleClickOutside = (event) => {
                   <div key={post.id} className="post border">
 
                     {/* Modeal hiển thị comment  */}
-                    <div class="modal fade" id="modalComent" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div className="modal fade" id="modalComent" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
+                      <div className="modal-dialog">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
-                          <div class="modal-body">
+                          <div className="modal-body">
                             {/* Danh sách bình luận */}
                             <div className="mt-4">
-                              {(showAllComments[post.id] ? post.comments : post.comments.slice(0, 3)).map((comment) => (
+                              {(showAllComments[selectedPostId] ? post.comments : post.comments.slice(0, 3)).map((comment) => (
                                 <div key={comment.id} className="comment mt-2">
                                   <div className="container">
                                     <div className="row justify-content-start">
@@ -911,7 +934,7 @@ const handleClickOutside = (event) => {
                                                         type='button' className="fa-regular fa-paper-plane ms-3 mt-2"
                                                         onClick={() => handleAddReplyToReply(reply.id, comment.id)}
                                                       >
-                                                       
+
                                                       </i>
                                                     </div>
                                                   )}
@@ -952,29 +975,29 @@ const handleClickOutside = (event) => {
                                 onChange={(e) => handleCommentChange(post.id, e.target.value)}
                               />
                               <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="btn btn-sm">
-      😀
-    </button>
-    
-    {showEmojiPicker && (
-      <div style={{ position: "absolute", bottom: "100%", left: "0", zIndex: 10 }}>
-        <Picker onEmojiSelect={(emoji) => {
-          addEmoji(post.id, emoji);
-          // Không đóng bảng emoji ở đây
-        }} />
-        {/* Nút để đóng bảng emoji */}
-        <button onClick={() => setShowEmojiPicker(false)} className="btn btn-link">
-          Close
-        </button>
-      </div>
-    )}  
+                                😀
+                              </button>
+
+                              {showEmojiPicker && (
+                                <div style={{ position: "absolute", bottom: "100%", left: "0", zIndex: 10 }}>
+                                  <Picker onEmojiSelect={(emoji) => {
+                                    addEmoji(post.id, emoji);
+                                    // Không đóng bảng emoji ở đây
+                                  }} />
+                                  {/* Nút để đóng bảng emoji */}
+                                  <button onClick={() => setShowEmojiPicker(false)} className="btn btn-link">
+                                    Close
+                                  </button>
+                                </div>
+                              )}
                               <div className="button-comment">
                                 <i type='button' className="fa-regular fa-paper-plane mt-2"
                                   style={{ fontSize: "20px" }}
                                   onClick={() => {
                                     handleAddComment(post.id);
-                                    setShowEmojiPicker(false); 
+                                    setShowEmojiPicker(false);
                                   }}
-                                  >
+                                >
                                 </i>
                               </div>
                             </div>
@@ -1080,6 +1103,7 @@ const handleClickOutside = (event) => {
                             className="fa-regular fa-comment"
                             data-bs-toggle="modal"
                             data-bs-target="#modalComent"
+                            onClick={() => handleOpenModal(post.id)}
                           >
                           </i>
                         </div>
@@ -1208,7 +1232,7 @@ const handleClickOutside = (event) => {
               <textarea
                 id="post-textarea"
                 className="form-control"
-                rows={2}
+                rows={3}
                 placeholder="Write your post here..."
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}

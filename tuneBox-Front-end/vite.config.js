@@ -11,11 +11,16 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      '/api': {
-        target: 'https://thongtindoanhnghiep.co',
+      '/user': {
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      }
+        secure: false,
+      },
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });
