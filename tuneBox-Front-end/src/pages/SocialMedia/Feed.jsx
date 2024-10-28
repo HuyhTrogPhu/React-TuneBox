@@ -14,6 +14,13 @@ import "./css/mxh/button.css"
 import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Picker from '@emoji-mart/react';
+import { getAllTracks } from "../../service/TrackServiceCus";
+import Waveform from "../SocialMedia/Profile/Profile_nav/Waveform";
+import {
+  addLike,
+  checkUserLikeTrack,
+  removeLike,
+} from "../../service/likeTrackServiceCus";
 
 
 const HomeFeed = () => {
@@ -52,7 +59,75 @@ const HomeFeed = () => {
   const selectedPost = posts.find((post) => post.id === selectedPostId);
 
   const [isUploading, setIsUploading] = useState(false);
-  const [fileInputKey, setFileInputKey] = useState(Date.now()); // Khóa để reset input file
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+
+   // track
+   const [tracks, setTracks] = useState([]);
+   const [likedTracks, setLikedTracks] = useState({});
+ 
+   useEffect(() => {
+     const fetchTracks = async () => {
+       try {
+         const response = await getAllTracks();
+         setTracks(response);
+         console.log("get all track: ", response);
+ 
+         // ktra trạng thái like cho mỗi track
+         const likedStatus = await Promise.all(
+           response.map(async (track) => {
+             const liked = await checkUserLikeTrack(track.id, currentUserId);
+             console.log(
+               "userId:",
+               currentUserId,
+               "trackId:",
+               track.id,
+               "- likeStatus: ",
+               liked
+             );
+             return { id: track.id, liked }; // Trả về id và trạng thái liked
+           })
+         );
+ 
+         // cap nhat likedTracks
+         const updatedLikedTracks = {};
+         likedStatus.forEach(({ id, liked }) => {
+           updatedLikedTracks[id] = liked; // Gán trạng thái liked cho từng track
+         });
+         setLikedTracks(updatedLikedTracks); // Cập nhật trạng thái likedTracks
+ 
+         console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
+       } catch (error) {
+         console.error("Error fetching all track:", error);
+       }
+     };
+     fetchTracks();
+   }, []);
+ 
+   const handleLikeTrack = async (trackId) => {
+     try {
+       if (likedTracks[trackId]?.data) {
+         // nếu đã thích, gọi hàm xóa like
+         await removeLike(currentUserId, trackId);
+         setLikedTracks((prev) => ({
+           ...prev,
+           [trackId]: { data: false }, // cập nhật trạng thái liked thành false
+         }));
+         console.error("Đã xóa like:", trackId);
+       } else {
+         // nếu chưa thích, gọi hàm thêm like
+         await addLike(currentUserId, trackId, null);
+         setLikedTracks((prev) => ({
+           ...prev,
+           [trackId]: { data: true }, // cập nhật trạng thái liked thành true
+         }));
+         console.error("Đã like:", trackId);
+       }
+     } catch (error) {
+       console.error("Lỗi khi xử lý like:", error);
+     }
+   };
+ 
+   // end track
 
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
@@ -1121,7 +1196,108 @@ const HomeFeed = () => {
               </div>
 
             {/* Phần hiển thị track */}
+            <div className="container mt-2 mb-5">
+              {tracks.map((track) => (
+                <div className="post border" key={track.id}>
+                  {/* Tiêu đề */}
+                  <div className="post-header position-relative">
+                    <button type="button" className="btn" aria-label="Avatar">
+                      <img
+                        src={track.userId.avatar} //lỗi
+                        className="avatar_small"
+                        alt="Avatar"
+                      />
+                    </button>
+                    <div>
+                      <div className="name">
+                        {track.userName || "Unknown User"}
+                      </div>
+                      <div className="time">
+                        {new Date(track.createDate).toLocaleString()}
+                      </div>
+                    </div>
+                    {/* Dropdown cho bài viết */}
+                    <div className="dropdown position-absolute top-0 end-0">
+                      <button
+                        className="btn btn-options dropdown-toggle"
+                        type="button"
+                        id={`dropdownMenuButton-${track.id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      ></button>
+                      <ul
+                        className="dropdown-menu"
+                        aria-labelledby={`dropdownMenuButton-${track.id}`}
+                      >
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleEdit(track.id)}
+                          >
+                            <i className="fa-solid fa-pen-to-square"></i> Edit
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleDelete(track.id)}
+                          >
+                            <i className="fa-solid fa-trash"></i> Delete
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                    <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0"></button>
+                  </div>
 
+                  <div className="post-content description">
+                    {track.description || "Unknown description"}
+                  </div>
+                  {/* Nội dung */}
+                  <div className="post-content audio">
+                    <Waveform
+                      audioUrl={track.trackFile}
+                      track={track}
+                      className="track-waveform "
+                    />
+                  </div>
+
+                  {/* Like/Comment */}
+                  <div className="row d-flex justify-content-start align-items-center">
+                    {/* Like track*/}
+                    <div className="col-2 mt-2 text-center">
+                      <div className="like-count">
+                        {track.likeCount || 0} {/* Hiển thị số lượng like */}
+                        <i
+                          className={`fa-solid fa-heart ${
+                            likedTracks[track.id]?.data
+                              ? "text-danger"
+                              : "text-muted"
+                          }`}
+                          onClick={() => handleLikeTrack(track.id)}
+                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
+                        ></i>
+                      </div>
+                    </div>
+
+                    {/* Comment track*/}
+                    <div className="col-2 mt-2 text-center">
+                      <div className="d-flex justify-content-center align-items-center">
+                        {track.commentCount || 0}
+                        <i
+                          type="button"
+                          style={{ fontSize: "25px" }}
+                          className="fa-regular fa-comment"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalComment"
+                        ></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
           </div>
           {/* Right Sidebar */}
           <div className="col-3 sidebar bg-light p-4">

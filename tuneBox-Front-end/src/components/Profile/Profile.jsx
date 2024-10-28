@@ -134,8 +134,6 @@ const Profile = () => {
             console.log("Selected InspiredBy:", selectedInspiredBy);
             console.log("Selected Talents:", selectedTalents);
             console.log("Selected Genres:", selectedGenres);
-
-
             try {
                 await updateUserInfo(userIdCookie, updatedUserInfo);
                 toast.success("Thông tin đã được cập nhật thành công!");
