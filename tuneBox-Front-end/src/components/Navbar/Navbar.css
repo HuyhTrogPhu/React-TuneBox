@@ -1,147 +1,136 @@
-.top-bar-section {
-    align-items: center;
+/* Navbar Container */
+.navbar-container {
     display: flex;
-    flex-shrink: 0;
-    gap: 16px;
-    height: 100%;
-}
-body{
-    font-family: var(--bs-body-font-family);
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 50px; /* Thêm padding cho thanh nav */
+    background-color: #f8f9fa; /* Màu nền sáng */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bóng nhẹ */
 }
 
-.background {
-    height: 300px;
-    background-size: cover;
-    background-position: center;
-    background-color:#1D1B20;
-    cursor: pointer;
-    position: relative;
-    border-radius: 30px;
-}
-.avatar {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-top: -75px;
-    cursor: pointer;
-    position: relative;
-}
-.avatar_small {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    object-fit: cover;
-    cursor: pointer;
-    position: relative;
-}
-.avatar_small-square{
-    width: 70px;
-    height: 70px;
-    border-radius: 15%;
-    object-fit: cover;
-    cursor: pointer;
-    position: relative;
-}
-.avatar-details {
-    margin-left: 15px; 
-  }
-  .avatar-details .name {
-    font-weight: bold; 
-  }
-  .avatar-details .time {
-    display: block; 
-    color: gray; 
-  }
-.hidden-input {
-    display: none;
-}
-.menu {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px;
-    display: none;
-    z-index: 10;
-}
-.menu a {
-    color: white;
-    display: block;
-    margin-bottom: 5px;
-    text-decoration: none;
-}
-.menu a:hover {
-    text-decoration: underline;
-}
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    padding-top: 100px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.9);
-}
-.modal-content {
-    margin: auto;
-    display: block;
-    width: 80%;
-    max-width: 700px;
-}
-#caption {
-    margin: auto;
-    display: block;
-    width: 80%;
-    max-width: 700px;
-    text-align: center;
-    color: #ccc;
-    padding: 10px 0;
-    height: 150px;
-}
-.modal-content, #caption {
-    animation-name: zoom;
-    animation-duration: 0.6s;
-}
-@keyframes zoom {
-    from {transform: scale(0)}
-    to {transform: scale(1)}
-}
-.close {
-    position: absolute;
-    top: 15px;
-    right: 35px;
-    color: #f1f1f1;
-    font-size: 40px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-.close:hover,
-.close:focus {
-    color: #bbb;
-    text-decoration: none;
+/* Logo */
+.logo {
     cursor: pointer;
 }
-.nav-link.active {
-    font-weight: bold;
-  }
-  .input-container {
+
+/* Navbar Button */
+.navbar-button {
     display: flex;
     align-items: center;
-  }
-  .input-container .form-control {
-    margin-left: 10px;
-  }
-  .nav-link {
-    text-decoration: none; /* Xóa gạch chân */
-    color: black; /* Đặt màu chữ là đen */
-  }
-  
-  .nav-link:hover {
-    color: gray; /* Thay đổi màu chữ khi hover, nếu cần */
-  }
+    margin-right: 30px; /* Khoảng cách giữa các nút */
+    background: none; /* Xóa nền mặc định */
+    border: none; /* Xóa viền mặc định */
+    cursor: pointer; /* Hiển thị con trỏ khi hover */
+}
+
+/* Search Input */
+.search-input {
+    padding: 10px;
+    border: 1px solid #ccc; /* Đường viền xám */
+    border-radius: 5px; /* Bo tròn góc */
+    width: 400px; /* Độ rộng */
+}
+
+/* Search Button */
+.search-btn {
+    background-color: #ffffff; /* Màu nền nút */
+    color: rgb(0, 0, 0); /* Màu chữ trắng */
+    border: 1px solid #919191; 
+    border-radius: 5px; /* Bo tròn góc */
+    padding: 10px; /* Padding cho nút */
+    cursor: pointer; /* Hiển thị con trỏ khi hover */
+    margin-left: 5px; /* Khoảng cách với input */
+}
+
+/* Thông báo biểu tượng */
+.notification-icon {
+    cursor: pointer;
+    position: relative; /* Để badge có thể đặt ở vị trí chính xác */
+}
+
+/* Badge thông báo */
+.notification-badge {
+    position: absolute;
+    top: -5px; /* Đặt lên trên một chút */
+    right: 0px; /* Đặt về bên phải một chút */
+    background-color: #ff4757; /* Màu nền đỏ */
+    color: white; /* Màu chữ trắng */
+    border-radius: 50%; /* Đường viền tròn */
+    padding: 3px 7px;/* Khoảng cách cho badge */
+    font-size: 10px; /* Kích thước chữ nhỏ hơn */
+}
+
+/* Dropdown thông báo */
+.notification-dropdown {
+    top: 10%;
+    position: absolute;
+    background-color: white; /* Màu nền trắng */
+    border: 1px solid #ccc; /* Đường viền xám */
+    border-radius: 5px; /* Bo tròn góc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Bóng nhẹ */
+    z-index: 1000; /* Đảm bảo ở trên cùng */
+    width: 300px; /* Độ rộng của dropdown */
+    max-height: 300px; /* Chiều cao tối đa */
+    overflow-y: auto; /* Cuộn nếu nội dung vượt quá chiều cao */
+    display: none; /* Mặc định ẩn */
+}
+
+/* Khi dropdown được hiển thị */
+.notification-dropdown.show {
+    display: block; /* Hiển thị khi có class .show */
+}
+
+/* Danh sách thông báo */
+.notification-list {
+    list-style-type: none; /* Xóa dấu đầu dòng */
+    padding: 0; /* Bỏ padding */
+    margin: 0; /* Bỏ margin */
+}
+
+/* Mục thông báo */
+.notification-item {
+    display: flex; /* Dùng flex để bố trí avatar và nội dung ngang nhau */
+    align-items: center; /* Căn giữa dọc */
+    padding: 10px; /* Thêm padding cho từng mục */
+    border-bottom: 1px solid #f0f0f0; /* Đường viền giữa các mục */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển đổi nền */
+}
+
+/* Hiệu ứng hover cho mục thông báo */
+.notification-item:hover {
+    background-color: #f0f0f0; /* Thay đổi màu nền khi hover */
+}
+
+/* Avatar trong thông báo */
+.notification-avatar {
+    width: 40px; /* Kích thước avatar nhỏ */
+    height: 40px; /* Kích thước avatar nhỏ */
+    border-radius: 50%; /* Hình tròn */
+    margin-right: 10px; /* Khoảng cách giữa avatar và nội dung */
+}
+
+/* Nội dung thông báo */
+.notification-content {
+    flex-grow: 1; /* Cho phép nội dung chiếm không gian còn lại */
+}
+
+/* Nếu không có thông báo */
+.no-notification {
+    padding: 10px; /* Thêm padding */
+    text-align: center; /* Căn giữa */
+    color: #777; /* Màu chữ xám */
+}
+
+/* Avatar trong thanh nav */
+.avatar {
+    width: 60px !important;
+    height: 60px !important;
+}
+
+.cart-shopping {
+    padding: 6px 10px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 18px;
+    background-color: #E94F37;
+}

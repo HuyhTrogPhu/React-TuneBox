@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Route, Routes, Outlet, useParams } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
@@ -31,6 +31,11 @@ import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 import ThanhCong from "./pages/Ecommerce/order/doneOr";
 import UserDetail from "./components/UserDetail/UserDetail";
+import Post from "./pages/SocialMedia/Post";
+import FriendRequests from "./pages/SocialMedia/FriendRequests";
+import FriendList from "./pages/SocialMedia/FriendList";
+import FollowersPage from "./pages/SocialMedia/FollowersPage";
+import FollowingPage from "./pages/SocialMedia/FollowingPage";
 // Layout có Header
 function LayoutWithHeader() {
   return (
@@ -79,7 +84,13 @@ function App() {
               <Route path="/checkOut" element={<CheckOut />} />
               <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
               <Route path="/doneorder" element={<ThanhCong />} />
-              
+              <Route path="/post/:postIdurl" element={<Post />} />
+              <Route path="/FriendRequests" element={<FriendRequests />} />
+              <Route path="/FriendList/:userId" element={<FriendList />} />
+              <Route path="/Follower/:userId" element={<FollowersPage />} />
+              <Route path="/Following/:userId" element={<FollowingPage />} />
+
+
             </Route>
 
             {/* Các route không có Header */}

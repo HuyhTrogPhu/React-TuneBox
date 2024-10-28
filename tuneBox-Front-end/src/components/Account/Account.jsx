@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Account.css';
 import Cookies from 'js-cookie';
-import { getUserAccountSetting } from '../../service/UserService';
+import { getUserAccountSetting, updateUserEmail,updateUserBirthday,updateUserGender } from '../../service/UserService';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Account = () => {
   const [days, setDays] = useState([]);
@@ -13,10 +15,6 @@ const Account = () => {
   const [userGender, setGender] = useState('');
 
   const [newEmail, setNewEmail] = useState('');
-  const [newBirthday, setNewBirthday] = useState('');
-  const [newGender, setNewGender] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-
   const [selectedDay, setSelectedDay] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
@@ -30,6 +28,7 @@ const Account = () => {
           const response = await getUserAccountSetting(userIdCookie);
           const { email, birthDay, gender } = response;
           setEmail(email || '');
+          setNewEmail(email || '');
           setBirthDay(birthDay || '');
           setGender(gender || 'Male');
           
@@ -81,8 +80,73 @@ const Account = () => {
     populateYears();
   }, []);
 
+  const isValidEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Biểu thức chính quy đơn giản cho email
+    return regex.test(email);
+  };
+
+  // Hàm cập nhật email
+  const handleUpdateEmail = async (e) => {
+    e.preventDefault();
+    if (!isValidEmail(newEmail)) {
+        toast.error("Email không hợp lệ");
+        return;
+    }
+    try {
+        const userIdCookie = Cookies.get('userId');
+        const result = await updateUserEmail(userIdCookie, newEmail);
+        toast.success(result);
+        setEmail(newEmail);
+    } catch (error) {
+        console.error('Error updating email:', error);
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+        }
+        toast.error("Cập nhật email không thành công");
+    }
+};
+
+
+// Hàm cập nhật ngày sinh
+const formatDate = (year, month, day) => {
+  const formattedMonth = month < 10 ? `0${month}` : month;
+  const formattedDay = day < 10 ? `0${day}` : day;
+  return `${year}-${formattedMonth}-${formattedDay}`;
+};
+const handleUpdateBirthday = async (e) => {
+  e.preventDefault();
+  const updatedBirthday = formatDate(selectedYear, selectedMonth, selectedDay);
+  console.log("Updated Birthday:", updatedBirthday); // Ghi log giá trị
+  try {
+    const userIdCookie = Cookies.get('userId');
+    await updateUserBirthday(userIdCookie, updatedBirthday); // Gọi hàm cập nhật
+    toast.success("Ngày sinh đã được cập nhật thành công!");
+  } catch (error) {
+    console.error('Error updating birthday:', error);
+    toast.error("Cập nhật ngày sinh không thành công");
+  }
+};
+
+
+// Hàm cập nhật giới tính
+const handleUpdateGender = async (e) => {
+  e.preventDefault();
+  const sanitizedGender = userGender.replace(/"/g, ''); // Xóa dấu ngoặc kép
+  console.log('Updating gender to:', sanitizedGender); // Kiểm tra giá trị đã được làm sạch
+  try {
+      const userIdCookie = Cookies.get('userId');
+      await updateUserGender(userIdCookie, sanitizedGender); // Sử dụng giá trị đã làm sạch
+      toast.success("Giới tính đã được cập nhật thành công!");
+  } catch (error) {
+      console.error('Error updating gender:', error);
+      toast.error("Cập nhật giới tính không thành công");
+  }
+};
+
+
   return (
     <div>
+      <ToastContainer />
       <div>
         <h3>
           <b>Account setting</b>
@@ -92,87 +156,81 @@ const Account = () => {
         <div className='container ps-5'>
           {/* Email */}
           <div className='update-email mt-3'>
-            <form>
+            <form onSubmit={handleUpdateEmail}>
               <div className='mt-3'>
                 <label className="form-label">Enter your email</label>
                 <input
                   type="text"
                   className='form-control'
-                  value={userEmail}
+                  value={newEmail} // Sử dụng newEmail để nhập vào ô
                   onChange={(e) => setNewEmail(e.target.value)}
                 />
               </div>
               <div className="update mt-5">
-                <button className='btn'>Update</button>
+                <button type="submit" className='btn'>Update Email</button>
               </div>
             </form>
           </div>
           {/* Birth day */}
           <div className='update-birthDay mt-5'>
-            <form>
+            <form onSubmit={handleUpdateBirthday}>
               <label className='form-label'>Birthday</label>
               {/* Date Selection */}
               <div className="row d-flex">
                 <div className="date-selectors mt-5">
                   <section className="form-group">
-                    <div style={{ marginTop: -20 }}>
-                      <select
-                        value={selectedDay}
-                        onChange={(e) => setSelectedDay(e.target.value)}
-                        className="form-select"
-                      >
-                        <option value="" disabled>Day</option>
-                        {days.map((day, index) => (
-                          <option key={index} value={day}>{day}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <select
+                      value={selectedDay}
+                      onChange={(e) => setSelectedDay(e.target.value)}
+                      className="form-select"
+                    >
+                      <option value="" disabled>Day</option>
+                      {days.map((day, index) => (
+                        <option key={index} value={day}>{day}</option>
+                      ))}
+                    </select>
                   </section>
                   <section className="form-group">
-                    <div style={{ marginTop: -20 }}>
-                      <select
-                        value={selectedMonth}
-                        onChange={(e) => setSelectedMonth(e.target.value)}
-                        className="form-select"
-                      >
-                        <option value="" disabled>Month</option>
-                        {months.map((month, index) => (
-                          <option key={index} value={index + 1}>{month}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      className="form-select"
+                    >
+                      <option value="" disabled>Month</option>
+                      {months.map((month, index) => (
+                        <option key={index} value={index + 1}>{month}</option>
+                      ))}
+                    </select>
                   </section>
                   <section className="form-group">
-                    <div style={{ marginTop: -20 }}>
-                      <select
-                        value={selectedYear}
-                        onChange={(e) => setSelectedYear(e.target.value)}
-                        className="form-select"
-                      >
-                        <option value="" disabled>Year</option>
-                        {years.map((year, index) => (
-                          <option key={index} value={year}>{year}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(e.target.value)}
+                      className="form-select"
+                    >
+                      <option value="" disabled>Year</option>
+                      {years.map((year, index) => (
+                        <option key={index} value={year}>{year}</option>
+                      ))}
+                    </select>
                   </section>
                 </div>
               </div>
               <div className="update mt-5">
-                <button className='btn'>Update</button>
+                <button type="submit" className='btn'>Update Birthday</button>
               </div>
             </form>
           </div>
           {/* Gender */}
           <div className="update-gender mt-5">
-            <form>
+            <form onSubmit={handleUpdateGender}>
               <div className="mt-3">
                 <label className="form-label mb-5">Gender</label>
                 <select
                   id="genderSelect"
                   className="form-select"
                   value={userGender}
-                  onChange={(e) => setNewGender(e.target.value)}
+                  onChange={(e) => setGender(e.target.value)}
                 >
                   <option value="Female">Female</option>
                   <option value="Male">Male</option>
@@ -180,7 +238,7 @@ const Account = () => {
                 </select>
               </div>
               <div className="update mt-5">
-                <button className='btn'>Update</button>
+                <button type="submit" className='btn'>Update Gender</button>
               </div>
             </form>
           </div>
@@ -195,7 +253,6 @@ const Account = () => {
                   type="password"
                   className='form-control'
                   placeholder='Enter at least 4 characters'
-                  onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
               <div className='mt-3'>
@@ -203,7 +260,7 @@ const Account = () => {
                 <input type="password" className='form-control' placeholder='Confirm password' />
               </div>
               <div className="update mt-5">
-                <button className='btn'>Update</button>
+                <button className='btn'>Update Password</button>
               </div>
             </form>
           </div>

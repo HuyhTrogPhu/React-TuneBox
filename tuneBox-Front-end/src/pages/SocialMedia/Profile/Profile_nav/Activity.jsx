@@ -10,6 +10,8 @@ import "../../css/mxh/modal-create-post.css"
 import "../../css/profile.css"
 import "../../css/mxh/comment.css"
 import { images } from "../../../../assets/images/images";
+import data from '@emoji-mart/data'
+import { Picker } from 'emoji-mart'
 
 
 const Activity = () => {
@@ -34,8 +36,7 @@ const Activity = () => {
   const currentUserNickname = Cookies.get('userNickname');
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
-
-
+  const [showPicker, setShowPicker] = useState(false);
 
   const handleLike = async (postId) => {
     try {
@@ -323,7 +324,7 @@ const Activity = () => {
         { content: content }
       );
 
-      setPosts(
+      setPosts((posts) =>
         posts.map((post) => {
           if (post.id === postId) {
             return { ...post, comments: [...post.comments, response.data] };
@@ -336,6 +337,12 @@ const Activity = () => {
     } catch (error) {
       console.error("Error adding comment:", error);
     }
+  };
+
+  const handleEmojiSelect = (emoji) => {
+    const emojiChar = emoji.native; // Lấy ký tự emoji
+    handleCommentChange(post.id, commentContent[post.id] + emojiChar); // Thêm emoji vào nội dung
+    setShowPicker(false); // Đóng emoji picker
   };
   const handleCommentChange = (postId, value) => {
     setCommentContent((prev) => ({ ...prev, [postId]: value }));
@@ -665,7 +672,7 @@ const Activity = () => {
                   {post.images.map((image, index) => (
                     <img
                       key={index}
-                      src={`data:image/jpeg;base64,${image.postImage}`}
+                      src={image.images}
                       alt="Post"
                     />
                   ))}
@@ -685,21 +692,26 @@ const Activity = () => {
 
               {/* Phần bình luận */}
               <div className="comment-section mt-4">
-                <textarea
-                  className="comment-input"
-                  style={{ resize: "none" }}
-                  rows={3}
-                  placeholder="Write a comment..."
-                  value={commentContent[post.id] || ""}
-                  onChange={(e) => handleCommentChange(post.id, e.target.value)}
-                />
-                <div className="text-end">
-                  <button className="btn btn-primary mt-2" onClick={() => handleAddComment(post.id)}>
-                    Comment
-                  </button>
-                </div>
-              </div>
-
+      <textarea
+        className="comment-input"
+        style={{ resize: "none" }}
+        rows={3}
+        placeholder="Write a comment..."
+        value={commentContent[post.id] || ""}
+        onChange={(e) => handleCommentChange(post.id, e.target.value)}
+      />
+      <div className="text-end">
+        <button className="btn btn-outline-primary mt-2" onClick={() => handleAddComment(post.id)}>
+          Comment
+        </button>
+        <button className="btn btn-secondary mt-2" onClick={() => setShowPicker(!showPicker)}>
+          Emoji
+        </button>
+      </div>
+      {showPicker && (
+        <Picker onSelect={handleEmojiSelect} style={{ position: 'absolute', zIndex: 2 }} />
+      )}
+    </div>
               {/* Hiển thị số lượng bình luận */}
               <div className="comment-count mt-2">
                 <span>{post.comments.length} Comment(s)</span>
