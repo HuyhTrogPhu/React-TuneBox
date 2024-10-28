@@ -25,7 +25,7 @@ const LikeAlbum = () => {
     setIsLoading(true);
     try {
       const likedAlbums = await getAllAlbumByUserId(userId);
-      console.log("list like album: ", likedAlbums);
+      // console.log("list like album: ", likedAlbums);
 
       const fetchedAlbum = [];
 
@@ -79,69 +79,212 @@ const LikeAlbum = () => {
   };
 
   return (
-    <div className="albums mt-5">
-      {/* Albums List */}
-      <div className="post-header-albums">
-        {isLoading ? (
-          <div>Loading albums...</div>
-        ) : albums && albums.length > 0 ? (
-          albums.map(
-            (album) =>
-              !album.status && (
-                <div key={album.id} className="album-item">
-                  <img
-                    src={album.albumImage}
-                    className="avatar_small"
-                    alt="Album Cover"
-                  />
-                  <div className="info">
-                    {/* link album detail */}
-                    <Link
-                      to={{
-                        pathname: `/album/${album.id}`,
-                        state: { album },
-                      }}
-                    >
-                      <div className="title">{album.title}</div>
-                    </Link>
+    <div className=" container albums mt-5">
+      <h1 className="search-results-title text-center mb-5">Liked Albums</h1>
 
-                    <div className="style">{album.description}</div>
-
-                    <div className="album-details">
-                      <span className="tracks">Tracks: 0</span>
-                      <span className="likes">Likes: 0</span>
-                    </div>
-                  </div>
-
-                  <div className="btn-group" style={{ marginLeft: 25 }}>
-                    <button
-                      className="btn dropdown-toggle no-border"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    />
-                    <ul className="dropdown-menu dropdown-menu-lg-end">
-                      <li>
-                        <Link to={`/albums/album-Edit/${album.id}`}>
-                          <a className="dropdown-item">Edit</a>
-                        </Link>
-                      </li>
-                      <li>
-                        <a
-                          className="dropdown-item"
-                          onClick={() => handleDeleteAlbum(album.id)}
+      <div className="row">
+        <div className="col-3">
+          <h1 className="search-results-title">Orther</h1>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav">
+              <a className="navbar-brand" href="#">
+                Top
+              </a>
+            </div>
+          </nav>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav">
+              <a className="navbar-brand" href="#">
+                User
+              </a>
+            </div>
+          </nav>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav">
+              <a className="navbar-brand" href="#">
+                Tracks
+              </a>
+            </div>
+          </nav>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav">
+              <a className="navbar-brand" href="#">
+                Albums
+              </a>
+            </div>
+          </nav>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav ">
+              <a className="navbar-brand" href="#">
+                PlayList
+              </a>
+            </div>
+          </nav>
+        </div>
+        <div className="albums-list col-6 pe-5">
+          {/* Albums List */}
+          <div className="post-header-albums">
+            {isLoading ? (
+              <div>Loading albums...</div>
+            ) : albums && albums.length > 0 ? (
+              albums.map(
+                (album) =>
+                  !album.status && (
+                    <div key={album.id} className="album-item">
+                      <img
+                        src={album.albumImage}
+                        className="avatar_small"
+                        alt="Album Cover"
+                      />
+                      <div className="info">
+                        {/* link album detail */}
+                        <Link
+                          to={{
+                            pathname: `/album/${album.id}`,
+                            state: { album },
+                          }}
                         >
-                          Delete
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+                          <div className="title">{album.title}</div>
+                        </Link>
+
+                        <div className="style">{album.description}</div>
+
+                        <div className="album-details">
+                          <span className="tracks">Tracks: 0</span>
+                          <span className="likes">Likes: 0</span>
+                        </div>
+                      </div>
+
+                      <div className="btn-group" style={{ marginLeft: 25 }}>
+                        <button
+                          className="btn dropdown-toggle no-border"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        />
+                        <ul className="dropdown-menu dropdown-menu-lg-end">
+                          <li>
+                            <Link to={`/albums/album-Edit/${album.id}`}>
+                              <a className="dropdown-item">Edit</a>
+                            </Link>
+                          </li>
+                          <li>
+                            <a
+                              className="dropdown-item"
+                              onClick={() => handleDeleteAlbum(album.id)}
+                            >
+                              Delete
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  )
               )
-          )
-        ) : (
-          <div className="no-albums">No albums found</div>
-        )}
+            ) : (
+              <div className="no-albums">No albums found</div>
+            )}
+          </div>
+        </div>
+        <div className="col-3 ps-5">
+          <h1 className="search-results-title">People to Follow </h1>
+          <div className="people-to-follow">
+            <div>
+              <div className="post-header-track">
+                <img
+                  src="/src/UserImages/Avatar/avt.jpg"
+                  className="avatar_small"
+                  alt="Avatar"
+                />
+
+                <div className="info">
+                  <div className="author">userName</div>
+                </div>
+
+                <div className="btn-group" style={{ marginLeft: 25 }}>
+                  <button
+                    className="btn dropdown-toggle no-border"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  ></button>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li>
+                      <a className="dropdown-item">Edit</a>
+                    </li>
+                    <li>
+                      <a className="dropdown-item">Delete</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="people-to-follow">
+            <div>
+              <div className="post-header-track">
+                <img
+                  src="/src/UserImages/Avatar/avt.jpg"
+                  className="avatar_small"
+                  alt="Avatar"
+                />
+
+                <div className="info">
+                  <div className="author">userName</div>
+                </div>
+
+                <div className="btn-group" style={{ marginLeft: 25 }}>
+                  <button
+                    className="btn dropdown-toggle no-border"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  ></button>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li>
+                      <a className="dropdown-item">Edit</a>
+                    </li>
+                    <li>
+                      <a className="dropdown-item">Delete</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="people-to-follow">
+            <div>
+              <div className="post-header-track">
+                <img
+                  src="/src/UserImages/Avatar/avt.jpg"
+                  className="avatar_small"
+                  alt="Avatar"
+                />
+
+                <div className="info">
+                  <div className="author">userName</div>
+                </div>
+
+                <div className="btn-group" style={{ marginLeft: 25 }}>
+                  <button
+                    className="btn dropdown-toggle no-border"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  ></button>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li>
+                      <a className="dropdown-item">Edit</a>
+                    </li>
+                    <li>
+                      <a className="dropdown-item">Delete</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -741,7 +741,10 @@ const HomeFeed = () => {
                 </Link>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link
+                  to={"/likePlaylist"}
+                  className="d-flex align-items-center"
+                >
                   <img
                     src={images.playlist}
                     alt="icon"
@@ -749,7 +752,7 @@ const HomeFeed = () => {
                     className="me-2 "
                   />
                   <span className="fw-bold">Playlist đã thích</span>
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

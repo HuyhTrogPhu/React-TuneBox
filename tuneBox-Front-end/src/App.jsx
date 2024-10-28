@@ -33,6 +33,9 @@ import AlbumEdit from "./pages/SocialMedia/Profile/Profile_nav/AlbumEdit";
 import AlbumDetail from "./pages/SocialMedia/Profile/Profile_nav/AlbumDetail";
 import LikePost from "./pages/SocialMedia/Profile/Profile_nav/LikePost";
 import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
+import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
+
+import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
 
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
@@ -108,6 +111,8 @@ function App() {
               <Route path="/Following/:userId" element={<FollowingPage />} />
               <Route path="/likepost" element={<LikePost />} />
               <Route path="/likeAlbums" element={<LikeAlbums />} />
+              <Route path="/likePlaylist" element={<LikePlaylists />} />
+              <Route path="/search" element={<SearchForm />} />
             </Route>
 
             {/* Các route không có Header */}
