@@ -22,7 +22,7 @@ const Profile = () => {
     const [userTalent, setUserTalent] = useState([]);
     const [userGenre, setUserGenre] = useState([]);
     const [selectedTalents, setSelectedTalents] = useState([]);
-    const [selectedGenres, setSelectedGenres] = useState([]);    
+    const [selectedGenres, setSelectedGenres] = useState([]);
     const [selectedInspiredBy, setSelectedInspiredBy] = useState([]);
     // Quản lý modal
     const [showModal, setShowModal] = useState(false);
@@ -126,14 +126,14 @@ const Profile = () => {
                 userName,
                 userInformation: { name, location, about },
                 userProfileUpdateRequest: {
-                    inspiredBy: selectedInspiredBy.map(name => listInspiredBy.find(i => i.name === name)?.id),
-                    talent: selectedTalents.map(name => listTalent.find(t => t.name === name)?.id),
-                    genre: selectedGenres.map(name => listGenre.find(g => g.name === name)?.id),
+                    inspiredBy: selectedInspiredBy,
+                    talent: selectedTalents,
+                    genre: selectedGenres,
                 },
             };
             console.log("Selected InspiredBy:", selectedInspiredBy);
-console.log("Selected Talents:", selectedTalents);
-console.log("Selected Genres:", selectedGenres);
+            console.log("Selected Talents:", selectedTalents);
+            console.log("Selected Genres:", selectedGenres);
 
 
             try {
@@ -145,7 +145,7 @@ console.log("Selected Genres:", selectedGenres);
             }
         }
     };
-    
+
     const handleToggleItem = (item, setSelected, selected) => {
         setSelected((prev) => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
     };
@@ -329,32 +329,33 @@ console.log("Selected Genres:", selectedGenres);
                         </div>
                     </div>
                 )}
-{/* Talents Section */}
-<div className="talents-section">
-            <h7><b>Talents</b></h7>
-            <div className="talent-list mt-3">
-                {listTalent.map((talent) => (
-                    <div key={talent.id} className={`chip ${selectedTalents.includes(talent.name) ? 'selected' : ''}`} onClick={() => handleToggleItem(talent.name, setSelectedTalents, selectedTalents)}>
 
-                        <i className="fa fa-music pe-3" aria-hidden="true"></i>
-                        <span>{talent.name}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
+                {/* Talents Section */}
+                <div className="talents-section">
+                    <h7><b>Talents</b></h7>
+                    <div className="talent-list mt-3">
+                        {listTalent.map((talent) => (
+                            <div key={talent.id} className={`chip ${selectedTalents.includes(talent.name) ? 'selected' : ''}`} onClick={() => handleToggleItem(talent.name, setSelectedTalents, selectedTalents)}>
 
-        {/* Genres Section */}
-        <div className="genres-section">
-            <h7><b>Favorite genres</b></h7>
-            <div className="genre-list mt-3">
-                {listGenre.map((genre) => (
-                    <div key={genre.id} className={`chip ${selectedGenres.includes(genre.name) ? 'selected' : ''}`} onClick={() => handleToggleItem(genre.name, setSelectedGenres, selectedGenres)}>
-                        <i className="fa fa-music pe-3" aria-hidden="true"></i>
-                        <span>{genre.name}</span>
+                                <i className="fa fa-music pe-3" aria-hidden="true"></i>
+                                <span value={talent.id}>{talent.name}</span>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-        </div>
+                </div>
+
+                {/* Genres Section */}
+                <div className="genres-section">
+                    <h7><b>Favorite genres</b></h7>
+                    <div className="genre-list mt-3">
+                        {listGenre.map((genre) => (
+                            <div key={genre.id} className={`chip ${selectedGenres.includes(genre.name) ? 'selected' : ''}`} onClick={() => handleToggleItem(genre.name, setSelectedGenres, selectedGenres)}>
+                                <i className="fa fa-music pe-3" aria-hidden="true"></i>
+                                <span>{genre.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
 
             <div className="update mt-5">
