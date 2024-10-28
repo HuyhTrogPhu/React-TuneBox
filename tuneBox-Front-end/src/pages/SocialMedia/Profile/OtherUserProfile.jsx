@@ -291,6 +291,7 @@ const OtherUserProfile = () => {
 
           <div className="container">
             <Routes>
+            <Route path="/" element={<Navigate to="activity" />} />
               <Route path="activity" element={<Activity />} />
               <Route path="track" element={<Track />} />
               <Route path="albums" element={<Albums />} />

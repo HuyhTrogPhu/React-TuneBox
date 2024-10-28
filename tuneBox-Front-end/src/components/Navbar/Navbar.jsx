@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { getAvatarUser } from "../../service/UserService";
-import { createTrack, listGenre, getTrackByUserId } from "../../service/TrackServiceCus";
+import {
+  createTrack,
+  listGenre,
+  getTrackByUserId,
+} from "../../service/TrackServiceCus";
 import { getNotifications } from "../../service/NotificationService.js";
 import { logout } from "../../service/LoginService";
 import axios from "axios";
@@ -16,6 +20,7 @@ const Navbar = () => {
   const [newTrackFile, setTrackFile] = useState(null);
   const [newTrackGenre, setTrackGenre] = useState("");
   const [newTrackDescription, setTrackDescription] = useState("");
+
   const [errors, setErrors] = useState({});
   const [genres, setGenre] = useState([]);
   const [cartCount, setCartCount] = useState(0);
@@ -60,13 +65,17 @@ const Navbar = () => {
     };
 
     const fetchCartCount = () => {
-      const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-      const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+      const totalCount = cartItems.reduce(
+        (total, item) => total + item.quantity,
+        0
+      );
       setCartCount(totalCount);
     };
 
     fetchAvatar();
     fetchCartCount();
+    getAllGenre();
   }, [userId]);
 
   useEffect(() => {
@@ -74,7 +83,7 @@ const Navbar = () => {
       try {
         const data = await getNotifications(userId);
         setNotifications(data || []);
-        setUnreadCount(data.filter(n => !n.read).length);
+        setUnreadCount(data.filter((n) => !n.read).length);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -111,7 +120,8 @@ const Navbar = () => {
     if (!newTrackImage) newErrors.image = "Track image is required.";
     if (!newTrackFile) newErrors.file = "Track file is required.";
     if (!newTrackGenre) newErrors.genre = "Track genre is required.";
-    if (!newTrackDescription) newErrors.description = "Description is required.";
+    if (!newTrackDescription)
+      newErrors.description = "Description is required.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -145,18 +155,10 @@ const Navbar = () => {
   // log-out
   const handleLogout = async () => {
     try {
-      const response = await logout();
-      console.log(response);
-
-      // Xóa cookie userId
-      Cookies.remove('userId');
-
-      // Xóa token JWT (nếu lưu trữ trong localStorage)
-      localStorage.removeItem('token');
-
+      await logout();
+      Cookies.remove("userId");
       setAvatarUrl(images.logoTuneBox);
-
-      navigate('/introduce');
+      navigate("/introduce");
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -164,9 +166,9 @@ const Navbar = () => {
 
   const handleAvatarClick = () => {
     if (userId) {
-      navigate('/profileUser');
+      navigate("/profileUser");
     } else {
-      navigate('/login');
+      navigate("/login");
     }
   };
 
@@ -175,20 +177,23 @@ const Navbar = () => {
 
   const handleCartClick = () => {
     if (userId) {
-      navigate('/Cart');
+      navigate("/Cart");
     } else {
-      navigate('/login');
+      navigate("/login");
     }
   };
 
   const markAsRead = async (notificationId) => {
     try {
-      await fetch(`http://localhost:8080/api/notifications/markAsRead/${notificationId}`, {
-        method: 'PUT',
-      });
-      setUnreadCount(prev => prev > 0 ? prev - 1 : 0);
+      await fetch(
+        `http://localhost:8080/api/notifications/markAsRead/${notificationId}`,
+        {
+          method: "PUT",
+        }
+      );
+      setUnreadCount((prev) => (prev > 0 ? prev - 1 : 0));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error("Error marking notification as read:", error);
     }
   };
 
@@ -205,26 +210,53 @@ const Navbar = () => {
     markAsRead(notification.id);
     navigate(`/post/${notification.postId}`);
   };
+
   const handleDelete = async (notificationId) => {
-    await axios.delete(`http://localhost:8080/api/notifications/${notificationId}`); // Thay đổi URL theo API của bạn
-    setNotifications(notifications.filter(n => n.id !== notificationId)); // Cập nhật trạng thái
+    await axios.delete(
+      `http://localhost:8080/api/notifications/${notificationId}`
+    ); // Thay đổi URL theo API của bạn
+    setNotifications(notifications.filter((n) => n.id !== notificationId)); // Cập nhật trạng thái
   };
+
+  const validateImageFile = (file) => {
+    const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!validImageTypes.includes(file.type)) {
+      return "Please upload a valid image file (JPEG, PNG, or GIF)";
+    }
+    return "";
+  };
+
+  const validateAudioFile = (file) => {
+    if (file.type !== "audio/mpeg" && !file.name.endsWith(".mp3")) {
+      return "Please upload a valid MP3 file";
+    }
+    return "";
+  };
+
   return (
     <header className="navbar-container">
       {/* Navbar Left */}
       <div className="col-3 d-flex align-items-center">
-        <button className="navbar-button" onClick={() => navigate('/')}>
+        <button className="navbar-button" onClick={() => navigate("/")}>
           <img alt="tunebox" src={images.logoTuneBox} width="150" />
         </button>
-        <button className="navbar-button" onClick={() => navigate('/')}>
+        <button className="navbar-button" onClick={() => navigate("/")}>
           <span className="text-decoration-none">
             <img alt="icon-home" src={images.home} className="icon" />
             <b>Feed</b>
           </span>
         </button>
-        <button className="navbar-button" onClick={() => navigate('/HomeEcommerce')}>
+        <button
+          className="navbar-button"
+          onClick={() => navigate("/HomeEcommerce")}
+        >
           <span>
-            <img alt="icon-loa" src={images.speaker} width="35" className="icon" />
+            <img
+              alt="icon-loa"
+              src={images.speaker}
+              width="35"
+              className="icon"
+            />
             <b>Shops</b>
           </span>
         </button>
@@ -256,22 +288,42 @@ const Navbar = () => {
             )}
           </span>
           {notificationVisible && (
-            <div className={`notification-dropdown ${notificationVisible ? 'show' : ''}`}>
+            <div
+              className={`notification-dropdown ${
+                notificationVisible ? "show" : ""
+              }`}
+            >
               <ul className="notification-list">
                 {notifications.length > 0 ? (
                   notifications.map((notification, index) => (
-                    <li key={index} className="notification-item" onClick={() => handleNotificationClick(notification)}>
+                    <li
+                      key={index}
+                      className="notification-item"
+                      onClick={() => handleNotificationClick(notification)}
+                    >
                       <div className="notification-content">
-                        {notification.type === 'LIKE_POST' ? (
+                        {notification.type === "LIKE_POST" ? (
                           <>
-                            <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span><br />
-                            <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                            <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span>
+                            <br />
+                            <span className="time">
+                              {new Date(
+                                notification.createdAt
+                              ).toLocaleTimeString()}
+                            </span>
                             <p>{notification.postContent}</p>
                           </>
                         ) : (
                           <>
-                            <span className="message">{notification.message}</span><br />
-                            <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                            <span className="message">
+                              {notification.message}
+                            </span>
+                            <br />
+                            <span className="time">
+                              {new Date(
+                                notification.createdAt
+                              ).toLocaleTimeString()}
+                            </span>
                             <p>{notification.postContent}</p>
                           </>
                         )}
@@ -287,7 +339,12 @@ const Navbar = () => {
         </div>
 
         <span className="mx-3">
-          <img alt="icon-chat" style={{ width: '30px', height: '30px' }} src={images.conversstion} className="icon" />
+          <img
+            alt="icon-chat"
+            style={{ width: "30px", height: "30px" }}
+            src={images.conversstion}
+            className="icon"
+          />
         </span>
 
         <button className="mx-3 cart-shopping" onClick={handleCartClick}>
@@ -298,18 +355,213 @@ const Navbar = () => {
         </button>
 
         <span className="mx-3">
-          <img alt="avatar-nav" src={avatarUrl} className="avatar-nav m-0" onClick={handleAvatarClick} onMouseEnter={handleMouseEnter} />
+          <img
+            alt="avatar"
+            src={avatarUrl}
+            className="avatar m-0"
+            onClick={handleAvatarClick}
+            onMouseEnter={handleMouseEnter}
+          />
         </span>
 
         {dropdownVisible && (
-          <div className="dropdown-menu dropdown-menu-right show dropdo" onMouseLeave={handleMouseLeave}>
-            <button className="dropdown-item" onClick={() => navigate("/profileUser")}>Trang cá nhân</button>
-            <button className="dropdown-item" onClick={handleLogout}>Đăng xuất</button>
+          <div
+            className="dropdown-menu dropdown-menu-right show"
+            onMouseLeave={handleMouseLeave}
+          >
+            <button
+              className="dropdown-item"
+              onClick={() => navigate("/profileUser")}
+            >
+              Trang cá nhân
+            </button>
+            <button
+              className="dropdown-item"
+              data-bs-toggle="modal"
+              data-bs-target="#addTrackModal"
+              onClick={getAllGenre}
+            >
+              Đăng tải bài hát
+            </button>
+            <button className="dropdown-item" onClick={handleLogout}>
+              Đăng xuất
+            </button>
           </div>
         )}
       </div>
-    </header>
 
+      {/* start modal add */}
+      <div
+        className="modal fade"
+        id="addTrackModal"
+        tabIndex="-1"
+        aria-labelledby="addTrackModalLabel"
+        aria-hidden="true"
+        data-bs-backdrop="false"
+      >
+        <div className="modal-dialog modal-xl">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="addTrackModalLabel">
+                Add Track
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                id="closeModal"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <div className="row">
+                <form action="" className="row">
+                  <div className="mb-3">
+                    <label className="form-label">Track Name</label>
+                    <input
+                      type="text"
+                      className={`form-control ${
+                        errors.name ? "is-invalid" : ""
+                      }`}
+                      value={newTrackName}
+                      onChange={(e) => setTrackName(e.target.value)}
+                    />
+                    {errors.name && (
+                      <div className="invalid-feedback">{errors.name}</div>
+                    )}
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="form-label">Image Track</label>
+                    <input
+                      type="file"
+                      className={`form-control ${
+                        errors.image ? "is-invalid" : ""
+                      }`}
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const imageError = validateImageFile(file);
+                          if (imageError) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              image: imageError,
+                            }));
+                            return;
+                          }
+                          setErrors((prev) => ({ ...prev, image: "" }));
+                          setTrackImage(file);
+                        }
+                      }}
+                    />
+                    {errors.image && (
+                      <div className="invalid-feedback d-block">
+                        {errors.image}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="form-label">File Track</label>
+                    <input
+                      type="file"
+                      className={`form-control ${
+                        errors.file ? "is-invalid" : ""
+                      }`}
+                      accept=".mp3"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const audioError = validateAudioFile(file);
+                          if (audioError) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              file: audioError,
+                            }));
+                            return;
+                          }
+                          setErrors((prev) => ({ ...prev, file: "" }));
+                          setTrackFile(file);
+                        }
+                      }}
+                    />
+                    {errors.file && (
+                      <div className="invalid-feedback d-block">
+                        {errors.file}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="form-label">Genre</label>
+                    <select
+                      className={`form-select ${
+                        errors.genre ? "is-invalid" : ""
+                      }`}
+                      value={newTrackGenre}
+                      onChange={(e) => setTrackGenre(e.target.value)}
+                    >
+                      <option value="" disabled>
+                        Select genre
+                      </option>
+                      {genres && genres.length > 0 ? (
+                        genres.map((genre) => (
+                          <option key={genre.id} value={genre.id}>
+                            {genre.name}
+                          </option>
+                        ))
+                      ) : (
+                        <option disabled>No genres available</option>
+                      )}
+                    </select>
+                    {errors.genre && (
+                      <div className="invalid-feedback">{errors.genre}</div>
+                    )}
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="form-label">Description</label>
+                    <textarea
+                      cols="50"
+                      rows="5"
+                      className={`form-control ${
+                        errors.description ? "is-invalid" : ""
+                      }`}
+                      value={newTrackDescription}
+                      onChange={(e) => setTrackDescription(e.target.value)}
+                    ></textarea>
+                    {errors.description && (
+                      <div className="invalid-feedback">
+                        {errors.description}
+                      </div>
+                    )}
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                  onClick={resetForm}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSave}
+                >
+                  Save Track
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* end modal add */}
+    </header>
   );
 };
 
