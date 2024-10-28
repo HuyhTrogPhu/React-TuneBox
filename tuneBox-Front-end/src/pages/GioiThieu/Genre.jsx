@@ -27,6 +27,7 @@ const Genre = () => {
       const response = await listGenres();
       console.log("Fetched genres:", response.data); // Kiểm tra dữ liệu
       setGenre(response.data);
+      console.log(response.data);
     } catch (error) {
       console.log("Error fetching genre", error);
     }
@@ -38,12 +39,10 @@ const Genre = () => {
   }, []);
 
   // Xử lý tìm kiếm thể loại
-  const filteredGenres = genre?.length
-  ? genre.filter((g) =>
-      g.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  : [];
-
+  const filteredGenres = genre.filter((g) =>
+    g.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
 
   const handleGenreClick = (id) => {
     setSelectedGenre((prev) => {

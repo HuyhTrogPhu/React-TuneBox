@@ -8,7 +8,7 @@ import { getInstrumentById } from '../../../service/EcommerceHome';
 import { Link } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { addToLocalCart, getLocalCart } from "../../../service/CartService";
-import { BounceLoader } from 'react-spinners';
+import Swal from "sweetalert2";
 import { Audio } from 'react-loader-spinner'
 const DetailProduct = () => {
   const { id } = useParams();
@@ -89,12 +89,24 @@ const DetailProduct = () => {
 
   const handleAddToCart = async () => {
     setIsAddingToCart(true); // Bắt đầu loading
+
     setTimeout(() => {
-      addToLocalCart(instrument, quantity);
-      setIsAddingToCart(false); // Kết thúc loading
-      alert('Đã thêm vào giỏ hàng thành công.');
+        addToLocalCart(instrument, quantity);
+        setIsAddingToCart(false); // Kết thúc loading
+        
+        // Sử dụng SweetAlert2 để hiển thị thông báo
+        Swal.fire({
+            title: 'Success!',
+            text: 'The product has been added to the cart.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            customClass: {
+                confirmButton: 'btn btn-primary',
+            },
+            buttonsStyling: false // Tùy chọn để sử dụng style tùy chỉnh
+        });
     }, 1000); // Giả lập thời gian xử lý
-  };
+};
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p>{error}</p>;

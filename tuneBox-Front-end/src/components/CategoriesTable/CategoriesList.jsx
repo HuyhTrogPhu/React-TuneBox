@@ -1,7 +1,7 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { updateCateIns } from "../../service/CategoryService";
 import { useNavigate } from "react-router-dom";
-
+import "../../pages/EcommerceAdmin/css/ManagerCategories.css"
 const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { // Nhận prop categories và onUpdate
 
 
@@ -13,7 +13,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
 
   const [successMessage, setSuccessMessage] = useState("");
   const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const navigator = useNavigate();
   const [errors, setErrors] = useState({
     editCategoryName: '',
@@ -61,7 +61,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
             const modalElement = document.getElementById('editCategoryModal');
             const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
             modalInstance.hide();
-          }, 1000); 
+          }, 1000);
         })
         .catch((error) => {
           setLoading(false); // Tắt loading khi có lỗi
@@ -125,15 +125,15 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
       errorsCopy.editCategoryName = 'Category name is required';
       valid = false;
     }
-        // Kiểm tra tên danh mục có trùng hay không
-        const isDuplicate = categories.some(
-          (cate) => cate.name.toLowerCase() === editCategoryName.toLowerCase() && cate.id !== selectedCategory.id
-      );
-  
-      if (isDuplicate) {
-          errorsCopy.editCategoryName = 'Category name must be unique';
-          valid = false;
-      }
+    // Kiểm tra tên danh mục có trùng hay không
+    const isDuplicate = categories.some(
+      (cate) => cate.name.toLowerCase() === editCategoryName.toLowerCase() && cate.id !== selectedCategory.id
+    );
+
+    if (isDuplicate) {
+      errorsCopy.editCategoryName = 'Category name must be unique';
+      valid = false;
+    }
 
     // Kiểm tra hình ảnh
     if (!editCategoryImage && !currentImage) {
@@ -156,23 +156,23 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
     <div>
       {/* Hiển thị thông báo thành công */}
       {successMessage && (
-        <div className="alert alert-success " role="alert" style={{marginTop: 10}}>
+        <div className="alert alert-success " role="alert" style={{ marginTop: 10 }}>
           {successMessage} This notice will be closed in <b>{countdown}s.</b>
         </div>
       )}
 
       <table className="table table-striped table-hover">
-        <thead className="text-center">
+        <thead>
           <tr>
-            <th scope="col">#</th>
-            <th scope="col">Image</th>
-            <th scope="col">Categories Name</th>
-            <th scope="col">Desc</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-
+            <th style={{ textAlign: "center" }} scope="col">#</th>
+            <th style={{ textAlign: "center" }} scope="col">Image</th>
+            <th style={{ textAlign: "center" }} scope="col">Categories Name</th>
+            <th style={{ textAlign: "center" }} scope="col">Desc</th>
+            <th style={{ textAlign: "center" }} scope="col">Status</th>
+            <th style={{ textAlign: "center" }} scope="col">Action</th>
           </tr>
         </thead>
+
         <tbody>
           {filteredCategories.map((cate, index) => (
             <tr key={cate.id} className="ps-0">
@@ -277,7 +277,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" className="btn btn-primary" onClick={handUpdate} disabled={loading}>
+              <button type="button" className="btn btn-primary" onClick={handUpdate} disabled={loading}>
                 {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}
               </button>
             </div>

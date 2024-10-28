@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Route, Routes, Outlet, useParams } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
@@ -18,6 +18,7 @@ import CartDetail from "./pages/Ecommerce/Cart/Cart_detail";
 import DetailProduct from "./pages/Ecommerce/ShopDetail/DetailProduct";
 import InspiredBy from "./pages/GioiThieu/InspiredBy";
 import Genre from "./pages/GioiThieu/Genre";
+import EcommerceAdmin from './pages/EcommerceAdmin'
 import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
@@ -26,23 +27,34 @@ import OtherUserProfile from "./pages/SocialMedia/Profile/OtherUserProfile";
 import WelcomeUser from "./pages/GioiThieu/WelcomeUser";
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
-import { FollowProvider } from './pages/SocialMedia/Profile/FollowContext';
-import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
+import { FollowProvider } from "./pages/SocialMedia/Profile/FollowContext";
+import TrackDetail from "./pages/SocialMedia/Profile/Profile_nav/TrackDetail";
+
+import AlbumNew from "./pages/SocialMedia/Profile/Profile_nav/AlbumNew";
+import AlbumEdit from "./pages/SocialMedia/Profile/Profile_nav/AlbumEdit";
+import AlbumDetail from "./pages/SocialMedia/Profile/Profile_nav/AlbumDetail";
+import LikePost from "./pages/SocialMedia/Profile/Profile_nav/LikePost";
+
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 import ThanhCong from "./pages/Ecommerce/order/doneOr";
+//import UserDetail from "./components/UserDetail/UserDetail";
 import Post from "./pages/SocialMedia/Post";
 
-import EcommerceAdmin from "./pages/EcommerceAdmin";
+import FriendRequests from "./pages/SocialMedia/FriendRequests";
+import FriendList from "./pages/SocialMedia/FriendList";
+import FollowersPage from "./pages/SocialMedia/FollowersPage";
+import FollowingPage from "./pages/SocialMedia/FollowingPage";
+
 
 import ResetPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ResetPassword2";
 import ForgotPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ForgotPassword2";
 import Trackdetail from "./pages/SocialMedia/Trackdetail";
 import SocialMediaAdmin from "./pages/SocialMediaAdmin";
-// import Chat2 from "./pages/SocialMedia/chat/chat2";
 
 
 // Layout có Header
+
 function LayoutWithHeader() {
   return (
     <>
@@ -61,9 +73,8 @@ function LayoutWithoutHeader() {
 }
 
 function App() {
-
   const { orderId } = useParams();
-  
+
   return (
     <FollowProvider> {/* Đặt FollowProvider ở đây */}
     <div>
@@ -76,6 +87,7 @@ function App() {
             <Route path="/Shop" element={<Shop />} />
             <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/profileUser" element={<ProfileUser />} />
             <Route path="/profileSetting" element={<ProfileSetting />} />
             <Route path="/profileSetting/*" element={<ProfileSetting />} />
             <Route path="/CartDetail" element={<CartDetail />} />
@@ -84,23 +96,31 @@ function App() {
             <Route path="/BrandPage" element={<BrandPage />} />
             <Route path="/brand-detail" element={<BrandDetail />} />
             <Route path="/CategoryPage" element={<CategoryPage />} />
-            <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+            <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
+              <Route
+                path="/albums/album-Edit/:albumId"
+                element={<AlbumEdit />}
+              />
+              <Route path="/album/:id" element={<AlbumDetail />} />
+              <Route
+                path="/InstrumentBelongCategory"
+                element={<CategoryPageDetail />}
+              />
+            {/* <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} /> */}
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
             <Route path="/checkOut" element={<CheckOut/>}/>
             <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
             <Route path="/doneorder" element={<ThanhCong/>}/>
             <Route path="/post/:postIdurl" element={<Post />}  />
-            <Route path="/DetailProduct" element={<DetailProduct />} />
-            <Route path="/Trackdetail" element= {<Trackdetail />} />
-            <Route path="/chat" element={<Chat/>} />
-            {/* <Route path="/chat2" element={<Chat2/>} /> */}
-
+            <Route path="/FriendRequests" element={<FriendRequests />} />
+              <Route path="/FriendList/:userId" element={<FriendList />} />
+              <Route path="/Follower/:userId" element={<FollowersPage />} />
+              <Route path="/Following/:userId" element={<FollowingPage />} />
+              <Route path="/likepost" element={<LikePost />} />
 
           </Route>
-          {/* <div className="card-body contacts_body">
-              <UserList users={users} setActiveUser={setActiveUser} />
-            </div> */}
+
           {/* Các route không có Header */}
           <Route element={<LayoutWithoutHeader />}>
             <Route path="/introduce" element={<Introduce />} />
@@ -119,10 +139,6 @@ function App() {
             {/* admin start */}
             <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
             {/* admin end */}
-
-            <Route path="/socialadmin/*" element={<SocialMediaAdmin/>} />
-            
-
           </Route>
         </Routes>
       </div>

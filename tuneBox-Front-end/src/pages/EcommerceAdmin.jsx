@@ -1,7 +1,7 @@
 import React from 'react'
 import Header from '../components/Header/Header'
 import { Link,Route, Routes } from 'react-router-dom'
-import ManagerBrand from './EcommerceAdmin/pageContent/ManagerBrand'
+import ManagerBrand from './EcommerceAdmin/pageContent/MangerBrand'
 // import "./EcommerceAdmin/css/Sidebar.css"
 import ManagerCategories from './EcommerceAdmin/pageContent/ManagerCategories'
 import ManagerInstrument from './EcommerceAdmin/pageContent/ManagerInstrument'
@@ -11,7 +11,7 @@ import ManagerInstrument from './EcommerceAdmin/pageContent/ManagerInstrument'
 const EcommerceAdmin = () => {
   return (
     <div>
-        <div className="row">
+      <div className="row">
         <div className="sidebar21 col-lg-2 col-md-3 vh-100">
       {/* Logo */}
       <div className="logo p-3">
@@ -77,15 +77,14 @@ const EcommerceAdmin = () => {
 
 
       <Route path='Instrument' element={<ManagerInstrument/>} />
-
     </Routes>
     </div>
-    </div>
+        </div>
         
 
 
     </div>
-  )
-}
+  );
+};
 
-export default EcommerceAdmin
+export default EcommerceAdmin;

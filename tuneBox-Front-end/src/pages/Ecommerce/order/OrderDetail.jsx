@@ -4,6 +4,10 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from "js-cookie";
 import Swal from "sweetalert2"; // Import thêm Swal nếu cần để hiện thông báo lỗi
+import { jsPDF } from "jspdf";
+import html2canvas from 'html2canvas-pro';
+import { QRCodeSVG } from "qrcode.react";
+import { images } from '../../../assets/images/images';
 
 const OrderDetail = () => {
     const [orderDetails, setOrderDetails] = useState(null); // Lưu thông tin đơn hàng
@@ -30,61 +34,98 @@ const OrderDetail = () => {
     useEffect(() => {
         console.log(orderDetails);  // Kiểm tra dữ liệu trả về
     }, [orderDetails]);
+
+    const downloadPDF = async () => {
+        const input = document.getElementById('orderDetail');
+        const canvas = await html2canvas(input, { useCORS: true }); // Thêm useCORS: true
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF();
+        const imgWidth = 190;
+        const pageHeight = pdf.internal.pageSize.height;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        pdf.save(`TuneBox_ElectronicInvoice_${orderDetails.orderId}.pdf`);
+    };
+
+
     // Nếu chưa có dữ liệu đơn hàng, hiển thị thông báo đang tải
     if (!orderDetails) {
         return <div>Đang tải thông tin đơn hàng...</div>;
     }
 
     return (
-        <div className="container">
+        <div className="container" id="orderDetail">
             <div className="row">
                 {/* BEGIN INVOICE */}
                 <div className="col-xs-12">
                     <div className="grid invoice">
                         <div className="grid-body">
-                            <div className="invoice-title">
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <h2>Order Detail Information<br />
-                                            <span className="small">Order ID: {orderDetails.orderId}</span></h2>
-                                    </div>
+                            <div className="invoice-title d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h1>
+                                        <b>Order Detail Information</b> <br />
+                                        <span style={{ marginTop: '50px' }} className="small">
+                                            <b>Order ID:</b> {orderDetails.orderId}
+                                        </span>
+                                    </h1>
+                                </div>
+                                <div>
+                                    <img src={images.logoTuneBox} alt="Logo" width={100} />
                                 </div>
                             </div>
                             <hr />
                             <div className="row">
                                 <div className="col-xs-12 ">
                                     <address>
-                                        <strong>Thông tin người nhận:</strong><br />
-                                        Tên: {orderDetails.username} <br />
-                                        Địa chỉ: {orderDetails.address}<br />
-                                        Email: {orderDetails.email}  <br />
-                                        <abbr title="Phone">Số điện thoại:</abbr> {orderDetails.phoneNumber}
+                                        <p style={{ fontSize: '30px' }}> <b>Recipient information</b></p>
+                                        <p> <b>Name: </b>{orderDetails.username}</p>
+
+                                        <p> <b>Email: </b>{orderDetails.email}</p>
+                                        <p> <b>Phone number: </b>{orderDetails.phoneNumber}</p>
+
                                     </address>
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="col-xs-6">
                                     <address>
-                                        <strong>Địa chỉ giao hàng:</strong><br />
-                                        {orderDetails.address}
+                                        <p > <b>Delivery address:</b>    {orderDetails.address} </p>
+
                                     </address>
                                     <address>
-                                        <strong>Phương thức thanh toán:</strong> <br />
-                                        {orderDetails.paymentMethod}
+                                        <p><b>Payment method:</b> {orderDetails.paymentMethod}</p>
+
+                                    </address>
+                                    <address>
+                                        <p><b>Payment status: </b>{orderDetails.paymentStatus} </p>
+
                                     </address>
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="col-md-12">
-                                    <h3>CHI TIẾT ĐƠN HÀNG</h3>
+                                    <h3>ORDER DETAILS</h3>
                                     <table className="table table-striped">
                                         <thead>
                                             <tr className="line">
                                                 <td><strong>#</strong></td>
-                                                <td className="text-center"><strong>Tên sản phẩm</strong></td>
-                                                <td className="text-center"><strong>Hình ảnh</strong></td>
-                                                <td className="text-center"><strong>Số lượng</strong></td>
-                                                <td className="text-center"><strong>Giá trị</strong></td>
+                                                <td className="text-center"><strong>Product name</strong></td>
+                                                <td className="text-center"><strong>Image</strong></td>
+                                                <td className="text-center"><strong>Quanlity</strong></td>
+                                                <td className="text-center"><strong>Value</strong></td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -92,27 +133,33 @@ const OrderDetail = () => {
                                                 <tr key={detail.id}>
                                                     <td>{index + 1}</td>
                                                     <td>{detail.instrumentName}</td>
-                                                    <td className='instrument-image col-2'> 
-                                                        <img src={detail.image} alt="" />
+                                                    <td className='instrument-image col-2'>
+                                                        <img src={detail.image} alt="" crossOrigin="anonymous" />
                                                     </td>
                                                     <td className="text-center">{detail.quantity}</td>
                                                     <td className="text-center">{(detail.costPrice * detail.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
                                                 </tr>
                                             ))}
-                                      
-                                     
-                                                <tr>
-                                                    <td colSpan={3}>
-                                                    </td><td className="text-right"><strong>Total</strong></td>
-                                                    <td className="text-right"><strong>{(orderDetails.totalPrice).toLocaleString('vi')} VND</strong></td>
-                                                </tr>
+
+
+                                            <tr>
+                                                <td colSpan={3}>
+                                                </td><td className="text-right"><strong>Total</strong></td>
+                                                <td className="text-right"><strong>{(orderDetails.totalPrice).toLocaleString('vi')} VND</strong></td>
+                                            </tr>
                                         </tbody>
                                     </table>
+                                    <div className="qr-code">
+                                        <QRCodeSVG value={`http://localhost:3000/orderDetail/${orderDetails.orderId}`} size={128} />
+                                    </div>
+                                    <div className="text-right mt-3">
+                                        <button onClick={downloadPDF} className="btn">Download PDF</button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="col-md-12 text-right identity">
-                                    <p>Đơn hàng được bảo hộ bởi<br /><strong>tuneBox@2024</strong></p>
+                                    <p>Order is covered by <strong>tuneBox@2024</strong></p>
                                 </div>
                             </div>
                         </div>

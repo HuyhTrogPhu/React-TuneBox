@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import { getUserById } from '../../../service/CheckoutService';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { Audio } from 'react-loader-spinner'
 const GHN_API_KEY = 'f6a2324b-895f-11ef-a76b-8ef8cf9ed7dc';
 const CheckOut = () => {
     // const [userId, setUserId] = useState('');
@@ -36,6 +37,8 @@ const CheckOut = () => {
     const [phoneNumber, setPhoneNumer] = useState('')
     const [paymentStatus, setPaymentStatus] = useState('')
     const [paymentMethod, setPaymentMethod] = useState('');
+
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate()
 
     const validateForm = () => {
@@ -46,13 +49,13 @@ const CheckOut = () => {
         if (phoneNumber) {
             const phoneRegex = /^[0-9]{10,11}$/; // Chỉ cho phép 10 đến 11 chữ số
             if (!phoneRegex.test(phoneNumber)) {
-                errorsCopy.phoneNumber = 'Số điện thoại phải bao gồm 10 đến 11 chữ số';
+                errorsCopy.phoneNumber = 'Invalid phone number';
                 valid = false;
             } else {
                 errorsCopy.phoneNumber = ''; // Không có lỗi
             }
         } else {
-            errorsCopy.phoneNumber = 'Vui lòng nhập số điện thoại';
+            errorsCopy.phoneNumber = 'Please enter phone number';
             valid = false;
         }
 
@@ -189,7 +192,7 @@ const CheckOut = () => {
                     to_district_id: selectedDistrict,
                     to_ward_code: selectedWard,
                     weight: 1000,
-                    insurance_value: 1000000,
+                    insurance_value: totalPrice,
                     coupon: null
                 });
 
@@ -198,9 +201,8 @@ const CheckOut = () => {
                     "to_district_id": selectedDistrict,
                     "to_ward_code": selectedWard,
                     "from_district_id": 3695,
-
                     "weight": 1000,
-                    "insurance_value": 1000000,
+                    "insurance_value": totalPrice,
                     "length": 15,
                     "width": 15,
                     "coupon": null
@@ -214,7 +216,22 @@ const CheckOut = () => {
                 const fee = response.data.data.total;
                 setDeliveryFee(fee);
             } catch (error) {
+                // Log toàn bộ đối tượng lỗi để xem chi tiết
                 console.error("Error fetching fast delivery fee:", error);
+
+                // Kiểm tra xem có phản hồi từ API không
+                if (error.response) {
+                    console.error("Response data:", error.response.data); // Nội dung chi tiết từ API
+                    console.error("Response status:", error.response.status); // Mã trạng thái HTTP
+                    console.error("Response headers:", error.response.headers); // Headers của phản hồi
+                } else if (error.request) {
+                    // Yêu cầu đã được gửi nhưng không nhận được phản hồi
+                    console.error("No response received:", error.request);
+                } else {
+                    // Một lỗi khác xảy ra khi thiết lập yêu cầu
+                    console.error("Error setting up request:", error.message);
+                }
+                console.error("Config:", error.config); // Cấu hình của yêu cầu Axios
             }
         } else {
             setDeliveryFee(0);
@@ -228,24 +245,24 @@ const CheckOut = () => {
     }, 0)
 
 
-    const handleSubmitOrder = async () => { 
+    const handleSubmitOrder = async () => {
         if (!validateForm()) {
             return;
         }
-    
+
         // Kiểm tra thông tin đầu vào
         if (!userId || cartItems.length === 0 || !selectedProvince || !selectedDistrict || !selectedWard || !houseNumber) {
-            Swal.fire('Thông báo', 'Vui lòng điền đầy đủ thông tin trước khi đặt hàng!', 'error');
+            Swal.fire('Notification', 'Please fill in all information before ordering!', 'error');
             return;
         }
-    
+
         // Xác định trạng thái thanh toán dựa trên phương thức thanh toán đã chọn
         const paymentStatus = paymentMethod === 'vnpay' ? 'Paid' : 'Not Paid';
-    
+
         const orderData = {
             userId: userId,
             orderDate: new Date().toISOString(),
-            deliveryDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            deliveryDate: null,
             totalPrice: totalPrice + deliveryFee,
             tax: 5.0,
             totalItem: cartItems.length,
@@ -254,17 +271,18 @@ const CheckOut = () => {
             phoneNumber: phoneNumber,
             address: `${houseNumber}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`,
             shippingMethod: shippingMethod,
-            paymentStatus: paymentStatus, // Sử dụng biến paymentStatus ở đây
+            paymentStatus: paymentStatus,
             orderDetails: cartItems.map(item => ({
                 quantity: item.quantity,
                 instrumentId: item.instrumentId,
             })),
         };
-    
+
         console.log("Order Data:", JSON.stringify(orderData, null, 2));
-    
+
         try {
             // Gọi API tạo đơn hàng dựa trên phương thức thanh toán
+            setIsLoading(true);
             let response;
             if (paymentMethod === 'vnpay') {
                 response = await axios.post('http://localhost:8080/customer/checkout/create_payment', orderData, {
@@ -273,21 +291,21 @@ const CheckOut = () => {
                     },
                     withCredentials: true
                 });
-          
-    
+
+
                 // Đảm bảo rằng đơn hàng đã được lưu ở đây
                 if (response.data && response.data.url) {
                     Swal.fire({
-                        title: 'Yêu cầu thanh toán',
-                        text: 'Bạn sẽ được chuyển hướng đến trang thanh toán VNPay!',
+                        title: 'Request payment',
+                        text: 'You will be redirected to the VNPay payment page!',
                         icon: 'info',
                     }).then(() => {
                         window.location.href = response.data.url; // Chuyển hướng đến đường dẫn VNPay
                     });
                 } else {
                     Swal.fire({
-                        title: 'Lỗi',
-                        text: 'Không nhận được URL thanh toán từ VNPay. Vui lòng thử lại.',
+                        title: 'Error',
+                        text: 'Did not receive payment URL from VNPay. Please try again.',
                         icon: 'error',
                     });
                 }
@@ -298,15 +316,15 @@ const CheckOut = () => {
                     },
                     withCredentials: true
                 });
-         
-          
+
+
                 Swal.fire({
-                    title: 'Thành công',
-                    text: 'Đơn hàng của bạn đã được đặt thành công!',
+                    title: 'Success',
+                    text: 'Your order has been placed successfully!',
                     icon: 'success',
                     showCancelButton: true,
-                    confirmButtonText: 'Xem hóa đơn',
-                    cancelButtonText: 'Đóng',
+                    confirmButtonText: 'View invoice',
+                    cancelButtonText: 'Close',
                 }).then((result) => {
                     if (result.isConfirmed) {
                         getOrderDetails(response.data.orderId); // Lấy orderId từ response
@@ -315,16 +333,18 @@ const CheckOut = () => {
                     }
                 });
             }
-    
+
             // Reset giỏ hàng
             localStorage.removeItem('cart');
             setCartItems([]);
         } catch (error) {
             console.error('Error creating order:', error.response ? error.response.data : error.message);
-            Swal.fire('Lỗi', 'Đã có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', 'error');
+            Swal.fire('Error', 'An error occurred while placing the order. Please try again.', 'error');
+        } finally {
+            setIsLoading(false);// Kết thúc hiển thị biểu tượng xoay
         }
     };
-    
+
 
 
 
@@ -334,21 +354,22 @@ const CheckOut = () => {
             const response = await axios.get(`http://localhost:8080/customer/checkout/getOrderById/${orderId}`);
             const orderDetails = response.data;
 
-            // Hiển thị thông tin chi tiết hóa đơn (có thể thay đổi theo cách bạn muốn hiển thị)
+            // Hiển thị thông tin chi tiết hóa đơn kèm đường link đến trang chi tiết
             Swal.fire({
-                title: 'Chi tiết hóa đơn',
-                html: `<p>Mã đơn hàng: ${orderDetails.orderId}</p>
-                       <p>Tổng giá trị: ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
-                       <p>Ngày đặt hàng: ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
-                       <p>Trạng thái: ${orderDetails.status}</p>
-                       <p>Địa chỉ: ${orderDetails.address}</p>`,
+                title: 'Invoice Information',
+                html: `<p>Order code: ${orderDetails.orderId}</p>
+                       <p>Total value: ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
+                       <p>Order date: ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
+                       <p>Status: ${orderDetails.status}</p>
+                       <p>Address: ${orderDetails.address}</p>
+                       <p><a href="http://localhost:3000/orderDetail/${orderDetails.orderId}" target="_blank">View Detailed Invoice</a></p>`,
                 icon: 'info',
-                confirmButtonText: 'Đóng',
+                confirmButtonText: 'Close',
             });
 
         } catch (error) {
             console.error('Error fetching order details:', error.response ? error.response.data : error.message);
-            Swal.fire('Lỗi', 'Không thể lấy thông tin chi tiết hóa đơn. Vui lòng thử lại.', 'error');
+            Swal.fire('Error', 'Unable to get invoice details. Please try again.', 'error');
         }
     };
 
@@ -362,7 +383,7 @@ const CheckOut = () => {
                     <div className='order-infor col-lg-6 col-md-6 col-sm-12'>
                         {/* Information user */}
                         <div className='user-infor'>
-                            <h1>Thông tin liên hệ</h1>
+                            <h1>Customer information</h1>
                             <form>
                                 <div className='mt-3'>
                                     <label className='form-label'>Email:</label>
@@ -370,7 +391,7 @@ const CheckOut = () => {
                                         type="email"
                                         className='form-control'
                                         value={user.email || ''}
-                                        readOnly
+
                                     />
                                 </div>
                                 <div className='mt-3'>
@@ -379,8 +400,18 @@ const CheckOut = () => {
                                         type="text"
                                         className='form-control'
                                         value={user.userName || ''}
-                                        readOnly
+
                                     />
+                                </div>
+                                <div className='mt-3'>
+                                    <label className='form-label'>Phone number:</label>
+                                    <input
+                                        type="text"
+                                        className={`form-control ${errors.phoneNumber ? 'is-invalid' : ''}`}
+                                        value={phoneNumber}
+                                        onChange={(e) => setPhoneNumer(e.target.value)}
+                                    />
+                                    {errors.phoneNumber && <div className='invalid-feedback'>{errors.phoneNumber}</div>}
                                 </div>
 
                             </form>
@@ -389,25 +420,16 @@ const CheckOut = () => {
                         {/* Order information (Giao hàng) */}
                         <div className='order-infor'>
 
-                            <h1>Giao hàng</h1>
+                            <h1>Delivery address</h1>
+
                             <div className='mt-3'>
-                                <label className='form-label'>Số điện thoại:</label>
-                                <input
-                                    type="text"
-                                    className={`form-control ${errors.phoneNumber ? 'is-invalid' : ''}`}
-                                    value={phoneNumber}
-                                    onChange={(e) => setPhoneNumer(e.target.value)}
-                                />
-                                {errors.phoneNumber && <div className='invalid-feedback'>{errors.phoneNumber}</div>}
-                            </div>
-                            <div className='mt-3'>
-                                <label className='form-label'>Quốc gia:</label>
+                                <label className='form-label'>Nation:</label>
                                 <input type="text" className='form-control' defaultValue={'Việt Nam'} disabled />
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>Tỉnh/ Thành</label>
+                                <label className='form-label'>Province/City</label>
                                 <select onChange={handleProvinceChange} className='form-select'>
-                                    <option value="">Chọn Tỉnh/Thành phố</option>
+                                    <option value="">Select Province/City</option>
                                     {provinces.map(province => (
                                         <option key={province.ProvinceID} value={province.ProvinceID}>
                                             {province.ProvinceName}
@@ -416,9 +438,9 @@ const CheckOut = () => {
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>Quận, Huyện</label>
+                                <label className='form-label'>District</label>
                                 <select onChange={handleDistrictChange} className='form-select'>
-                                    <option value="">Chọn Quận/Huyện</option>
+                                    <option value="">Select district</option>
                                     {districts.map(district => (
                                         <option key={district.DistrictID} value={district.DistrictID}>
                                             {district.DistrictName}
@@ -427,9 +449,9 @@ const CheckOut = () => {
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <label className=''>Phường, Xã</label>
+                                <label className=''>Ward, Commune</label>
                                 <select className='form-select' onChange={handleWardChange}>
-                                    <option value="">Chọn Phường/Xã</option>
+                                    <option value="">Select Ward/Commune</option>
                                     {wards.map(ward => (
                                         <option key={ward.WardCode} value={ward.WardCode}>
                                             {ward.WardName}
@@ -439,7 +461,7 @@ const CheckOut = () => {
 
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>Số nhà:</label>
+                                <label className='form-label'>House number:</label>
                                 <input
                                     type="text"
                                     className='form-control'
@@ -450,25 +472,38 @@ const CheckOut = () => {
                         </div>
 
                         {/* shipping method */}
-                        <h1 style={{ fontSize: '22px' }}>Phương thức giao hàng</h1>
+                        <h1 style={{ fontSize: '22px' }}>Delivery Method</h1>
                         <div className='mt-3'>
-                            <input type="radio" id="normal" name="shipping" value="normal" checked={shippingMethod === 'normal'} onChange={() => handleShippingChange('normal')} />
-                            <label htmlFor="normal"> Giao hàng thông thường</label>
+                            <input
+                                type="radio"
+                                id="normal"
+                                name="shipping"
+                                value="normal"
+                                checked={shippingMethod === 'normal'}
+                                onChange={() => handleShippingChange('normal')}
+                                className="me-2"  // thêm khoảng cách giữa radio và label
+                            />
+                            <label htmlFor="normal">Regular Delivery</label>
                         </div>
                         <div className='mt-3'>
-                            <input type="radio" id="fast" name="shipping" value="fast" checked={shippingMethod === 'ghn'} onChange={() => handleShippingChange('fast')} />
-                            <label htmlFor="ghn"> Giao hàng nhanh</label>
+                            <input
+                                type="radio"
+                                id="fast"
+                                name="shipping"
+                                value="fast"  // Cập nhật giá trị 'value' cho đúng
+                                checked={shippingMethod === 'fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
+                                onChange={() => handleShippingChange('fast')}
+                                className="me-2"
+                            />
+                            <label htmlFor="fast">Fast Delivery</label>
                         </div>
-                        {shippingMethod === 'fast' && (
-                            <div className='mt-3'>
-                                <strong>Phí giao hàng nhanh: {deliveryFee.toLocaleString('vi-VN')} VND</strong>
-                            </div>
-                        )}
+
+
 
 
                         {/* Pay method */}
                         <div className='pay-method'>
-                            <h1>Phương thức thanh toán</h1>
+                            <h1>Payment method</h1>
                             <div className="accordion" id="accordionExample">
                                 <div className="accordion-item">
                                     <h2 className="accordion-header">
@@ -491,7 +526,7 @@ const CheckOut = () => {
                                     </h2>
                                     <div className={`accordion-collapse collapse ${paymentMethod === 'cod' ? 'show' : ''}`}>
                                         <div className="accordion-body">
-                                            <p>Sau khi nhấn "Thanh toán ngay", bạn sẽ nhận hàng và thanh toán trực tiếp với nhân viên giao hàng của chúng tôi.</p>
+                                            <p>After clicking "Pay", you will receive the goods and pay directly with our delivery staff.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -511,12 +546,12 @@ const CheckOut = () => {
                                                 checked={paymentMethod === 'vnpay'}
                                                 onChange={() => handlePaymentChange('vnpay')}
                                             />
-                                            VN Pay
+                                            VNPAY
                                         </button>
                                     </h2>
                                     <div className={`accordion-collapse collapse ${paymentMethod === 'vnpay' ? 'show' : ''}`}>
                                         <div className="accordion-body">
-                                            <p>Sau khi nhấn "Thanh toán ngay", bạn sẽ được chuyển tiếp tới trang thanh toán bằng tài khoản ngân hàng.</p>
+                                            <p>After clicking "Pay", you will be forwarded to the payment page using VNPAY.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -525,8 +560,30 @@ const CheckOut = () => {
 
                         {/* Checkout */}
                         <div className='checkout'>
-                            <button className='btn border' onClick={handleSubmitOrder} >Thanh toán</button>
+                            <button className='btn border' onClick={handleSubmitOrder}>Pay</button>
+
                         </div>
+                        {isLoading && (
+                            <div style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 9999,
+                            }}>
+                                <Audio
+                                    height="100"
+                                    width="100"
+                                    color="#e94f37"
+                                    ariaLabel="loading"
+                                />
+                            </div>
+                        )}
 
                     </div>
 
@@ -534,7 +591,7 @@ const CheckOut = () => {
                     <div className='shopping-cart col-lg-6 col-md-6 col-sm-12'>
                         <div className='cart-container'>
                             {cartItems.length === 0 ? (
-                                <p>Giỏ hàng của bạn đang trống.</p>
+                                <p>Your shopping cart is empty.</p>
                             ) : (
                                 cartItems.map((item) => (
                                     <div className='item-cart d-flex' key={item.id}>
@@ -544,9 +601,7 @@ const CheckOut = () => {
                                         <div className='instrument-name col-7'>
                                             <p>{item.name}</p>
                                         </div>
-                                        <div className='instrument-price col-3'>
-                                            <p>{(item.costPrice * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-                                        </div>
+
                                     </div>
                                 ))
                             )}
@@ -565,14 +620,14 @@ const CheckOut = () => {
 
                             {/* Tax */}
                             <div className='tax d-flex'>
-                                <h5>Phí giao hàng:</h5>
+                                <h5>Delivery fee:</h5>
                                 <p>{deliveryFee.toLocaleString('vi')} VND</p>
                             </div>
 
                             {/* Sum total */}
                             <div className='sum d-flex'>
-                                <h3>Tổng cộng</h3>
-                                <strong>{(totalPrice + deliveryFee).toLocaleString('vi')} VND</strong>
+                                <h3>Total order value</h3>
+                                <strong style={{ fontSize: '30px' }}>{(totalPrice + deliveryFee).toLocaleString('vi')} VND</strong>
                             </div>
                         </div>
 
