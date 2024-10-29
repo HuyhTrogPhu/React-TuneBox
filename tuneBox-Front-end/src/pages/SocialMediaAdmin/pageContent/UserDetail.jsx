@@ -1,9 +1,9 @@
 import React from "react";
 import "../css/ManagerCustomerDetail.css";
+import { images } from "../../../assets/images/images";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { images } from "../../../assets/images/images";
+import { useNavigate } from "react-router-dom";
 import {
   LoadUserDetail,
   LoadUserTrack,
@@ -11,7 +11,8 @@ import {
   LoadAllPost,
   LoadUserAlbums,
 } from "../../../service/SocialMediaAdminService";
-const ManagerCustomerDetail = () => {
+const UserDetail = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [user, setUser] = useState({});
   const [userDetail, setUserDetail] = useState({});
@@ -21,44 +22,43 @@ const ManagerCustomerDetail = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      //goi API cua userdetail
+      // Gọi API của userdetail
       const responseUserDetail = await LoadUserDetail(id);
-      console.log("userDetail:", responseUserDetail);
       if (responseUserDetail.status) {
         setUserDetail(responseUserDetail.data);
-        console.log(userDetail);
       }
-      //goi API cua user
+
+      // Gọi API của user
       const responseUser = await LoadUser(id);
       console.log("user:", responseUser);
       if (responseUser.status) {
         setUser(responseUser.data);
-        console.log(user);
       }
 
-      //goi API cua Album user
+      // Gọi API của Album user
       const responseUserAlbum = await LoadUserAlbums(id);
-      console.log("user Album:", responseUserAlbum);
+      console.log("user Album:", responseUserAlbum.data);
       if (responseUserAlbum.status) {
-        setUserAlbums(responseUserAlbum.data.data);
-        console.log(userAlbums);
+        setUserAlbums(responseUserAlbum.data);
       }
 
-      //goi API cua track user
+      // Gọi API của track user
       const responseUserTrack = await LoadUserTrack(id);
       console.log("user track:", responseUserTrack);
       setUserTrack(responseUserTrack.data);
-      console.log(userTrack);
 
-      //dem so post
+      // Đếm số post
       const allPosts = await LoadAllPost(id);
       const userId = parseInt(id);
       const userPosts = allPosts.data.filter((post) => post.userId === userId);
       console.log("User posts:", userPosts);
       setPostCount(userPosts.length);
     };
+
     fetchData();
-  }, []);
+  }, [id]);
+
+  // Thêm các useEffect riêng để theo dõi các state đã được cập nhật
 
   return (
     <div className="container-fluid">
@@ -83,28 +83,32 @@ const ManagerCustomerDetail = () => {
             <div className="col-4">
               <div className="stats-box p-3 border rounded">
                 <h5>Total Post</h5>
-                <h2>{postCount}</h2>
+                <h2>
+                  {postCount !== undefined && postCount !== null
+                    ? postCount
+                    : 0}
+                </h2>
               </div>
             </div>
             <div className="col-4">
               <div className="stats-box p-3 border rounded">
                 <h5>Total Likes</h5>
-                <h2>{user.likes}</h2>
+                <h2>{Array.isArray(user.likes) ? user.likes.length : 0}</h2>
               </div>
             </div>
             <div className="col-4">
               <div className="stats-box p-3 border rounded">
                 <h5>Total Comments</h5>
-                <h2>{user.comments}</h2>
+                <h2>
+                  {Array.isArray(user.comments) ? user.comments.length : 0}
+                </h2>
               </div>
             </div>
           </div>
 
-       
           <div className="row">
             <div className="col-md-6">
-              
-          {/*bat dau cua track */}
+              {/*bat dau cua track */}
               <div className="track-container">
                 <h4>All Tracks</h4>
                 {Array.isArray(userTrack) && userTrack.length > 0 ? (
@@ -113,17 +117,22 @@ const ManagerCustomerDetail = () => {
                       key={index}
                       className="track-item d-flex justify-content-between p-3 mb-3 bg-light border"
                     >
-                    
                       <div className="track-info">
                         <h5 className="track-name mb-2">{track.name}</h5>
                         <p className="track-user">
-                        Creator: {track.user || "Unknown"}
+                          Creator: {track.user || "Unknown"}
                         </p>
                       </div>
 
-                    
                       <div className="track-views d-flex align-items-center">
-                        <button className="btn btn-danger">Views</button>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() =>
+                            navigate(`/socialadmin/TrackDetail/${track.id}`)
+                          }
+                        >
+                          Views
+                        </button>
                       </div>
                     </div>
                   ))
@@ -135,30 +144,72 @@ const ManagerCustomerDetail = () => {
 
             <div className="col-md-6">
               {/* bat dau cua albums */}
-              <div className="track-container">
+              <div className="album-container">
+                {console.log(userAlbums)}
                 <h4>All Albums</h4>
-                {Array.isArray(userAlbums) && userAlbums.length > 0 ? (
-                  userAlbums.map((track, index) => (
-                    <div
-                      key={index}
-                      className="track-item d-flex justify-content-between p-3 mb-3 bg-light border"
-                    >
-                    
-                      <div className="track-info">
-                        <h5 className="track-name mb-2">{track.title}</h5>
-                        <p className="track-user">
-                          Creator: {track.creator || "creator"}
+                {Array.isArray(userAlbums) ? (
+                  userAlbums.length > 0 ? (
+                    userAlbums.map((album, index) => (
+                      <div
+                        key={index}
+                        className="album-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light border rounded"
+                      >
+                        <div className="album-left d-flex align-items-center">
+                          <div className="album-thumbnail me-3">
+                            <img src={album.albumImage} alt="album img" />
+                            <button className="btn btn-dark play-button">
+                              <img
+                                src={userAlbums.albumImage}
+                                alt="album img"
+                              />
+                              <i className="fa fa-play"></i>
+                            </button>
+                          </div>
+                          <div className="album-info">
+                            <h5 className="album-title mb-1">
+                              {album.title || "No Title Available"}
+                            </h5>
+                            <p className="album-details mb-0">
+                              {`Tracks: ${album.tracks?.length || 0} | Likes: ${
+                                album.likes || 0
+                              } | Comments: ${album.comments || 0}`}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="album-right">
+                          <button className="btn btn-danger">Views</button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No Albums available</p>
+                  )
+                ) : (
+                  <div className="album-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light border rounded">
+                    <div className="album-left d-flex align-items-center">
+                      <div className="album-thumbnail me-3">
+                        <button className="btn btn-dark play-button">
+                          <img src={userAlbums.albumImage} alt="album img" />
+                          <i className="fa fa-play"></i>
+                        </button>
+                      </div>
+                      <div className="album-info">
+                        <h5 className="album-title mb-1">
+                          {userAlbums.title || "No Title Available"}
+                        </h5>
+                        <p className="album-details mb-0">
+                          {`Tracks: ${
+                            userAlbums.tracks?.length || 0
+                          } | Likes: ${userAlbums.likes || 0} | Comments: ${
+                            userAlbums.comments || 0
+                          }`}
                         </p>
                       </div>
-
-                    
-                      <div className="track-views d-flex align-items-center">
-                        <button className="btn btn-danger">Views</button>
-                      </div>
                     </div>
-                  ))
-                ) : (
-                  <p>No Albums available</p>
+                    <div className="album-right">
+                      <button className="btn btn-danger">Views</button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -186,4 +237,5 @@ const ManagerCustomerDetail = () => {
     </div>
   );
 };
-export default ManagerCustomerDetail;
+
+export default UserDetail;

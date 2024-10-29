@@ -18,13 +18,13 @@ const LoginAdmin = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8082/e-comAdmin/account/log-in",
+        "http://localhost:8082/SocialAdmin/account/log-in",
         loginData
       );
       if (response.data.status) {
         console.log(response.data.data);
         Cookies.set("TokenADMIN", response.data.data.id, { expires: 7 });
-        navigate("/ecomadmin");
+        navigate("/socialadmin/Dashboard");
       } else {
         // Nếu API trả về status là false nhưng không có lỗi http
         setErrorMessage(response.data.message || "Đăng nhập không thành công");
@@ -102,9 +102,7 @@ const LoginAdmin = () => {
               </div>
 
               <div className="d-flex justify-content-between">
-                <a href="#" className="text-muted">
-                  Forgot password?
-                </a>
+
               </div>
               <button type="submit" className="btn btn-danger w-100 mt-3">
                 Login

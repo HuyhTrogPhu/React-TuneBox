@@ -167,10 +167,6 @@ const MangerBrand = () => {
           Add Brand
         </button>
 
-<<<<<<< HEAD
-        {/* Modal add */}
-=======
->>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
         <div
           className="modal fade"
           id="ViewsModal"
@@ -194,29 +190,18 @@ const MangerBrand = () => {
                 />
               </div>
               <div className="modal-body">
-<<<<<<< HEAD
-
-                <form action="">
-                  <div className="mt-3">
-
-=======
                 
                 <form action="">
                   <div className="mt-3">
                     <div>
->>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                     <label className="form-label" >Brand name:</label>
                     <input className={`form-control ${errors.newBrandName ? 'is-invalid' : ''} `}
                       value={newBrandName}
                       onChange={(e) => setBrandName(e.target.value)}
                       type="text"
                       placeholder="Enter brand name" />
-<<<<<<< HEAD
-
-=======
                     </div>
                   
->>>>>>> 3b1e11153692986a1508d176b8f2ba716a80fd02
                   </div>
                   {errors.newBrandName && <div className='invalid-feedback'>{errors.newBrandName}</div>}
 

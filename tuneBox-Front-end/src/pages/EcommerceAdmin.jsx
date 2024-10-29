@@ -1,14 +1,16 @@
-import React from 'react'
+import React, { useEffect, useState } from "react"
 import Header from '../components/Header/Header'
 import { Link,Route, Routes } from 'react-router-dom'
-import ManagerBrand from './EcommerceAdmin/pageContent/MangerBrand'
-// import "./EcommerceAdmin/css/Sidebar.css"
+import ManagerBrand      from './EcommerceAdmin/pageContent/MangerBrand'
 import ManagerCategories from './EcommerceAdmin/pageContent/ManagerCategories'
 import ManagerInstrument from './EcommerceAdmin/pageContent/ManagerInstrument'
-
-
+import Dashboard         from './EcommerceAdmin/pageContent/DashBoard'
+import MangerUser        from './EcommerceAdmin/pageContent/MangerUser'
+import DetailUser        from './EcommerceAdmin/pageContent/ManagerCustomerDetail';
 
 const EcommerceAdmin = () => {
+
+
   return (
     <div>
         <div className="row">
@@ -24,15 +26,16 @@ const EcommerceAdmin = () => {
         <ul className="list-unstyled ">
           <li className="p-3" >
             <i className="fa-solid fa-house" />
-            <a href="/ecomadmin" className="text-white">
-              Dashboard
-            </a>
+            <Link to={'/ecomadmin/Dashboard'} className="text-white">
+            Dashboard
+            </Link>
           </li>
           <li className="p-3">
             <i className="fa-solid fa-user" />
-            <a href='/ecomadmin/Customer' className="text-white">
-              Customer
-            </a>
+            <Link to={'/ecomadmin/MangerUser'} className="text-white">
+            Customer
+            </Link>
+
           </li>
           <li className="p-3">
             <i className="fa-solid fa-music" />
@@ -71,12 +74,11 @@ const EcommerceAdmin = () => {
         <Header />
         <Routes>
       <Route path='Brand' element={<ManagerBrand />} />
-
-
       <Route path='Categories' element={<ManagerCategories />} />
-
-
       <Route path='Instrument' element={<ManagerInstrument/>} />
+      <Route path='Dashboard' element={<Dashboard/>} />
+      <Route path='MangerUser' element={<MangerUser/>} />
+      <Route path='detailUser/:id' element={<DetailUser />} /> 
     </Routes>
     </div>
         </div>
