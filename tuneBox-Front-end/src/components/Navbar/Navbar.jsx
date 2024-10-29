@@ -13,6 +13,7 @@ import { getNotifications } from "../../service/NotificationService.js";
 import { logout } from "../../service/LoginService";
 import { SwipeableList, SwipeableListItem, SwipeAction } from 'react-swipeable-list';
 import 'react-swipeable-list/dist/styles.css';
+import axios from 'axios';
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
