@@ -48,7 +48,7 @@ function Trackdetail() {
   const [editingReply, setEditingReply] = useState(null); // Trạng thái theo dõi reply đang chỉnh sửa
   const [editContentReply, setEditContentReply] = useState(""); // Nội dung đang chỉnh sửa
 
-  const userId = Cookies.get("UserID"); // Lấy userId từ cookies
+  const userId = Cookies.get("userId"); // Lấy userId từ cookies
 
   // Gọi service lấy track
   useEffect(() => {
