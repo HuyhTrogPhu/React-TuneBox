@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { getAvatarUser } from "../../service/UserService";
+import { getAvatarUser, search } from "../../service/UserService";
 import {
   createTrack,
   listGenre,
@@ -33,6 +32,29 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const userId = Cookies.get("userId");
+
+  // search
+  const [keyword, setKeyword] = useState("");
+
+  const handleSearch = async () => {
+    if (!keyword) return; // Không tìm kiếm nếu không có từ khóa
+    try {
+      const results = await search(keyword);
+      console.log("ket qua search: ", results); // Xử lý kết quả tìm kiếm ở đây
+      navigate(`/search?keyword=${encodeURIComponent(keyword)}`, {
+        state: { results },
+      });
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch(); // Gọi tìm kiếm khi nhấn phím Enter
+    }
+  };
+  // end search
 
   useEffect(() => {
     if (!userId) {
@@ -276,8 +298,15 @@ const handleDeleteAllReadNotifications = async (userId) => {
       {/* Search in social page */}
       <div className="col-4 d-flex justify-content-center align-items-center">
         <div>
-          <input type="text" placeholder="Search..." className="search-input" />
-          <button className="search-btn">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="search-input"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)} // Cập nhật state khi người dùng nhập
+            onKeyDown={handleKeyDown} // Xử lý sự kiện nhấn phím
+          />
+          <button className="search-btn" onClick={handleSearch}>
             <i className="fa-solid fa-magnifying-glass"></i>
           </button>
         </div>

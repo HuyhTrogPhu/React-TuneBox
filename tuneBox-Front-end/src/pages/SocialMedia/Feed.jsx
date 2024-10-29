@@ -790,15 +790,25 @@ const HomeFeed = () => {
                 </a>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
-                  <img src={images.music} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Albums đã thích</span>
-                </a>
+                <Link to={"/likeAlbums"} className="d-flex align-items-center">
+                  <img
+                    src={images.music}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Albums đã thích</span>
+                </Link>
               </li>
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
-                  <img src={images.playlist} alt='icon' width={20} className="me-2 " />
-                  <span className='fw-bold'>Playlist đã thích</span>
+                  <img
+                    src={images.playlist}
+                    alt="icon"
+                    width={20}
+                    className="me-2 "
+                  />
+                  <span className="fw-bold">Playlist đã thích</span>
                 </a>
               </li>
             </ul>
