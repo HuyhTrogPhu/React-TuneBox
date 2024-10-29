@@ -137,52 +137,7 @@ const HomeFeed = () => {
     }
   };
 
-  useEffect(() => {
-    const checkLikeStatus = async () => {
-      if (track) {
-        try {
-          const response = await checkUserLikeTrack(id, userId); // Gọi API kiểm tra
-          setLiked(response.data); // Thiết lập liked dựa trên response
-        } catch (error) {
-          console.error("Lỗi khi kiểm tra like trong track:", error);
-        }
-      }
-    };
 
-    checkLikeStatus();
-  }, [tracks, userId]);
-
-  // Kiểm tra số lượng likes của track
-  useEffect(() => {
-    const fetchLikesCount = async () => {
-      if (track) {
-        try {
-          const response = await getLikesByTrackId(id); // Gọi API để lấy danh sách likes
-          setLikeCount(response.data.length); // Cập nhật likeCount bằng chiều dài của mảng trong response.data
-        } catch (error) {
-          console.error("Lỗi khi lấy số lượng likes:", error);
-        }
-      }
-    };
-
-    fetchLikesCount();
-  }, [tracks]);
-
-  // Kiểm tra người dùng đã thích track chưa
-  useEffect(() => {
-    const checkLikeStatus = async () => {
-      if (track) {
-        try {
-          const response = await checkUserLikeTrack(id, userId); // Gọi API kiểm tra
-          setLiked(response.data); // Thiết lập liked dựa trên response
-        } catch (error) {
-          console.error("Lỗi khi kiểm tra like trong track:", error);
-        }
-      }
-    };
-
-    checkLikeStatus();
-  }, [tracks, userId]);
 
   // end track
 
@@ -920,7 +875,7 @@ const HomeFeed = () => {
                     {/* Like track*/}
                     <div className="col-2 mt-2 text-center">
                       <div className="like-count">
-                        {track.likeCount || 0} {/* Hiển thị số lượng like */}
+                        {countLikedTracks[track.id]?.data|| 0} {/* Hiển thị số lượng like */}
                         <i
                           className={`fa-solid fa-heart ${
                             likedTracks[track.id]?.data
