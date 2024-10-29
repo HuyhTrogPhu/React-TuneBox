@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { Link, Routes, Route,Navigate } from "react-router-dom";
+import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Activity from "./Profile_nav/Activity";
 import Track from "./Profile_nav/Track";
 import Albums from "./Profile_nav/Albums";
@@ -28,18 +28,18 @@ const ProfileUser = () => {
   const [error, setError] = useState("");
 
   // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
-      if (token) {
-          config.headers['Authorization'] = token; 
-      }
-      return config;
-  },
-  (error) => {
-      return Promise.reject(error);
-  }
-);
+  // axios.interceptors.request.use(
+  //   (config) => {
+  //     const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
+  //       if (token) {
+  //           config.headers['Authorization'] = token; 
+  //       }
+  //       return config;
+  //   },
+  //   (error) => {
+  //       return Promise.reject(error);
+  //   }
+  // );
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -78,9 +78,8 @@ axios.interceptors.request.use(
       <div
         className="background border container"
         style={{
-          backgroundImage: `url(${
-            userData.background || "/src/UserImages/Background/default-bg.jpg"
-          })`,
+          backgroundImage: `url(${userData.background || "/src/UserImages/Background/default-bg.jpg"
+            })`,
         }}
       />
       <div className="row container">
@@ -91,7 +90,7 @@ axios.interceptors.request.use(
               src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
               className="avatar"
               alt="avatar"
-              style={{width: '100px', height: '100px'}}
+              style={{ width: '100px', height: '100px' }}
             />
           </div>
           <div className="row mt-4">
@@ -200,7 +199,7 @@ axios.interceptors.request.use(
 
           <div className="container">
             <Routes>
-            <Route path="/" element={<Navigate to="activity" />} />
+              <Route path="/" element={<Navigate to="activity" />} />
               <Route path="activity" element={<Activity />} />
               <Route path="track" element={<Track />} />
               <Route path="albums" element={<Albums />} />

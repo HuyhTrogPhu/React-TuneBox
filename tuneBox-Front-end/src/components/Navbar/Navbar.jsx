@@ -33,18 +33,18 @@ const Navbar = () => {
 
   const userId = Cookies.get("userId");
   // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
-  axios.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
-      if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
+  // axios.interceptors.request.use(
+  //   (config) => {
+  //     const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
+  //     if (token) {
+  //       config.headers['Authorization'] = `Bearer ${token}`;
+  //     }
+  //     return config;
+  //   },
+  //   (error) => {
+  //     return Promise.reject(error);
+  //   }
+  // );
 
   useEffect(() => {
     if (!userId) {

@@ -39,10 +39,6 @@ const Login = () => {
       return;
     }
   
-    if (password.length < 4) {
-      setError('Mật khẩu phải có ít nhất 4 ký tự!');
-      return;
-    }
   
     const userDto = {
       userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
@@ -53,22 +49,13 @@ const Login = () => {
     try {
       const response = await login(userDto);
   
-      const userId = response.userId; 
+      if (response) {
+        setSuccess('Đăng nhập thành công!');
   
-  
-      if (userId) {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // Cookie tồn tại trong 1 ngày
-        document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
-        console.log('Cookie userId set:', document.cookie);
-      } else {
-        console.error('userId is undefined or null');
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
       }
-  
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-  
     } catch (error) {
       if (error.response && error.response.status === 401) {
         setError(error.response.data);
@@ -77,6 +64,7 @@ const Login = () => {
       }
     }
   };
+  
   
 
   return (

@@ -4,18 +4,18 @@ import axios from 'axios';
 const API_URL = "http://localhost:8080/api"; // Thay đổi đường dẫn nếu cần
 
 // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token').trim() // Lấy token từ localStorage
-      if (token) {
-          config.headers['Authorization'] = token; 
-      }
-      return config;
-  },
-  (error) => {
-      return Promise.reject(error);
-  }
-);
+// axios.interceptors.request.use(
+//   (config) => {
+//     const token = localStorage.getItem('token').trim() // Lấy token từ localStorage
+//       if (token) {
+//           config.headers['Authorization'] = token; 
+//       }
+//       return config;
+//   },
+//   (error) => {
+//       return Promise.reject(error);
+//   }
+// );
 
 
 // Hàm lấy thông báo
