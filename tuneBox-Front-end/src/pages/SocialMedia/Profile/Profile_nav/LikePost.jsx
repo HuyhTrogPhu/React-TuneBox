@@ -180,195 +180,333 @@ const LikePost = () => {
   if (error) return <div>Error loading liked items</div>;
 
   return (
-    <div className="likePost">
-      {/* track */}
-      <div className="container mt-2">
-        {tracks.map((track) => (
-          <div className="post border" key={track.id}>
-            <div className="post-header position-relative">
-              <button type="button" className="btn" aria-label="Avatar">
+    <div className=" container likePost">
+      <h1 className="search-results-title text-center mb-5">Liked Post</h1>
+      <div className="row">
+        <div className="col-2">
+          <h1 className="search-results-title">Orther</h1>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav">
+              <a className="navbar-brand" href="#">
+                Top
+              </a>
+            </div>
+          </nav>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav">
+              <a className="navbar-brand" href="#">
+                User
+              </a>
+            </div>
+          </nav>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav">
+              <a className="navbar-brand" href="#">
+                Tracks
+              </a>
+            </div>
+          </nav>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav">
+              <a className="navbar-brand" href="#">
+                Albums
+              </a>
+            </div>
+          </nav>
+          <nav className="navbar custom-navbar">
+            <div className="container-fluid nav ">
+              <a className="navbar-brand" href="#">
+                PlayList
+              </a>
+            </div>
+          </nav>
+        </div>
+        <div className="post-list col-7 ">
+          {/* track */}
+          <div className="container mt-2">
+            {tracks.map((track) => (
+              <div className="post border" key={track.id}>
+                <div className="post-header position-relative">
+                  <button type="button" className="btn" aria-label="Avatar">
+                    <img
+                      src={track.userId?.avatar || "/default-avatar.png"}
+                      className="avatar_small"
+                      alt="Avatar"
+                    />
+                  </button>
+                  <div>
+                    <div className="name">
+                      {track.userName || "Unknown Track"}
+                    </div>
+                    <div className="time">
+                      {new Date(track.createDate).toLocaleString()}
+                    </div>
+                  </div>
+
+                  {/* Dropdown options nếu cần */}
+                  <div className="dropdown position-absolute top-0 end-0">
+                    <button
+                      className="btn btn-options dropdown-toggle"
+                      type="button"
+                      id={`dropdownMenuButton-${track.id}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    ></button>
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby={`dropdownMenuButton-${track.id}`}
+                    >
+                      <li>
+                        <button className="dropdown-item">
+                          <i className="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                      </li>
+                      <li>
+                        <button className="dropdown-item">
+                          <i className="fa-solid fa-trash"></i> Delete
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="post-content description">
+                  {track.description || "No description"}
+                </div>
+
+                <div className="post-content audio">
+                  <Waveform
+                    audioUrl={track.trackFile}
+                    track={track}
+                    className="track-waveform"
+                  />
+                </div>
+
+                <div className="row d-flex justify-content-start align-items-center">
+                  <div className="col-2 mt-2 text-center">
+                    <div className="like-count">
+                      {track.likeCount || 0}
+                      <i
+                        className={`fa-solid fa-heart ${
+                          likedTracks[track.id]?.data
+                            ? "text-danger"
+                            : "text-muted"
+                        }`}
+                        onClick={() => handleLikeTrack(track.id)}
+                        style={{ cursor: "pointer", fontSize: "25px" }}
+                      ></i>
+                    </div>
+                  </div>
+
+                  <div className="col-2 mt-2 text-center">
+                    <div className="d-flex justify-content-center align-items-center">
+                      {track.commentCount || 0}
+                      <i
+                        type="button"
+                        style={{ fontSize: "25px" }}
+                        className="fa-regular fa-comment"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalComment"
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* post */}
+          <div className="container mb-5">
+            {posts.map((post) => (
+              <div className="post border" key={post.id}>
+                <div className="post-header position-relative">
+                  <button type="button" className="btn" aria-label="Avatar">
+                    <img
+                      src={post.userId?.avatar || "/default-avatar.png"}
+                      className="avatar_small"
+                      alt="Avatar"
+                    />
+                  </button>
+                  <div>
+                    <div className="name">
+                      {post.userNickname || "Unknown Track"}
+                    </div>
+                    <div className="time">
+                      {new Date(post.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+
+                  {/* Dropdown options nếu cần */}
+                  <div className="dropdown position-absolute top-0 end-0">
+                    <button
+                      className="btn btn-options dropdown-toggle"
+                      type="button"
+                      id={`dropdownMenuButton-${post.id}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    ></button>
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby={`dropdownMenuButton-${post.id}`}
+                    >
+                      <li>
+                        <button className="dropdown-item">
+                          <i className="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                      </li>
+                      <li>
+                        <button className="dropdown-item">
+                          <i className="fa-solid fa-trash"></i> Delete
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="post-content ">
+                  {post.content || "No content"}
+                </div>
+
+                {/* Hiển thị hình ảnh */}
+                {post.images && post.images.length > 0 && (
+                  <div className="post-images">
+                    {post.images.map((image, index) => (
+                      <img key={index} src={image.postImage} alt="Post" />
+                    ))}
+                  </div>
+                )}
+
+                <div className="row d-flex justify-content-start align-items-center">
+                  <div className="col-2 mt-2 text-center">
+                    <div className="like-count">
+                      {post.likeCount || 0}
+                      <i
+                        className={`fa-solid fa-heart ${
+                          likedPosts[post.id]?.data
+                            ? "text-danger"
+                            : "text-muted"
+                        }`}
+                        onClick={() => handleLikePost(post.id)}
+                        style={{ cursor: "pointer", fontSize: "25px" }}
+                      ></i>
+                    </div>
+                  </div>
+
+                  <div className="col-2 mt-2 text-center">
+                    <div className="d-flex justify-content-center align-items-center">
+                      {post.commentCount || 0}
+                      <i
+                        type="button"
+                        style={{ fontSize: "25px" }}
+                        className="fa-regular fa-comment"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalComment"
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="col-3 ps-5">
+          <h1 className="search-results-title">People to Follow </h1>
+          <div className="people-to-follow">
+            <div>
+              <div className="post-header-track">
                 <img
-                  src={track.userId?.avatar || "/default-avatar.png"}
+                  src="/src/UserImages/Avatar/avt.jpg"
                   className="avatar_small"
                   alt="Avatar"
                 />
-              </button>
-              <div>
-                <div className="name">{track.userName || "Unknown Track"}</div>
-                <div className="time">
-                  {new Date(track.createDate).toLocaleString()}
+
+                <div className="info">
+                  <div className="author">userName</div>
                 </div>
-              </div>
 
-              {/* Dropdown options nếu cần */}
-              <div className="dropdown position-absolute top-0 end-0">
-                <button
-                  className="btn btn-options dropdown-toggle"
-                  type="button"
-                  id={`dropdownMenuButton-${track.id}`}
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                ></button>
-                <ul
-                  className="dropdown-menu"
-                  aria-labelledby={`dropdownMenuButton-${track.id}`}
-                >
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleEdit(track.id)}
-                    >
-                      <i className="fa-solid fa-pen-to-square"></i> Edit
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleDelete(track.id)}
-                    >
-                      <i className="fa-solid fa-trash"></i> Delete
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="post-content description">
-              {track.description || "No description"}
-            </div>
-
-            <div className="post-content audio">
-              <Waveform
-                audioUrl={track.trackFile}
-                track={track}
-                className="track-waveform"
-              />
-            </div>
-
-            <div className="row d-flex justify-content-start align-items-center">
-              <div className="col-2 mt-2 text-center">
-                <div className="like-count">
-                  {track.likeCount || 0}
-                  <i
-                    className={`fa-solid fa-heart ${
-                      likedTracks[track.id]?.data ? "text-danger" : "text-muted"
-                    }`}
-                    onClick={() => handleLikeTrack(track.id)}
-                    style={{ cursor: "pointer", fontSize: "25px" }}
-                  ></i>
-                </div>
-              </div>
-
-              <div className="col-2 mt-2 text-center">
-                <div className="d-flex justify-content-center align-items-center">
-                  {track.commentCount || 0}
-                  <i
+                <div className="btn-group" style={{ marginLeft: 25 }}>
+                  <button
+                    className="btn dropdown-toggle no-border"
                     type="button"
-                    style={{ fontSize: "25px" }}
-                    className="fa-regular fa-comment"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalComment"
-                  ></i>
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  ></button>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li>
+                      <a className="dropdown-item">Edit</a>
+                    </li>
+                    <li>
+                      <a className="dropdown-item">Delete</a>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-      {/* post */}
-      <div className="container mb-5">
-        {posts.map((post) => (
-          <div className="post border" key={post.id}>
-            <div className="post-header position-relative">
-              <button type="button" className="btn" aria-label="Avatar">
+          <div className="people-to-follow">
+            <div>
+              <div className="post-header-track">
                 <img
-                  src={post.userId?.avatar || "/default-avatar.png"}
+                  src="/src/UserImages/Avatar/avt.jpg"
                   className="avatar_small"
                   alt="Avatar"
                 />
-              </button>
-              <div>
-                <div className="name">
-                  {post.userNickname || "Unknown Track"}
+
+                <div className="info">
+                  <div className="author">userName</div>
                 </div>
-                <div className="time">
-                  {new Date(post.createdAt).toLocaleString()}
-                </div>
-              </div>
 
-              {/* Dropdown options nếu cần */}
-              <div className="dropdown position-absolute top-0 end-0">
-                <button
-                  className="btn btn-options dropdown-toggle"
-                  type="button"
-                  id={`dropdownMenuButton-${post.id}`}
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                ></button>
-                <ul
-                  className="dropdown-menu"
-                  aria-labelledby={`dropdownMenuButton-${post.id}`}
-                >
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleEdit(post.id)}
-                    >
-                      <i className="fa-solid fa-pen-to-square"></i> Edit
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleDelete(post.id)}
-                    >
-                      <i className="fa-solid fa-trash"></i> Delete
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="post-content ">{post.content || "No content"}</div>
-
-            {/* Hiển thị hình ảnh */}
-            {post.images && post.images.length > 0 && (
-              <div className="post-images">
-                {post.images.map((image, index) => (
-                  <img key={index} src={image.postImage} alt="Post" />
-                ))}
-              </div>
-            )}
-
-            <div className="row d-flex justify-content-start align-items-center">
-              <div className="col-2 mt-2 text-center">
-                <div className="like-count">
-                  {post.likeCount || 0}
-                  <i
-                    className={`fa-solid fa-heart ${
-                      likedPosts[post.id]?.data ? "text-danger" : "text-muted"
-                    }`}
-                    onClick={() => handleLikePost(post.id)}
-                    style={{ cursor: "pointer", fontSize: "25px" }}
-                  ></i>
-                </div>
-              </div>
-
-              <div className="col-2 mt-2 text-center">
-                <div className="d-flex justify-content-center align-items-center">
-                  {post.commentCount || 0}
-                  <i
+                <div className="btn-group" style={{ marginLeft: 25 }}>
+                  <button
+                    className="btn dropdown-toggle no-border"
                     type="button"
-                    style={{ fontSize: "25px" }}
-                    className="fa-regular fa-comment"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalComment"
-                  ></i>
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  ></button>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li>
+                      <a className="dropdown-item">Edit</a>
+                    </li>
+                    <li>
+                      <a className="dropdown-item">Delete</a>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
-        ))}
+          <div className="people-to-follow">
+            <div>
+              <div className="post-header-track">
+                <img
+                  src="/src/UserImages/Avatar/avt.jpg"
+                  className="avatar_small"
+                  alt="Avatar"
+                />
+
+                <div className="info">
+                  <div className="author">userName</div>
+                </div>
+
+                <div className="btn-group" style={{ marginLeft: 25 }}>
+                  <button
+                    className="btn dropdown-toggle no-border"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  ></button>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li>
+                      <a className="dropdown-item">Edit</a>
+                    </li>
+                    <li>
+                      <a className="dropdown-item">Delete</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

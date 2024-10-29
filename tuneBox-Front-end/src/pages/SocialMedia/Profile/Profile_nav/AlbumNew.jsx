@@ -18,7 +18,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import CSS cho Toastify
 import { images } from "../../../../assets/images/images";
 
 const AlbumNew = () => {
-  const userId = Cookies.get("UserID");
+  const userId = Cookies.get("userId");
   const steps = ["Info", "Track"]; // tên các bước
   const [albumImageUrl, setAlbumImageUrl] = useState(images.musicalNote); // Khởi tạo với hình ảnh mặc định
 
