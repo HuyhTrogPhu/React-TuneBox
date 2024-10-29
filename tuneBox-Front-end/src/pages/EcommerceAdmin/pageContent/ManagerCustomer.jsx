@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { listEcommerceUsers } from '../../../service/EcommerceAdminUser';
 import { Link } from 'react-router-dom';
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 
 const ManagerCustomer = () => {
@@ -102,6 +103,19 @@ const ManagerCustomer = () => {
             setCurrentPage(pageNumber);
         }
     };
+    // Hàm xuất Excel
+    const exportToExcel = () => {
+        const ws = XLSX.utils.json_to_sheet(filteredUsers);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Customers");
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: EXCEL_TYPE });
+        saveAs(data, 'customers.xlsx');
+    };
+
+    const EXCEL_TYPE =
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    const EXCEL_EXTENSION = '.xlsx';
 
     return (
         <div>
@@ -197,31 +211,36 @@ const ManagerCustomer = () => {
                         <table className='table'>
                             <thead>
                                 <tr>
-                                    <th style={{ textAlign: "center" }}  scope='col'>#</th>
-                                    <th style={{ textAlign: "center" }}  scope='col'>Username</th>
-                                    <th style={{ textAlign: "center" }}  scope='col'>Email</th>
-                                    <th style={{ textAlign: "center" }}  scope='col'>location</th>
-                                    <th style={{ textAlign: "center" }}  scope='col'>Total order amount</th>
-                                    <th style={{ textAlign: "center" }}  scope='col'>Total order count</th>
-                                    <th  style={{ textAlign: "center" }}  scope='col'>Action</th>
+                                    <th style={{ textAlign: "center" }} scope='col'>#</th>
+                                    <th style={{ textAlign: "center" }} scope='col'>Username</th>
+                                    <th style={{ textAlign: "center" }} scope='col'>Email</th>
+                                    <th style={{ textAlign: "center" }} scope='col'>location</th>
+                                    <th style={{ textAlign: "center" }} scope='col'>Total order amount</th>
+                                    <th style={{ textAlign: "center" }} scope='col'>Total order count</th>
+                                    <th style={{ textAlign: "center" }} scope='col'>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {paginateUsers().map((user, index) => (
                                     <tr key={user.id}>
-                                        <th  style={{ textAlign: "center" }} scope='row'>{index + 1 + (currentPage - 1) * rowsPerPage}</th>
+                                        <th style={{ textAlign: "center" }} scope='row'>{index + 1 + (currentPage - 1) * rowsPerPage}</th>
                                         <td>{user.userName}</td>
                                         <td>{user.email}</td>
                                         <td>location</td>
                                         <td>{(user.totalOrderAmount).toLocaleString('vi')} VND</td>
                                         <td>{user.totalOrderCount} order</td>
                                         <td>
-                                        <Link className='btn btn-primary' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.id}`}>View</Link>
+                                            <Link className='btn btn-primary' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.id}`}>View</Link>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+                        <div className="mt-3">
+                            <button className="btn btn-success" onClick={exportToExcel}>
+                                Xuất Excel
+                            </button>
+                        </div>
 
                         {/* Pagination */}
                         <div className="">
