@@ -22,6 +22,12 @@ import {
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
+import {
+  getPlaylistByUserId,
+  getPlaylistById,
+  updatePlaylist,
+} from "../../service/PlaylistServiceCus";
+import { ToastContainer, toast } from "react-toastify";
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -65,10 +71,13 @@ const HomeFeed = () => {
   const [tracks, setTracks] = useState([]);
   const [likedTracks, setLikedTracks] = useState({});
   const [countLikedTracks, setCountLikedTracks] = useState({});
+  // list
+  const [playlists, setPlaylists] = useState([]);
 
   useEffect(() => {
     fetchTracks();
-  }, []);
+    fetchListPlaylist();
+  }, [currentUserId]);
 
   const fetchTracks = async () => {
     try {
@@ -81,14 +90,14 @@ const HomeFeed = () => {
         response.map(async (track) => {
           const liked = await checkUserLikeTrack(track.id, currentUserId);
           const count = await getLikesCountByTrackId(track.id);
-          console.log(
-            "userId:",
-            currentUserId,
-            "trackId:",
-            track.id,
-            "- likeStatus: ",
-            liked
-          );
+          // console.log(
+          //   "userId:",
+          //   currentUserId,
+          //   "trackId:",
+          //   track.id,
+          //   "- likeStatus: ",
+          //   liked
+          // );
           return { id: track.id, liked, count }; // Trả về id và trạng thái liked
         })
       );
@@ -137,6 +146,66 @@ const HomeFeed = () => {
   };
 
   // end track
+
+  // playlist
+  const [showModal, setShowModal] = useState(false);
+  const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
+  const fetchListPlaylist = async () => {
+    try {
+      const playlistResponse = await getPlaylistByUserId(currentUserId);
+      setPlaylists(playlistResponse);
+      console.log("playlist  ", playlistResponse);
+    } catch (error) {
+      console.error("Error fetching playlist:", error);
+    }
+  };
+
+  const addToPlaylist = (trackId) => {
+    setShowModal(true); // Mở modal
+    setTrackToAddPlayList(trackId);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false); // Đóng modal
+  };
+
+  const handleAddTrackToPlaylist = async (playlistId) => {
+    try {
+      // lấy thong tin htai cua lít
+      const currentPlaylist = await getPlaylistById(playlistId);
+
+      console.log("currentPlaylist: ", currentPlaylist.data);
+      const formData = new FormData();
+
+      // Kiểm tra xem track đã tồn tại trong playlist chưa
+      const existingTracks = currentPlaylist.data.tracks; // Danh sách track hiện có trong playlist
+      if (existingTracks.includes(trackToAddPlayList)) {
+        toast.error("Track đã tồn tại trong playlist!");
+        return; // Dừng thực hiện nếu track đã tồn tại
+      }
+
+      formData.append("trackIds", trackToAddPlayList);
+      formData.append("title", currentPlaylist.data.title);
+      formData.append("imagePlaylist", currentPlaylist.data.imagePlaylist); // thêm trường này
+      formData.append("description", currentPlaylist.data.description);
+      formData.append("status", false);
+      formData.append("report", false);
+      formData.append("type", currentPlaylist.data.type);
+      formData.append("user", currentUserId);
+
+      console.log("handleAddTrackToPlaylist: ", currentPlaylist.data.title);
+      await updatePlaylist(playlistId, formData);
+      toast.success(" Add Track to Playlist successfully!");
+      handleCloseModal();
+    } catch (error) {
+      console.error("Failed to create add track to playlist:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed. Please try again.";
+      toast.error(errorMessage);
+    }
+  };
+
+  // end playlist
 
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
@@ -743,6 +812,7 @@ const HomeFeed = () => {
   return (
     <div>
       <div className="container-fluid">
+        <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
@@ -777,7 +847,7 @@ const HomeFeed = () => {
               </li>
 
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link to={"/likepost"} className="d-flex align-items-center">
                   <img
                     src={images.feedback}
                     alt="icon"
@@ -785,7 +855,7 @@ const HomeFeed = () => {
                     className="me-2"
                   />
                   <span className="fw-bold">Bài viết đã thích</span>
-                </a>
+                </Link>
               </li>
               <li className="left mb-4">
                 <Link to={"/likeAlbums"} className="d-flex align-items-center">
@@ -799,7 +869,10 @@ const HomeFeed = () => {
                 </Link>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link
+                  to={"/likePlaylist"}
+                  className="d-flex align-items-center"
+                >
                   <img
                     src={images.playlist}
                     alt="icon"
@@ -807,7 +880,7 @@ const HomeFeed = () => {
                     className="me-2 "
                   />
                   <span className="fw-bold">Playlist đã thích</span>
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -870,6 +943,15 @@ const HomeFeed = () => {
                         className="dropdown-menu"
                         aria-labelledby={`dropdownMenuButton-${track.id}`}
                       >
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => addToPlaylist(track.id)}
+                          >
+                            <i className="fa-solid fa-pen-to-square"></i> Add to
+                            playlist
+                          </button>
+                        </li>
                         <li>
                           <button
                             className="dropdown-item"
@@ -1820,6 +1902,56 @@ const HomeFeed = () => {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal để chọn playlist */}
+      <div
+        className={`modal fade ${showModal ? "show" : ""}`}
+        tabIndex="-1"
+        style={{ display: showModal ? "block" : "none" }}
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Chọn Playlist</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={handleCloseModal}
+              ></button>
+            </div>
+            <div className="modal-body">
+              <ul className="list-group">
+                {playlists.map(
+                  (playlist) =>
+                    !playlist.status && (
+                      <div key={playlist.id} className="post-header-track m-5">
+                        <img
+                          src={playlist.imagePlaylist}
+                          className="avatar_small"
+                          alt="playlist"
+                        />
+                        <div className="info">
+                          <div className="name">{playlist.title}</div>
+                        </div>
+                        <div className="btn-group" style={{ marginLeft: 25 }}>
+                          <button
+                            type="button"
+                            className="btn-new rounded-5"
+                            onClick={() =>
+                              handleAddTrackToPlaylist(playlist.id)
+                            }
+                          >
+                            add
+                          </button>
+                        </div>
+                      </div>
+                    )
+                )}
+              </ul>
             </div>
           </div>
         </div>
