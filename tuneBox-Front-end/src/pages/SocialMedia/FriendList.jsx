@@ -59,9 +59,9 @@ const FriendList = () => {
                 {friends.map(friend => (
                     <div className="col" key={friend.id}>
                         <div className="card h-100 shadow-sm">
-                            <img src={friend.userInformation.avatar} className="card-img-top" alt={`${friend.userName}'s avatar`} />
+                            <img src={friend.avatar} className="card-img-top" alt={`${friend.userName}'s avatar`} />
                             <div className="card-body text-center">
-                                <h5 className="card-title">{friend.userInformation.name}</h5>
+                                <h5 className="card-title">{friend.name}</h5>
                                 <p className="card-text">userName: {friend.userName}</p>
                                 <button className="btn btn-outline-primary">View Profile</button>
                             </div>
