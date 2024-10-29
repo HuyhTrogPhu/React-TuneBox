@@ -48,7 +48,6 @@ const ProfileUser = () => {
           const userData = await getUserInfo(userIdCookie);
           setUserData(userData);
           console.log("User data fetched from API:", userData);
-
           // Lấy số lượng bạn bè
           const count = await getFriendCount(userIdCookie);
           console.log("Fetched friend count:", count); // Log giá trị friend count

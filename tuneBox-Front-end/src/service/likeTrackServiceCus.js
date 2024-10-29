@@ -58,6 +58,29 @@ export const getAllLikedByUser = async (userId) => {
   }
 };
 
+export const getAllAlbumByUserId = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/allAlbums/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching like albums:", error);
+    throw error;
+  }
+};
+
+export const getAllPlaylistByUserId = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/allPlaylist/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching like albums:", error);
+    throw error;
+  }
+};
+
 // Lấy số lượng like cho track theo trackId
 export const getLikesByTrackId = (trackId) =>
   axios.get(`${API_URL}/track/${trackId}`);
+
+export const getLikesCountByTrackId = (trackId) =>
+  axios.get(`${API_URL}/track/${trackId}/count`);
