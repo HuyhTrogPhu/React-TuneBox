@@ -81,3 +81,6 @@ export const getAllPlaylistByUserId = async (userId) => {
 // Lấy số lượng like cho track theo trackId
 export const getLikesByTrackId = (trackId) =>
   axios.get(`${API_URL}/track/${trackId}`);
+
+export const getLikesCountByTrackId = (trackId) =>
+  axios.get(`${API_URL}/track/${trackId}/count`);
