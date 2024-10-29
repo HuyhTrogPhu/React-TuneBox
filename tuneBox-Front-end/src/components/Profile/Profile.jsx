@@ -119,21 +119,26 @@ const Profile = () => {
         setShowModal(false);
     };
     // Cập Nhật Thông Tin Người Dùng
-    const handleUpdateUserInfo = async () => {
+    const handleUpdateUserInfo = async () => {  
         const userIdCookie = Cookies.get('userId');
         if (userIdCookie) {
+            // Convert selected names to IDs
+            const inspiredByIds = getIdsFromNames(selectedInspiredBy, listInspiredBy);
+            const talentIds = getIdsFromNames(selectedTalents, listTalent);
+            const genreIds = getIdsFromNames(selectedGenres, listGenre);
+    
             const updatedUserInfo = {
                 userName,
                 userInformation: { name, location, about },
-                userProfileUpdateRequest: {
-                    inspiredBy: selectedInspiredBy,
-                    talent: selectedTalents,
-                    genre: selectedGenres,
-                },
+                inspiredBy: inspiredByIds,
+                talent: talentIds,
+                genre: genreIds,
             };
-            console.log("Selected InspiredBy:", selectedInspiredBy);
-            console.log("Selected Talents:", selectedTalents);
-            console.log("Selected Genres:", selectedGenres);
+    
+            console.log("Selected InspiredBy IDs:", inspiredByIds);
+            console.log("Selected Talents IDs:", talentIds);
+            console.log("Selected Genres IDs:", genreIds);
+            console.log("updatedUserInfo:", updatedUserInfo);
             try {
                 await updateUserInfo(userIdCookie, updatedUserInfo);
                 toast.success("Thông tin đã được cập nhật thành công!");
@@ -143,11 +148,18 @@ const Profile = () => {
             }
         }
     };
+    
 
     const handleToggleItem = (item, setSelected, selected) => {
         setSelected((prev) => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
     };
 
+    const getIdsFromNames = (selectedNames, options) => {
+        return options
+          .filter(option => selectedNames.includes(option.name))
+          .map(option => option.id);
+    };
+    
     return (
         <div>
             <ToastContainer />
