@@ -742,8 +742,6 @@ const HomeFeed = () => {
     const modal = new bootstrap.Modal(document.getElementById("modalComent"));
     modal.show(); // Mở modal
   };
-
-
   return (
     <div>
       <div className="container-fluid">
@@ -760,17 +758,16 @@ const HomeFeed = () => {
                 </a>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link to={`/Following/${currentUserId}`} className="d-flex align-items-center">
                   <img src={images.followers} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>Đang theo dõi</span>
-                </a>
+                </Link>
               </li>
-
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link href="/#" className="d-flex align-items-center">
                   <img src={images.feedback} alt='icon' width={20} className="me-2" />
                   <span className='fw-bold'>Bài viết đã thích</span>
-                </a>
+                </Link>
               </li>
               <li className="left mb-4">
                 <Link to={"/likeAlbums"} className="d-flex align-items-center">
@@ -829,16 +826,21 @@ const HomeFeed = () => {
                 <div className="post border" key={track.id}>
                   {/* Tiêu đề */}
                   <div className="post-header position-relative">
-                    <button type="button" className="btn" aria-label="Avatar">
-                      <img
-                        src={track.userId.avatar} //lỗi
-                        className="avatar_small"
-                        alt="Avatar"
-                      />
-                    </button>
+                  <button
+                        type="button"
+                        className="btn"
+                        onClick={() => handleAvatarClick(track)}
+                        aria-label="Avatar"
+                      >
+                        <img
+                          src={track.avatar}
+                          className="avatar_small"
+                          alt="Avatar"
+                        />
+                      </button>
                     <div>
                       <div className="name">
-                        {track.userName || "Unknown User"}
+                        {track.userNickname || "Unknown User"}
                       </div>
                       <div className="time">
                       {createdAt && !isNaN(createdAt.getTime())
@@ -925,7 +927,6 @@ const HomeFeed = () => {
               )
 })}
             </div>
-
             {/* Phần hiển thị bài viết */}
             <div className="container mt-2 mb-5">
               {posts.map((post) => {
@@ -1283,7 +1284,6 @@ const HomeFeed = () => {
                     </div>
                     {/* Nội dung bài viết */}
                     <div className="post-content">{post.content}</div>
-                    {/* Hiển thị hình ảnh */}
                     {/* Hiển thị hình ảnh dưới dạng carousel */}
                     {post.images && post.images.length > 0 && (
                       <div id={`carousel-${post.id}`} className="carousel slide post-images" data-bs-ride="carousel">
