@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import {
   getPlaylistByUserId,
   createPlaylist,
+  updatePlaylist,
 } from "../../../../service/PlaylistServiceCus";
 import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { ToastContainer, toast } from "react-toastify";
+import "../Profile_nav/css/playlist.css";
 
 const Playlists = () => {
   const userId = Cookies.get("userId");
@@ -21,7 +23,15 @@ const Playlists = () => {
   const [newPlaylistDescription, setPlaylistDescription] = useState("");
   const [selectedType, setSelectedType] = useState("Public");
 
+  const [editPlayListName, setEditPlaylistName] = useState("");
+  const [editPlaylistImage, setEditPlaylistImage] = useState(null);
+  const [editPlaylistDescription, setEditPlaylistDescription] = useState("");
+  const [editSelectedType, setEditSelectedType] = useState("Public");
+  const [playlistId, setPlaylistId] = useState();
+
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const trackIds = [];
+
   // Lấy danh sách playlist ban đầu
   useEffect(() => {
     fetchListPlaylist();
@@ -50,7 +60,7 @@ const Playlists = () => {
     newPlaylist.append("report", false);
     newPlaylist.append("type", selectedType);
     newPlaylist.append("user", userId); // thêm userId
-    newPlaylist.append("trackIds", trackIds); // bỏ qua nếu không cần thiết
+    newPlaylist.append("trackIds", trackIds);
 
     // Log nội dung FormData
     console.log("Form Data Contents:");
@@ -101,6 +111,66 @@ const Playlists = () => {
     }
   };
 
+  const handleEditClick = (playlist) => {
+    setPlaylistId(playlist.id);
+    setSelectedPlaylist(playlist);
+    setEditPlaylistName(playlist.title);
+    setEditPlaylistDescription(playlist.description);
+    setEditSelectedType(playlist.type);
+    setPlaylistImageUrl(playlist.imagePlaylist || images.musicalNote);
+  };
+
+  const SaveEdit = async (playlistId) => {
+    if (!validateEditForm()) return; // Validate form before saving
+    try {
+      const formData = new FormData();
+
+      formData.append("title", editPlayListName);
+      formData.append(
+        "imagePlaylist",
+        editPlaylistImage || selectedPlaylist.imagePlaylist
+      ); // nếu không có hình ảnh mới, giữ hình ảnh cũ
+      formData.append("description", editPlaylistDescription);
+      formData.append("status", false);
+      formData.append("report", false);
+      formData.append("type", editSelectedType);
+      formData.append("user", userId);
+
+      await updatePlaylist(playlistId, formData);
+
+      toast.success("Update Playlist successfully!");
+      fetchListPlaylist();
+      resetForm();
+      document.getElementById("closeEditModelplaylist").click(); // Đóng modal sau khi lưu
+    } catch (error) {
+      console.error("Failed to update playlist:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed. Please try again.";
+      toast.error(errorMessage);
+    }
+  };
+
+  const validateEditForm = () => {
+    const newErrors = {};
+    if (!editPlayListName) newErrors.name = "Playlist name is required.";
+    if (!editPlaylistDescription) {
+      newErrors.description = "Description is required.";
+    } else if (editPlaylistDescription.length <= 10) {
+      newErrors.description = "Description must be more than 10 characters.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const resetForm = () => {
+    setPlaylistName("");
+    setPlaylistDescription("");
+    setSelectedType("Public");
+    setPlaylistImageUrl(images.musicalNote);
+    setErrors({});
+  };
+
   return (
     <div className="albums">
       <ToastContainer />
@@ -137,7 +207,12 @@ const Playlists = () => {
                     alt="Avatar"
                   />
                   <div className="info">
-                    <Link>
+                    <Link
+                      to={{
+                        pathname: `/playlist/${list.id}`,
+                        state: { list },
+                      }}
+                    >
                       <div className="title">{list.title}</div>
                     </Link>
 
@@ -158,9 +233,15 @@ const Playlists = () => {
                     />
                     <ul className="dropdown-menu dropdown-menu-lg-end">
                       <li>
-                        <Link>
-                          <a className="dropdown-item">Edit</a>
-                        </Link>
+                        <a
+                          className="dropdown-item"
+                          type="button"
+                          data-bs-toggle="modal"
+                          data-bs-target="#editPlaylist"
+                          onClick={() => handleEditClick(list)}
+                        >
+                          Edit
+                        </a>
                       </li>
                       <li>
                         <a className="dropdown-item">Delete</a>
@@ -175,7 +256,7 @@ const Playlists = () => {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Modal new*/}
       <div
         className="modal fade"
         id="newPlaylist"
@@ -199,87 +280,197 @@ const Playlists = () => {
               ></button>
             </div>
             <div className="modal-body">
-              <div className="row">
-                <div className="col-md-4 d-flex align-items-center justify-content-center bg-black">
-                  <div className="info-img me-5">
-                    <img
-                      src={playlistUrl} // Sử dụng URL tạm thời để hiển thị hình ảnh
-                      className="avatar border"
-                      alt="Avatar"
-                    />
+              <div className="mb-3">
+                <label className="form-label">Title</label>
+                <input
+                  type="text"
+                  className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                  value={newPlayListName}
+                  onChange={(e) => setPlaylistName(e.target.value)}
+                  placeholder="Enter playlist name"
+                />
+                {errors.name && (
+                  <div className="invalid-feedback">{errors.name}</div>
+                )}
+              </div>
 
-                    <input
-                      type="file"
-                      className="form-control"
-                      accept="image/*" // Chỉ cho phép chọn hình ảnh
-                      onChange={handleImageChange} // Gọi hàm xử lý khi người dùng chọn file
-                    />
-                    {errors.image && (
-                      <span className="text-danger">{errors.image}</span>
-                    )}
-                  </div>
-                </div>
+              <div className="mb-3">
+                <label className="form-label">Description</label>
+                <textarea
+                  className={`form-control ${
+                    errors.description ? "is-invalid" : ""
+                  }`}
+                  value={newPlaylistDescription}
+                  onChange={(e) => setPlaylistDescription(e.target.value)}
+                  placeholder="Enter playlist description"
+                />
+                {errors.description && (
+                  <div className="invalid-feedback">{errors.description}</div>
+                )}
+              </div>
 
-                <div className="col-md-8">
-                  <form className="row">
-                    <div className="">
-                      <label className="form-label">Playlist Name</label>
-                      <input
-                        type="text"
-                        className={`form-control ${
-                          errors.name ? "is-invalid" : ""
-                        }`}
-                        value={newPlayListName}
-                        onChange={(e) => setPlaylistName(e.target.value)}
-                      />
-                      {errors.name && (
-                        <div className="invalid-feedback">{errors.name}</div>
-                      )}
-                    </div>
+              <div className="mb-3">
+                <label className="form-label">Type</label>
+                <select
+                  className="form-select"
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                >
+                  <option value="Public">Public</option>
+                  <option value="Private">Private</option>
+                </select>
+              </div>
 
-                    <div className="mt-3">
-                      <label className="form-label">Description</label>
-                      <textarea
-                        cols="50"
-                        rows="5"
-                        className={`form-control ${
-                          errors.description ? "is-invalid" : ""
-                        }`}
-                        value={newPlaylistDescription}
-                        onChange={(e) => setPlaylistDescription(e.target.value)}
-                      ></textarea>
-                      {errors.description && (
-                        <div className="invalid-feedback">
-                          {errors.description}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mt-3">
-                      <select
-                        className="form-select"
-                        value={selectedType}
-                        onChange={(e) => setSelectedType(e.target.value)} // Cập nhật trạng thái khi chọn
-                      >
-                        <option value="Public">Public</option>
-                        <option value="Private">Private</option>
-                      </select>
-                      <small className="text-muted d-block mt-1">
-                        *All users can view, listen to, like and share this
-                        playlist.
-                      </small>
-                    </div>
-                  </form>
+              <div className="mb-3">
+                <label className="form-label">Playlist Image</label>
+                <div className="position-relative">
+                  <input
+                    type="file"
+                    className={`form-control ${
+                      errors.image ? "is-invalid" : ""
+                    }`}
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    style={{ display: "none" }}
+                    id="playlistImageInput" // Thêm id để tham chiếu
+                  />
+                  <img
+                    src={playlistUrl}
+                    alt="Playlist Preview"
+                    className="playlist-image-preview"
+                    onClick={() =>
+                      document.getElementById("playlistImageInput").click()
+                    }
+                  />
+                  {errors.image && (
+                    <div className="invalid-feedback">{errors.image}</div>
+                  )}
                 </div>
               </div>
             </div>
+
             <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={handleSave}
               >
-                Save
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal edit*/}
+      <div
+        className="modal fade"
+        id="editPlaylist"
+        tabIndex="-1"
+        aria-labelledby="#editPlaylistLabel"
+        aria-hidden="true"
+        data-bs-backdrop="false"
+      >
+        <div className="modal-dialog modal-xl">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="editPlaylistLabel">
+                Edit Playlist
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                id="closeEditModelplaylist"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label className="form-label">Title</label>
+                <input
+                  type="text"
+                  className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                  value={editPlayListName}
+                  onChange={(e) => setEditPlaylistName(e.target.value)}
+                  placeholder="Enter playlist name"
+                />
+                {errors.name && (
+                  <div className="invalid-feedback">{errors.name}</div>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Description</label>
+                <textarea
+                  className={`form-control ${
+                    errors.description ? "is-invalid" : ""
+                  }`}
+                  value={editPlaylistDescription}
+                  onChange={(e) => setEditPlaylistDescription(e.target.value)}
+                  placeholder="Enter playlist description"
+                />
+                {errors.description && (
+                  <div className="invalid-feedback">{errors.description}</div>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Type</label>
+                <select
+                  className="form-select"
+                  value={editSelectedType}
+                  onChange={(e) => setEditSelectedType(e.target.value)}
+                >
+                  <option value="Public">Public</option>
+                  <option value="Private">Private</option>
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Playlist Image</label>
+                <div className="position-relative">
+                  <input
+                    type="file"
+                    className="form-control"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e)}
+                    style={{ display: "none" }} // Ẩn nút chọn file thực tế
+                    id="playlistImageInput" // Thêm id để tham chiếu
+                  />
+                  <img
+                    src={playlistUrl}
+                    alt="Playlist Preview"
+                    className="playlist-image-preview"
+                    onClick={() =>
+                      document.getElementById("playlistImageInput").click()
+                    } // Kích hoạt input khi nhấp vào hình
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => SaveEdit(playlistId)}
+              >
+                Save changes
               </button>
             </div>
           </div>

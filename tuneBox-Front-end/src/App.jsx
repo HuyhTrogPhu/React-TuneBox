@@ -34,6 +34,7 @@ import AlbumDetail from "./pages/SocialMedia/Profile/Profile_nav/AlbumDetail";
 import LikePost from "./pages/SocialMedia/Profile/Profile_nav/LikePost";
 import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
 import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
+import PlayListDetail from "./pages/SocialMedia/Profile/Profile_nav/PlaylistDetail";
 
 import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
 
@@ -112,6 +113,7 @@ function App() {
               <Route path="/likepost" element={<LikePost />} />
               <Route path="/likeAlbums" element={<LikeAlbums />} />
               <Route path="/likePlaylist" element={<LikePlaylists />} />
+              <Route path="/playlist/:id" element={<PlayListDetail />} />
               <Route path="/search" element={<SearchForm />} />
             </Route>
 
