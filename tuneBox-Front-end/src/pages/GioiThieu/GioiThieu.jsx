@@ -1,7 +1,7 @@
 import React from 'react'
 import './css/bootstrap.min.css';
 import './css/bootstrap-icons.css';
-// import './css/style.css';
+import './css/style.css';
 import './css/header.css';
 import './css/profile.css';
 
@@ -17,6 +17,7 @@ import './js/sothich.js'
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
 import { images } from '../../assets/images/images.js';
+
 const GioiThieu = () => {
   return (
     <div>

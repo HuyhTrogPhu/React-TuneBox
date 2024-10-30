@@ -8,12 +8,14 @@ import Sellwell from '../../../components/Sellwell/Sellwell'
 import Header from '../../../components/Header/Header'
 import Footer2 from '../../../components/Footer/Footer2'
 import Benefit from '../../../components/Benefits/Benefits'
+import MenuShop from '../../../components/MenuShop/MenuShop'
 
 const Home = () => {
   return (
     <div>
 
       <div className='app-container'>
+        <MenuShop/>
         <Carousel />
         <Instroduce />
         <Brand />

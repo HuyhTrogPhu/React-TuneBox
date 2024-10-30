@@ -12,7 +12,7 @@ const BrandList = ({ brands, onUpdate }) => {
   const [countdown, setCountdown] = useState(5); //đếm thời gian tắt thông báo
   const navigator = useNavigate();
   const [errors, setErrors] = useState({ editBrandName: '', editBrandImage: '', editBrandDescription: '' });
-
+  const [loading, setLoading] = useState(false);
   const handleEdit = (brand) => {
     setSelectedBrand(brand);
     setEditName(brand.name);
@@ -23,7 +23,10 @@ const BrandList = ({ brands, onUpdate }) => {
     const modal = new bootstrap.Modal(document.getElementById('editBrandsModal'));
     modal.show();
   };
-
+  // Hàm kiểm tra tên thương hiệu có trùng không
+  const isBrandNameDuplicate = (name) => {
+    return brands.some((bra) => bra.name.toLowerCase() === name.toLowerCase() && bra.id !== selectedBrand.id);
+  };
   const validateForm = () => {
     let valid = true;
     const errorsCopy = { editBrandName: '', editBrandImage: '', editBrandDescription: '' };
@@ -31,12 +34,19 @@ const BrandList = ({ brands, onUpdate }) => {
     if (!editName.trim()) {
       errorsCopy.editBrandName = 'Brand name is required';
       valid = false;
+    } else if (isBrandNameDuplicate(editName)) { // Kiểm tra trùng tên thương hiệu
+      errorsCopy.editBrandName = 'Brand name already exists';
+      valid = false;
     }
 
     if (!editDescription.trim()) {
       errorsCopy.editBrandDescription = 'Description is required';
       valid = false;
+    } else if (editDescription.length < 10) {
+      errorsCopy.editBrandDescription = 'Description must be at least 10 characters';
+      valid = false;
     }
+
 
     if (!editImage && !currentImage) { // Chỉ cần yêu cầu hình ảnh mới nếu không có hình ảnh hiện tại
       errorsCopy.editBrandImage = 'Brand image is required';
@@ -69,6 +79,7 @@ const BrandList = ({ brands, onUpdate }) => {
 
   const handleUpdate = () => {
     if (selectedBrand && validateForm()) {
+      setLoading(true);
       const updatedBrand = {
         name: editName,
         description: editDescription,
@@ -78,13 +89,16 @@ const BrandList = ({ brands, onUpdate }) => {
 
       updateBrand(updatedBrand, selectedBrand.id)
         .then(() => {
-          onUpdate(); // Cập nhật danh sách thương hiệu
-          // Đóng modal
-          const modal = bootstrap.Modal.getInstance(document.getElementById('editBrandsModal'));
-          modal.hide();
-          setSuccessMessage("Brand update successfully!");
+          setTimeout(() => {
+            setLoading(false)
+            onUpdate();
+            setSuccessMessage("Brand update successfully!");
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editBrandsModal'));
+            modal.hide();
+          }, 1000)
         })
         .catch((error) => {
+          setLoading(false);
           console.error(error);
         });
     }
@@ -131,13 +145,13 @@ const BrandList = ({ brands, onUpdate }) => {
       <table className="table table-striped table-hover">
         <thead className='text-center'>
           <tr>
-            <th scope="col">#</th>
-            <th scope="col">Brand Image</th>
-            <th scope="col">Brand Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-            <th scope="col">Status Transition</th>
+            <th style={{ textAlign: "center" }} scope="col">#</th>
+            <th style={{ textAlign: "center" }} scope="col">Brand Image</th>
+            <th style={{ textAlign: "center" }} scope="col">Brand Name</th>
+            <th style={{ textAlign: "center" }} scope="col">Description</th>
+            <th style={{ textAlign: "center" }} scope="col">Status</th>
+            <th style={{ textAlign: "center" }} scope="col">Action</th>
+            <th style={{ textAlign: "center" }} scope="col">Status Transition</th>
           </tr>
         </thead>
         <tbody>
@@ -146,15 +160,22 @@ const BrandList = ({ brands, onUpdate }) => {
               <td>{index + 1}</td>
               <td>
                 <img
-                  src={bra.brandImage
-                    ? `data:image/jpeg;base64,${bra.brandImage}`
-                    : 'default-image-path.jpg'}
+
+                  src={bra.brandImage ? bra.brandImage : 'default-image-path.jpg'}
+
                   alt={bra.name}
                   style={{ width: '50px' }}
                 />
               </td>
               <td>{bra.name}</td>
-              <td>{bra.description ? bra.description : 'No description available'}</td>
+              <td>
+                {bra.description
+                  ? bra.description.length > 50
+                    ? `${bra.description.substring(0, 50)}...`
+                    : bra.description
+                  : 'No description available'}
+              </td>
+
               <td>{bra.status ? 'Unavailable' : 'Available'}</td>
               <td>
                 <button className='btn btn-warning' onClick={() => handleEdit(bra)}>
@@ -175,7 +196,7 @@ const BrandList = ({ brands, onUpdate }) => {
       </table>
 
       {/* Modal Edit */}
-      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true">
+      <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -195,6 +216,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   />
                   {errors.editBrandName && <div className='invalid-feedback'>{errors.editBrandName}</div>}
                 </div>
+
                 <div className="mb-3">
                   <label htmlFor="brandDescription" className="form-label">Description</label>
                   <textarea
@@ -205,6 +227,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   ></textarea>
                   {errors.editBrandDescription && <div className='invalid-feedback'>{errors.editBrandDescription}</div>}
                 </div>
+
                 <div className="mb-3">
                   <label htmlFor="brandImage" className="form-label">Brand Image</label>
                   <input
@@ -220,7 +243,7 @@ const BrandList = ({ brands, onUpdate }) => {
                   <div className="mb-3">
                     <label className="form-label">Current Brand Image</label>
                     <img
-                      src={`data:image/jpeg;base64,${currentImage}`} // Sử dụng hình ảnh hiện tại
+                      src={currentImage}// Sử dụng hình ảnh hiện tại
                       alt="Current brand"
                       style={{ width: '100%', maxHeight: '200px', objectFit: 'contain' }}
                     />
@@ -230,7 +253,9 @@ const BrandList = ({ brands, onUpdate }) => {
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" className="btn btn-primary" onClick={handleUpdate}>Save changes</button>
+              <button type="button" className="btn btn-primary" onClick={handleUpdate} disabled={loading}>
+
+                {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}           </button>
             </div>
           </div>
         </div>

@@ -1,53 +1,63 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
 import "./css/header.css";
 import "./css/profile.css";
+import './css/InspiredBy.css';
 
-import "./js/jquery.min.js";
-import "./js/bootstrap.min.js";
-import "./js/jquery.sticky.js";
-import "./js/click-scroll.js";
-import "./js/custom.js";
-
-import "./js/sothich.js";
-import { fetchDataNgheSi } from "./js/sothich.js";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
-const NgheSiYeuThich = ({ updateFormData }) => {
+import { listInspiredBys } from "../../service/LoginService.js";
+import { Link } from "react-router-dom";
+
+const InspiredBy = () => {
   const navigate = useNavigate();
-  const [talentData, setTalentData] = useState([]);
-  const [selectedArtists, setSelectedArtists] = useState([]); 
+  const location = useLocation();
 
-  useEffect(() => {
-    const fetchDataAndRender = async () => {
-      const response = await fetchDataNgheSi(); // Fetch từ API
-      console.log("Data fetched from API:", response);
-      if (response && response.data) {
-        setTalentData(response.data); // Chỉ cập nhật mảng `data`
-      }
-    };
+  const [inspiredBy, setInspiredBy] = useState([]);
+  const [selectInspiredBy, setSelectInspiredBy] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-    fetchDataAndRender();
-  }, []);
+  // Lấy formData từ state
+  const formData = location.state || {};
+  console.log("Form data from UserInformation:", formData);
 
-  const handleArtistSelect = (artist) => {
-    setSelectedArtists((prevSelectedArtists) => {
-      if (prevSelectedArtists.includes(artist)) {
-        return prevSelectedArtists.filter(item => item !== artist);
+  const fetchInspiredBy = async () => {
+    try {
+      const response = await listInspiredBys();
+      setInspiredBy(response.data);
+    } catch (error) {
+      console.log("Error fetching inspiredBy", error);
+    }
+  };
+
+    // Xử lý tìm kiếm inspiredBy theo tên
+    const filteredInspiredBy = inspiredBy.filter((ins) =>
+      ins.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+  const handleInspiredByClick = (id) => {
+    setSelectInspiredBy((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((inspiredId) => inspiredId !== id); // Xóa ID nếu đã được chọn
       } else {
-        return [...prevSelectedArtists, artist];
+        return [...prev, id]; // Thêm ID nếu chưa được chọn
       }
     });
   };
 
-  const handleSubmit = () => {
-    updateFormData({ listInspiredBy: selectedArtists }); 
-    navigate("/categorymusic"); 
+  useEffect(() => {
+    fetchInspiredBy();
+  }, []);
+
+  // Cập nhật formData khi selectInspiredBy thay đổi
+  const handleNext = () => {
+    formData.inspiredBys = selectInspiredBy; // Cập nhật inspiredBys
+    navigate('/talent', { state: formData }); // Chuyển đến trang talent với formData
   };
+
   return (
     <div>
       <div>
@@ -88,22 +98,28 @@ const NgheSiYeuThich = ({ updateFormData }) => {
                     type="text"
                     placeholder="Tìm kiếm nghệ sĩ..."
                     className="search-bar"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật từ khóa tìm kiếm
                   />
                   <div className="row text-center">
-                    {talentData.map((talent) => (
-                      <div className="col-4" key={talent.id}>
+                  {filteredInspiredBy.map((ins) => (
+                      <div className="col-4" key={ins.id}>
                         <button
-                          className={`btn-category ${
-                             selectedArtists.includes(talent.name) ? 'btn-primary text-light' : 'btn-light text-dark'
+                          className={`inspired-by-button ${
+                            selectInspiredBy.includes(ins.id)
+                              ? "selected" // Thêm class 'selected' nếu đã chọn
+                              : ""
                           }`}
-                          onClick={() => handleArtistSelect(talent.name)}
+                          onClick={() => handleInspiredByClick(ins.id)} // Chọn/bỏ chọn inspiredBy
                         >
-                          {talent.name}
+                          {ins.name}
                         </button>
                       </div>
                     ))}
                   </div>
-                  <button onClick={handleSubmit}>Tiếp tục</button>
+                  <button className="btn" onClick={handleNext}>
+                    Tiếp tục
+                  </button>
                 </div>
               </div>
             </div>
@@ -115,4 +131,4 @@ const NgheSiYeuThich = ({ updateFormData }) => {
   );
 };
 
-export default NgheSiYeuThich;
+export default InspiredBy;

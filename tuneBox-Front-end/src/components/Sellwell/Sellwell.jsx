@@ -23,6 +23,11 @@ const Sellwell = () => {
                 console.error("Error fetching instruments", error);
             });
     }
+    const getStockStatus = (quantity) => {
+        if (quantity === 0) return 'Out of stock';
+        if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
+        return 'In stock';
+      };
 
     // Hàm để phân trang và lấy danh sách sản phẩm cho trang hiện tại
     const paginate = (pageNumber) => {
@@ -42,50 +47,49 @@ const Sellwell = () => {
             <div className='mt-5'>
                 <div className='sellwell-title'>
                     <div className='d-flex justify-content-between align-items-center mb-4'>
-                        <h4 className='category-title'>Sell well</h4>
+                        <h4 className='title'>Sell well</h4>
+                        <Link to={'/Shop'} className='view-all'>View all</Link>
                     </div>
                 </div>
                 <hr className='hr-100' />
 
-                <div className='row d-flex'>
+                <div className='row d-flex justify-content-start'>
                     {Array.isArray(instrumentList) && instrumentList.length > 0 ? (
                         currentItems.map((ins, index) => { // Sử dụng currentItems thay vì instrumentList
-                            return ( // Thêm return ở đây
-                                <div className='card col-3' key={index}>
-                                    <Link to={'/DetailProduct'}>
-                                        <div className='card-img'>
-                                            {
-                                                Array.isArray(ins.image) && ins.image.length > 0 ? (
+                            return (
+                                <div className='col-3 mb-4'>
+                                    <div className='card' key={index}>
+                                        <Link to={{
+                                            pathname: `/DetailProduct/${ins.id}`,
+                                            state: { ins }
+                                        }}>
+                                            <div className='' style={{ width: '100%', height: '100%', border: 'none', cursor: 'pointer' }}>
+                                                <div className='card-img-wrapper ' style={{ height: '250px' }}>
                                                     <img
-                                                        src={`data:image/png;base64,${ins.image[0]}`}
-                                                        alt={`${ins.name}`}
-                                                        
-                                                    />
-                                                ) : (
-                                                    <img
-                                                        src='default-image-url' // Thay thế bằng URL hợp lệ
+                                                        src={ins.image ? ins.image : 'default-image-path.jpg'}
                                                         alt={ins.name}
-                                                        
                                                     />
-                                                )
-                                            }
-                                        </div>
-                                        <div className='card-body'>
-                                            <h5 className='card-title'>
-                                                {ins.name}
-                                            </h5>
-                                            <p className='card-price'>
-                                                {ins.costPrice.toLocaleString()}đ
-                                            </p>
-                                        </div>
-                                    </Link>
+                                                </div>
+                                                <div className='card-body text-center'>
+                                                    <h5 className='card-title'>
+                                                        {ins.name}
+                                                    </h5>
+                                                    <p className='card-price'>
+                                                        {ins.costPrice.toLocaleString('vi')}đ
+                                                    </p>
+                                                    <p className="card-status">{getStockStatus(ins.quantity)}</p>
+                                                </div>
+                                            </div>
+
+                                        </Link>
+                                    </div>
                                 </div>
+
                             );
                         })
                     ) : (
                         <div className='alert alert-danger'>No instrument available</div>
                     )}
-                    
                     {/* Phân trang */}
                     <div className="">
                         <nav aria-label="Page navigation example">

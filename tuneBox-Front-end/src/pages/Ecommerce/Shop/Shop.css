@@ -174,3 +174,64 @@ a {
 .custom-dropdown:hover .custom-dropdown-menu {
   display: block;
 }
+
+.card-link {
+  width: 100%;
+ 
+  text-decoration: none;
+  color: inherit;
+}
+
+.card-img-wrapper {
+  width: 100%;
+  height: 150px; /* Cố định chiều cao của hình ảnh */
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-img-top {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover; /* Giữ tỷ lệ hình ảnh */
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Nếu chữ quá dài, thêm dấu '...' */
+  text-align: center;
+}
+
+.card-price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #dc3545;
+  margin: 5px 0; /* Thêm khoảng cách giữa giá và status */
+}
+
+.card-status {
+  font-size: 14px;
+  color: green;
+}
+
+.text-center {
+  text-align: center;
+}
+.active>.page-link, .page-link.active {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+.page-link span{
+  color: #dc3545 !important;
+}
+.phantrangdetail{
+  padding-top: 600px;
+}

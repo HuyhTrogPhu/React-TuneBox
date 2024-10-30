@@ -12,8 +12,7 @@ import Cookies from 'js-cookie';
 export const checkSignup = async (formData) => {
   try {
     const response = await axios.post('http://localhost:8080/user/check', formData);
-    return response.data; 
-
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -69,7 +68,6 @@ export const saveToLocalStorage = (formData) => {
     genreBy: formData.genreBy
   };
 
-
   localStorage.setItem('userData', JSON.stringify(jsonFormattedData));
 
   console.log(localStorage)
@@ -89,9 +87,9 @@ export const sendDataToAPI = async (formData) => {
   };
 
   await axios.post('http://localhost:8080/user/sign-up', jsonFormattedData, { withCredentials: true })
-
     .then(response => {
       console.log('Data sent to API:', response.data);
+      console.log('Dữ liệu đã được lưu vào cookie:', "UserID", response.data.data.id);
       return response.data.status;
     })
     .catch(error => {
