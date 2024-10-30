@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { AlertCircle, Check, X, RefreshCw } from 'lucide-react';
-import { Alert, AlertDescription } from '../../../components/ui/Alert';
+import { AlertCircle, Check, X, RefreshCw } from "lucide-react";
+import { Alert, AlertDescription } from "../../../components/ui/Alert";
 
 const Posts = () => {
   const [newPosts, setNewPosts] = useState([]);
@@ -10,7 +10,7 @@ const Posts = () => {
   const [reportedPosts, setReportedPosts] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [countPost, setCountPost] = useState(0);
-  
+
   // Search states
   const [searchNewPosts, setSearchNewPosts] = useState("");
   const [searchAllPosts, setSearchAllPosts] = useState("");
@@ -18,7 +18,7 @@ const Posts = () => {
 
   // Report management states
   const [selectedReport, setSelectedReport] = useState(null);
-  const [dismissReason, setDismissReason] = useState('');
+  const [dismissReason, setDismissReason] = useState("");
 
   const fetchData = async () => {
     try {
@@ -35,7 +35,7 @@ const Posts = () => {
       setAllPosts(allResponse.data);
       setReportedPosts(reportedResponse.data);
     } catch (error) {
-      console.error("Error fetching posts:", error);  
+      console.error("Error fetching posts:", error);
       setErrorMessage(
         error.response?.data?.message ||
           "Error fetching posts. Please try again."
@@ -50,65 +50,68 @@ const Posts = () => {
   // Search handlers
   const handleSearchNewPosts = (e) => setSearchNewPosts(e.target.value);
   const handleSearchAllPosts = (e) => setSearchAllPosts(e.target.value);
-  const handleSearchReportedPosts = (e) => setSearchReportedPosts(e.target.value);
+  const handleSearchReportedPosts = (e) =>
+    setSearchReportedPosts(e.target.value);
 
   // Report management handlers
   const handleResolve = async (reportId, hidePost) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/reports/${reportId}/resolve?hidePost=${hidePost}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
+      const response = await fetch(
+        `http://localhost:8080/api/reports/${reportId}/resolve?hidePost=${hidePost}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to resolve report');
+        throw new Error("Failed to resolve report");
       }
-  
+
       // Làm mới dữ liệu sau khi giải quyết báo cáo
       await fetchData();
       setSelectedReport(null);
     } catch (err) {
-      setErrorMessage('Failed to resolve report. Please try again.');
+      setErrorMessage("Failed to resolve report. Please try again.");
       console.error(err);
     }
   };
-  
-  
-  
+
   const handleDismiss = async (reportId) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/reports/${reportId}/dismiss?reason=${dismissReason}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to dismiss report');
+      const response = await fetch(
+        `http://localhost:8080/api/reports/${reportId}/dismiss?reason=${dismissReason}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        await fetchData();
-        setSelectedReport(null);
-        setDismissReason('');
+      if (!response.ok) {
+        throw new Error("Failed to dismiss report");
+      }
+
+      await fetchData();
+      setSelectedReport(null);
+      setDismissReason("");
     } catch (err) {
-        setErrorMessage('Failed to dismiss report. Please try again.');
-        console.error(err);
+      setErrorMessage("Failed to dismiss report. Please try again.");
+      console.error(err);
     }
-};
+  };
 
-  
   const handleRestore = async (reportId) => {
     try {
       const response = await axios.put(`/api/reports/${reportId}/restore`);
       fetchData();
     } catch (err) {
-      setErrorMessage('Failed to restore post. Please try again.');
+      setErrorMessage("Failed to restore post. Please try again.");
     }
   };
-  
 
   // Filtered data
   const filteredNewPosts = newPosts.filter((post) =>
@@ -121,15 +124,17 @@ const Posts = () => {
 
   const filteredReportedPosts = reportedPosts.filter(
     (post) =>
-      post.post?.postOwner?.toString().includes(searchReportedPosts.toLowerCase()) ||
+      post.post?.postOwner
+        ?.toString()
+        .includes(searchReportedPosts.toLowerCase()) ||
       post.reporterId?.toString().includes(searchReportedPosts.toLowerCase())
   );
 
   const getStatusBadge = (status) => {
     const styles = {
-      PENDING: 'bg-yellow-100 text-yellow-800',
-      RESOLVED: 'bg-green-100 text-green-800',
-      DISMISSED: 'bg-red-100 text-red-800'
+      PENDING: "bg-yellow-100 text-yellow-800",
+      RESOLVED: "bg-green-100 text-green-800",
+      DISMISSED: "bg-red-100 text-red-800",
     };
 
     return (
@@ -319,7 +324,7 @@ const Posts = () => {
                         </td>
                         <td>{getStatusBadge(report.status)}</td>
                         <td className="space-x-2">
-                          {report.status === 'PENDING' ? (
+                          {report.status === "PENDING" ? (
                             <button
                               onClick={() => setSelectedReport(report)}
                               className="btn btn-warning btn-sm"
@@ -347,66 +352,137 @@ const Posts = () => {
 
       {/* Report Review Modal */}
       {selectedReport && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
-            <h3 className="text-xl font-bold mb-4">Review Report</h3>
-            
-            <div className="mb-4">
-              <h4 className="font-semibold">Description:</h4>
-              <p className="mt-2">{selectedReport.description}</p>
-            </div>
+        <div
+          className="modal fade show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-warning text-dark">
+                <h5 className="modal-title">
+                  Review Report #{selectedReport.id}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSelectedReport(null)}
+                ></button>
+              </div>
 
-            <div className="mb-4">
-              <h4 className="font-semibold">Report Reason:</h4>
-              <p className="mt-2">{selectedReport.reason}</p>
-            </div>
+              <div className="modal-body">
+                <div className="mb-4">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="card mb-3">
+                        <div className="card-header bg-light">
+                          <h6 className="mb-0">Report Details</h6>
+                        </div>
+                        <div className="card-body">
+                          <p>
+                            <strong>Reporter:</strong> User{" "}
+                            {selectedReport.reporterId}
+                          </p>
+                          <p>
+                            <strong>Post Owner:</strong> User{" "}
+                            {selectedReport.post.postOwner}
+                          </p>
+                          <p>
+                            <strong>Report Date:</strong>{" "}
+                            {new Date(
+                              selectedReport.createDate
+                            ).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-            <div className="mb-4">
-              <h4 className="font-semibold">Actions:</h4>
-              <div className="mt-2 space-y-4">
-                <div className="flex space-x-4">
-                  <button
-                    onClick={() => handleResolve(selectedReport.id, true)}
-                    className="btn btn-danger"
-                  >
-                    <Check className="h-4 w-4 mr-2" />
-                    Hide Post
-                  </button>
-                  <button
-                    onClick={() => handleResolve(selectedReport.id, false)}
-                    className="btn btn-warning"
-                  >
-                    <AlertCircle className="h-4 w-4 mr-2" />
-                    Keep Visible
-                  </button>
-                </div>
+                    <div className="col-md-6">
+                      <div className="card mb-3">
+                        <div className="card-header bg-light">
+                          <h6 className="mb-0">Report Content</h6>
+                        </div>
+                        <div className="card-body">
+                          <div className="mb-3">
+                            <strong>Reason:</strong>
+                            <p className="mt-1">
+                              {selectedReport.reason || "No reason provided"}
+                            </p>
+                          </div>
+                          <div>
+                            <strong>Description:</strong>
+                            <p className="mt-1">
+                              {selectedReport.description ||
+                                "No description provided"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={dismissReason}
-                    onChange={(e) => setDismissReason(e.target.value)}
-                    placeholder="Enter reason for dismissal..."
-                    className="form-control"
-                  />
-                  <button
-                    onClick={() => handleDismiss(selectedReport.id)}
-                    className="btn btn-secondary"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Dismiss Report
-                  </button>
+                  <div className="card">
+                    <div className="card-header bg-light">
+                      <h6 className="mb-0">Take Action</h6>
+                    </div>
+                    <div className="card-body">
+                      <div className="row g-3">
+                        <div className="col-12">
+                          <div className="d-flex gap-2 mb-3">
+                            <button
+                              onClick={() =>
+                                handleResolve(selectedReport.id, true)
+                              }
+                              className="btn btn-danger"
+                            >
+                              <i className="bi bi-eye-slash me-2"></i>
+                              Hide Post
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleResolve(selectedReport.id, false)
+                              }
+                              className="btn btn-warning"
+                            >
+                              <i className="bi bi-eye me-2"></i>
+                              Keep Visible
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="col-12">
+                          <div className="input-group">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={dismissReason}
+                              onChange={(e) => setDismissReason(e.target.value)}
+                              placeholder="Enter reason for dismissal..."
+                            />
+                            <button
+                              onClick={() => handleDismiss(selectedReport.id)}
+                              className="btn btn-secondary"
+                              disabled={!dismissReason.trim()}
+                            >
+                              <i className="bi bi-x-circle me-2"></i>
+                              Dismiss Report
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setSelectedReport(null)}
-                className="btn btn-light"
-              >
-                Close
-              </button>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-light"
+                  onClick={() => setSelectedReport(null)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

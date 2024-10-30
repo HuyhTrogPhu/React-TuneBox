@@ -275,6 +275,22 @@ const Chat = () => {
     setAttachment(file); // Lưu file vào state
   };
 
+  const renderMessageContent = (content) => {
+    // Tìm các link URL trong nội dung và chuyển chúng thành thẻ <a>
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return content.split(urlRegex).map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a key={index} href={part} target="_blank" rel="noopener noreferrer">
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+  
+
   return (
     <div className="messenger-container">
       <div className="messenger-sidebar">
@@ -316,8 +332,8 @@ const Chat = () => {
                     }`}
                   >
                     <div className="message-bubble">
-                      {msg.content}
-                      {msg.attachments.map((attachment, idx) => {
+                    {renderMessageContent(msg.content)}
+                    {msg.attachments.map((attachment, idx) => {
                         console.log(`Attachment URL: ${attachment.fileUrl}`);
                         return (
                           <div key={idx} className="attachment">

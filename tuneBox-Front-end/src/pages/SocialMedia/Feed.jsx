@@ -651,34 +651,51 @@ const HomeFeed = () => {
   };
 
   // report post
+
+  // Cập nhật cấu trúc dữ liệu gửi đi
   const handleReportPost = (postId) => {
     setReportPostId(postId);
-    setShowReportModal(true); // Hiện modal
+    setShowReportModal(true);
   };
 
   const submitReport = async () => {
+    // Kiểm tra reason có giá trị
+    if (!reportReason || reportReason.trim() === "") {
+      alert("Vui lòng nhập lý do báo cáo");
+      return;
+    }
+
     try {
+      const reportData = {
+        postId: {
+          id: reportPostId, // Đóng gói postId trong một object
+        },
+        reason: reportReason.trim(),
+      };
+
       const response = await fetch("http://localhost:8080/api/reports", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Đảm bảo gửi cookie cùng với request
-        body: JSON.stringify({
-          postId: reportPostId,
-          reason: reportReason,
-        }),
+        credentials: "include",
+        body: JSON.stringify(reportData),
       });
 
       if (response.ok) {
-        console.log("thành công");
+        console.log("Báo cáo thành công");
         setShowReportModal(false);
         setReportReason("");
+        // Có thể thêm thông báo thành công cho người dùng
+        alert("Báo cáo đã được gửi thành công");
       } else {
-        console.error("Có lỗi xảy ra khi gửi báo cáo.");
+        const errorData = await response.json();
+        console.error("Lỗi khi gửi báo cáo:", errorData);
+        alert("Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau.");
       }
     } catch (error) {
       console.error("Lỗi mạng:", error);
+      alert("Có lỗi xảy ra. Vui lòng kiểm tra kết nối mạng và thử lại.");
     }
   };
 

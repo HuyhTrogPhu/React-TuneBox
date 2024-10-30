@@ -26,6 +26,7 @@ import { images } from "../../../../assets/images/images";
 import Waveform from "../Profile_nav/Waveform";
 import Cookies from "js-cookie";
 import { format } from "date-fns"; // Nhập format từ date-fns
+import ShareTrackModal from "../Profile_nav/ShareTrackModal"; // Adjust the import path as needed
 
 function Trackdetail() {
   const { id } = useParams();
@@ -47,9 +48,8 @@ function Trackdetail() {
   const [replyContent, setReplyContent] = useState({}); // State để lưu nội dung phản hồi
   const [editingReply, setEditingReply] = useState(null); // Trạng thái theo dõi reply đang chỉnh sửa
   const [editContentReply, setEditContentReply] = useState(""); // Nội dung đang chỉnh sửa
-
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const userId = Cookies.get("UserID"); // Lấy userId từ cookies
-
   // Gọi service lấy track
   useEffect(() => {
     const fetchDetailTrack = async () => {
@@ -355,12 +355,26 @@ function Trackdetail() {
                 className="btn-icon"
                 alt="Like"
               />
-              {likeCount} {/* Hiển thị số lượng like */}
+              {likeCount}
             </button>
             <button className="btn">
-              <img src={images.conversstion} className="btn-icon" alt="share" />
+              <img
+                src={images.conversstion}
+                className="btn-icon"
+                alt="comment"
+              />
               Comment
             </button>
+            <button className="btn" onClick={() => setIsShareModalOpen(true)}>
+              <img src={images.share} className="btn-icon" alt="share" />
+              Share
+            </button>
+            
+          <ShareTrackModal
+            trackId={track.id}
+            isOpen={isShareModalOpen}
+            onClose={() => setIsShareModalOpen(false)}
+          />
           </div>
           <div className="track-player-actions-column">
             <div className="btn-group" style={{ marginLeft: 25 }}>
@@ -414,7 +428,6 @@ function Trackdetail() {
               </button>
             </div>
           </div>
-
           {/* list cmt */}
           <div className="comment-list mt-4">
             {comments.map((comment) => (

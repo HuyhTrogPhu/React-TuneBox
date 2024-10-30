@@ -1,7 +1,7 @@
 import React from 'react'
 import Header from '../components/Header/Header'
-import { Link,Route, Routes } from 'react-router-dom'
-import ManagerBrand from './EcommerceAdmin/pageContent/MangerBrand'
+import { Link,Route, Routes } from 'react-router-dom';
+import ManagerBrand from './EcommerceAdmin/pageContent/ManagerBrand'
 // import "./EcommerceAdmin/css/Sidebar.css"
 import ManagerCategories from './EcommerceAdmin/pageContent/ManagerCategories'
 import ManagerInstrument from './EcommerceAdmin/pageContent/ManagerInstrument'

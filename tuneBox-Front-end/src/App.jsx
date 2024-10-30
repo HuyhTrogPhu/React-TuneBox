@@ -49,8 +49,8 @@ import FollowingPage from "./pages/SocialMedia/FollowingPage";
 
 import ResetPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ResetPassword2";
 import ForgotPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ForgotPassword2";
-import Trackdetail from "./pages/SocialMedia/Trackdetail";
-import SocialMediaAdmin from "./pages/SocialMediaAdmin";
+import Trackdetail from "../../tuneBox-Front-end/src/pages/SocialMedia/Profile/Profile_nav/TrackDetail";
+import SocialMediaAdmin from "../src/pages/SocialMediaAdmin";
 
 
 // Layout có Header
@@ -85,6 +85,7 @@ function App() {
             <Route path="/" element={<HomeFeed />} />
             <Route path="/HomeEcommerce" element={<Home />} />
             <Route path="/Shop" element={<Shop />} />
+            <Route path="/chat" element={<Chat/>} />
             <Route path="/profileUser/*" element={<ProfileUser />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/profileUser" element={<ProfileUser />} />
@@ -139,6 +140,8 @@ function App() {
             {/* admin start */}
             <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
             {/* admin end */}
+
+            <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
           </Route>
         </Routes>
       </div>
