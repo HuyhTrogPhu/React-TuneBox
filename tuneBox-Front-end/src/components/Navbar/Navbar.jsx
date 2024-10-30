@@ -3,7 +3,7 @@ import { images } from "../../assets/images/images";
 import "./Navbar.css";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { getAvatarUser } from "../../service/UserService";
+import { getAvatarUser, search } from "../../service/UserService";
 import {
   createTrack,
   listGenre,
@@ -11,10 +11,13 @@ import {
 } from "../../service/TrackServiceCus";
 import { getNotifications } from "../../service/NotificationService.js";
 import { logout } from "../../service/LoginService";
-import { Link } from "react-router-dom";
-
-import ReactCountryFlag from "react-country-flag";
-import i18n from "../../i18n/i18n.js";
+import {
+  SwipeableList,
+  SwipeableListItem,
+  SwipeAction,
+} from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
+import axios from "axios";
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
@@ -34,6 +37,29 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const userId = Cookies.get("userId");
+
+  // search
+  const [keyword, setKeyword] = useState("");
+
+  const handleSearch = async () => {
+    if (!keyword) return; // Không tìm kiếm nếu không có từ khóa
+    try {
+      const results = await search(keyword);
+      console.log("ket qua search: ", results); // Xử lý kết quả tìm kiếm ở đây
+      navigate(`/search?keyword=${encodeURIComponent(keyword)}`, {
+        state: { results },
+      });
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch(); // Gọi tìm kiếm khi nhấn phím Enter
+    }
+  };
+  // end search
 
   useEffect(() => {
     if (!userId) {
@@ -219,6 +245,37 @@ const Navbar = () => {
     }
     return "";
   };
+  //Xóa từng thông báo
+  const deleteNotification = async (notificationId) => {
+    try {
+      await axios.delete(
+        `http://localhost:8080/api/notifications/${notificationId}`
+      );
+      // Update notifications in state
+      setNotifications(notifications.filter((n) => n.id !== notificationId));
+    } catch (error) {
+      console.error("Failed to delete notification", error);
+    }
+  };
+
+  //Xóa tất cả thông báo đã đọc
+  const handleDeleteAllReadNotifications = async (userId) => {
+    try {
+      // Thêm userId vào URL
+      await axios.delete(
+        `http://localhost:8080/api/notifications/delete-read`,
+        {
+          params: { userId },
+        }
+      );
+      console.log("Đã xóa tất cả thông báo đã đọc.");
+    } catch (error) {
+      console.error(
+        "Lỗi khi xóa tất cả thông báo đã đọc:",
+        error.response.data
+      );
+    }
+  };
 
 
   const changeLanguage = (lng) => {
@@ -256,8 +313,15 @@ const Navbar = () => {
       {/* Search in social page */}
       <div className="col-4 d-flex justify-content-center align-items-center">
         <div>
-          <input type="text" placeholder="Search..." className="search-input" />
-          <button className="search-btn">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="search-input"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)} // Cập nhật state khi người dùng nhập
+            onKeyDown={handleKeyDown} // Xử lý sự kiện nhấn phím
+          />
+          <button className="search-btn" onClick={handleSearch}>
             <i className="fa-solid fa-magnifying-glass"></i>
           </button>
         </div>
@@ -278,53 +342,85 @@ const Navbar = () => {
               <span className="notification-badge">{unreadCount}</span>
             )}
           </span>
+
           {notificationVisible && (
             <div
               className={`notification-dropdown ${
                 notificationVisible ? "show" : ""
               }`}
             >
-              <ul className="notification-list">
+              <SwipeableList>
                 {notifications.length > 0 ? (
-                  notifications.map((notification, index) => (
-                    <li
-                      key={index}
-                      className="notification-item"
-                      onClick={() => handleNotificationClick(notification)}
+                  notifications.map((notification) => (
+                    <SwipeableListItem
+                      key={notification.id}
+                      swipeRight={{
+                        content: <div className="delete-action">Xóa</div>,
+                        action: () => {
+                          console.log("Swiped right for id:", notification.id);
+                          deleteNotification(notification.id);
+                        },
+                      }}
                     >
-                      <div className="notification-content">
-                        {notification.type === "LIKE_POST" ? (
-                          <>
-                            <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span>
-                            <br />
-                            <span className="time">
-                              {new Date(
-                                notification.createdAt
-                              ).toLocaleTimeString()}
-                            </span>
-                            <p>{notification.postContent}</p>
-                          </>
-                        ) : (
-                          <>
-                            <span className="message">
-                              {notification.message}
-                            </span>
-                            <br />
-                            <span className="time">
-                              {new Date(
-                                notification.createdAt
-                              ).toLocaleTimeString()}
-                            </span>
-                            <p>{notification.postContent}</p>
-                          </>
+                      <div
+                        className={`notification-item ${
+                          !notification.read ? "unread" : ""
+                        }`}
+                      >
+                        {!notification.read && (
+                          <span className="red-dot"></span>
                         )}
+                        <div
+                          className="notification-content"
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          {notification.type === "LIKE_POST" ? (
+                            <>
+                              <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span>
+                              <br />
+                              <span className="time">
+                                {new Date(
+                                  notification.createdAt
+                                ).toLocaleTimeString()}
+                              </span>
+                              <p>{notification.postContent}</p>
+                            </>
+                          ) : (
+                            <>
+                              <span className="message">
+                                {notification.message}
+                              </span>
+                              <br />
+                              <span className="time">
+                                {new Date(
+                                  notification.createdAt
+                                ).toLocaleTimeString()}
+                              </span>
+                              <p>{notification.postContent}</p>
+                            </>
+                          )}
+                        </div>
+                        {/* Thêm nút xóa ở đây */}
+                        <button
+                          onClick={() => deleteNotification(notification.id)}
+                          className="delete-notification-button"
+                        >
+                          Xóa
+                        </button>
                       </div>
-                    </li>
+                    </SwipeableListItem>
                   ))
                 ) : (
                   <li className="no-notification">Không có thông báo nào.</li>
                 )}
-              </ul>
+              </SwipeableList>
+
+              <button
+                onClick={handleDeleteAllReadNotifications(userId)}
+                className="delete-all-read"
+              >
+                Xóa tất cả thông báo đã xem
+              </button>
             </div>
           )}
         </div>
@@ -356,10 +452,7 @@ const Navbar = () => {
         </span>
 
         {dropdownVisible && (
-          <div
-            className="dropdown-menu dropdown-menu-right show"
-            onMouseLeave={handleMouseLeave}
-          >
+          <div className=" dropdown-menu show" onMouseLeave={handleMouseLeave}>
             <button
               className="dropdown-item"
               onClick={() => navigate("/profileUser")}

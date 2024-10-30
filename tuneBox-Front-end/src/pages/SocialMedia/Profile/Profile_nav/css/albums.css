@@ -53,7 +53,9 @@
     align-items: center;
     margin-bottom: 8px;
     padding: 3px;
-    border-radius: 10px;
+    border-radius: 25px;
+    background-color: #e7e5e5;
+    padding: 5px 20px;
   }
   
   .album-item > div:first-child {
@@ -99,5 +101,19 @@
     font-size: 13px;
   }
   
+  .albums-list{
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: white;
+    border: none; /* Bỏ tất cả border */
+    border-left: 1px solid rgb(187, 186, 186); 
+    border-right: 1px solid rgb(187, 186, 186); 
+  }
+
+  .post-header-albums{
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 25px;
+  }
 
   
