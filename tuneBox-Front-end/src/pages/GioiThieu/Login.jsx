@@ -50,17 +50,14 @@ const Login = () => {
       const response = await login(userDto);
   
       if (response) {
-        setSuccess('Đăng nhập thành công!');
-  
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
-      }
+        setSuccess('Login successfully!');
+        navigate('/');
+    }
     } catch (error) {
       if (error.response && error.response.status === 401) {
         setError(error.response.data);
       } else {
-        setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+        setError('Error. Please try again.');
       }
     }
   };
