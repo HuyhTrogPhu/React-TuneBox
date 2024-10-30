@@ -26,6 +26,8 @@
     "cloudinary": "^2.5.0",
     "date-fns": "^4.1.0",
     "emoji-mart": "^5.6.0",
+    "file-saver": "^2.0.5",
+    "html2canvas": "^1.4.1",
     "font-awesome": "^4.7.0",
     "html2canvas-pro": "^1.5.8",
     "jquery": "^3.7.1",
@@ -46,7 +48,8 @@
     "tailwindcss": "^3.4.14",
     "tunebox": "file:",
     "update": "^0.4.2",
-    "wavesurfer.js": "^7.8.6"
+    "wavesurfer.js": "^7.8.6",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

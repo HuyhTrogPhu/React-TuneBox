@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateBrand } from '../../service/BrandsService';
-
+import * as XLSX from 'xlsx'; 
 const BrandList = ({ brands, onUpdate }) => {
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [editName, setEditName] = useState("");
@@ -125,7 +125,22 @@ const BrandList = ({ brands, onUpdate }) => {
         });
     }
   };
-
+  const exportToExcel = () => {
+    const exportData = brands.map((bra) => ({
+      id: bra.id,
+      name: bra.name.length > 32767 ? bra.name.substring(0, 32767) : bra.name, // Giới hạn độ dài
+      description: bra.description.length > 32767 ? bra.description.substring(0, 32767) : bra.description, // Giới hạn độ dài
+      status: bra.status ? 'Unavailable' : 'Available',
+    }));
+  
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Brands');
+  
+    // Xuất file Excel
+    XLSX.writeFile(wb, 'brands.xlsx');
+  };
+  
   useEffect(() => {
     return () => {
       if (editImage) {
@@ -194,6 +209,7 @@ const BrandList = ({ brands, onUpdate }) => {
           ))}
         </tbody>
       </table>
+      <button className="btn btn-success mb-3" onClick={exportToExcel}>Export to Excel</button> {/* Nút xuất Excel */}
 
       {/* Modal Edit */}
       <div className="modal fade" id="editBrandsModal" tabIndex="-1" aria-labelledby="editBrandsModalLabel" aria-hidden="true" data-bs-backdrop="false">
@@ -255,7 +271,7 @@ const BrandList = ({ brands, onUpdate }) => {
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="button" className="btn btn-primary" onClick={handleUpdate} disabled={loading}>
 
-                {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}           </button>
+                {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Save update'}</button>
             </div>
           </div>
         </div>

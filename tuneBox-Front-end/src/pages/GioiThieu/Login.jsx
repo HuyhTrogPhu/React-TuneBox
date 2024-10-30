@@ -25,69 +25,44 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     setError('');
     setSuccess('');
-
+  
     if (!userNameOrEmail) {
       setError('Vui lòng nhập tên tài khoản hoặc email.');
       return;
     }
-
-    if (isEmail(userNameOrEmail) && !isEmail(userNameOrEmail)) {
-      setError('Vui lòng nhập đúng định dạng email.');
-      return;
-    }
-
+  
     if (!password) {
       setError('Vui lòng nhập mật khẩu.');
       return;
     }
-
-    if (password.length < 4) {
-      setError('Mật khẩu phải có ít nhất 4 ký tự!');
-      return;
-    }
-
+  
+  
     const userDto = {
       userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
       email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
       password: password,
     };
-
+  
     try {
       const response = await login(userDto);
-      alert('Đăng nhập thành công!');
-
-      // Lấy userId từ phản hồi của server
-      console.log('Data trả về: ', response);
-
-      const userId = response;
-
-      if (userId !== undefined && userId !== null) {
-        const expires = new Date();
-        expires.setTime(expires.getTime() +  24 * 60 * 60 * 1000);  // Cookie tồn tại trong 1 ngày
-        document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
-        console.log('Cookie userId set:', document.cookie);
-      } else {
-        console.error('userId is undefined or null');
-      }
-
-
-
-      setTimeout(() => {
+  
+      if (response) {
+        setSuccess('Login successfully!');
         navigate('/');
-      }, 2000);
-
+    }
     } catch (error) {
       if (error.response && error.response.status === 401) {
         setError(error.response.data);
+      } else {
+        setError('Error. Please try again.');
       }
-      //  else {
-      //   setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
-      // }
     }
   };
+  
+  
 
   return (
     <div>

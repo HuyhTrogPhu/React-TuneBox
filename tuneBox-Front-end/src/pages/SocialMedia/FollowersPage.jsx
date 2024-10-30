@@ -6,6 +6,21 @@ import { useParams } from 'react-router-dom';
 const FollowersPage = () => {
     const [followers, setFollowers] = useState([]);
     const userId = useParams();
+    console.warn(userId)
+
+    // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+    axios.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('token'); // Lấy token từ localStorage
+            if (token) {
+                config.headers['Authorization'] = token;
+            }
+            return config;
+        },
+        (error) => {
+            return Promise.reject(error);
+        }
+    );
 
     useEffect(() => {
         const fetchFollowers = async () => {

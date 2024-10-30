@@ -15,7 +15,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Picker from '@emoji-mart/react';
 import { getAllTracks } from "../../service/TrackServiceCus";
-import Waveform from "../SocialMedia/Profile/Profile_nav/Waveform";
+import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
   addLike,
   checkUserLikeTrack,
@@ -145,6 +145,21 @@ const HomeFeed = () => {
     console.log("Current User ID:", currentUserId);
     console.log("Post User ID:", post.userId);
 
+    // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+    // axios.interceptors.request.use(
+    //   (config) => {
+    //     const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
+    //       if (token) {
+    //           config.headers['Authorization'] = token; 
+    //       }
+    //       return config;
+    //   },
+    //   (error) => {
+    //       return Promise.reject(error);
+    //   }
+    // );
+
+
     if (String(post.userId) === String(currentUserId)) {
       console.log("Navigating to ProfileUser");
       navigate('/profileUser');
@@ -153,6 +168,7 @@ const HomeFeed = () => {
       navigate(`/profile/${post.userId}`);
     }
   };
+
 
 
   // Hàm để lấy các bài viết
@@ -181,7 +197,7 @@ const HomeFeed = () => {
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
-
+          console.log('post Id:', post.id);
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
               const repliesResponse = await axios.get(
@@ -223,6 +239,8 @@ const HomeFeed = () => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
+
+
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
@@ -829,45 +847,43 @@ const HomeFeed = () => {
                       </div>
                     </div>
                     {/* Dropdown cho bài viết */}
-                    <div className="dropdown position-absolute top-0 end-0">
-                      <button
-                        className="btn btn-options dropdown-toggle"
-                        type="button"
-                        id={`dropdownMenuButton-${track.id}`}
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      ></button>
-                      <ul
-                        className="dropdown-menu"
-                        aria-labelledby={`dropdownMenuButton-${track.id}`}
-                      >
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleEdit(track.id)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i> Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleDelete(track.id)}
-                          >
-                            <i className="fa-solid fa-trash"></i> Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                    <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0"></button>
+                    {String(track.userId) === String(currentUserId) ? (
+                      <div className="dropdown position-absolute top-0 end-0">
+                        <button
+                          className="btn btn-options dropdown-toggle"
+                          type="button"
+                          id={`dropdownMenuButton-${track.id}`}
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        >
+                          ...
+                        </button>
+                        <ul className="dropdown-menu"
+                          aria-labelledby={`dropdownMenuButton-${track.id}`}>
+                          <li>
+                            <button className="dropdown-item" onClick={() => handleEditTrack(track)}>
+                              <i className='fa-solid fa-pen-to-square'></i>Edit
+                            </button>
+                          </li>
+                          <li>
+                            <button className="dropdown-item" onClick={() => handleDeleteTrack(track.id)}>
+                              <i className='fa-solid fa-trash '></i>Delete
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    ) : (
+                      <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReportTrack(track.id)}>
+                      </button>
+                    )}
                   </div>
 
                   <div className="post-content description">
                     {track.description || "Unknown description"}
                   </div>
                   {/* Nội dung */}
-                  <div className="post-content audio">
-                    <Waveform
+                  <div className="track-content audio">
+                    <WaveFormFeed
                       audioUrl={track.trackFile}
                       track={track}
                       className="track-waveform "
@@ -879,13 +895,12 @@ const HomeFeed = () => {
                     {/* Like track*/}
                     <div className="col-2 mt-2 text-center">
                       <div className="like-count">
-                        {countLikedTracks[track.id]?.data|| 0} {/* Hiển thị số lượng like */}
+                        {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
                         <i
-                          className={`fa-solid fa-heart ${
-                            likedTracks[track.id]?.data
+                          className={`fa-solid fa-heart ${likedTracks[track.id]?.data
                               ? "text-danger"
                               : "text-muted"
-                          }`}
+                            }`}
                           onClick={() => handleLikeTrack(track.id)}
                           style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
                         ></i>
@@ -1262,7 +1277,7 @@ const HomeFeed = () => {
                           </ul>
                         </div>
                       ) : (
-                        <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0" onClick={() => handleReportPost(post.id)}>
+                        <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReportPost(post.id)}>
                         </button>
                       )}
                     </div>
@@ -1482,29 +1497,6 @@ const HomeFeed = () => {
     </div>
   );
 };
-const modalOverlayStyle = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
 
-const modalContentStyle = {
-  backgroundColor: "white",
-  padding: "20px",
-  borderRadius: "8px",
-  width: "400px",
-};
-
-const textareaStyle = {
-  width: "100%",
-  height: "100px",
-  marginBottom: "10px",
-};
 
 export default HomeFeed;

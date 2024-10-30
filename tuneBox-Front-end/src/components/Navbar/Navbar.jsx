@@ -13,7 +13,8 @@ import { getNotifications } from "../../service/NotificationService.js";
 import { logout } from "../../service/LoginService";
 import { SwipeableList, SwipeableListItem, SwipeAction } from 'react-swipeable-list';
 import 'react-swipeable-list/dist/styles.css';
-import axios from 'axios';
+import axios from "axios";
+
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
@@ -162,6 +163,8 @@ const Navbar = () => {
     }
   };
 
+
+  // log-out
   const handleLogout = async () => {
     try {
       await logout();
@@ -241,7 +244,7 @@ const Navbar = () => {
     }
     return "";
   };
-//Xóa từng thông báo
+  //Xóa từng thông báo
   const deleteNotification = async (notificationId) => {
     try {
       await axios.delete(`http://localhost:8080/api/notifications/${notificationId}`);
@@ -251,22 +254,22 @@ const Navbar = () => {
       console.error("Failed to delete notification", error);
     }
   };
-  
-//Xóa tất cả thông báo đã đọc
-const handleDeleteAllReadNotifications = async (userId) => {
-  try {
-    // Thêm userId vào URL
-    await axios.delete(`http://localhost:8080/api/notifications/delete-read`, {
-      params: { userId },
-    });
-    console.log("Đã xóa tất cả thông báo đã đọc.");
-  } catch (error) {
-    console.error("Lỗi khi xóa tất cả thông báo đã đọc:", error.response.data);
-  }
-};
+
+  //Xóa tất cả thông báo đã đọc
+  const handleDeleteAllReadNotifications = async (userId) => {
+    try {
+      // Thêm userId vào URL
+      await axios.delete(`http://localhost:8080/api/notifications/delete-read`, {
+        params: { userId },
+      });
+      console.log("Đã xóa tất cả thông báo đã đọc.");
+    } catch (error) {
+      console.error("Lỗi khi xóa tất cả thông báo đã đọc:", error.response.data);
+    }
+  };
 
 
-  
+
   return (
     <header className="navbar-container">
       {/* Navbar Left */}
@@ -317,74 +320,75 @@ const handleDeleteAllReadNotifications = async (userId) => {
       <div className="col-5 d-flex justify-content-center align-items-center">
         {/* Thông báo */}
         <div className="d-flex align-items-center">
-  <span className="notification-icon">
-    <img
-      alt="icon-chuong"
-      src={images.notification}
-      className="notification-icon"
-      onClick={() => setNotificationVisible(!notificationVisible)}
-    />
-    {unreadCount > 0 && (
-      <span className="notification-badge">{unreadCount}</span>
-    )}
-  </span>
+          <span className="notification-icon">
+            <img
+              alt="icon-chuong"
+              src={images.notification}
+              className="notification-icon"
+              onClick={() => setNotificationVisible(!notificationVisible)}
+            />
+            {unreadCount > 0 && (
+              <span className="notification-badge">{unreadCount}</span>
+            )}
+          </span>
 
-  {notificationVisible && (
-    <div className={`notification-dropdown ${notificationVisible ? "show" : ""}`}>
-      <SwipeableList>
-        {notifications.length > 0 ? (
-          notifications.map(notification => (
-            <SwipeableListItem
-              key={notification.id}
-              swipeRight={{
-                content: <div className="delete-action">Xóa</div>,
-                action: () => {
-                  console.log("Swiped right for id:", notification.id);
-                  deleteNotification(notification.id);
-                },
-              }}
-            >
-              <div className={`notification-item ${!notification.read ? "unread" : ""}`}>
-                {!notification.read && <span className="red-dot"></span>}
-                <div
-                  className="notification-content"
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  {notification.type === "LIKE_POST" ? (
-                    <>
-                      <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span>
-                      <br />
-                      <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
-                      <p>{notification.postContent}</p>
-                    </>
-                  ) : (
-                    <>
-                      <span className="message">{notification.message}</span>
-                      <br />
-                      <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
-                      <p>{notification.postContent}</p>
-                    </>
-                  )}
-                </div>
-                {/* Thêm nút xóa ở đây */}
-                <button onClick={() => deleteNotification(notification.id)} className="delete-notification-button">
-                  Xóa
-                </button>
-              </div>
-            </SwipeableListItem>
-          ))
-        ) : (
-          <li className="no-notification">Không có thông báo nào.</li>
-        )}
-      </SwipeableList>
+          {notificationVisible && (
+            <div className={`notification-dropdown ${notificationVisible ? "show" : ""}`}>
+              <SwipeableList>
+                {notifications.length > 0 ? (
+                  notifications.map(notification => (
+                    <SwipeableListItem
+                      key={notification.id}
+                      swipeRight={{
+                        content: <div className="delete-action">Xóa</div>,
+                        action: () => {
+                          console.log("Swiped right for id:", notification.id);
+                          deleteNotification(notification.id);
+                        },
+                      }}
+                    >
+                      <div className={`notification-item ${!notification.read ? "unread" : ""}`}>
+                        {!notification.read && <span className="red-dot"></span>}
+                        <div
+                          className="notification-content"
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          {notification.type === "LIKE_POST" ? (
+                            <>
+                              <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span>
+                              <br />
+                              <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                              <p>{notification.postContent}</p>
+                            </>
+                          ) : (
+                            <>
+                              <span className="message">{notification.message}</span>
+                              <br />
+                              <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                              <p>{notification.postContent}</p>
+                            </>
+                          )}
+                        </div>
+                        {/* Thêm nút xóa ở đây */}
+                        <button onClick={() => deleteNotification(notification.id)} className="delete-notification-button">
+                          Xóa
+                        </button>
+                      </div>
+                    </SwipeableListItem>
+                  ))
+                ) : (
+                  <li className="no-notification">Không có thông báo nào.</li>
+                )}
+              </SwipeableList>
 
-      <button onClick={handleDeleteAllReadNotifications(userId)} className="delete-all-read">
-        Xóa tất cả thông báo đã xem
-      </button>
-    </div>
-  )}
-</div>
+              <button onClick={handleDeleteAllReadNotifications(userId)} className="delete-all-read">
+                Xóa tất cả thông báo đã xem
+              </button>
+            </div>
+          )}
+        </div>
 
+        {/* chat */}
         <span className="mx-3">
           <img
             alt="icon-chat"
@@ -394,6 +398,7 @@ const handleDeleteAllReadNotifications = async (userId) => {
           />
         </span>
 
+        {/* cart */}
         <button className="mx-3 cart-shopping" onClick={handleCartClick}>
           <i className="fa-solid fa-cart-shopping"></i>
           {cartCount > 0 && (
@@ -401,16 +406,18 @@ const handleDeleteAllReadNotifications = async (userId) => {
           )}
         </button>
 
+        {/* avatar */}
         <span className="mx-3">
           <img
-            alt="avatar"
+            alt="avatar-user"
             src={avatarUrl}
-            className="avatar m-0"
+            className="avatar-user"
             onClick={handleAvatarClick}
             onMouseEnter={handleMouseEnter}
           />
         </span>
 
+        {/* drop down */}
         {dropdownVisible && (
           <div
             className=" dropdown-menu show"
@@ -420,21 +427,24 @@ const handleDeleteAllReadNotifications = async (userId) => {
               className="dropdown-item"
               onClick={() => navigate("/profileUser")}
             >
-              Trang cá nhân
+              Profile 
             </button>
-            <button
-              className="dropdown-item"
-              data-bs-toggle="modal"
-              data-bs-target="#addTrackModal"
-              onClick={getAllGenre}
-            >
-              Đăng tải bài hát
-            </button>
+
             <button className="dropdown-item" onClick={handleLogout}>
-              Đăng xuất
+              Log Out
             </button>
           </div>
         )}
+
+        {/* add track */}
+        <button
+          className="add-track"
+          data-bs-toggle="modal"
+          data-bs-target="#addTrackModal"
+          onClick={getAllGenre}
+        >
+          Create
+        </button>
       </div>
 
       {/* start modal add */}
@@ -467,9 +477,8 @@ const handleDeleteAllReadNotifications = async (userId) => {
                     <label className="form-label">Track Name</label>
                     <input
                       type="text"
-                      className={`form-control ${
-                        errors.name ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.name ? "is-invalid" : ""
+                        }`}
                       value={newTrackName}
                       onChange={(e) => setTrackName(e.target.value)}
                     />
@@ -482,9 +491,8 @@ const handleDeleteAllReadNotifications = async (userId) => {
                     <label className="form-label">Image Track</label>
                     <input
                       type="file"
-                      className={`form-control ${
-                        errors.image ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.image ? "is-invalid" : ""
+                        }`}
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -513,9 +521,8 @@ const handleDeleteAllReadNotifications = async (userId) => {
                     <label className="form-label">File Track</label>
                     <input
                       type="file"
-                      className={`form-control ${
-                        errors.file ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.file ? "is-invalid" : ""
+                        }`}
                       accept=".mp3"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -543,9 +550,8 @@ const handleDeleteAllReadNotifications = async (userId) => {
                   <div className="mt-3">
                     <label className="form-label">Genre</label>
                     <select
-                      className={`form-select ${
-                        errors.genre ? "is-invalid" : ""
-                      }`}
+                      className={`form-select ${errors.genre ? "is-invalid" : ""
+                        }`}
                       value={newTrackGenre}
                       onChange={(e) => setTrackGenre(e.target.value)}
                     >
@@ -572,9 +578,8 @@ const handleDeleteAllReadNotifications = async (userId) => {
                     <textarea
                       cols="50"
                       rows="5"
-                      className={`form-control ${
-                        errors.description ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.description ? "is-invalid" : ""
+                        }`}
                       value={newTrackDescription}
                       onChange={(e) => setTrackDescription(e.target.value)}
                     ></textarea>

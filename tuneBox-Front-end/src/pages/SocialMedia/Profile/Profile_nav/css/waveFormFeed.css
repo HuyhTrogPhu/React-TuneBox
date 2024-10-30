@@ -10,7 +10,7 @@
 }
 
 
-.player {
+.playerFeed {
     display: grid;
     grid-template-columns: 10rem 1fr;
     width: 40rem;
@@ -20,15 +20,16 @@
     overflow: hidden;
     place-content: center;
     padding: 25px;
+    
 }
 
-.player .thumb {
+.playerFeed .thumbFeed {
     width: 10rem;
     height: 10rem;
    
 }
 
-.player .thumb img {
+.playerFeed .thumbFeed img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -36,28 +37,35 @@
     margin-top: 50px;
 }
 
-.player .info {
+.playerFeed .infoFeed {
     padding: 1rem;
 }
 
-.player .title {
+.playerFeed .titleFeed {
     font-size: 1.5rem;
     padding-bottom: 1rem;
     color: #333333;
 }
 
-.player .title .time {
+.playerFeed .titleFeed .timeFeed {
     font-size: 0.9rem;
     color: #777;
     margin-top: 0.25rem;
 }
 
-.player .control i {
-    width: 3.5rem;
-    height: 3.5rem;
+.controlFeed {
+    position: relative;
+}
+
+.controlFeed i {
+    position: absolute;
+    left: -233%;
+    margin-top: 150px;
+    width: 10rem;
+    height: 10rem;
     display: grid;
     place-content: center;
-    font-size: 1.25rem;
+    font-size: 50px;
     background-color: #10101024;
     color: white;
     border-radius: 50%;
@@ -65,23 +73,24 @@
     box-shadow: 0 0 0rem #1AAFFFAA;
 }
 
-.player .control i:hover {
+.playerFeed .controlFeed i:hover {
     box-shadow: 0 0 1.5rem gray;
-    font-size: 1.5rem;
+    font-size: 60px;
 }
 
-.control button {
-    background-color: #4F4F4F;
+.track-button button {
+    background-color: rgb(93, 93, 93);
     color: white;
     border: none;
     border-radius: 0.25rem;
     cursor: pointer;
     margin-left: 10px;
     margin-right: 10px;
+    font-size: 12px;
     padding: 5px;
   }
   
-  .player .control button:hover {
+  .playerFeed .controlFeed button:hover {
     background-color: #777;
   }
   
