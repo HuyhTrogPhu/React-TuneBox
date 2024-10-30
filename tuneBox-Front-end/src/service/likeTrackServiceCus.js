@@ -84,3 +84,6 @@ export const getLikesByTrackId = (trackId) =>
 
 export const getLikesCountByTrackId = (trackId) =>
   axios.get(`${API_URL}/track/${trackId}/count`);
+
+export const getLikesCountByPlaylistId = (playlistId) =>
+  axios.get(`${API_URL}/playlist/${playlistId}/count`);

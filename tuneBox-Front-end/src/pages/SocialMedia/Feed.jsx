@@ -911,115 +911,122 @@ const HomeFeed = () => {
 
             {/* Phần hiển thị track */}
             <div className="container mt-2 mb-5">
-              {tracks.map((track) => (
-                <div className="post border" key={track.id}>
-                  {/* Tiêu đề */}
-                  <div className="post-header position-relative">
-                    <button type="button" className="btn" aria-label="Avatar">
-                      <img
-                        src={track.userId.avatar} //lỗi
-                        className="avatar_small"
-                        alt="Avatar"
-                      />
-                    </button>
-                    <div>
-                      <div className="name">
-                        {track.userName || "Unknown User"}
+              {tracks.map((track) => {
+                const createdAt = track.createDate
+                  ? new Date(track.createDate)
+                  : null;
+                return (
+                  <div className="post border" key={track.id}>
+                    {/* Tiêu đề */}
+                    <div className="post-header position-relative">
+                      <button type="button" className="btn" aria-label="Avatar">
+                        <img
+                          src={track.userId.avatar} //lỗi
+                          className="avatar_small"
+                          alt="Avatar"
+                        />
+                      </button>
+                      <div>
+                        <div className="name">
+                          {track.userName || "Unknown User"}
+                        </div>
+                        <div className="time">
+                          {createdAt && !isNaN(createdAt.getTime())
+                            ? format(createdAt, "hh:mm a, dd MMM yyyy")
+                            : "Invalid date"}
+                        </div>
                       </div>
-                      <div className="time">
-                        {new Date(track.createDate).toLocaleString()}
-                      </div>
-                    </div>
-                    {/* Dropdown cho bài viết */}
-                    <div className="dropdown position-absolute top-0 end-0">
-                      <button
-                        className="btn btn-options dropdown-toggle"
-                        type="button"
-                        id={`dropdownMenuButton-${track.id}`}
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      ></button>
-                      <ul
-                        className="dropdown-menu"
-                        aria-labelledby={`dropdownMenuButton-${track.id}`}
-                      >
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => addToPlaylist(track.id)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i> Add to
-                            playlist
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleEdit(track.id)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i> Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleDelete(track.id)}
-                          >
-                            <i className="fa-solid fa-trash"></i> Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                    <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0"></button>
-                  </div>
-
-                  <div className="post-content description">
-                    {track.description || "Unknown description"}
-                  </div>
-                  {/* Nội dung */}
-                  <div className="post-content audio">
-                    <Waveform
-                      audioUrl={track.trackFile}
-                      track={track}
-                      className="track-waveform "
-                    />
-                  </div>
-
-                  {/* Like/Comment */}
-                  <div className="row d-flex justify-content-start align-items-center">
-                    {/* Like track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="like-count">
-                        {countLikedTracks[track.id]?.data || 0}{" "}
-                        {/* Hiển thị số lượng like */}
-                        <i
-                          className={`fa-solid fa-heart ${
-                            likedTracks[track.id]?.data
-                              ? "text-danger"
-                              : "text-muted"
-                          }`}
-                          onClick={() => handleLikeTrack(track.id)}
-                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                        ></i>
-                      </div>
-                    </div>
-
-                    {/* Comment track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="d-flex justify-content-center align-items-center">
-                        {track.commentCount || 0}
-                        <i
+                      {/* Dropdown cho bài viết */}
+                      <div className="dropdown position-absolute top-0 end-0">
+                        <button
+                          className="btn btn-options dropdown-toggle"
                           type="button"
-                          style={{ fontSize: "25px" }}
-                          className="fa-regular fa-comment"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalComment"
-                        ></i>
+                          id={`dropdownMenuButton-${track.id}`}
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        ></button>
+                        <ul
+                          className="dropdown-menu"
+                          aria-labelledby={`dropdownMenuButton-${track.id}`}
+                        >
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => addToPlaylist(track.id)}
+                            >
+                              <i className="fa-solid fa-pen-to-square"></i> Add
+                              to playlist
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleEdit(track.id)}
+                            >
+                              <i className="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleDelete(track.id)}
+                            >
+                              <i className="fa-solid fa-trash"></i> Delete
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                      <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0"></button>
+                    </div>
+
+                    <div className="post-content description">
+                      {track.description || "Unknown description"}
+                    </div>
+                    {/* Nội dung */}
+                    <div className="post-content audio">
+                      <Waveform
+                        audioUrl={track.trackFile}
+                        track={track}
+                        className="track-waveform "
+                      />
+                    </div>
+
+                    {/* Like/Comment */}
+                    <div className="row d-flex justify-content-start align-items-center">
+                      {/* Like track*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="like-count">
+                          {countLikedTracks[track.id]?.data || 0}{" "}
+                          {/* Hiển thị số lượng like */}
+                          <i
+                            className={`fa-solid fa-heart ${
+                              likedTracks[track.id]?.data
+                                ? "text-danger"
+                                : "text-muted"
+                            }`}
+                            onClick={() => handleLikeTrack(track.id)}
+                            style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
+                          ></i>
+                        </div>
+                      </div>
+
+                      {/* Comment track*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="d-flex justify-content-center align-items-center">
+                          {track.commentCount || 0}
+                          <i
+                            type="button"
+                            style={{ fontSize: "25px" }}
+                            className="fa-regular fa-comment"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalComment"
+                          ></i>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Phần hiển thị bài viết */}

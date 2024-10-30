@@ -4,7 +4,9 @@ import {
   getPlaylistByUserId,
   createPlaylist,
   updatePlaylist,
+  deletePlaylist,
 } from "../../../../service/PlaylistServiceCus";
+import { getLikesCountByPlaylistId } from "../../../../service/likeTrackServiceCus";
 import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { ToastContainer, toast } from "react-toastify";
@@ -24,10 +26,11 @@ const Playlists = () => {
   const [selectedType, setSelectedType] = useState("Public");
 
   const [editPlayListName, setEditPlaylistName] = useState("");
-  const [editPlaylistImage, setEditPlaylistImage] = useState(null);
   const [editPlaylistDescription, setEditPlaylistDescription] = useState("");
   const [editSelectedType, setEditSelectedType] = useState("Public");
   const [playlistId, setPlaylistId] = useState();
+
+  const [likesCount, setLikesCount] = useState();
 
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const trackIds = [];
@@ -42,6 +45,28 @@ const Playlists = () => {
     try {
       const playlistResponse = await getPlaylistByUserId(userId);
       setPlaylists(playlistResponse || []);
+      console.log("fetchListPlaylist: ", playlistResponse);
+
+      const likesCountsMap = {};
+
+      await Promise.all(
+        playlistResponse.map(async (item) => {
+          try {
+            if (item.id) {
+              const response = await getLikesCountByPlaylistId(item.id);
+              likesCountsMap[item.id] = response.data; // Store the like count for each playlist
+            }
+          } catch (itemError) {
+            console.error(
+              `Error fetching likes count for playlist ${item.id}:`,
+              itemError
+            );
+          }
+        })
+      );
+
+      setLikesCount(likesCountsMap); // Update the state with the like counts
+      console.log("Likes count map: ", likesCountsMap);
     } catch (error) {
       console.error("Error fetching playlist:", error);
     } finally {
@@ -128,7 +153,7 @@ const Playlists = () => {
       formData.append("title", editPlayListName);
       formData.append(
         "imagePlaylist",
-        editPlaylistImage || selectedPlaylist.imagePlaylist
+        newPlaylistImage || selectedPlaylist.imagePlaylist
       ); // nếu không có hình ảnh mới, giữ hình ảnh cũ
       formData.append("description", editPlaylistDescription);
       formData.append("status", false);
@@ -169,6 +194,26 @@ const Playlists = () => {
     setSelectedType("Public");
     setPlaylistImageUrl(images.musicalNote);
     setErrors({});
+  };
+
+  // delete album
+  const handDeletePlaylist = async (playlistId) => {
+    if (!window.confirm("Are you sure you want to delete this playlist?")) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await deletePlaylist(playlistId);
+      console.log("Album deleted successfully:", response);
+      fetchListPlaylist();
+      alert("Playlist deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting playlist:", error);
+      alert("Failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -219,7 +264,9 @@ const Playlists = () => {
                     <div className="style">{list.description}</div>
 
                     <div className="album-details">
-                      <span className="tracks">Tracks: 0</span>
+                      <span className="tracks">
+                        Tracks: {list.tracks.length}
+                      </span>
                       <span className="likes">Likes: 0</span>
                     </div>
                   </div>
@@ -244,7 +291,12 @@ const Playlists = () => {
                         </a>
                       </li>
                       <li>
-                        <a className="dropdown-item">Delete</a>
+                        <a
+                          className="dropdown-item"
+                          onClick={() => handDeletePlaylist(list.id)}
+                        >
+                          Delete
+                        </a>
                       </li>
                     </ul>
                   </div>

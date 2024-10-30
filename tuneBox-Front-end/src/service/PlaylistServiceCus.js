@@ -68,3 +68,13 @@ export const updatePlaylist = async (playlistId, formData) => {
     throw error;
   }
 };
+
+// Xóa theo ID
+export const deletePlaylist = async (playlistId) => {
+  try {
+    await axios.delete(`${API_URL}/${playlistId}`, { withCredentials: true });
+  } catch (error) {
+    console.error("Error deleting playlist:", error);
+    throw error;
+  }
+};

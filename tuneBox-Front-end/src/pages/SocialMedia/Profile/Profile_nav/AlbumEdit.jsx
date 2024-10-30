@@ -16,7 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 const AlbumEdit = () => {
   const { albumId } = useParams();
   const navigate = useNavigate();
-  const userId = Cookies.get("UserID");
+  const userId = Cookies.get("userId");
 
   // State Management
   const [album, setAlbum] = useState(null);
@@ -38,7 +38,7 @@ const AlbumEdit = () => {
         const [albumResponse, genreResponse, typeResponse] = await Promise.all([
           getAlbumById(albumId),
           listGenre(),
-          listAlbumStyle()
+          listAlbumStyle(),
         ]);
 
         if (albumResponse?.data) {
@@ -53,7 +53,6 @@ const AlbumEdit = () => {
 
         setGenres(genreResponse);
         setType(typeResponse);
-
       } catch (err) {
         setError(err.message || "Error fetching album data");
         console.error("Error fetching initial data:", err);
@@ -90,13 +89,13 @@ const AlbumEdit = () => {
   // Handle Input Changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === "genre") {
       setSelectedGenre(value);
     } else if (name === "type") {
       setSelectedType(value);
     }
-    
+
     setAlbum((prev) => ({
       ...prev,
       [name]: value,
@@ -108,11 +107,11 @@ const AlbumEdit = () => {
     const file = e.target.files[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast.error("Please select an image file");
         return;
       }
-      
+
       // Validate file size (e.g., 5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         toast.error("Image size should be less than 5MB");
@@ -149,74 +148,72 @@ const AlbumEdit = () => {
     return true;
   };
 
-// Handle Album Update
-const handleEditAlbum = async (e) => {
-  e.preventDefault();
-  
-  if (!validateForm()) return;
-  if (isSubmitting) return;
+  // Handle Album Update
+  const handleEditAlbum = async (e) => {
+    e.preventDefault();
 
-  setIsSubmitting(true);
+    if (!validateForm()) return;
+    if (isSubmitting) return;
 
-  try {
-    const formData = new FormData();
+    setIsSubmitting(true);
 
-    // Append basic information
-    formData.append("title", album.title.trim());
-    formData.append("description", album.description.trim());
-    formData.append("status", album.status);
-    formData.append("report", album.report);
-    formData.append("userId", userId);
+    try {
+      const formData = new FormData();
 
-    // Handle image
-    if (albumImage) {
-      formData.append("albumImage", albumImage);
-    } else if (albumImageUrl) {
-      formData.append("albumImage", albumImageUrl);
+      // Append basic information
+      formData.append("title", album.title.trim());
+      formData.append("description", album.description.trim());
+      formData.append("status", album.status);
+      formData.append("report", album.report);
+      formData.append("userId", userId);
+
+      // Handle image
+      if (albumImage) {
+        formData.append("albumImage", albumImage);
+      } else if (albumImageUrl) {
+        formData.append("albumImage", albumImageUrl);
+      }
+
+      // Handle IDs with type conversion
+      formData.append("genreId", Number(selectedGenre));
+      formData.append("albumstyleId", Number(selectedType));
+
+      // Handle tracks by appending each track ID separately
+      trackDetails.forEach((track) => {
+        formData.append("trackIds", Number(track.id)); // Gửi từng track ID
+      });
+
+      // Debug logging
+      console.log("Updating album with data:", {
+        title: album.title,
+        genreId: selectedGenre,
+        albumStyleId: selectedType,
+        trackIds: trackDetails.map((track) => track.id), // Chỉ để kiểm tra
+        hasNewImage: !!albumImage,
+      });
+
+      const response = await updateAlbum(albumId, formData);
+      console.log("Album update response:", response);
+
+      toast.success("Album updated successfully!");
+      navigate(`/album/${albumId}`);
+    } catch (error) {
+      console.error("Failed to update album:", error);
+      console.error("Error response:", error.response);
+
+      // Handle specific error cases
+      if (error.response?.status === 413) {
+        toast.error("File size too large");
+      } else if (error.response?.status === 415) {
+        toast.error("Unsupported file type");
+      } else {
+        toast.error(error.response?.data?.message || "Failed to update album");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
+  };
 
-    // Handle IDs with type conversion
-    formData.append("genreId", Number(selectedGenre));
-    formData.append("albumstyleId", Number(selectedType));
-
-    // Handle tracks by appending each track ID separately
-    trackDetails.forEach((track) => {
-      formData.append("trackIds", Number(track.id)); // Gửi từng track ID
-    });
-
-    // Debug logging
-    console.log("Updating album with data:", {
-      title: album.title,
-      genreId: selectedGenre,
-      albumStyleId: selectedType,
-      trackIds: trackDetails.map((track) => track.id), // Chỉ để kiểm tra
-      hasNewImage: !!albumImage
-    });
-
-    const response = await updateAlbum(albumId, formData);
-    console.log("Album update response:", response);
-    
-    toast.success("Album updated successfully!");
-    navigate(`/album/${albumId}`);
-
-  } catch (error) {
-    console.error("Failed to update album:", error);
-    console.error("Error response:", error.response);
-    
-    // Handle specific error cases
-    if (error.response?.status === 413) {
-      toast.error("File size too large");
-    } else if (error.response?.status === 415) {
-      toast.error("Unsupported file type");
-    } else {
-      toast.error(error.response?.data?.message || "Failed to update album");
-    }
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-  
   if (loading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
   if (!album) return <div className="p-4">No album data found</div>;
@@ -292,7 +289,7 @@ const handleEditAlbum = async (e) => {
                           type="text"
                           className="form-control"
                           name="title"
-                          value={album.title || ''}
+                          value={album.title || ""}
                           onChange={handleInputChange}
                           required
                         />
@@ -302,7 +299,7 @@ const handleEditAlbum = async (e) => {
                         <textarea
                           name="description"
                           className="form-control custom-textarea"
-                          value={album.description || ''}
+                          value={album.description || ""}
                           onChange={handleInputChange}
                           rows="5"
                           required
@@ -354,7 +351,7 @@ const handleEditAlbum = async (e) => {
                     onClick={handleEditAlbum}
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Updating...' : 'Update'}
+                    {isSubmitting ? "Updating..." : "Update"}
                   </button>
                 </div>
               </div>
