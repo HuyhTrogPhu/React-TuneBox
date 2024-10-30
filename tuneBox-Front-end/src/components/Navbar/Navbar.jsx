@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getAvatarUser, search } from "../../service/UserService";
 import {
@@ -277,10 +277,6 @@ const Navbar = () => {
     }
   };
 
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng); // Hàm thay đổi ngôn ngữ
-  };
   return (
     <header className="navbar-container">
       {/* Navbar Left */}
@@ -509,14 +505,6 @@ const Navbar = () => {
           />{" "}
           <b>Create</b>{" "}
         </button>
-        <div className="language-switcher">
-          <button onClick={() => changeLanguage("en")}>
-            <ReactCountryFlag countryCode="US" svg />
-          </button>
-          <button onClick={() => changeLanguage("vi")}>
-            <ReactCountryFlag countryCode="VN" svg />
-          </button>
-        </div> 
       </div>
 
       {/* start modal add */}
