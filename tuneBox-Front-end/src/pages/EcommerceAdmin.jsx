@@ -15,6 +15,7 @@ import UserNotSell from '../components/EcomStatisticalUser/UserNotSell';
 import RevenueCurrently from '../components/EcomRevenue/RevenueCurrently';
 import StatisticalInstrument from '../components/EcomStatisticalInstrument/StatisticalInstrument';
 import { images } from '../assets/images/images';
+import StatisticalRevenueTime from '../components/EcomRevenueTime/StatisticalRevenueTime';
 
 const EcommerceAdmin = () => {
   return (
@@ -24,7 +25,7 @@ const EcommerceAdmin = () => {
           {/* Logo */}
           <div className="logo p-3">
             <a href="#" style={{}}>
-              <img src={images.logoAdmin} alt="" width="100%" style={{paddingLeft: '50px'}} />
+              <img src={images.logoAdmin} alt="" width="100%" style={{ paddingLeft: '50px' }} />
             </a>
           </div>
           {/* Menu */}
@@ -90,6 +91,11 @@ const EcommerceAdmin = () => {
             <Route path='Statistical/user-not-sell' element={<UserNotSell />} />
 
             <Route path='Statistical/revenue-currently' element={<RevenueCurrently />} />
+
+            <Route path='Statistical/revenue-according-day/:date' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-according-week/:date' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-according-month/:date' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-according-year/:date' element={<StatisticalRevenueTime />} />
 
             <Route path='Statistical/statistical-instrument' element={<StatisticalInstrument />} />
 

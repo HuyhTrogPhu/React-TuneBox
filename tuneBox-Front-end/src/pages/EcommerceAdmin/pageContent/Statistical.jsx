@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { Line } from 'react-chartjs-2';
 import { getRevenueBeforeCurrently, getRevenueCurrently } from '../../../service/EcommerceStatistical';
 
@@ -7,6 +7,8 @@ const Statistical = () => {
 
     const [currentRevenue, setCurrentRevenue] = useState({});
     const [previousRevenue, setPreviousRevenue] = useState({});
+    const [date, setDate] = useState('');
+    const navigate = Navigate("");
 
     useEffect(() => {
         const fetchRevenueData = async () => {
@@ -41,6 +43,15 @@ const Statistical = () => {
             }
         ]
     });
+
+    // search statistical revenue by day
+
+    // search statistical revenue by week
+
+    // search statistical revenue by month
+
+    // search statistical revenue by year
+
 
     return (
         <div>
@@ -146,7 +157,7 @@ const Statistical = () => {
 
                 </section>
 
-                {/* Search revenue statistical */}
+                {/* Search revenue according to time */}
                 <section className='row mt-5 d-flex justify-content-between gap-3'>
                     <div className='col d-flex flex-column border rounded bg-white' style={{ flexGrow: 1 }}>
                         <form className='p-3'>

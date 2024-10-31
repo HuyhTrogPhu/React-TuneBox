@@ -65,33 +65,49 @@ const OrderDetail = () => {
 
   return (
     <div id="order-detail-section" >
-      <div style={{ marginTop: '10px' }}>
+      <div className='order-title text-center mt-4' style={{ marginTop: '10px' }}>
         <h1 style={{ fontSize: '30px' }}> <b>Order Detail</b></h1>
       </div>
       <div className='row'>
         {/* User information */}
-        <div className='col-4 mt-5'>
-          <h1 style={{ fontSize: '25px' }}>User information</h1>
-          <p>Username: {orderDetail.userName}</p>
-          <p>Email: {orderDetail.email}</p>
-          <p>Name: {orderDetail.name}</p>
-          <p>Phone Number: {orderDetail.phone}</p>
-          <p>Location: {orderDetail.location}</p>
+        <div className='col-4 mt-5 ps-5'>
+          <h1 className='mb-4' style={{ fontSize: '25px' }}>User information</h1>
+          <p><strong>Username:</strong> {orderDetail.userName}</p>
+          <p><strong>Email:</strong> {orderDetail.email}</p>
+          <p><strong>Name:</strong> {orderDetail.name}</p>
+          <p><strong>Phone Number:</strong> {orderDetail.phone}</p>
+          <p><strong>Location:</strong> {orderDetail.location}</p>
         </div>
 
         {/* Order information */}
-        <div className='col-6 mt-5'>
-          <h1 style={{ fontSize: '25px' }}>Order information</h1>
+        <div className='col-8 mt-5 ps-5'>
+          <h1 className='mb-4' style={{ fontSize: '25px' }}>Order information</h1>
+          <div className='d-flex'>
+            <div className=''>
+              <p><strong>Order ID:</strong> {orderDetail.id}</p>
+              <p>
+                <strong>Status:</strong>
+                <span style={{
+                  color: orderDetail.status === "Canceled"
+                    ? "red"
+                    : orderDetail.status === "Delivered"
+                      ? "green"
+                      : "yellow"
+                }}>
+                  {orderDetail.status}
+                </span>
+              </p>
 
-          <p style={{ fontWeight: '400' }}>Order ID: {orderDetail.id}</p>
-          <p>Order date: {orderDetail.orderDate}</p>
-          <p>Delivery Date: {orderDetail.deliveryDate}</p>
-          <p>Payment method: {orderDetail.paymentMethod}</p>
-          <p>Shipping method: {orderDetail.shippingMethod}</p>
-          <p>Address: {orderDetail.address}</p>
-          <p>Status: {orderDetail.status}</p>
-
-          <p>Phone Number: {orderDetail.phoneNumber}</p>
+              <p><strong>Payment method:</strong> {orderDetail.paymentMethod}</p>
+              <p><strong>Shipping method:</strong> {orderDetail.shippingMethod}</p>
+            </div>
+            <div className='ms-4'>
+              <p><strong>Phone Number:</strong> {orderDetail.phoneNumber}</p>
+              <p><strong>Order date:</strong> <span style={{ color: 'blue' }}>{orderDetail.orderDate}</span></p>
+              <p><strong>Delivery Date:</strong> <span style={{ color: 'blue' }}>{orderDetail.deliveryDate}</span> </p>
+              <p><strong>Address:</strong> {orderDetail.address}</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -131,7 +147,7 @@ const OrderDetail = () => {
           <button className="btn btn-success mb-3" onClick={exportToExcel}>
             Export to Excel
           </button>
- 
+
         </div>
 
       </div>
