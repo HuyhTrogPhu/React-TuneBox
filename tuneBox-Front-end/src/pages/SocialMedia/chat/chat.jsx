@@ -20,6 +20,13 @@ const Chat = () => {
   const clientRef = useRef(null);
   const [attachment, setAttachment] = useState(null);
 
+  const reconnectOptions = {
+    // Thêm các thuộc tính cần thiết cho reconnectOptions
+    maxAttempts: 5,
+    interval: 1000
+};
+
+
   const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get("http://localhost:8080/user", {
@@ -38,13 +45,15 @@ const Chat = () => {
 
   const fetchMessages = useCallback(async () => {
     if (!activeUser) return;
-    
+
     // Kiểm tra cache trước
-    const cachedMessages = localStorage.getItem(`messages_${currentUserId}_${activeUser.id}`);
+    const cachedMessages = localStorage.getItem(
+      `messages_${currentUserId}_${activeUser.id}`
+    );
     if (cachedMessages) {
       setMessages(JSON.parse(cachedMessages));
     }
-  
+
     try {
       const response = await axios.get(
         `http://localhost:8080/api/messages/between?userId1=${currentUserId}&userId2=${activeUser.id}`,
@@ -54,18 +63,24 @@ const Chat = () => {
           },
         }
       );
-  
+
       const messagesWithAttachments = response.data.map((msg) => ({
         ...msg,
         attachments: Array.isArray(msg.attachments) ? msg.attachments : [],
       }));
-  
+
       setMessages(messagesWithAttachments);
-      
+
       // Cập nhật cache
-      localStorage.setItem(`messages_${currentUserId}_${activeUser.id}`, JSON.stringify(messagesWithAttachments));
+      localStorage.setItem(
+        `messages_${currentUserId}_${activeUser.id}`,
+        JSON.stringify(messagesWithAttachments)
+      );
     } catch (error) {
-      console.error("Lỗi khi lấy tin nhắn:", error.response?.data || error.message);
+      console.error(
+        "Lỗi khi lấy tin nhắn:",
+        error.response?.data || error.message
+      );
     }
   }, [activeUser, currentUserId]);
 
@@ -121,10 +136,15 @@ const Chat = () => {
       connectHeaders: {
         Authorization: `Bearer ${Cookies.get("token")}`,
       },
+      reconnectDelay: reconnectOptions.reconnectDelay,
+      maxReconnectAttempts: reconnectOptions.maxReconnectAttempts,
+      onReconnect: () => {
+        console.log("Attempting to reconnect...");
+        // Resend cached messages if needed
+      },
       debug: (str) => {
         console.log(str);
       },
-      reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
     });
@@ -289,9 +309,9 @@ const Chat = () => {
       return part;
     });
   };
-  
 
   return (
+    <div className="z">
     <div className="messenger-container">
       <div className="messenger-sidebar">
         <div className="messenger-header">
@@ -332,8 +352,8 @@ const Chat = () => {
                     }`}
                   >
                     <div className="message-bubble">
-                    {renderMessageContent(msg.content)}
-                    {msg.attachments.map((attachment, idx) => {
+                      {renderMessageContent(msg.content)}
+                      {msg.attachments.map((attachment, idx) => {
                         console.log(`Attachment URL: ${attachment.fileUrl}`);
                         return (
                           <div key={idx} className="attachment">
@@ -411,6 +431,7 @@ const Chat = () => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };

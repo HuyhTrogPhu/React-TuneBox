@@ -756,22 +756,25 @@ const HomeFeed = () => {
     setReportPostId(postId);
     setShowReportModal(true);
   };
-
   const submitReport = async () => {
     // Kiểm tra reason có giá trị
     if (!reportReason || reportReason.trim() === "") {
       alert("Vui lòng nhập lý do báo cáo");
       return;
     }
-
+  
     try {
       const reportData = {
-        postId: {
-          id: reportPostId, // Đóng gói postId trong một object
-        },
+        userId: currentUserId, // Đảm bảo ID người dùng hợp lệ
+        post: { // Đảm bảo rằng bạn gửi thông tin bài viết ở đây
+          reportedId: reportPostId, // ID bài viết bị báo cáo
+        },        
         reason: reportReason.trim(),
       };
 
+      console.log("Dữ liệu gửi báo cáo:", reportData);
+
+  
       const response = await fetch("http://localhost:8080/api/reports", {
         method: "POST",
         headers: {
@@ -780,23 +783,28 @@ const HomeFeed = () => {
         credentials: "include",
         body: JSON.stringify(reportData),
       });
-
+      
       if (response.ok) {
         console.log("Báo cáo thành công");
         setShowReportModal(false);
         setReportReason("");
-        // Có thể thêm thông báo thành công cho người dùng
         alert("Báo cáo đã được gửi thành công");
       } else {
-        const errorData = await response.json();
-        console.error("Lỗi khi gửi báo cáo:", errorData);
+        const errorText = await response.text(); // Sử dụng text() để đọc phản hồi
+        console.error("Lỗi khi gửi báo cáo:", {
+          status: response.status,
+          statusText: response.statusText,
+          errorText, // Ghi lại thông báo lỗi
+        });
         alert("Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau.");
       }
+      
     } catch (error) {
       console.error("Lỗi mạng:", error);
       alert("Có lỗi xảy ra. Vui lòng kiểm tra kết nối mạng và thử lại.");
     }
   };
+  
   // Hàm để bật/tắt emoji picker
   const toggleEmojiPicker = (id) => {
     setShowEmojiPicker((prev) => (prev === id ? null : id));
