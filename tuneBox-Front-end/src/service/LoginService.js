@@ -19,7 +19,7 @@ const REST_API_BASE_URL = 'http://localhost:8080/user';
 
 export const listTalents = () => axios.get(`${REST_API_BASE_URL}/list-talent`);
 
-export const listGenres = () => axios.get(`${REST_API_BASE_URL}/listNameGenre`);
+export const listGenres = () => axios.get(`${REST_API_BASE_URL}/list-genre`);
 
 export const listInspiredBys = () => axios.get(`${REST_API_BASE_URL}/list-inspired-by`);
 
@@ -35,13 +35,21 @@ export const register = async (formData) => {
 // login
 export const login = async (userDto) => {
   const response = await axios.post(`${REST_API_BASE_URL}/login`, userDto, {
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      withCredentials: true
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    withCredentials: true, 
   });
+
+  // Lưu token vào LocalStorage
+  const token = response.data.token; 
+  if (token) {
+    localStorage.setItem('jwtToken', token);
+  }
+
   return response.data;
 };
+
 
 
 // log-out
@@ -49,7 +57,7 @@ export const logout = async () => {
   const response = await axios.post(`${REST_API_BASE_URL}/log-out`, {}, {
     withCredentials: true
   });
-  // localStorage.removeItem('token'); // Xóa token khỏi localStorage sau khi logout
+  localStorage.removeItem('jwtToken');
   return response.data;
 };
 

@@ -59,13 +59,45 @@ const OrderDetail = () => {
   };
 
 
+  const downloadPDF = async () => {
+    const input = document.getElementById('order-detail-section');
+
+    // Tăng độ phân giải của canvas để văn bản rõ nét hơn
+    const canvas = await html2canvas(input, { scale: 2, useCORS: true });
+
+    // Thiết lập kích thước A4
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+
+    // Đặt chiều rộng ảnh theo A4 (190mm) và tính toán chiều cao tương ứng
+    const imgWidth = 190;
+    const pageHeight = pdf.internal.pageSize.height;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // Vẽ ảnh và phân trang nếu nội dung dài hơn một trang A4
+    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save(`OrderDetail_${orderDetail.id}.pdf`);
+  };
+
+
   if (!orderDetail) {
     return <p>Loading...</p>;
   }
 
   return (
-    <div id="order-detail-section" >
-      <div className='order-title text-center mt-4' style={{ marginTop: '10px' }}>
+    <div id="order-detail-section"  >
+      <div style={{ marginTop: '10px' }}>
         <h1 style={{ fontSize: '30px' }}> <b>Order Detail</b></h1>
       </div>
       <div className='row'>
@@ -118,8 +150,7 @@ const OrderDetail = () => {
             <tr>
               <th style={{ textAlign: "center" }} scope='col'>#</th>
               <th style={{ textAlign: "center" }} scope='col'>Name</th>
-              <th style={{ textAlign: "center" }} scope='col'>Category name</th>
-              <th style={{ textAlign: "center" }} scope='col'>Brand name</th>
+
               <th style={{ textAlign: "center" }} scope='col'>Image</th>
               <th style={{ textAlign: "center" }} scope='col'>Cost Price</th>
               <th style={{ textAlign: "center" }} scope='col'>Quantity</th>
@@ -131,8 +162,7 @@ const OrderDetail = () => {
               <tr key={item.orderDetailId}>
                 <td>{index + 1}</td>
                 <td>{item.instrumentName}</td>
-                <td>{item.categoryId}</td>
-                <td>{item.brandId}</td>
+
                 <td>
                   <img src={item.instrumentImage} alt={item.instrumentName} style={{ width: '50px', height: '50px' }} />
                 </td>
@@ -144,10 +174,12 @@ const OrderDetail = () => {
           </tbody>
         </table>
         <div className="col-3">
-          <button className="btn btn-success mb-3" onClick={exportToExcel}>
+          <button className="btn btn-outline-success mb-3" onClick={exportToExcel}>
             Export to Excel
           </button>
-
+          <button className="btn btn-outline-danger mb-3" onClick={downloadPDF}>
+            Export to PDF
+          </button>
         </div>
 
       </div>
