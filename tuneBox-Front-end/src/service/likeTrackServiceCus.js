@@ -11,6 +11,14 @@ export const addLike = (userId, trackId, postId) => {
   });
 };
 
+// hàm like playlist
+export const addLikePlaylist = (userId, playlistId) => {
+  return axios.post(`${API_URL}/addPlaylist`, {
+    userId: userId,
+    playlistId: playlistId,
+  });
+};
+
 // Hàm xóa Like
 export const removeLike = (userId, trackId) => {
   return axios.delete(`${API_URL}/remove`, {
@@ -19,6 +27,16 @@ export const removeLike = (userId, trackId) => {
       trackId: trackId,
     },
     withCredentials: true,
+  });
+};
+
+// Hàm xóa Like playlist
+export const removeLikePlaylist = (userId, playlistId) => {
+  return axios.delete(`${API_URL}/removePlaylist`, {
+    params: {
+      userId: userId,
+      playlistId: playlistId,
+    },
   });
 };
 
@@ -42,6 +60,22 @@ export const checkUserLikeTrack = async (trackId, userId) => {
   } catch (error) {
     console.error(
       "Lỗi khi kiểm tra like cho track ${trackId} của user ${userId}:",
+      error
+    );
+    throw error; // Ném lỗi ra ngoài để xử lý
+  }
+};
+
+// Hàm kiểm tra người dùng đã like bài viết hoặc track hay chưa
+export const checkUserLikePlaylist = async (playlistId, userId) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/playlist/${playlistId}/user/${userId}`
+    );
+    return response; // Trả về response để xử lý ở nơi gọi
+  } catch (error) {
+    console.error(
+      "Lỗi khi kiểm tra like cho playlist ${playlistId} của user ${userId}:",
       error
     );
     throw error; // Ném lỗi ra ngoài để xử lý

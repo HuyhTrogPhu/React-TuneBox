@@ -411,6 +411,7 @@ const HomeFeed = () => {
     const files = Array.from(e.target.files);
     setPostImages(files); // Cập nhật tệp ảnh
   };
+
   const handleSubmitPost = async () => {
     const formData = new FormData();
     formData.append("content", postContent || "");

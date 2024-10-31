@@ -1,14 +1,26 @@
 import React, { useEffect, useState, useRef } from "react";
-import { getPlaylistById } from "../../../../service/PlaylistServiceCus";
+import {
+  getPlaylistById,
+  removeTrackFromPlaylist,
+} from "../../../../service/PlaylistServiceCus";
 import { getTrackById } from "../../../../service/TrackServiceCus"; // Nhập khẩu hàm này
 import "./css/albumDetail.css";
+import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  getLikesCountByPlaylistId,
+  checkUserLikePlaylist,
+  removeLikePlaylist,
+  addLikePlaylist,
+} from "../../../../service/likeTrackServiceCus";
+import { getUserInfo } from "../../../../service/UserService";
 
 const PlayListDetail = () => {
   const { id } = useParams();
+  const userId = Cookies.get("userId");
   const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,25 +28,45 @@ const PlayListDetail = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const audioRef = useRef(null);
   const [trackDurations, setTrackDurations] = useState([]);
+  const [currentTrackName, setCurrentTrackName] = useState("");
+  const [userNamePlaylist, setUserName] = useState("");
+
+  const [likesCount, setLikesCount] = useState(0);
+  const [statusliked, setStatusLiked] = useState(false);
 
   useEffect(() => {
-    const fetchAlbum = async () => {
-      try {
-        console.log(id); // Kiểm tra ID album
-        const response = await getPlaylistById(id);
-        setPlaylist(response.data);
-        await fetchTrackDetails(response.data.tracks); // Gọi hàm fetchTrackDetails
-        console.log(response.data); // Xem dữ liệu album
-      } catch (err) {
-        setError(err.message || "Error fetching playlist data");
-        toast.error("Failed to load playlist data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAlbum();
+    fetchPlaylist();
   }, [id]);
+
+  const fetchPlaylist = async () => {
+    try {
+      console.log(id); // Kiểm tra ID playlist
+      const response = await getPlaylistById(id);
+      setPlaylist(response.data);
+
+      const name = await getUserInfo(response.data.creatorId);
+      setUserName(name.userName);
+      console.log("username cua playlist: ", name.userName);
+
+      await fetchTrackDetails(response.data.tracks); // Gọi hàm fetchTrackDetails
+      console.log(response.data); // Xem dữ liệu playlist
+
+      //ktra luot like
+      const likeCount = await getLikesCountByPlaylistId(id);
+      setLikesCount(likeCount.data);
+      console.log("likecount: ", likeCount.data);
+
+      // kiem tra trạng thái like cua user với playlist
+      const liked = await checkUserLikePlaylist(id, userId);
+      setStatusLiked(liked.data);
+      console.log("trạng thái like: ", liked.data);
+    } catch (err) {
+      setError(err.message || "Error fetching playlist data");
+      toast.error("Failed to load playlist data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch Track Details
   const fetchTrackDetails = async (trackIds) => {
@@ -56,6 +88,44 @@ const PlayListDetail = () => {
     } catch (error) {
       console.error("Error fetching track details:", error);
       toast.error("Failed to fetch track details");
+    }
+  };
+
+  const handleLikeTrack = async (id) => {
+    console.log("statusliked: ", statusliked);
+    try {
+      if (statusliked) {
+        // nếu đã thích, gọi hàm xóa like
+        await removeLikePlaylist(userId, id);
+        setStatusLiked(false);
+
+        setLikesCount((prevCount) => prevCount - 1);
+        console.log("Đã xóa like idplaylist:", id);
+      } else {
+        // nếu chưa thích, gọi hàm thêm like
+        await addLikePlaylist(userId, id);
+        setStatusLiked(true);
+        setLikesCount((prevCount) => prevCount + 1);
+      }
+    } catch (error) {
+      console.error(
+        "Lỗi khi xử lý like:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  const handleRemoveTrack = async (playlistId, trackId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to remove this track from your playlist??"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await removeTrackFromPlaylist(playlistId, trackId);
+      alert(response);
+    } catch (error) {
+      alert("Failed! Please try again");
     }
   };
 
@@ -84,6 +154,7 @@ const PlayListDetail = () => {
     if (index < 0 || index >= trackDetails.length) return;
 
     setCurrentTrackIndex(index);
+    setCurrentTrackName(trackDetails[index]?.name);
 
     // Cập nhật src
     audioRef.current.src = trackDetails[index]?.trackFile;
@@ -132,6 +203,11 @@ const PlayListDetail = () => {
     });
   };
 
+  const handleRandomTrack = () => {
+    const randomIndex = Math.floor(Math.random() * trackDetails.length);
+    handleTrackChange(randomIndex); // Gọi hàm phát bài theo chỉ số ngẫu nhiên
+  };
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
   if (!playlist) return <div className="p-4">No album data found</div>;
@@ -157,7 +233,7 @@ const PlayListDetail = () => {
             </div>
             <div className="album-info-description">
               <div className="album-name">{playlist.title}</div>
-              <div className="author">{playlist.creatorId || "Gia Nhu"}</div>
+              <div className="author">{userNamePlaylist || "Gia Nhu"}</div>
               <div className="album-description">
                 {playlist.description || "No description available."}
               </div>
@@ -173,16 +249,21 @@ const PlayListDetail = () => {
           </div>
           <div className="album-info-actions">
             <div>
-              <button className="btn">
-                <img src={images.heart} className="btn-icon" alt="Like" />0
+              <button className="btn" onClick={() => handleLikeTrack(id)}>
+                {likesCount}
+                <i
+                  className={`fa-solid fa-heart ${
+                    statusliked ? "text-danger" : "text-muted"
+                  }`}
+                  style={{ cursor: "pointer", fontSize: "20px" }}
+                ></i>
               </button>
               <button className="btn">
-                <img
-                  src={images.conversstion}
-                  className="btn-icon"
-                  alt="Share"
-                />
-                1
+                <i
+                  type="button"
+                  style={{ fontSize: "20px" }}
+                  className="fa-solid fa-share mt-1"
+                ></i>
               </button>
             </div>
             <div className="default">
@@ -216,6 +297,7 @@ const PlayListDetail = () => {
                   <th>Description</th>
                   <th>Duration</th>
                   <th>Actions</th> {/* Thêm cột cho hành động phát */}
+                  <th>remove</th>
                 </tr>
               </thead>
               <tbody>
@@ -238,6 +320,15 @@ const PlayListDetail = () => {
                         ▶
                       </button>
                     </td>
+                    <td>
+                      {" "}
+                      <a
+                        href=""
+                        onClick={() => handleRemoveTrack(playlist.id, track.id)}
+                      >
+                        X
+                      </a>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -246,6 +337,7 @@ const PlayListDetail = () => {
         </div>
       </div>
       <div className="audio-player">
+        <p>Now Playing: {currentTrackName || "No song selected"}</p>
         <div className="track-controls">
           <button
             className="btn"
@@ -254,11 +346,14 @@ const PlayListDetail = () => {
           >
             Previous
           </button>
-          <button
+          {/* <button
             className="btn play-track"
             onClick={() => handleTrackChange(currentTrackIndex)}
           >
             ▶
+          </button> */}
+          <button className="btn" onClick={handleRandomTrack}>
+            Random
           </button>
           <button
             className="btn"
