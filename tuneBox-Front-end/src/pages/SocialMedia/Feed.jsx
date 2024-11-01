@@ -22,7 +22,8 @@ import {
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ const HomeFeed = () => {
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
-  const [reportPostId, setReportPostId] = useState(null);
+  const [ReportId, setReportId] = useState(null);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const commentSectionRef = useRef(null);
@@ -62,6 +63,10 @@ const HomeFeed = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
+  const [reportType, setReportType] = useState('');
+  const [reportMessage, setReportMessage] = useState("");
+  
+
   // track
   const [tracks, setTracks] = useState([]);
   const [likedTracks, setLikedTracks] = useState({});
@@ -70,7 +75,6 @@ const HomeFeed = () => {
   useEffect(() => {
     fetchTracks();
   }, []);
-
   const fetchTracks = async () => {
     try {
       const response = await getAllTracks();
@@ -109,7 +113,6 @@ const HomeFeed = () => {
       console.error("Error fetching all track:", error);
     }
   };
-
   const handleLikeTrack = async (trackId) => {
     try {
       if (likedTracks[trackId]?.data) {
@@ -136,9 +139,6 @@ const HomeFeed = () => {
       console.error("Lỗi khi xử lý like:", error);
     }
   };
-
-
-
   // end track
 
   const handleAvatarClick = (post) => {
@@ -169,8 +169,6 @@ const HomeFeed = () => {
     }
   };
 
-
-
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
 
@@ -197,7 +195,6 @@ const HomeFeed = () => {
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
-          console.log('post Id:', post.id);
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
               const repliesResponse = await axios.get(
@@ -239,8 +236,6 @@ const HomeFeed = () => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
-
-
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
@@ -687,37 +682,84 @@ const HomeFeed = () => {
   };
 
   // report post 
-  const handleReportPost = (postId) => {
-    setReportPostId(postId);
-    setShowReportModal(true); // Hiện modal
-  };
+  const handleReport = (id, type) => {
+    console.log('ID to report:', id); // Kiểm tra giá trị ID
+    console.log('Type to report:', type); // Kiểm tra giá trị type
+    setReportId(id);
+    setReportType(type);
+    setShowReportModal(true);
+};
+const handleSubmit = () => {
+  console.log('Report Type before submit:', reportType); // In ra giá trị type
 
-  const submitReport = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/api/reports', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Đảm bảo gửi cookie cùng với request
-        body: JSON.stringify({
-          postId: reportPostId,
-          reason: reportReason,
-        }),
-      });
+  if (!ReportId || !reportType) {
+      setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
+      return;
+  }
 
-      if (response.ok) {
-        console.log('thành công');
-        setShowReportModal(false);
-        setReportReason("");
-      } else {
-        console.error('Có lỗi xảy ra khi gửi báo cáo.');
+  // Gọi hàm submitReport với các giá trị đúng
+  submitReport(currentUserId, 
+      reportType === 'post' ? ReportId : null,  // postId
+      reportType === 'track' ? ReportId : null, // trackId
+      null,                                      // albumId
+      reportType,                                // type
+      reportReason                               // lý do
+  );
+};
+
+const submitReport = async (userId, reportId, reportType, reason) => {
+  console.log('Submitting report with type:', reportType);
+
+  // Kiểm tra báo cáo đã tồn tại hay chưa
+  const reportExists = await checkReportExists(userId, reportId, reportType);
+
+  if (reportExists) {
+      setReportMessage("Bạn đã báo cáo nội dung này rồi.");
+  } else {
+      // Nếu chưa báo cáo, chuẩn bị dữ liệu cho việc báo cáo
+      const reportData = {
+          userId: userId,
+          // Chọn postId, trackId, hoặc albumId dựa vào reportType
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,  // Loại báo cáo
+          reason: reason      // Lý do báo cáo
+      };
+
+      try {
+          // Gọi API để tạo báo cáo
+          const response = await axios.post('http://localhost:8080/api/reports', reportData);
+          console.log('Report submitted successfully:', response.data);
+          setReportMessage("Báo cáo đã được gửi thành công.");
+          // Đóng modal sau khi báo cáo thành công
+          setShowReportModal(false);
+      } catch (error) {
+          console.error("Lỗi khi tạo báo cáo:", error);
+          setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
       }
-    } catch (error) {
-      console.error('Lỗi mạng:', error);
-    }
-  };
-  // Hàm để bật/tắt emoji picker
+  }
+};
+
+const checkReportExists = async (userId, postId, trackId, albumId, type) => {
+  try {
+    const response = await axios.get(`http://localhost:8080/api/reports/check`, {
+        params: {
+            userId: currentUserId,
+            postId: reportType === 'post' ? ReportId : null,
+            trackId: reportType === 'track' ? ReportId : null,
+            albumId: null,  // Nếu không cần albumId, có thể để null
+            type: reportType // Chắc chắn rằng type được truyền vào
+        }
+    });
+    // Xử lý phản hồi từ API
+    console.log('Check report response:', response.data);
+} catch (error) {
+    console.error('Error checking report:', error);
+}
+};
+
+// Hàm để bật/tắt emoji picker
   const toggleEmojiPicker = (id) => {
     setShowEmojiPicker((prev) => (prev === id ? null : id));
   };
@@ -743,6 +785,7 @@ const HomeFeed = () => {
     modal.show(); // Mở modal
   };
   return (
+    
     <div>
       <div className="container-fluid">
         <div className="row">
@@ -875,8 +918,8 @@ const HomeFeed = () => {
                         </ul>
                       </div>
                     ) : (
-                      <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReportTrack(track.id)}>
-                      </button>
+<button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReport(track.id, 'track')}></button>
+
                     )}
                   </div>
 
@@ -936,14 +979,14 @@ const HomeFeed = () => {
                 return (
                   <div key={post.id} className="post border">
                     {/* Modeal hiển thị comment  */}
-                    <div class="modal fade" id="modalComent" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div className="modal fade" id="modalComent" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
+                      <div className="modal-dialog">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
-                          <div class="modal-body">
+                          <div className="modal-body">
                             {/* Danh sách bình luận */}
                             {selectedPost ? (
                               <div className="mt-4">
@@ -1278,7 +1321,7 @@ const HomeFeed = () => {
                           </ul>
                         </div>
                       ) : (
-                        <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReportPost(post.id)}>
+                        <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReport(post.id, 'post')}>
                         </button>
                       )}
                     </div>
@@ -1403,31 +1446,71 @@ const HomeFeed = () => {
 
       {/* Các modal */}
       {/* Modal báo cáo */}
+      <ToastContainer />
       {showReportModal && (
-        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
-          <div className="modal-dialog">
+    <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+        <div className="modal-dialog">
             <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Báo cáo bài viết</h5>
-                <button type="button" className="btn-close" onClick={() => setShowReportModal(false)} aria-label="Close"></button>
-              </div>
-              <div className="modal-body">
-                <textarea
-                  className="form-control"
-                  placeholder="Nhập lý do báo cáo"
-                  value={reportReason}
-                  onChange={(e) => setReportReason(e.target.value)} // Cập nhật lý do báo cáo
-                  style={{ resize: 'none' }} // Không cho phép thay đổi kích thước
-                />
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-primary" onClick={submitReport}>Gửi báo cáo</button>
-                <button className="btn btn-secondary" onClick={() => setShowReportModal(false)}>Đóng</button>
-              </div>
+                <div className="modal-header">
+                    <h5 className="modal-title">Báo cáo nội dung</h5>
+                    <button 
+                        type="button" 
+                        className="btn-close" 
+                        onClick={() => {
+                            // Reset dữ liệu khi đóng modal
+                            setShowReportModal(false);
+                            setReportReason(""); // Reset lý do báo cáo
+                            setReportMessage(""); // Reset thông báo
+                        }} 
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div className="modal-body">
+                    {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                    <h6>Chọn lý do báo cáo:</h6>
+                    <div className="mb-3">
+                        {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                            <label className="d-block" key={reason}>
+                                <input
+                                    type="radio"
+                                    name="reportReason"
+                                    value={reason}
+                                    onChange={(e) => setReportReason(e.target.value)}
+                                /> {reason}
+                            </label>
+                        ))}
+                    </div>
+                    <textarea
+                        className="form-control mt-2"
+                        placeholder="Nhập lý do báo cáo"
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                        style={{ resize: 'none' }}
+                    />
+                </div>
+                <div className="modal-footer">
+    <button 
+        onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+        className="btn btn-primary"
+    >
+        Báo cáo
+    </button>
+    <button 
+        className="btn btn-secondary" 
+        onClick={() => {
+            setShowReportModal(false);
+            setReportReason(""); // Reset lý do báo cáo
+            setReportMessage(""); // Reset thông báo
+        }}
+    >
+        Đóng
+    </button>
+</div>
+
             </div>
-          </div>
         </div>
-      )}
+    </div>
+)}
       {/* Modal để tạo bài viết */}
       <div
         id="post-modal"

@@ -79,7 +79,7 @@ const WaveFormFeed = ({ audioUrl, track }) => {
     return (
         <div className="playerFeed w-100">
             <div className="thumbFeed">
-                <img src={track.imageTrack || images.avt} alt="Track Thumbnail" />
+                <img className={isPlaying ? "fi-rr-pause" : "fi-rr-play"} id="playPause" onClick={togglePlayPause} src={track.imageTrack || images.avt} alt="Track Thumbnail" />
             </div>
             <div className="infoFeed">
                 <div className="detailFeed row d-flex">
@@ -90,9 +90,9 @@ const WaveFormFeed = ({ audioUrl, track }) => {
                             <span id="duration">{formatTime(duration)}</span>
                         </div>
                     </div>
-                    <div className="controlFeed col-5 d-flex">
+                    {/* <div className="controlFeed col-5 d-flex">
                         <i className={isPlaying ? "fi-rr-pause" : "fi-rr-play"} id="playPause" onClick={togglePlayPause}></i>
-                    </div>
+                    </div> */}
                 </div>
                 <div className="track-button">
                     <button onClick={() => skipBackward(10)}>⏪10s</button>

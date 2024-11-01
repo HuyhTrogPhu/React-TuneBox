@@ -20,7 +20,6 @@ const Activity = () => {
   const [postId, setPostId] = useState(null);
   const { id } = useParams(); // Lấy ID từ URL
   const userId = Cookies.get("userId"); // Lấy ID người dùng hiện tại  từ cookies
-  const [username, setuserName] = useState({});
   const [commentContent, setCommentContent] = useState({});
   const [showAllComments, setShowAllComments] = useState({});
   const [replyContent, setReplyContent] = useState({});
@@ -102,7 +101,6 @@ const Activity = () => {
     const createPostBtn = document.getElementById("create-post-btn");
     const postModal = document.getElementById("post-modal");
     const closeModal = document.getElementById("close-modal");
-    setuserName(Cookies.get("userName"));
     const openModal = () => {
       resetForm();
       setPostId(null);
