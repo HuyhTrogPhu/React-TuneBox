@@ -29,10 +29,8 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     setError('');
     setSuccess('');
-
     if (!userNameOrEmail) {
       setError('Vui lòng nhập tên tài khoản hoặc email.');
       return;
@@ -43,7 +41,6 @@ const Login = () => {
       return;
     }
   
-  
     const userDto = {
       userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
       email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
@@ -52,38 +49,32 @@ const Login = () => {
   
     try {
       setLoading(true); // Bắt đầu loading
-
       const response = await login(userDto);
-
-
-
       // Lấy userId từ phản hồi của server
       const userId = response.userId;
-
       if (userId !== undefined && userId !== null) {
         const expires = new Date();
         expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // Cookie tồn tại trong 1 ngày
         document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`; // Lưu userId vào cookie
+        // Hiện loading trong 3 giây
+        setTimeout(() => {
+          setLoading(false); // Dừng loading
+          navigate('/'); // Chuyển hướng về trang chính
+        }, 3000);
       } else {
-        console.error('userId is undefined or null');
+        setLoading(false); // Dừng loading nếu userId không hợp lệ
+        setError('User ID không hợp lệ.');
       }
-
-      // Hiện loading trong 3 giây
-      setTimeout(() => {
-        setLoading(false); // Dừng loading
-        navigate('/'); // Chuyển hướng về trang chính
-      }, 3000);
-
     } catch (error) {
       setLoading(false); // Dừng loading trong trường hợp có lỗi
       if (error.response && error.response.status === 401) {
-        setError(error.response.data);
+        setError('Thông tin đăng nhập không chính xác.');
       } else {
         setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
       }
     }
   };
-
+  
   return (
     <div>
       <Header2 />

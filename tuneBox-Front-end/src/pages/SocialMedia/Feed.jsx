@@ -690,73 +690,73 @@ const HomeFeed = () => {
     setShowReportModal(true);
 };
 const handleSubmit = () => {
-  console.log('Report Type before submit:', reportType); // In ra giá trị type
+  console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
 
   if (!ReportId || !reportType) {
-      setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
-      return;
+    setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
+    return;
   }
 
   // Gọi hàm submitReport với các giá trị đúng
-  submitReport(currentUserId, 
-      reportType === 'post' ? ReportId : null,  // postId
-      reportType === 'track' ? ReportId : null, // trackId
-      null,                                      // albumId
-      reportType,                                // type
-      reportReason                               // lý do
-  );
+  submitReport(currentUserId, ReportId, reportType, reportReason);
 };
 
 const submitReport = async (userId, reportId, reportType, reason) => {
-  console.log('Submitting report with type:', reportType);
+  try {
+    const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
 
-  // Kiểm tra báo cáo đã tồn tại hay chưa
-  const reportExists = await checkReportExists(userId, reportId, reportType);
-
-  if (reportExists) {
+    const reportExists = await checkReportExists(userId, reportId, reportType);
+    if (reportExists) {
       setReportMessage("Bạn đã báo cáo nội dung này rồi.");
-  } else {
-      // Nếu chưa báo cáo, chuẩn bị dữ liệu cho việc báo cáo
+    } else {
       const reportData = {
-          userId: userId,
-          // Chọn postId, trackId, hoặc albumId dựa vào reportType
-          postId: reportType === 'post' ? reportId : null,
-          trackId: reportType === 'track' ? reportId : null,
-          albumId: reportType === 'album' ? reportId : null,
-          type: reportType,  // Loại báo cáo
-          reason: reason      // Lý do báo cáo
+        userId: userId,
+        postId: reportType === 'post' ? reportId : null,
+        trackId: reportType === 'track' ? reportId : null,
+        albumId: reportType === 'album' ? reportId : null,
+        type: reportType,
+        reason: reason
       };
 
-      try {
-          // Gọi API để tạo báo cáo
-          const response = await axios.post('http://localhost:8080/api/reports', reportData);
-          console.log('Report submitted successfully:', response.data);
-          setReportMessage("Báo cáo đã được gửi thành công.");
-          // Đóng modal sau khi báo cáo thành công
-          setShowReportModal(false);
-      } catch (error) {
-          console.error("Lỗi khi tạo báo cáo:", error);
-          setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
-      }
+      const response = await axios.post('http://localhost:8080/api/reports', reportData, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}` // Thêm JWT token vào header
+        }
+      });
+
+      console.log('Report submitted successfully:', response.data);
+      setReportMessage("Báo cáo đã được gửi thành công.");
+      setShowReportModal(false);
+    }
+  } catch (error) {
+    console.error("Lỗi khi tạo báo cáo:", error);
+    if (error.response && error.response.status === 401) {
+      navigate('/login?error=true');
+    } else {
+      setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
+    }
   }
 };
 
-const checkReportExists = async (userId, postId, trackId, albumId, type) => {
+const checkReportExists = async (userId, reportId, reportType) => {
   try {
     const response = await axios.get(`http://localhost:8080/api/reports/check`, {
-        params: {
-            userId: currentUserId,
-            postId: reportType === 'post' ? ReportId : null,
-            trackId: reportType === 'track' ? ReportId : null,
-            albumId: null,  // Nếu không cần albumId, có thể để null
-            type: reportType // Chắc chắn rằng type được truyền vào
-        }
+      params: {
+        userId: userId,
+        postId: reportType === 'post' ? reportId : null,
+        trackId: reportType === 'track' ? reportId : null,
+        albumId: reportType === 'album' ? reportId : null,
+        type: reportType,
+      },
+      withCredentials: true,
     });
-    // Xử lý phản hồi từ API
     console.log('Check report response:', response.data);
-} catch (error) {
+    return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
+  } catch (error) {
     console.error('Error checking report:', error);
-}
+    return false;
+  }
 };
 
 // Hàm để bật/tắt emoji picker
