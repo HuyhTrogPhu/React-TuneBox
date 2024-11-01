@@ -91,7 +91,7 @@ const UserDetail = () => {
 
     return (
         <div>
-            <div className='container' >
+            <div className='container' id='orderHistory' >
                 <div className='row'>
                     {/* Thông tin chi tiết người dùng */}
                     <div className='col-4' style={{ position: 'relative'}} >
@@ -148,7 +148,7 @@ const UserDetail = () => {
                     </div>
 
                     {/* Lịch sử đơn hàng */}
-                    <div className='col-8 mt-5' id='orderHistory' >
+                    <div className='col-8 mt-5'  >
                         <h3 style={{ textAlign: 'center' , fontWeight: '1000'}}>ORDER HISTORY</h3>
                         <p>Total order: {totalOrderCount}</p>
                         <p>Total order amount: {totalOrderAmount.toLocaleString('vi')} VND</p>

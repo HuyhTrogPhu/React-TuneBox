@@ -34,8 +34,8 @@ const ManagerOrder = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       // Tạo ngày hiện tại nếu trạng thái là 'Đã giao hàng'
-      const deliveryDate = newStatus === 'Đã giao hàng' ? new Date().toISOString().split('T')[0] : null;
-      const paymentStatus = newStatus === 'Đã giao hàng' ? 'Paid' : 'Not Paid';
+      const deliveryDate = newStatus === 'Delivered' ? new Date().toISOString().split('T')[0] : null;
+      const paymentStatus = newStatus === 'Delivered' ? 'Paid' : 'Not Paid';
       // Cập nhật trạng thái và ngày giao hàng trên backend
       await updateOrderStatus(orderId, newStatus, deliveryDate, paymentStatus);
 
@@ -230,12 +230,12 @@ const ManagerOrder = () => {
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
                         className="form-select"
                       >
-                        <option value="Chờ xác nhận">Wait for confirmation</option>
-                        <option value="Đã xác nhận">Confirmed</option>
+                        <option value="Wait for confirmation">Wait for confirmation</option>
+                        <option value="Confirmed">Confirmed</option>
 
-                        <option value="Đang giao hàng">Delivering</option>
-                        <option value="Đã giao hàng">Delivered</option>
-                        <option value="Đã hủy">Canceled</option>
+                        <option value="Delivering">Delivering</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Canceled">Canceled</option>
                       </select>
                     </td>
                     <td>

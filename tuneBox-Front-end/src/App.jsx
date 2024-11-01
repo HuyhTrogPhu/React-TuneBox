@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes, Outlet, useParams } from "react-router-dom";
+import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -46,6 +46,8 @@ import FriendRequests from "./pages/SocialMedia/FriendRequests";
 import FriendList from "./pages/SocialMedia/FriendList";
 import FollowersPage from "./pages/SocialMedia/FollowersPage";
 import FollowingPage from "./pages/SocialMedia/FollowingPage";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import { getUserRole, isUserRole } from './service/auth';
 // Layout có Header
 
 function LayoutWithHeader() {
@@ -128,7 +130,10 @@ function App() {
               <Route path="/genre" element={<Genre />} />
               <Route path="/welcome" element={<WelcomeUser />} />
               {/* admin start */}
-              <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+              {/* Route bảo vệ với quyền 'EcomAdmin' */}
+              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
+                <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+              </Route>
               {/* admin end */}
             </Route>
           </Routes>
