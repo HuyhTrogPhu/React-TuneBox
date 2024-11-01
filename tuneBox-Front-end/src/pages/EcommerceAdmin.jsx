@@ -84,7 +84,7 @@ const EcommerceAdmin = () => {
 
             <Route path='Order' element={<ManagerOrder />} />
             <Route path='Order/detail/:orderId' element={<OrderDetail />} />
-
+            
             <Route path='Statistical' element={<Statistical />} />
             <Route path='Statistical/sell-the-most' element={<UserSellTheMost />} />
             <Route path='Statistical/sell-the-least' element={<UserSellTheLeast />} />
@@ -92,10 +92,17 @@ const EcommerceAdmin = () => {
 
             <Route path='Statistical/revenue-currently' element={<RevenueCurrently />} />
 
-            <Route path='Statistical/revenue-according-day/:date' element={<StatisticalRevenueTime />} />
-            <Route path='Statistical/revenue-according-week/:date' element={<StatisticalRevenueTime />} />
-            <Route path='Statistical/revenue-according-month/:date' element={<StatisticalRevenueTime />} />
-            <Route path='Statistical/revenue-according-year/:date' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-according-date/:date' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-between-date/:startDate/:endDate' element={<StatisticalRevenueTime />} />
+            
+            <Route path='Statistical/revenue-by-week/:date' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-between-weeks/:startDate/:endDate' element={<StatisticalRevenueTime />} />
+            
+            <Route path='Statistical/revenue-by-month/:year/:month' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-between-months/:year/:startMonth/:endMonth' element={<StatisticalRevenueTime />} />
+            
+            <Route path='Statistical/revenue-by-year/:year' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-between-years/:startYear/:endYear' element={<StatisticalRevenueTime />} />
 
             <Route path='Statistical/statistical-instrument' element={<StatisticalInstrument />} />
 

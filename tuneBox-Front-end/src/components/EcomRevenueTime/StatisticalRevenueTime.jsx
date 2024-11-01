@@ -1,63 +1,88 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { getRevenueByDay, getRevenueByWeek, getRevenueByMonth, getRevenueByYear } from '../../service/EcommerceAdminSearchSta';
+import { useParams } from 'react-router-dom';
+import { Line } from 'react-chartjs-2';
+import { getRevenueBetweenDate, getRevenueBetweenMonth, getRevenueBetweenWeek, getRevenueBetweenYear, getRevenueByDate, getRevenueByMonth, getRevenueByWeek, getRevenueByYear } from '../../service/EcommerceAdminSearchSta';
 
 const StatisticalRevenueTime = () => {
-    const { date } = useParams();
-    const [period, setPeriod] = useState('');
-
-    // Xác định mốc thời gian từ URL
-    const path = window.location.pathname;
-    if (path.includes('revenue-according-day')) {
-        setPeriod('day');
-    } else if (path.includes('revenue-according-week')) {
-        setPeriod('week');
-    } else if (path.includes('revenue-according-month')) {
-        setPeriod('month');
-    } else if (path.includes('revenue-according-year')) {
-        setPeriod('year');
-    }
+    const { date, startDate, endDate, dateWeek, startDateWeek, endDateWeek,
+        yearOfMonth, month, startMonthYear, endMonthYear,
+        year, startYear, endYear
+     } = useParams();
 
     const [revenueData, setRevenueData] = useState(null);
+    const [chartData, setChartData] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
-            let response;
             try {
-                switch (period) {
-                    case 'day':
-                        response = await getRevenueByDay(date);
-                        break;
-                    case 'week':
-                        response = await getRevenueByWeek(date);
-                        break;
-                    case 'month':
-                        response = await getRevenueByMonth(date);
-                        break;
-                    case 'year':
-                        response = await getRevenueByYear(date);
-                        break;
-                    default:
-                        return;
+                let response;
+                if (date) {
+                    response = await getRevenueByDate(date);
+                } else if (startDate && endDate) {
+                    response = await getRevenueBetweenDate(startDate, endDate);
+                } else if (dateWeek) {
+                    response = await getRevenueByWeek(dateWeek);
+                } else if (startDateWeek && endDateWeek) {
+                    response = await getRevenueBetweenWeek(startDateWeek, endDateWeek);
+                } else if (yearOfMonth && month) {
+                    response = await getRevenueByMonth(yearOfMonth, month);
+                } else if (yearOfMonth && startMonthYear && endMonthYear) {
+                    response = await getRevenueBetweenMonth(yearOfMonth, startMonthYear, endMonthYear);
+                } else if (year) {
+                    response = await getRevenueByYear(year);
+                } else if (startYear && endYear) {
+                    response = await getRevenueBetweenYear(startYear, endYear);
                 }
-                setRevenueData(response.data);
+
+                if (response) {
+                    setRevenueData(response.data);
+
+                    // Kiểm tra nếu response có `revenueOverTime`
+                    if (response.data?.revenueOverTime) {
+                        const labels = response.data.revenueOverTime.map(item => item.date);
+                        const data = response.data.revenueOverTime.map(item => item.revenue);
+                        setChartData({
+                            labels,
+                            datasets: [
+                                {
+                                    label: 'Revenue',
+                                    data,
+                                    fill: false,
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    tension: 0.1
+                                }
+                            ]
+                        });
+                    } else {
+                        setChartData({});
+                    }
+                }
             } catch (error) {
-                console.error('Error fetching revenue data:', error);
+                console.error("Error fetching revenue data:", error);
             }
         };
 
-        if (date && period) {
-            fetchData();
-        }
-    }, [date, period]);
+        fetchData();
+    }, [date, startDate, endDate, dateWeek, startDateWeek, endDateWeek
+        , yearOfMonth, month, startMonthYear, endMonthYear, year, startYear, endYear
+    ]);
 
     return (
         <div>
             <div className='container'>
                 <div className='row'>
-                    {/* Chart */}
+                    <h6 className='text-center'>Statistical: {date || dateWeek || `From ${startDate || startDateWeek} to ${endDate || endDateWeek}`}</h6>
                     <div className='col-12'>
-                        <h6>Total revenue: {revenueData ? revenueData[`revenueBy${period.charAt(0).toUpperCase() + period.slice(1)}`] : 0}</h6>
+                        <h6>
+                            Total revenue: {(revenueData?.revenueByDay || revenueData?.revenueByDate || 'No data available').toLocaleString('vi')} VND
+                        </h6>
+
+                        {chartData.labels ? (
+                            <Line data={chartData} />
+                        ) : (
+                            <p>No revenue data available for the selected date range.</p>
+                        )}
                     </div>
                 </div>
 
@@ -68,27 +93,27 @@ const StatisticalRevenueTime = () => {
                         <table className='table border'>
                             <thead>
                                 <tr>
-                                    <th scope='col'>#</th>
-                                    <th scope='col'>Name</th>
-                                    <th scope='col'>phonNumber</th>
-                                    <th scope='col'>userName</th>
-                                    <th scope='col'>Location</th>
-                                    <th scope='col'>Email</th>
-                                    <th scope='col'>Total Order</th>
-                                    <th scope='col'>Sum totalPrice</th>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Phone number</th>
+                                    <th>User name</th>
+                                    <th>Location</th>
+                                    <th>Email</th>
+                                    <th>Total Order</th>
+                                    <th>Sum totalPrice</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {revenueData?.userSells.map((user) => (
+                                {revenueData?.userSells?.map((user, index) => (
                                     <tr key={user.userId}>
-                                        <td></td>
+                                        <th>{index + 1}</th>
                                         <td>{user.name}</td>
-                                        <td>{user.phonNumber}</td>
+                                        <td>{user.phoneNumber}</td>
                                         <td>{user.userName}</td>
                                         <td>{user.location}</td>
                                         <td>{user.email}</td>
                                         <td>{user.totalOrder}</td>
-                                        <td>{user.sumTotalPrice}</td>
+                                        <td>{user.sumTotalPrice.toLocaleString('vi')} VND</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -103,20 +128,20 @@ const StatisticalRevenueTime = () => {
                         <table className='table border'>
                             <thead>
                                 <tr>
-                                    <th scope='col'>#</th>
-                                    <th scope='col'>Name</th>
-                                    <th scope='col'>Image</th>
-                                    <th scope='col'>costPrice</th>
-                                    <th scope='col'>Total Sold</th>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Image</th>
+                                    <th>Cost Price</th>
+                                    <th>Total Sold</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {revenueData?.listInstrumentByDay || revenueData?.listInstrumentByWeek || revenueData?.listInstrumentByMonth || revenueData?.listInstrumentByYear.map((instrument) => (
+                                {revenueData?.listInstrumentByDay?.map((instrument, index) => (
                                     <tr key={instrument.instrumentId}>
-                                        <td></td>
+                                        <td>{index + 1}</td>
                                         <td>{instrument.instrumentName}</td>
-                                        <td>{instrument.costPrice}</td>
-                                        <td>{instrument.image}</td>
+                                        <td><img src={instrument.image} alt={instrument.instrumentName} style={{ width: "50px" }} /></td>
+                                        <td>{instrument.costPrice.toLocaleString('vi')} VND</td>
                                         <td>{instrument.totalSold}</td>
                                     </tr>
                                 ))}

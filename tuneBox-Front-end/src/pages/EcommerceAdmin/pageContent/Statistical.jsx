@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Line } from 'react-chartjs-2';
 import { getRevenueBeforeCurrently, getRevenueCurrently } from '../../../service/EcommerceStatistical';
 
@@ -7,9 +7,30 @@ const Statistical = () => {
 
     const [currentRevenue, setCurrentRevenue] = useState({});
     const [previousRevenue, setPreviousRevenue] = useState({});
-    const [date, setDate] = useState('');
-    const navigate = Navigate("");
+    const navigate = useNavigate();
+    // revenue by day or between days
+    const [selectedDate, setSelectedDate] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
+    // revenue by week or between weeks
+    const [selectedWeek, setSelectedWeek] = useState('');
+    const [startDateWeek, setStartDateWeek] = useState('');
+    const [endDateWeek, setEndDateWeek] = useState('');
+
+    // revenie by month or between months
+    const [selectYearOfMonth, setSelectedYearOfMonth] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState('');
+    const [startDateMonth, setStartDateMonth] = useState('');
+    const [endDateMonth, setEndDateMonth] = useState('');
+    const [months, setMonths] = useState([]);
+
+    // revenue by year or between years
+    const [selectedYear, setSelectedYear] = useState('');
+    const [startDateYear, setStartDateYear] = useState('');
+    const [endDateYear, setEndDateYear] = useState('');
+
+    // stattistical revenue currently and before
     useEffect(() => {
         const fetchRevenueData = async () => {
             try {
@@ -23,6 +44,7 @@ const Statistical = () => {
         };
         fetchRevenueData();
     }, []);
+
 
     const createChartData = (currentData, previousData, label) => ({
         labels: ['Today', 'Yesterday'], // cập nhật nhãn phù hợp cho từng khoảng thời gian
@@ -45,12 +67,82 @@ const Statistical = () => {
     });
 
     // search statistical revenue by day
+    const handleSubmitDay = (e) => {
+        e.preventDefault();
+        if (selectedDate) {
+            navigate(`/ecomadmin/Statistical/revenue-according-date/${selectedDate}`);
+        }
+    };
 
-    // search statistical revenue by week
+    // search statistical revenue between days
+    const handleSubmitBetweenDates = (e) => {
+        e.preventDefault();
+        if (startDate && endDate) {
+            navigate(`/ecomadmin/Statistical/revenue-between-date/${startDate}/${endDate}`);
+        }
+    };
 
-    // search statistical revenue by month
+    // search statistical revenue week
+    const handleSingleDateSubmit = (e) => {
+        e.preventDefault();
+        if (selectedWeek) {
+            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-by-week/${selectedWeek}`);
+        }
+    };
 
-    // search statistical revenue by year
+    // search statistical revenue between week
+    const handleBetweenDatesSubmit = (e) => {
+        e.preventDefault();
+        if (startDateWeek && endDateWeek) {
+            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-between-week/${startDateWeek}/${endDateWeek}`);
+        }
+    };
+
+    // tính năm nhuận hoặc không nhuận
+    const handleYearChange = (e) => {
+        const year = e.target.value;
+        setSelectedYearOfMonth(year);
+
+        // Tính toán các tháng trong năm
+        const monthArray = [];
+        for (let i = 1; i <= 12; i++) {
+            monthArray.push({ value: i, label: `Month ${i}` });
+        }
+        setMonths(monthArray);
+    };
+
+
+    // search statistical revenue month
+    const handleSingleMonthSubmit = (e) => {
+        e.preventDefault();
+        if (selectYearOfMonth && selectedMonth) {
+            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-by-month/${selectYearOfMonth}/${selectedMonth}`);
+        }
+    };
+
+    // search statistical revenue between month
+    const handleBetweenMonthsSubmit = (e) => {
+        e.preventDefault();
+        if (selectYearOfMonth && startDateMonth && endDateMonth) {
+            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-between-months/${selectYearOfMonth}/${startDateMonth}/${endDateMonth}`);
+        }
+    };
+
+    // search statistical revenue year
+    const handleSingleYearSubmit = (e) => {
+        e.preventDefault();
+        if (selectedYear) {
+            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-by-year/${selectedYear}`);
+        }
+    };
+
+    // search statistical revenue between year
+    const handleBetweenYearsSubmit = (e) => {
+        e.preventDefault();
+        if (startDateYear && endDateYear) {
+            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-between-years/${startDateYear}/${endDateYear}`);
+        }
+    };
 
 
     return (
@@ -66,7 +158,7 @@ const Statistical = () => {
                                     <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
                                 </div>
                                 <div className='col-9 m-0 '>
-                                    <h6 className='ps-0'>Customer sell the most</h6>
+                                    <h6 className='ps-0'>Top selling customer to date</h6>
                                 </div>
                             </div>
                         </Link>
@@ -79,13 +171,13 @@ const Statistical = () => {
                                     <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
                                 </div>
                                 <div className='col-9 m-0'>
-                                    <h6 className='ps-0'>Customer sell the least</h6>
+                                    <h6 className='ps-0'>Least number of buyers to date </h6>
                                 </div>
 
                             </div>
                         </Link>
                     </div>
-                    <div className='col-4 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
+                    <div className='col-3 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
                         <Link to={'/ecomadmin/Statistical/user-not-sell'}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
@@ -157,46 +249,45 @@ const Statistical = () => {
 
                 </section>
 
-                {/* Search revenue according to time */}
+                {/* Search revenue by day or between day*/}
                 <section className='row mt-5 d-flex justify-content-between gap-3'>
-                    <div className='col d-flex flex-column border rounded bg-white' style={{ flexGrow: 1 }}>
-                        <form className='p-3'>
+                    <div className='col border rounded bg-white'>
+                        <h6>Statistical revenue by day</h6>
+                        <form onSubmit={handleSubmitDay} className='p-3'>
                             <div className='mt-3'>
                                 <label className='form-label'>Revenue statistical of day</label>
-                                <input type="date" className='form-control' placeholder='select day' />
+                                <input
+                                    type="date"
+                                    className='form-control'
+                                    value={selectedDate}
+                                    onChange={(e) => setSelectedDate(e.target.value)}
+                                />
                             </div>
                             <div className='mt-3'>
                                 <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
                             </div>
                         </form>
                     </div>
-                    <div className='col d-flex flex-column border rounded bg-white' style={{ flexGrow: 1 }}>
-                        <form className='p-3'>
+                    <div className='col border rounded bg-white'>
+                        <h6>Statistical revenue between days</h6>
+                        <form onSubmit={handleSubmitBetweenDates} className="p-3">
                             <div className='mt-3'>
-                                <label className='form-label'>Revenue statistical of week</label>
-                                <input type="date" className='form-control' placeholder='select week' />
+                                <label className='form-label'>From date:</label>
+                                <input
+                                    type="date"
+                                    className='form-control'
+                                    value={startDate}
+                                    onChange={(e) => setStartDateWeek(e.target.value)}
+                                />
                             </div>
                             <div className='mt-3'>
-                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div className='col d-flex flex-column border rounded bg-white' style={{ flexGrow: 1 }}>
-                        <form className='p-3'>
-                            <div className='mt-3'>
-                                <label className='form-label'>Revenue statistical of month</label>
-                                <input type="date" className='form-control' placeholder='select month' />
-                            </div>
-                            <div className='mt-3'>
-                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div className='col d-flex flex-column border rounded bg-white' style={{ flexGrow: 1 }}>
-                        <form className='p-3'>
-                            <div className='mt-3'>
-                                <label className='form-label'>Revenue statistical of year</label>
-                                <input type="date" className='form-control' placeholder='select year' />
+                                <label className='form-label'>To date:</label>
+                                <input
+                                    type="date"
+                                    className='form-control'
+                                    value={endDate}
+                                    onChange={(e) => setEndDateWeek(e.target.value)}
+                                />
                             </div>
                             <div className='mt-3'>
                                 <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
@@ -204,6 +295,169 @@ const Statistical = () => {
                         </form>
                     </div>
                 </section>
+
+                {/* Search by week or between week */}
+                <section className='row mt-5 d-flex justify-content-between gap-3'>
+                    {/* Statistical Revenue By Week */}
+                    <div className='col rounded p-3 border bg-white'>
+                        <h6>Statistical revenue by week</h6>
+                        <form onSubmit={handleSingleDateSubmit} className='p-3'>
+                            <div className='mt-3'>
+                                <label className='form-label'>Choose 1 day of the week</label>
+                                <input
+                                    type="date"
+                                    className='form-control'
+                                    value={selectedWeek}
+                                    onChange={(e) => setSelectedWeek(e.target.value)}
+                                />
+                            </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    {/* Statistical Revenue Between Weeks */}
+                    <div className='col border rounded bg-white'>
+                        <h6>Statistical revenue between weeks</h6>
+                        {/* From Week */}
+                        <form onSubmit={handleBetweenDatesSubmit} className='p-3'>
+                            <div className='mt-3'>
+                                <label className='form-label'>From:</label>
+                                <input
+                                    type="date"
+                                    className='form-control'
+                                    value={startDateWeek}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
+                            </div>
+                            <div className='mt-3'>
+                                <label className='form-label'>To:</label>
+                                <input
+                                    type="date"
+                                    className='form-control'
+                                    value={endDateWeek}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                />
+                            </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                {/* Search by month or between month */}
+                <section className='row mt-5 d-flex justify-content-between gap-3'>
+                    {/* Search by month */}
+                    <div className='col border rounded bg-white'>
+                        <h6>Statistical revenue by month</h6>
+                        <form onSubmit={handleSingleMonthSubmit} className='p-3'>
+                            <div className='mt-3'>
+                                <label className='form-label'>Year</label>
+                                <input
+                                    type="text"
+                                    className='form-control'
+                                    placeholder='Enter the year you want'
+                                    value={selectYearOfMonth}
+                                    onChange={handleYearChange} // Gọi hàm khi thay đổi năm
+                                />
+                            </div>
+                            <div className='mt-3'>
+                                <label className='form-label'>Month</label>
+                                <select className='form-control' value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+                                    <option value="">Select a month</option>
+                                    {months.map((month) => (
+                                        <option key={month.value} value={month.value}>{month.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {/* Search between months */}
+                    <div className='col border rounded bg-white'>
+                        <h6>Statistical revenue between months</h6>
+                        <form onSubmit={handleBetweenMonthsSubmit} className='p-3'>
+                            <div className='mt-3'>
+                                <label className='form-label'>Year</label>
+                                <input
+                                    type="text"
+                                    className='form-control'
+                                    placeholder='Enter the year you want'
+                                    value={selectYearOfMonth}
+                                    onChange={handleYearChange}
+                                />
+                            </div>
+                            <div className='mt-3'>
+                                <label className='form-label'>From month</label>
+                                <select className='form-control' value={startDateMonth} onChange={(e) => setStartDateMonth(e.target.value)}>
+                                    <option value="">Select a month</option>
+                                    {months.map((month) => (
+                                        <option key={month.value} value={month.value}>{month.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className='mt-3'>
+                                <label className='form-label'>To month</label>
+                                <select className='form-control' value={endDateMonth} onChange={(e) => setEndDateMonth(e.target.value)}>
+                                    <option value="">Select a month</option>
+                                    {months.map((month) => (
+                                        <option key={month.value} value={month.value}>{month.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                {/* Search by year or between year */}
+                <section className='row mt-5 d-flex justify-content-between gap-3'>
+                    {/* Search by month */}
+                    <div className='col border rounded bg-white'>
+                        <h6>Statistical revenue by year</h6>
+                        <div className='mt-3'>
+                            <label className='form-label'>Enter the year you want</label>
+                            <input type="text" className='form-control' placeholder='Enter the year you want' />
+                        </div>
+                        <div className='mt-3'>
+                            <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                    {/* Search between months */}
+                    <div className='col border rounded bg-white'>
+                        <h6>Statistical revenue between years</h6>
+                        <div className='mt-3'>
+                            <label className='form-label'>From year</label>
+                            <input type="text" className='form-control' placeholder='Enter the year you want' />
+                        </div>
+                        <div className='mt-3'>
+                            <label className='form-label'>To year</label>
+                            <input type="text" className='form-control' placeholder='Enter the year you want' />
+                        </div>
+                        <div className='mt-3'>
+                            <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
 
                 {/* Chart revenue statistical */}
                 <section className='row mt-5 justify-content-between gap-3'>
