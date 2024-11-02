@@ -257,7 +257,7 @@ const CheckOut = () => {
         }
 
         // Xác định trạng thái thanh toán dựa trên phương thức thanh toán đã chọn
-        const paymentStatus = paymentMethod === 'vnpay' ? 'Paid' : 'Not Paid';
+        const paymentStatus = paymentMethod === 'VNPAY' ? 'Paid' : 'Not Paid';
 
         const orderData = {
             userId: userId,
@@ -284,7 +284,7 @@ const CheckOut = () => {
             // Gọi API tạo đơn hàng dựa trên phương thức thanh toán
             setIsLoading(true);
             let response;
-            if (paymentMethod === 'vnpay') {
+            if (paymentMethod === 'VNPAY') {
                 response = await axios.post('http://localhost:8080/customer/checkout/create_payment', orderData, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -319,7 +319,7 @@ const CheckOut = () => {
 
 
                 Swal.fire({
-                    title: 'Success',
+title: 'Success',
                     text: 'Your order has been placed successfully!',
                     icon: 'success',
                     showCancelButton: true,

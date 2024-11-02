@@ -9,7 +9,7 @@ export const getRevenueByDate = (date) => axios.get(`${REST_API_BASE_URL}/revenu
 export const getRevenueBetweenDate = (startDate, endDate) => axios.get(`${REST_API_BASE_URL}/revenue-between-date/${startDate}/${endDate}`);
 
 // statistical revenue by week
-export const getRevenueByWeek = (date) => axios.get(`${REST_API_BASE_URL}/revenue-by-week/${date}`); 
+export const getRevenueByWeek = (selectedWeek) => axios.get(`${REST_API_BASE_URL}/revenue-by-week/${selectedWeek}`); 
 
 // statistical revenue between week
 export const getRevenueBetweenWeek = (startDate, endDate) => axios.get(`${REST_API_BASE_URL}/revenue-between-weeks/${startDate}/${endDate}`);

@@ -95,7 +95,7 @@ const EcommerceAdmin = () => {
             <Route path='Statistical/revenue-according-date/:date' element={<StatisticalRevenueTime />} />
             <Route path='Statistical/revenue-between-date/:startDate/:endDate' element={<StatisticalRevenueTime />} />
             
-            <Route path='Statistical/revenue-by-week/:date' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-by-week/:selectedWeek' element={<StatisticalRevenueTime />} />
             <Route path='Statistical/revenue-between-weeks/:startDate/:endDate' element={<StatisticalRevenueTime />} />
             
             <Route path='Statistical/revenue-by-month/:year/:month' element={<StatisticalRevenueTime />} />

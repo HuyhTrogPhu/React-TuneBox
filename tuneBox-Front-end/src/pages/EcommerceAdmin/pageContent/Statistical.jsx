@@ -8,6 +8,7 @@ const Statistical = () => {
     const [currentRevenue, setCurrentRevenue] = useState({});
     const [previousRevenue, setPreviousRevenue] = useState({});
     const navigate = useNavigate();
+
     // revenue by day or between days
     const [selectedDate, setSelectedDate] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -18,7 +19,7 @@ const Statistical = () => {
     const [startDateWeek, setStartDateWeek] = useState('');
     const [endDateWeek, setEndDateWeek] = useState('');
 
-    // revenie by month or between months
+    // revenue by month or between months
     const [selectYearOfMonth, setSelectedYearOfMonth] = useState('');
     const [selectedMonth, setSelectedMonth] = useState('');
     const [startDateMonth, setStartDateMonth] = useState('');
@@ -82,28 +83,27 @@ const Statistical = () => {
         }
     };
 
-    // search statistical revenue week
+    // search statistical revenue by week
     const handleSingleDateSubmit = (e) => {
         e.preventDefault();
         if (selectedWeek) {
-            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-by-week/${selectedWeek}`);
+            navigate(`/ecomadmin/Statistical/revenue-by-week/${selectedWeek}`);
         }
     };
 
-    // search statistical revenue between week
+    // search statistical revenue between weeks
     const handleBetweenDatesSubmit = (e) => {
         e.preventDefault();
         if (startDateWeek && endDateWeek) {
-            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-between-week/${startDateWeek}/${endDateWeek}`);
+            navigate(`/ecomadmin/Statistical/revenue-between-weeks/${startDateWeek}/${endDateWeek}`);
         }
     };
 
-    // tính năm nhuận hoặc không nhuận
+    // calculate months in a year
     const handleYearChange = (e) => {
         const year = e.target.value;
         setSelectedYearOfMonth(year);
 
-        // Tính toán các tháng trong năm
         const monthArray = [];
         for (let i = 1; i <= 12; i++) {
             monthArray.push({ value: i, label: `Month ${i}` });
@@ -111,20 +111,19 @@ const Statistical = () => {
         setMonths(monthArray);
     };
 
-
     // search statistical revenue month
     const handleSingleMonthSubmit = (e) => {
         e.preventDefault();
         if (selectYearOfMonth && selectedMonth) {
-            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-by-month/${selectYearOfMonth}/${selectedMonth}`);
+            navigate(`/ecomadmin/Statistical/revenue-by-month/${selectYearOfMonth}/${selectedMonth}`);
         }
     };
 
-    // search statistical revenue between month
+    // search statistical revenue between months
     const handleBetweenMonthsSubmit = (e) => {
         e.preventDefault();
         if (selectYearOfMonth && startDateMonth && endDateMonth) {
-            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-between-months/${selectYearOfMonth}/${startDateMonth}/${endDateMonth}`);
+            navigate(`/ecomadmin/Statistical/revenue-between-months/${selectYearOfMonth}/${startDateMonth}/${endDateMonth}`);
         }
     };
 
@@ -132,15 +131,15 @@ const Statistical = () => {
     const handleSingleYearSubmit = (e) => {
         e.preventDefault();
         if (selectedYear) {
-            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-by-year/${selectedYear}`);
+            navigate(`/ecomadmin/Statistical/revenue-by-year/${selectedYear}`);
         }
     };
 
-    // search statistical revenue between year
+    // search statistical revenue between years
     const handleBetweenYearsSubmit = (e) => {
         e.preventDefault();
         if (startDateYear && endDateYear) {
-            navigate(`/ecomadmin/StatisticalRevenueTime/revenue-between-years/${startDateYear}/${endDateYear}`);
+            navigate(`/ecomadmin/Statistical/revenue-between-years/${startDateYear}/${endDateYear}`);
         }
     };
 
@@ -249,7 +248,7 @@ const Statistical = () => {
 
                 </section>
 
-                {/* Search revenue by day or between day*/}
+                {/* Search revenue by day or between day */}
                 <section className='row mt-5 d-flex justify-content-between gap-3'>
                     <div className='col border rounded bg-white'>
                         <h6>Statistical revenue by day</h6>
@@ -277,7 +276,7 @@ const Statistical = () => {
                                     type="date"
                                     className='form-control'
                                     value={startDate}
-                                    onChange={(e) => setStartDateWeek(e.target.value)}
+                                    onChange={(e) => setStartDate(e.target.value)}
                                 />
                             </div>
                             <div className='mt-3'>
@@ -286,7 +285,7 @@ const Statistical = () => {
                                     type="date"
                                     className='form-control'
                                     value={endDate}
-                                    onChange={(e) => setEndDateWeek(e.target.value)}
+                                    onChange={(e) => setEndDate(e.target.value)}
                                 />
                             </div>
                             <div className='mt-3'>
@@ -312,9 +311,7 @@ const Statistical = () => {
                                 />
                             </div>
                             <div className='mt-3'>
-                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
-                                    Submit
-                                </button>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
                             </div>
                         </form>
                     </div>
@@ -322,7 +319,6 @@ const Statistical = () => {
                     {/* Statistical Revenue Between Weeks */}
                     <div className='col border rounded bg-white'>
                         <h6>Statistical revenue between weeks</h6>
-                        {/* From Week */}
                         <form onSubmit={handleBetweenDatesSubmit} className='p-3'>
                             <div className='mt-3'>
                                 <label className='form-label'>From:</label>
@@ -330,7 +326,7 @@ const Statistical = () => {
                                     type="date"
                                     className='form-control'
                                     value={startDateWeek}
-                                    onChange={(e) => setStartDate(e.target.value)}
+                                    onChange={(e) => setStartDateWeek(e.target.value)}
                                 />
                             </div>
                             <div className='mt-3'>
@@ -339,13 +335,11 @@ const Statistical = () => {
                                     type="date"
                                     className='form-control'
                                     value={endDateWeek}
-                                    onChange={(e) => setEndDate(e.target.value)}
+                                    onChange={(e) => setEndDateWeek(e.target.value)}
                                 />
                             </div>
                             <div className='mt-3'>
-                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
-                                    Submit
-                                </button>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
                             </div>
                         </form>
                     </div>
@@ -364,26 +358,29 @@ const Statistical = () => {
                                     className='form-control'
                                     placeholder='Enter the year you want'
                                     value={selectYearOfMonth}
-                                    onChange={handleYearChange} // Gọi hàm khi thay đổi năm
+                                    onChange={handleYearChange} 
                                 />
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>Month</label>
-                                <select className='form-control' value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
-                                    <option value="">Select a month</option>
+                                <label className='form-label'>Choose a month</label>
+                                <select
+                                    className='form-control'
+                                    value={selectedMonth}
+                                    onChange={(e) => setSelectedMonth(e.target.value)}
+                                >
+                                    <option value=''>Select Month</option>
                                     {months.map((month) => (
                                         <option key={month.value} value={month.value}>{month.label}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
-                                    Submit
-                                </button>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
                             </div>
                         </form>
                     </div>
-                    {/* Search between months */}
+
+                    {/* Statistical Revenue Between Months */}
                     <div className='col border rounded bg-white'>
                         <h6>Statistical revenue between months</h6>
                         <form onSubmit={handleBetweenMonthsSubmit} className='p-3'>
@@ -394,67 +391,94 @@ const Statistical = () => {
                                     className='form-control'
                                     placeholder='Enter the year you want'
                                     value={selectYearOfMonth}
-                                    onChange={handleYearChange}
+                                    onChange={handleYearChange} 
                                 />
+                                
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>From month</label>
-                                <select className='form-control' value={startDateMonth} onChange={(e) => setStartDateMonth(e.target.value)}>
-                                    <option value="">Select a month</option>
+                            <label className='form-label'>Choose a month</label>
+                                <label className='form-label'>From:</label>
+                                 <select
+                                    className='form-control'
+                                    value={startDateMonth}
+                                    onChange={(e) => setStartDateMonth(e.target.value)}
+                                >
+                                    <option value=''>Select Month</option>
                                     {months.map((month) => (
                                         <option key={month.value} value={month.value}>{month.label}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>To month</label>
-                                <select className='form-control' value={endDateMonth} onChange={(e) => setEndDateMonth(e.target.value)}>
-                                    <option value="">Select a month</option>
+                                <label className='form-label'>To:</label>
+                                 <select
+                                    className='form-control'
+                                    value={endDateMonth}
+                                    onChange={(e) => setEndDateMonth(e.target.value)}
+                                >
+                                    <option value=''>Select Month</option>
                                     {months.map((month) => (
                                         <option key={month.value} value={month.value}>{month.label}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
-                                    Submit
-                                </button>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
                             </div>
                         </form>
                     </div>
                 </section>
 
-                {/* Search by year or between year */}
+                {/* Search by year or between years */}
                 <section className='row mt-5 d-flex justify-content-between gap-3'>
-                    {/* Search by month */}
+                    {/* Search by year */}
                     <div className='col border rounded bg-white'>
                         <h6>Statistical revenue by year</h6>
-                        <div className='mt-3'>
-                            <label className='form-label'>Enter the year you want</label>
-                            <input type="text" className='form-control' placeholder='Enter the year you want' />
-                        </div>
-                        <div className='mt-3'>
-                            <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
-                                Submit
-                            </button>
-                        </div>
+                        <form onSubmit={handleSingleYearSubmit} className='p-3'>
+                            <div className='mt-3'>
+                                <label className='form-label'>Choose a year</label>
+                                <input
+                                    type="text"
+                                    className='form-control'
+                                    placeholder='Enter the year you want'
+                                    value={selectedYear}
+                                    onChange={(e) => setSelectedYear(e.target.value)} 
+                                />
+                            </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
+                            </div>
+                        </form>
                     </div>
-                    {/* Search between months */}
+
+                    {/* Statistical Revenue Between Years */}
                     <div className='col border rounded bg-white'>
                         <h6>Statistical revenue between years</h6>
-                        <div className='mt-3'>
-                            <label className='form-label'>From year</label>
-                            <input type="text" className='form-control' placeholder='Enter the year you want' />
-                        </div>
-                        <div className='mt-3'>
-                            <label className='form-label'>To year</label>
-                            <input type="text" className='form-control' placeholder='Enter the year you want' />
-                        </div>
-                        <div className='mt-3'>
-                            <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>
-                                Submit
-                            </button>
-                        </div>
+                        <form onSubmit={handleBetweenYearsSubmit} className='p-3'>
+                            <div className='mt-3'>
+                                <label className='form-label'>From:</label>
+                                <input
+                                    type="text"
+                                    className='form-control'
+                                    placeholder='Enter start year'
+                                    value={startDateYear}
+                                    onChange={(e) => setStartDateYear(e.target.value)} 
+                                />
+                            </div>
+                            <div className='mt-3'>
+                                <label className='form-label'>To:</label>
+                                <input
+                                    type="text"
+                                    className='form-control'
+                                    placeholder='Enter end year'
+                                    value={endDateYear}
+                                    onChange={(e) => setEndDateYear(e.target.value)} 
+                                />
+                            </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
+                            </div>
+                        </form>
                     </div>
                 </section>
 
