@@ -75,8 +75,53 @@ const DetailProduct = () => {
   };
 
   const handleIncrement = () => {
-    setQuantity(quantity + 1);
+    if (quantity < instrument.quantity) { // Kiểm tra xem số lượng có vượt quá số lượng hiện có không
+      setQuantity(quantity + 1);
+    } else {
+      Swal.fire({
+        title: 'Error!',
+        text: `You cannot increase the quantity beyond available stock (${instrument.quantity}).`,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        customClass: {
+          confirmButton: 'btn btn-primary',
+        },
+        buttonsStyling: false
+      });
+    }
   };
+
+  // Cập nhật giá trị trong ô input
+  const handleInputChange = (e) => {
+    const value = Number(e.target.value);
+    if (value >= 1 && value <= instrument.quantity) { // Kiểm tra giới hạn
+      setQuantity(value);
+    } else if (value > instrument.quantity) {
+      Swal.fire({
+        title: 'Error!',
+        text: `You cannot enter more than ${instrument.quantity} items.`,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        customClass: {
+          confirmButton: 'btn btn-primary',
+        },
+        buttonsStyling: false
+      });
+    } else {
+      setQuantity(1); // Đặt lại số lượng về 1 nếu nhập số âm hoặc 0
+    }
+  };
+
+
+  // Trong phần render
+  <input
+    type="number"
+    value={quantity}
+    onChange={handleInputChange} // Sử dụng hàm mới này
+    className="soluongSP rounded-2 m-0"
+    min={1}
+  />
+
 
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
@@ -90,23 +135,44 @@ const DetailProduct = () => {
   const handleAddToCart = async () => {
     setIsAddingToCart(true); // Bắt đầu loading
 
+    // Kiểm tra trạng thái hàng hóa
+    if (instrument.quantity === 0) {
+      setIsAddingToCart(false); // Kết thúc loading
+
+      // Hiển thị thông báo không thể thêm sản phẩm vào giỏ hàng
+      Swal.fire({
+        title: 'Error!',
+        text: 'This product is out of stock, please choose another product!',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        customClass: {
+          confirmButton: 'btn btn-primary',
+        },
+        buttonsStyling: false // Tùy chọn để sử dụng style tùy chỉnh
+      });
+
+      return; // Dừng thực hiện nếu không còn hàng
+    }
+
+    // Nếu sản phẩm còn hàng, thực hiện thêm vào giỏ hàng
     setTimeout(() => {
-        addToLocalCart(instrument, quantity);
-        setIsAddingToCart(false); // Kết thúc loading
-        
-        // Sử dụng SweetAlert2 để hiển thị thông báo
-        Swal.fire({
-            title: 'Success!',
-            text: 'The product has been added to the cart.',
-            icon: 'success',
-            confirmButtonText: 'OK',
-            customClass: {
-                confirmButton: 'btn btn-primary',
-            },
-            buttonsStyling: false // Tùy chọn để sử dụng style tùy chỉnh
-        });
+      addToLocalCart(instrument, quantity);
+      setIsAddingToCart(false); // Kết thúc loading
+
+      // Hiển thị thông báo thành công
+      Swal.fire({
+        title: 'Success!',
+        text: 'The product has been added to the cart.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        customClass: {
+          confirmButton: 'btn btn-primary',
+        },
+        buttonsStyling: false // Tùy chọn để sử dụng style tùy chỉnh
+      });
     }, 1000); // Giả lập thời gian xử lý
-};
+  };
+
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p>{error}</p>;
@@ -132,12 +198,12 @@ const DetailProduct = () => {
             {/* Instrument content */}
             <div className="col-6">
               <div className="mt-5">
-              <h3>About the product</h3>
-              <div className="gioiThieu mt-4 p-3">
-                <p>{instrument.description}</p>
+                <h3>About the product</h3>
+                <div className="gioiThieu mt-4 p-3">
+                  <p>{instrument.description}</p>
+                </div>
               </div>
-              </div>
-             
+
             </div>
             <div className="col-5">
               <div className="mt-4 mb-3 noidungSP">
@@ -153,7 +219,7 @@ const DetailProduct = () => {
                       <input
                         type="number"
                         value={quantity}
-                        onChange={(e) => setQuantity(Number(e.target.value))}
+                        onChange={handleInputChange} // Sử dụng hàm mới này
                         className="soluongSP rounded-2 m-0"
                         min={1}
                       />
