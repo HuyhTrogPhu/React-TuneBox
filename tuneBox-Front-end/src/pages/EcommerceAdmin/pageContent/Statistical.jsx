@@ -143,6 +143,20 @@ const Statistical = () => {
         }
     };
 
+    // statistical order 
+    const orderTypes = [
+        { type: 'unpaid', label: 'Unpaid' },
+        { type: 'paid', label: 'Paid' },
+        { type: 'confirmed', label: 'Confirmed' },
+        { type: 'delivered', label: 'Delivered' },
+        { type: 'delivering', label: 'Delivering' },
+        { type: 'canceled', label: 'Canceled' },
+        { type: 'cod', label: 'COD' },
+        { type: 'vnpay', label: 'VNPAY' },
+        { type: 'normal', label: 'Normal' },
+        { type: 'fast', label: 'Express' }
+    ];
+
 
     return (
         <div>
@@ -358,7 +372,7 @@ const Statistical = () => {
                                     className='form-control'
                                     placeholder='Enter the year you want'
                                     value={selectYearOfMonth}
-                                    onChange={handleYearChange} 
+                                    onChange={handleYearChange}
                                 />
                             </div>
                             <div className='mt-3'>
@@ -391,14 +405,14 @@ const Statistical = () => {
                                     className='form-control'
                                     placeholder='Enter the year you want'
                                     value={selectYearOfMonth}
-                                    onChange={handleYearChange} 
+                                    onChange={handleYearChange}
                                 />
-                                
+
                             </div>
                             <div className='mt-3'>
-                            <label className='form-label'>Choose a month</label>
+                                <label className='form-label'>Choose a month</label>
                                 <label className='form-label'>From:</label>
-                                 <select
+                                <select
                                     className='form-control'
                                     value={startDateMonth}
                                     onChange={(e) => setStartDateMonth(e.target.value)}
@@ -411,7 +425,7 @@ const Statistical = () => {
                             </div>
                             <div className='mt-3'>
                                 <label className='form-label'>To:</label>
-                                 <select
+                                <select
                                     className='form-control'
                                     value={endDateMonth}
                                     onChange={(e) => setEndDateMonth(e.target.value)}
@@ -442,7 +456,7 @@ const Statistical = () => {
                                     className='form-control'
                                     placeholder='Enter the year you want'
                                     value={selectedYear}
-                                    onChange={(e) => setSelectedYear(e.target.value)} 
+                                    onChange={(e) => setSelectedYear(e.target.value)}
                                 />
                             </div>
                             <div className='mt-3'>
@@ -462,7 +476,7 @@ const Statistical = () => {
                                     className='form-control'
                                     placeholder='Enter start year'
                                     value={startDateYear}
-                                    onChange={(e) => setStartDateYear(e.target.value)} 
+                                    onChange={(e) => setStartDateYear(e.target.value)}
                                 />
                             </div>
                             <div className='mt-3'>
@@ -472,7 +486,7 @@ const Statistical = () => {
                                     className='form-control'
                                     placeholder='Enter end year'
                                     value={endDateYear}
-                                    onChange={(e) => setEndDateYear(e.target.value)} 
+                                    onChange={(e) => setEndDateYear(e.target.value)}
                                 />
                             </div>
                             <div className='mt-3'>
@@ -513,57 +527,23 @@ const Statistical = () => {
 
                 {/* Statistical order */}
                 <section className='row mt-5 d-flex justify-content-between gap-3'>
-                    <div className='col-2 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
-                            </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>Unpaid invoice </h6>
-                            </div>
+                    {orderTypes.map(order => (
+                        <div key={order.type} className='col-2 d-flex align-items-stretch'>
+                            <Link to={`/ecomadmin/Statistical/statistical-order-${order.type}`} className='w-100 border rounded bg-white d-flex align-items-center p-2'>
+                                <div className='row w-100 align-items-center m-0'>
+                                    <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
+                                        <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                    </div>
+                                    <div className='col-9 m-0 d-flex align-items-center'>
+                                        <h6 className='mb-0 ps-0'>{order.label}</h6>
+                                    </div>
+                                </div>
+                            </Link>
                         </div>
-                    </div>
-                    <div className='col-2 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
-                            </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>Paid invoice </h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='col-2 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
-                            </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>Bill in transit </h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='col-2 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
-                            </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>COD invoice </h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='col-2 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
-                        <div className='row d-flex align-items-center'>
-                            <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
-                                <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
-                            </div>
-                            <div className='col-9 m-0'>
-                                <h6 className='ps-0'>Paypal invoice </h6>
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                 </section>
+
+
             </div>
         </div>
     )

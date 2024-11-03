@@ -16,6 +16,7 @@ import RevenueCurrently from '../components/EcomRevenue/RevenueCurrently';
 import StatisticalInstrument from '../components/EcomStatisticalInstrument/StatisticalInstrument';
 import { images } from '../assets/images/images';
 import StatisticalRevenueTime from '../components/EcomRevenueTime/StatisticalRevenueTime';
+import StatisticalOrder from '../components/EcomStatisticalOrder/StatisticalOrder';
 
 const EcommerceAdmin = () => {
   return (
@@ -84,7 +85,7 @@ const EcommerceAdmin = () => {
 
             <Route path='Order' element={<ManagerOrder />} />
             <Route path='Order/detail/:orderId' element={<OrderDetail />} />
-            
+
             <Route path='Statistical' element={<Statistical />} />
             <Route path='Statistical/sell-the-most' element={<UserSellTheMost />} />
             <Route path='Statistical/sell-the-least' element={<UserSellTheLeast />} />
@@ -94,15 +95,26 @@ const EcommerceAdmin = () => {
 
             <Route path='Statistical/revenue-according-date/:date' element={<StatisticalRevenueTime />} />
             <Route path='Statistical/revenue-between-date/:startDate/:endDate' element={<StatisticalRevenueTime />} />
-            
+
             <Route path='Statistical/revenue-by-week/:selectedWeek' element={<StatisticalRevenueTime />} />
             <Route path='Statistical/revenue-between-weeks/:startDate/:endDate' element={<StatisticalRevenueTime />} />
-            
+
             <Route path='Statistical/revenue-by-month/:year/:month' element={<StatisticalRevenueTime />} />
             <Route path='Statistical/revenue-between-months/:year/:startMonth/:endMonth' element={<StatisticalRevenueTime />} />
-            
+
             <Route path='Statistical/revenue-by-year/:year' element={<StatisticalRevenueTime />} />
             <Route path='Statistical/revenue-between-years/:startYear/:endYear' element={<StatisticalRevenueTime />} />
+
+            <Route path="Statistical/statistical-order-unpaid" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-paid" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-confirmed" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-delivered" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-delivering" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-canceled" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-cod" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-vnpay" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-normal" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order-fast" element={<StatisticalOrder />} />
 
             <Route path='Statistical/statistical-instrument' element={<StatisticalInstrument />} />
 
