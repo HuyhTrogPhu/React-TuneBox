@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import {
     getOrdersByCanceled,
     getOrdersByCOD,
@@ -21,31 +21,35 @@ const StatisticalOrder = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10; // Define how many orders per page
+
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 let response;
 
                 // Adjusting the type comparison to match the paths correctly
-                if (type === 'statistical-order-unpaid') {
+                if (type === 'unpaid') {
                     response = await getOrdersByUnpaid();
-                } else if (type === 'statistical-order-paid') {
+                } else if (type === 'paid') {
                     response = await getOrdersByPaid();
-                } else if (type === 'statistical-order-confirmed') {
+                } else if (type === 'confirmed') {
                     response = await getOrdersByConfirmed();
-                } else if (type === 'statistical-order-delivered') {
+                } else if (type === 'delivered') {
                     response = await getOrdersByDelivered();
-                } else if (type === 'statistical-order-delivering') {
+                } else if (type === 'delivering') {
                     response = await getOrdersByDelivering();
-                } else if (type === 'statistical-order-canceled') {
+                } else if (type === 'canceled') {
                     response = await getOrdersByCanceled();
-                } else if (type === 'statistical-order-cod') {
+                } else if (type === 'cod') {
                     response = await getOrdersByCOD();
-                } else if (type === 'statistical-order-vnpay') {
+                } else if (type === 'vnpay') {
                     response = await getOrdersByVNPAY();
-                } else if (type === 'statistical-order-normal') {
+                } else if (type === 'normal') {
                     response = await getOrdersByNormal();
-                } else if (type === 'statistical-order-fast') {
+                } else if (type === 'fast') {
                     response = await getOrdersByFast();
                 } else {
                     return;
@@ -67,6 +71,7 @@ const StatisticalOrder = () => {
             order.orderDate.startsWith(searchDate)
         );
         setFilteredOrders(filtered);
+        setCurrentPage(1); // Reset to first page on search
     };
 
     const handleSearchBetweenDates = (e) => {
@@ -78,6 +83,18 @@ const StatisticalOrder = () => {
             return orderDate >= start && orderDate <= end;
         });
         setFilteredOrders(filtered);
+        setCurrentPage(1); // Reset to first page on search
+    };
+
+    // Calculate current orders based on currentPage and itemsPerPage
+    const indexOfLastOrder = currentPage * itemsPerPage;
+    const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
+    const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+
+    // Pagination handler
+    const paginate = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     return (
@@ -131,9 +148,10 @@ const StatisticalOrder = () => {
                 </section>
 
                 {/* Table */}
-                <section className='col-12 mt-5'>
+                <section className='row mt-5'>
                     <h6 style={{ textAlign: 'center' }}>List orders</h6>
-                    <table className='table border'>
+                    <h6><strong>Total orders: </strong>{filteredOrders.length} order</h6>
+                    <table className='table border col-12'>
                         <thead>
                             <tr>
                                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -153,10 +171,10 @@ const StatisticalOrder = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredOrders.map((order, index) => (
-                                <tr key={order.id}>
-                                    <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                                    <td style={{ textAlign: 'center' }}>{order.orderId}</td>
+                            {currentOrders.map((order, index) => (
+                                <tr key={order.oderId}>
+                                    <td style={{ textAlign: 'center' }}>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                                    <td style={{ textAlign: 'center' }}>{order.oderId}</td>
                                     <td style={{ textAlign: 'center' }}>{order.name}</td>
                                     <td style={{ textAlign: 'center' }}>{order.email}</td>
                                     <td style={{ textAlign: 'center' }}>{order.orderDate}</td>
@@ -168,13 +186,38 @@ const StatisticalOrder = () => {
                                     <td style={{ textAlign: 'center' }}>{order.status}</td>
                                     <td style={{ textAlign: 'center' }}>{order.shippingMethod}</td>
                                     <td style={{ textAlign: 'center' }}>{order.paymentStatus}</td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <button className='btn btn-danger'>Delete</button>
+                                    <td>
+                                        <Link to={`/ecomadmin/order/detail/${order.oderId}`}>View</Link>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+
+                    {/* Pagination */}
+                    <div className="">
+                        <nav aria-label="Page navigation example">
+                            <ul className="pagination justify-content-center text-center">
+                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                                        <span aria-hidden="true">«</span>
+                                    </button>
+                                </li>
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => paginate(i + 1)}>
+                                            {i + 1}
+                                        </button>
+                                    </li>
+                                ))}
+                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                                        <span aria-hidden="true">»</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                 </section>
             </div>
         </div>

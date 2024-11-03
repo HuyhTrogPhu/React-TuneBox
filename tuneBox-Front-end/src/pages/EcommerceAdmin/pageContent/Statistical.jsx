@@ -529,7 +529,7 @@ const Statistical = () => {
                 <section className='row mt-5 d-flex justify-content-between gap-3'>
                     {orderTypes.map(order => (
                         <div key={order.type} className='col-2 d-flex align-items-stretch'>
-                            <Link to={`/ecomadmin/Statistical/statistical-order-${order.type}`} className='w-100 border rounded bg-white d-flex align-items-center p-2'>
+                            <Link to={`/ecomadmin/Statistical/statistical-order/${order.type}`} className='w-100 border rounded bg-white d-flex align-items-center p-2'>
                                 <div className='row w-100 align-items-center m-0'>
                                     <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
                                         <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>

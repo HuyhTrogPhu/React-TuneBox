@@ -105,16 +105,16 @@ const EcommerceAdmin = () => {
             <Route path='Statistical/revenue-by-year/:year' element={<StatisticalRevenueTime />} />
             <Route path='Statistical/revenue-between-years/:startYear/:endYear' element={<StatisticalRevenueTime />} />
 
-            <Route path="Statistical/statistical-order-unpaid" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-paid" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-confirmed" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-delivered" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-delivering" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-canceled" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-cod" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-vnpay" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-normal" element={<StatisticalOrder />} />
-            <Route path="Statistical/statistical-order-fast" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
 
             <Route path='Statistical/statistical-instrument' element={<StatisticalInstrument />} />
 

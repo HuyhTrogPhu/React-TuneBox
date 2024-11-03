@@ -4,8 +4,10 @@ import { useParams } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas-pro';
+import { images } from '../../assets/images/images';
+
 const OrderDetail = () => {
-  const { orderId } = useParams()
+  const { orderId } = useParams();
   const [orderDetail, setOrderDetail] = useState(null);
 
   useEffect(() => {
@@ -58,7 +60,6 @@ const OrderDetail = () => {
     XLSX.writeFile(wb, `OrderDetail_${orderDetail.id}.xlsx`);
   };
 
-
   const downloadPDF = async () => {
     const input = document.getElementById('order-detail-section');
 
@@ -90,98 +91,118 @@ const OrderDetail = () => {
     pdf.save(`OrderDetail_${orderDetail.id}.pdf`);
   };
 
-
   if (!orderDetail) {
     return <p>Loading...</p>;
   }
 
+  // Tính toán tổng tiền
+  const subtotal = orderDetail.orderItems.reduce((sum, item) => sum + (item.costPrice * item.quantity), 0);
+  const tax = subtotal * 0.05; // 5% thuế
+  const total = subtotal + tax;
+
   return (
-    <div id="order-detail-section"  >
-      <div style={{ marginTop: '10px' }}>
-        <h1 style={{ fontSize: '30px' }}> <b>Order Detail</b></h1>
-      </div>
-      <div className='row'>
+    <div id="order-detail-section">
+      <div className='row p-5'>
+        {/* Avatar shop */}
+        <div className='col-12 text-center'>
+          <img src={images.logoTuneBox} alt='shop-avatar' style={{ width: '200px', height: 'auto' }} />
+          <p>QTSC 9 Building, Đ. Tô Ký, Tân Chánh Hiệp, Quận 12, Hồ Chí Minh, Việt Nam</p>
+        </div>
         {/* User information */}
-        <div className='col-4 mt-5 ps-5'>
-          <h1 className='mb-4' style={{ fontSize: '25px' }}>User information</h1>
-          <p><strong>Username:</strong> {orderDetail.userName}</p>
-          <p><strong>Email:</strong> {orderDetail.email}</p>
+        <div className='col-6 mt-5 ps-5 text-start'>
+          <h1 className='mb-4' style={{ fontSize: '25px' }}>User Information</h1>
           <p><strong>Name:</strong> {orderDetail.name}</p>
+          <p><strong>Email:</strong> {orderDetail.email}</p>
           <p><strong>Phone Number:</strong> {orderDetail.phone}</p>
           <p><strong>Location:</strong> {orderDetail.location}</p>
         </div>
 
         {/* Order information */}
-        <div className='col-8 mt-5 ps-5'>
-          <h1 className='mb-4' style={{ fontSize: '25px' }}>Order information</h1>
-          <div className='d-flex'>
-            <div className=''>
-              <p><strong>Order ID:</strong> {orderDetail.id}</p>
-              <p>
-                <strong>Status:</strong>
-                <span style={{
-                  color: orderDetail.status === "Canceled"
-                    ? "red"
-                    : orderDetail.status === "Delivered"
-                      ? "green"
-                      : "yellow"
-                }}>
-                  {orderDetail.status}
-                </span>
-              </p>
-
-              <p><strong>Payment method:</strong> {orderDetail.paymentMethod}</p>
-              <p><strong>Shipping method:</strong> {orderDetail.shippingMethod}</p>
-            </div>
-            <div className='ms-4'>
-              <p><strong>Phone Number:</strong> {orderDetail.phoneNumber}</p>
-              <p><strong>Order date:</strong> <span style={{ color: 'blue' }}>{orderDetail.orderDate}</span></p>
-              <p><strong>Delivery Date:</strong> <span style={{ color: 'blue' }}>{orderDetail.deliveryDate}</span> </p>
-              <p><strong>Address:</strong> {orderDetail.address}</p>
-            </div>
+        <div className='col-6 mt-5 pe-5 text-end'>
+          <h1 className='mb-4' style={{ fontSize: '25px' }}>Order Information</h1>
+          <div className=''>
+            <p><strong>Order ID: </strong> {orderDetail.id}</p>
+            <p>
+              <strong>Status: </strong>
+              <span style={{
+                color: orderDetail.status === "Canceled"
+                  ? "red"
+                  : orderDetail.status === "Delivered"
+                    ? "green"
+                    : "yellow"
+              }}>
+                {orderDetail.status}
+              </span>
+            </p>
+            <p><strong>Order Date: </strong> <span style={{ color: 'blue' }}>{orderDetail.orderDate}</span></p>
+            <p><strong>Delivery Date: </strong> <span style={{ color: 'blue' }}>{orderDetail.deliveryDate}</span></p>
           </div>
         </div>
       </div>
 
       {/* Order detail items */}
-      <div className='row mt-5'>
+      <div className='row'>
+        <hr />
+        <h6 className='text-center'>Items</h6>
         <table className='table'>
           <thead>
             <tr>
               <th style={{ textAlign: "center" }} scope='col'>#</th>
               <th style={{ textAlign: "center" }} scope='col'>Name</th>
-
               <th style={{ textAlign: "center" }} scope='col'>Image</th>
               <th style={{ textAlign: "center" }} scope='col'>Cost Price</th>
               <th style={{ textAlign: "center" }} scope='col'>Quantity</th>
-              <th style={{ textAlign: "center" }} scope='col'>Total price</th>
+              <th style={{ textAlign: "center" }} scope='col'>SubTotal</th>
             </tr>
           </thead>
           <tbody>
             {orderDetail.orderItems.map((item, index) => (
               <tr key={item.orderDetailId}>
-                <td>{index + 1}</td>
-                <td>{item.instrumentName}</td>
-
-                <td>
+                <td style={{ textAlign: "center" }}>{index + 1}</td>
+                <td style={{ textAlign: "center" }}>{item.instrumentName}</td>
+                <td style={{ textAlign: "center" }}>
                   <img src={item.instrumentImage} alt={item.instrumentName} style={{ width: '50px', height: '50px' }} />
                 </td>
-                <td>{(item.costPrice).toLocaleString('vi')} VND</td>
-                <td>{item.quantity}</td>
-                <td>{(item.costPrice * item.quantity).toLocaleString('vi')} VND</td>
+                <td style={{ textAlign: "center" }}>{(item.costPrice).toLocaleString('vi')} VND</td>
+                <td style={{ textAlign: "center" }}>x{item.quantity}</td>
+                <td style={{ textAlign: "center" }}>{(item.costPrice * item.quantity).toLocaleString('vi')} VND</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div className="col-3">
-          <button className="btn btn-outline-success mb-3" onClick={exportToExcel}>
-            Export to Excel
-          </button>
-          <button className="btn btn-outline-danger mb-3" onClick={downloadPDF}>
-            Export to PDF
-          </button>
+
+        {/* Total */}
+        <table className='table mt-5 mb-5'>
+          <thead>
+            <tr>
+              <th style={{textAlign: 'center'}} scope='col'>SUBTOTAL</th>
+              <th style={{textAlign: 'center'}} scope='col'>TAX(5%)</th>
+              <th style={{textAlign: 'center'}} scope='col'>TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{textAlign: 'center'}}>{subtotal.toLocaleString('vi')} VND</td>
+              <td style={{textAlign: 'center'}}>{tax.toLocaleString('vi')} VND</td>
+              <td style={{textAlign: 'center'}}>{total.toLocaleString('vi')} VND</td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* Order information */}
+        <div className='ms-4'>
+          <p><strong>Payment Method:</strong> {orderDetail.paymentMethod.toUpperCase()}</p>
+          <p><strong>Shipping Method:</strong> {orderDetail.shippingMethod.toUpperCase()}</p>
+          <p><strong>Phone Number:</strong> {orderDetail.phoneNumber}</p>
+          <p><strong>Location:</strong> {orderDetail.address}</p>
         </div>
 
+        {/* Button to export */}
+        <hr />
+        <div className='d-flex justify-content-center mb-3'>
+          <button className='btn btn-success me-2' onClick={exportToExcel}>Export to Excel</button>
+          <button className='btn btn-danger' onClick={downloadPDF}>Download PDF</button>
+        </div>
       </div>
     </div>
   );
