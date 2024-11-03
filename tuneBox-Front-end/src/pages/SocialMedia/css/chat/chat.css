@@ -292,3 +292,45 @@ body {
 .attachment a:hover {
   text-decoration: underline;
 }
+
+/* Add these styles to your existing chat.css file */
+
+.revoked-message {
+  font-style: italic;
+  color: #999;
+}
+
+.message {
+  position: relative; /* Add this to enable absolute positioning of the revoke button */
+}
+
+.message .revoke-button {
+  display: none;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.message .revoke-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.message:hover .revoke-button {
+  display: block;
+}
+
+/* Optional: Style for revoked message container */
+.message-bubble .revoked-message {
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}

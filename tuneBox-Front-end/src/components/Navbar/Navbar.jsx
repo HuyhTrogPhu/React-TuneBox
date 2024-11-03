@@ -427,7 +427,8 @@ const Navbar = () => {
             style={{ width: "30px", height: "30px" }}
             src={images.conversstion}
             className="icon"
-          />
+            onClick={() => navigate("/chat")}
+          />          
         </span>
 
         <button className="mx-3 cart-shopping" onClick={handleCartClick}>

@@ -21,11 +21,9 @@ const Chat = () => {
   const [attachment, setAttachment] = useState(null);
 
   const reconnectOptions = {
-    // Thêm các thuộc tính cần thiết cho reconnectOptions
     maxAttempts: 5,
-    interval: 1000
-};
-
+    interval: 1000,
+  };
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -310,37 +308,62 @@ const Chat = () => {
     });
   };
 
+  const handleRevokeMessage = async (messageId) => {
+    if (!currentUserId) return;
+    
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/messages/${messageId}?userId=${currentUserId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        // Cập nhật state messages
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === messageId
+              ? { ...msg, content: "Tin nhắn đã được thu hồi", status: "REVOKED" }
+              : msg
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error revoking message:", error);
+      alert(error.response?.data || "Không thể thu hồi tin nhắn");
+    }
+  };
+
   return (
     <div className="z">
-    <div className="messenger-container">
-      <div className="messenger-sidebar">
-        <div className="messenger-header">
-          <h4>Chats TuneBox</h4>
+      <div className="messenger-container">
+        <div className="messenger-sidebar">
+          <div className="messenger-header">
+            <h4>Chats TuneBox</h4>
+          </div>
+          <UserList
+            users={users}
+            setActiveUser={handleSetActiveUser}
+            activeUser={activeUser}
+          />
         </div>
-        <UserList
-          users={users}
-          setActiveUser={handleSetActiveUser}
-          activeUser={activeUser}
-        />
-      </div>
-      <div className="messenger-chat">
-        {activeUser ? (
-          <>
-            <div className="messenger-chat-header">
-              <div className="user-avatar">
-                {activeUser.userName.charAt(0).toUpperCase()}
+        <div className="messenger-chat">
+          {activeUser ? (
+            <>
+              <div className="messenger-chat-header">
+                <div className="user-avatar">
+                  {activeUser.userName.charAt(0).toUpperCase()}
+                </div>
+                <div className="user-info">
+                  <span className="user-name">{activeUser.userName}</span>
+                  <span className="user-status">Active Now</span>
+                </div>
               </div>
-              <div className="user-info">
-                <span className="user-name">{activeUser.userName}</span>
-                <span className="user-status">Active Now</span>
-              </div>
-            </div>
-            <div className="messenger-chat-messages" ref={messagesEndRef}>
-              {messages.map((msg, index) => {
-                console.log(`Rendering message ${index}:`, msg);
-                console.log(`Message ${index} attachments:`, msg.attachments);
-
-                return (
+              <div className="messenger-chat-messages" ref={messagesEndRef}>
+                {messages.map((msg, index) => (
                   <div
                     key={index}
                     className={`message ${
@@ -352,86 +375,85 @@ const Chat = () => {
                     }`}
                   >
                     <div className="message-bubble">
-                      {renderMessageContent(msg.content)}
-                      {msg.attachments.map((attachment, idx) => {
-                        console.log(`Attachment URL: ${attachment.fileUrl}`);
-                        return (
-                          <div key={idx} className="attachment">
-                            {attachment.mimeType?.startsWith("image/") ? (
-                              <img
-                                src={attachment.fileUrl}
-                                alt={attachment.fileName}
-                                style={{
-                                  maxWidth: "200px",
-                                  maxHeight: "200px",
-                                }}
-                                onError={(e) => {
-                                  console.error(
-                                    "Image loading error for:",
-                                    attachment.fileUrl
-                                  );
-                                  e.target.style.display = "none";
-                                  // Thêm một phần tử để hiển thị lỗi
-                                  const errorElement =
-                                    document.createElement("div");
-                                  errorElement.textContent =
-                                    "Không thể tải hình ảnh";
-                                  e.target.parentNode.appendChild(errorElement);
-                                }}
-                                onLoad={() => {
-                                  console.log(
-                                    "Image loaded successfully:",
-                                    attachment.fileUrl
-                                  );
-                                }}
-                              />
-                            ) : (
-                              <a
-                                href={attachment.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {attachment.fileName}
-                              </a>
-                            )}
-                          </div>
-                        );
-                      })}
+                      {msg.status === "REVOKED" ? (
+                        <em className="revoked-message">Tin nhắn đã được thu hồi</em>
+                      ) : (
+                        <>
+                          {renderMessageContent(msg.content)}
+                          {msg.attachments?.map((attachment, idx) => (
+                            <div key={idx} className="attachment">
+                              {attachment.mimeType?.startsWith("image/") ? (
+                                <img
+                                  src={attachment.fileUrl}
+                                  alt={attachment.fileName}
+                                  style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                  onError={(e) => {
+                                    console.error("Image loading error for:", attachment.fileUrl);
+                                    e.target.style.display = "none";
+                                    const errorElement = document.createElement("div");
+                                    errorElement.textContent = "Không thể tải hình ảnh";
+                                    e.target.parentNode.appendChild(errorElement);
+                                  }}
+                                  onLoad={() => {
+                                    console.log("Image loaded successfully:", attachment.fileUrl);
+                                  }}
+                                />
+                              ) : (
+                                <a
+                                  href={attachment.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {attachment.fileName}
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                          
+                          {/* Add revoke button for sender's messages within 5 minutes */}
+                          {(typeof msg.senderId === "object" ? msg.senderId.id : msg.senderId) === currentUserId && 
+                           Date.now() - new Date(msg.creationDate).getTime() <= 5 * 60 * 1000 && (
+                            <button
+                              className="revoke-button"
+                              onClick={() => handleRevokeMessage(msg.id)}
+                            >
+                              Thu hồi
+                            </button>
+                          )}
+                        </>
+                      )}
                     </div>
-                    <div className="message-time">
-                      {formatTimestamp(msg.creationDate)}
-                    </div>
+                    <div className="message-time">{formatTimestamp(msg.creationDate)}</div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
+              <div className="messenger-chat-input">
+                <label htmlFor="file-input">
+                  <i className="fas fa-paperclip attach-icon"></i>
+                </label>
+                <input
+                  type="file"
+                  id="file-input"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+                <input
+                  type="text"
+                  placeholder="Aa"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                />
+                <button onClick={handleSendMessage}>Send</button>
+              </div>
+            </>
+          ) : (
+            <div className="no-chat-selected">
+              <p>Choose a person to start chatting</p>
             </div>
-            <div className="messenger-chat-input">
-              <label htmlFor="file-input">
-                <i className="fas fa-paperclip attach-icon"></i>
-              </label>
-              <input
-                type="file"
-                id="file-input"
-                style={{ display: "none" }}
-                onChange={handleFileChange} // Hàm xử lý khi chọn file
-              />
-              <input
-                type="text"
-                placeholder="Aa"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              />
-              <button onClick={handleSendMessage}>Send</button>
-            </div>
-          </>
-        ) : (
-          <div className="no-chat-selected">
-            <p>Choose a person to start chatting</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
     </div>
   );
 };
