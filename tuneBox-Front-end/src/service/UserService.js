@@ -96,7 +96,6 @@ export const getFriendCount = async (userId) => {
     throw new Error("Failed to fetch friend count");
   }
   const count = await response.json();
-  console.log("Fetched friend count:", count); // Log giá trị trước khi trả về
   return count;
 };
 
@@ -212,4 +211,15 @@ export const search = async (keyword) => {
     console.error("Error fetching search results:", error);
     throw error;
   }
+};
+
+export const updateBackground = async (userId, formData) => {
+  const response = await axios.post(`${REST_API_BASE_URL}/users/${userId}/background`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+    },
+  });
+  
+  return response.data; // Hoặc xử lý phản hồi theo cách bạn cần
 };

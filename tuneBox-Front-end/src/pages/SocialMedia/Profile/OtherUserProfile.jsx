@@ -8,6 +8,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { FollowContext } from "./FollowContext";
 import ConfirmBlockModal from "./Profile_nav/ConfirmBlockModal";
+import {getFriendCount} from "../../../service/UserService"
 
 const OtherUserProfile = () => {
   const { id } = useParams();
