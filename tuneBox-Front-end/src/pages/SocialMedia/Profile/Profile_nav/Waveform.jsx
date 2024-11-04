@@ -14,8 +14,8 @@ const Waveform = ({ audioUrl, track }) => {
     // Khởi tạo WaveSurfer
     wavesurferRef.current = WaveSurfer.create({
       container: waveformRef.current,
-      waveColor: "Gray",
-      progressColor: "#4F4F4F",
+      waveColor: "#363537",
+      progressColor: "#ffeaed",
     });
 
     // Tải file âm thanh từ Cloudinary
@@ -40,35 +40,33 @@ const Waveform = ({ audioUrl, track }) => {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`; // Định dạng MM:SS
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`; // Định dạng MM:SS
   };
 
   return (
-      <div className="player w-100">
-        <div className="thumb">
-          <img src={track.imageTrack || images.avt} />
-        </div>
-        <div className="info">
-          <div className="detail">
-            <div className="title">
-              {track.name || "Tiêu đề Track"}
-              <div className="time">
-                <span id="current">{formatTime(currentTime)}</span> /
-                <span id="duration">{formatTime(duration)}</span>
-              </div>
-            </div>
-            <div className="control" onClick={togglePlayPause}>
-              <i
-                className={isPlaying ? "fi-rr-pause" : "fi-rr-play"}
-                id="playPause"
-              ></i>
+    <div className="player w-100">
+      <div className="thumb">
+        <img src={track.imageTrack || images.avt} />
+      </div>
+      <div className="info">
+        <div className="detail">
+          <div className="title">
+            {track.name || "Tiêu đề Track"}
+            <div className="time">
+              <span id="current">{formatTime(currentTime)}</span> /
+              <span id="duration">{formatTime(duration)}</span>
             </div>
           </div>
-          <div id="wave" ref={waveformRef}></div>
+          <div className="control" onClick={togglePlayPause}>
+            <i
+              className={isPlaying ? "fi-rr-pause" : "fi-rr-play"}
+              id="playPause"
+            ></i>
+          </div>
         </div>
-
-        
+        <div id="wave" ref={waveformRef}></div>
       </div>
+    </div>
   );
 };
 
