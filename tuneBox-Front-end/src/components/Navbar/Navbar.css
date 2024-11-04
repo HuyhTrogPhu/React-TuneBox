@@ -3,9 +3,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px 50px; /* Thêm padding cho thanh nav */
-    background-color: #f8f9fa; /* Màu nền sáng */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Bóng nhẹ */
+    padding: 15px 50px;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Logo */
@@ -13,51 +13,80 @@
     cursor: pointer;
 }
 
+/* icon */
+.avatar-user {
+    width: 50px !important;
+    height: 50px !important;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
 /* Navbar Button */
 .navbar-button {
     display: flex;
     align-items: center;
-    margin-right: 30px; /* Khoảng cách giữa các nút */
-    background: none; /* Xóa nền mặc định */
-    border: none; /* Xóa viền mặc định */
-    cursor: pointer; /* Hiển thị con trỏ khi hover */
+    margin-right: 30px;
+    /* Khoảng cách giữa các nút */
+    background: none;
+    /* Xóa nền mặc định */
+    border: none;
+    /* Xóa viền mặc định */
+    cursor: pointer;
+    /* Hiển thị con trỏ khi hover */
 }
 
 /* Search Input */
 .search-input {
     padding: 10px;
-    border: 1px solid #ccc; /* Đường viền xám */
-    border-radius: 5px; /* Bo tròn góc */
-    width: 400px; /* Độ rộng */
+    border: 1px solid #ccc;
+    /* Đường viền xám */
+    border-radius: 5px;
+    /* Bo tròn góc */
+    width: 400px;
+    /* Độ rộng */
 }
 
 /* Search Button */
 .search-btn {
-    background-color: #ffffff; /* Màu nền nút */
-    color: rgb(0, 0, 0); /* Màu chữ trắng */
-    border: 1px solid #919191; 
-    border-radius: 5px; /* Bo tròn góc */
-    padding: 10px; /* Padding cho nút */
-    cursor: pointer; /* Hiển thị con trỏ khi hover */
-    margin-left: 5px; /* Khoảng cách với input */
+    background-color: #ffffff;
+    /* Màu nền nút */
+    color: rgb(0, 0, 0);
+    /* Màu chữ trắng */
+    border: 1px solid #919191;
+    border-radius: 5px;
+    /* Bo tròn góc */
+    padding: 10px;
+    /* Padding cho nút */
+    cursor: pointer;
+    /* Hiển thị con trỏ khi hover */
+    margin-left: 5px;
+    /* Khoảng cách với input */
 }
 
 /* Thông báo biểu tượng */
 .notification-icon {
     cursor: pointer;
-    position: relative; /* Để badge có thể đặt ở vị trí chính xác */
+    position: relative;
+    /* Để badge có thể đặt ở vị trí chính xác */
 }
 
 /* Badge thông báo */
 .notification-badge {
     position: absolute;
-    top: -5px; /* Đặt lên trên một chút */
-    right: 0px; /* Đặt về bên phải một chút */
-    background-color: #ff4757; /* Màu nền đỏ */
-    color: white; /* Màu chữ trắng */
-    border-radius: 50%; /* Đường viền tròn */
-    padding: 3px 7px;/* Khoảng cách cho badge */
-    font-size: 10px; /* Kích thước chữ nhỏ hơn */
+    top: -5px;
+    /* Đặt lên trên một chút */
+    right: 0px;
+    /* Đặt về bên phải một chút */
+    background-color: #ff4757;
+    /* Màu nền đỏ */
+    color: white;
+    /* Màu chữ trắng */
+    border-radius: 50%;
+    /* Đường viền tròn */
+    padding: 3px 7px;
+    /* Khoảng cách cho badge */
+    font-size: 10px;
+    /* Kích thước chữ nhỏ hơn */
 }
 
 /* Dropdown thông báo */
@@ -76,53 +105,75 @@
 
 /* Khi dropdown được hiển thị */
 .notification-dropdown.show {
-    display: block; /* Hiển thị khi có class .show */
+    display: block;
+    /* Hiển thị khi có class .show */
 }
 
 /* Danh sách thông báo */
 .notification-list {
-    list-style-type: none; /* Xóa dấu đầu dòng */
-    padding: 0; /* Bỏ padding */
-    margin: 0; /* Bỏ margin */
+    list-style-type: none;
+    /* Xóa dấu đầu dòng */
+    padding: 0;
+    /* Bỏ padding */
+    margin: 0;
+    /* Bỏ margin */
 }
 
 /* Mục thông báo */
 .notification-item {
-    display: flex; /* Dùng flex để bố trí avatar và nội dung ngang nhau */
-    align-items: center; /* Căn giữa dọc */
-    padding: 10px; /* Thêm padding cho từng mục */
-    border-bottom: 1px solid #f0f0f0; /* Đường viền giữa các mục */
-    transition: background-color 0.3s ease; /* Hiệu ứng chuyển đổi nền */
+    display: flex;
+    /* Dùng flex để bố trí avatar và nội dung ngang nhau */
+    align-items: center;
+    /* Căn giữa dọc */
+    padding: 10px;
+    /* Thêm padding cho từng mục */
+    border-bottom: 1px solid #f0f0f0;
+    /* Đường viền giữa các mục */
+    transition: background-color 0.3s ease;
+    /* Hiệu ứng chuyển đổi nền */
 }
+
 /* Hiệu ứng hover cho mục thông báo */
 .notification-item:hover {
-    background-color: #f0f0f0; /* Thay đổi màu nền khi hover */
+    background-color: #f0f0f0;
+    /* Thay đổi màu nền khi hover */
 }
 
 /* Avatar trong thông báo */
 .notification-avatar {
-    width: 40px; /* Kích thước avatar nhỏ */
-    height: 40px; /* Kích thước avatar nhỏ */
-    border-radius: 50%; /* Hình tròn */
-    margin-right: 10px; /* Khoảng cách giữa avatar và nội dung */
+    width: 40px;
+    /* Kích thước avatar nhỏ */
+    height: 40px;
+    /* Kích thước avatar nhỏ */
+    border-radius: 50%;
+    /* Hình tròn */
+    margin-right: 10px;
+    /* Khoảng cách giữa avatar và nội dung */
 }
 
 /* Nội dung thông báo */
 .notification-content {
-    flex-grow: 1; /* Cho phép nội dung chiếm không gian còn lại */
+    flex-grow: 1;
+    /* Cho phép nội dung chiếm không gian còn lại */
 }
 
 /* Nếu không có thông báo */
 .no-notification {
-    padding: 10px; /* Thêm padding */
-    text-align: center; /* Căn giữa */
-    color: #777; /* Màu chữ xám */
+    padding: 10px;
+    /* Thêm padding */
+    text-align: center;
+    /* Căn giữa */
+    color: #777;
+    /* Màu chữ xám */
 }
 
 /* Avatar trong thanh nav */
-.avatar {
+.avatar-nav {
     width: 60px !important;
     height: 60px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
 }
 
 .cart-shopping {
@@ -132,6 +183,7 @@
     font-size: 18px;
     background-color: #E94F37;
 }
+
 .notification-item.unread .red-dot {
     width: 8px;
     height: 8px;
@@ -139,9 +191,9 @@
     border-radius: 50%;
     display: inline-block;
     margin-right: 8px;
-  }
-  
-  .delete-all-read {
+}
+
+.delete-all-read {
     background-color: #f44336;
     color: #fff;
     padding: 8px 16px;
@@ -149,31 +201,48 @@
     cursor: pointer;
     text-align: center;
     width: 100%;
-  }
-  
-  .unread-marker {
+}
+
+.unread-marker {
     width: 8px;
     height: 8px;
     background-color: red;
     border-radius: 50%;
     margin-right: 10px;
-  }
-  
-  .delete-notification-button {
+}
+
+.delete-notification-button {
     background: none;
     border: none;
     color: red;
     cursor: pointer;
     padding: 0;
     margin-left: 10px;
-  }
-          
+}
 
-  
-  .red-dot {
-    background-color: red; /* Đỏ cho dấu chấm chưa đọc */
-    border-radius: 50%; /* Hình tròn */
+.dropdown-menu {
+    top: 18%;
+    right: 15%;
+}
+
+
+.red-dot {
+    background-color: red;
+    border-radius: 50%;
     width: 8px;
     height: 8px;
-    margin-right: 10px; /* Khoảng cách với nội dung thông báo */
-  }
+    margin-right: 10px;
+}
+
+
+/* add-track */
+.add-track {
+    margin-left: 20px;
+    padding: 5px 10px;
+    background-color: #E94F37;
+    border-radius: 8px;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+}

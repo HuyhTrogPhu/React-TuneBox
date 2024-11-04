@@ -9,6 +9,20 @@ const FollowersPage = () => {
     const userId = useParams();
     console.warn(userId)
 
+    // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+    axios.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('token'); // Lấy token từ localStorage
+            if (token) {
+                config.headers['Authorization'] = token;
+            }
+            return config;
+        },
+        (error) => {
+            return Promise.reject(error);
+        }
+    );
+
     useEffect(() => {
         const fetchFollowers = async (userId) => {
             try {
@@ -31,35 +45,35 @@ const FollowersPage = () => {
     return (
         <div className="container mt-5">
             <h3 className="text-center mb-4">Followers</h3>
-                <table className="table">
-                    <thead className="">
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Username</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {followers.length > 0 ? (
-                            followers.map((follower, index) => (
-                                <tr key={follower.id}>
-                                    <th scope="row">{index + 1}</th>
-                                    <td>{follower.userName}</td>
-                                    <td>{follower.email}</td>
-                                    <td>
-                                        <a href={`/profile/${follower.id}`} className="btn btn-primary btn-sm">View Profile</a>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center">No followers found.</td>
+            <table className="table">
+                <thead className="">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {followers.length > 0 ? (
+                        followers.map((follower, index) => (
+                            <tr key={follower.id}>
+                                <th scope="row">{index + 1}</th>
+                                <td>{follower.userName}</td>
+                                <td>{follower.email}</td>
+                                <td>
+                                    <a href={`/profile/${follower.id}`} className="btn btn-primary btn-sm">View Profile</a>
+                                </td>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="6" className="text-center">No followers found.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        </div>
     );
 };
 

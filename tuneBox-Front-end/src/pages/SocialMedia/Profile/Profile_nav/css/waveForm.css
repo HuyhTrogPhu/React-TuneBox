@@ -10,15 +10,15 @@
 }
 
 .player {
-  display: grid;
-  grid-template-columns: 10rem 1fr;
-  width: 40rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1rem 1.5rem #10101024;
-  overflow: hidden;
-  place-content: center;
-  padding: 25px;
-  margin-top: 15px;
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    width: 40rem;
+    background-color: #D7DFE0;
+    border-radius: 0.5rem;
+    box-shadow: 0 1rem 1.5rem #10101024;
+    overflow: hidden;
+    place-content: center;
+    padding: 25px;
 }
 
 .player .thumb {
@@ -36,12 +36,6 @@
 
 .player .info {
   padding: 1rem;
-}
-
-.player .detail {
-  display: grid;
-  grid-template-columns: 1fr 4rem;
-  margin-bottom: 1rem;
 }
 
 .player .title {
@@ -72,6 +66,22 @@
 }
 
 .player .control i:hover {
-  box-shadow: 0 0 1.5rem gray;
-  font-size: 1.5rem;
+    box-shadow: 0 0 1.5rem gray;
+    font-size: 1.5rem;
 }
+
+.control button {
+    background-color: #4F4F4F;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px;
+  }
+  
+  .player .control button:hover {
+    background-color: #777;
+  }
+  
