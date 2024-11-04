@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes, Outlet, useParams } from "react-router-dom";
+import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -50,6 +50,8 @@ import FriendRequests from "./pages/SocialMedia/FriendRequests";
 import FriendList from "./pages/SocialMedia/FriendList";
 import FollowersPage from "./pages/SocialMedia/FollowersPage";
 import FollowingPage from "./pages/SocialMedia/FollowingPage";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import { getUserRole, isUserRole } from './service/auth';
 
 
 import ResetPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ResetPassword2";
@@ -146,9 +148,10 @@ function App() {
             <Route path="forgot-password2" element={<ForgotPassword2 />} />
     
             {/* admin start */}
-            <Route path='/ecomadmin/*' element={<EcommerceAdmin />} />
-            {/* admin end */}
-
+              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
+                <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+              </Route>            
+              {/* admin end */}
             <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
           </Route>
         </Routes>

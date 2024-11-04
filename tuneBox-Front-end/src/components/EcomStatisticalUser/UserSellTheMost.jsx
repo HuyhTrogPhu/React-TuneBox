@@ -65,7 +65,7 @@ const UserSellTheMost = () => {
     <div>
       <div className='container'>
         <div className='row text-center'>
-          <h6>Statistical revenue user</h6>
+          <h6>Statistics on the list of users who have purchased the most to date</h6>
         </div>
         {/* Bảng người dùng bán nhiều nhất */}
         <section className='row mt-5'>

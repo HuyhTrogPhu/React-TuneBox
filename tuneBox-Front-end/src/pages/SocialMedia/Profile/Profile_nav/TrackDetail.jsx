@@ -34,6 +34,8 @@ function Trackdetail() {
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
 
+  const [cmtCount, setCmtCount] = useState(0);
+
   const [comments, setComments] = useState([]); // State lưu trữ comment
   const [newComment, setNewComment] = useState("");
 
@@ -287,11 +289,11 @@ function Trackdetail() {
   };
 
   // Hiển thị thông báo đang tải hoặc lỗi
-  if (loading) return <p>Đang tải sản phẩm...</p>;
+  if (loading) return <p>Đang tải track...</p>;
   if (error) return <p>{error}</p>;
 
   // Nếu không có track, hiển thị thông báo không tìm thấy
-  if (!track) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+  if (!track) return <p>Track không tồn tại hoặc không thể tìm thấy.</p>;
 
   return (
     <div className="container">
@@ -309,11 +311,7 @@ function Trackdetail() {
               {likeCount}
             </button>
             <button className="btn">
-              <img
-                src={images.conversstion}
-                className="btn-icon"
-                alt="comment"
-              />
+              <img src={images.conversstion} className="btn-icon" alt="share" />
               Comment
             </button>
             <button className="btn" onClick={() => setIsShareModalOpen(true)}>
@@ -373,10 +371,9 @@ function Trackdetail() {
               </div>
               <div className="col-1">
                 <button
-                  className="btn-primary rounded mt-4 p-1"
+                  className="fa-regular fa-paper-plane rounded p-2"
                   onClick={handleAddComment}
                 >
-                  Send
                 </button>
               </div>
             </div>

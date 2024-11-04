@@ -5,12 +5,16 @@ import './css/style.css';
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
 import { login } from '../../service/LoginService.js';
+import Swal from "sweetalert2";
+import { Audio } from 'react-loader-spinner'
 
 const Login = () => {
   const [userNameOrEmail, setUserNameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   // Hàm validate email bằng regex
@@ -27,15 +31,9 @@ const Login = () => {
     e.preventDefault();
   
     setError('');
-    setSuccess('');
-  
+
     if (!userNameOrEmail) {
       setError('Vui lòng nhập tên tài khoản hoặc email.');
-      return;
-    }
-  
-    if (isEmail(userNameOrEmail) && !isEmail(userNameOrEmail)) {
-      setError('Vui lòng nhập đúng định dạng email.');
       return;
     }
   
@@ -44,10 +42,6 @@ const Login = () => {
       return;
     }
   
-    if (password.length < 4) {
-      setError('Mật khẩu phải có ít nhất 4 ký tự!');
-      return;
-    }
   
     const userDto = {
       userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
@@ -56,15 +50,31 @@ const Login = () => {
     };
   
     try {
+      setLoading(true); // Bắt đầu loading
+
       const response = await login(userDto);
-      alert('Đăng nhập thành công!');
-      console.log('Data trả về: ', response);
-  
+
+
+
+      // Lấy userId từ phản hồi của server
+      const userId = response.userId;
+
+      if (userId !== undefined && userId !== null) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // Cookie tồn tại trong 1 ngày
+        document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`; // Lưu userId vào cookie
+      } else {
+        console.error('userId is undefined or null');
+      }
+
+      // Hiện loading trong 3 giây
       setTimeout(() => {
-        navigate('/');
-      }, 2000);
-  
+        setLoading(false); // Dừng loading
+        navigate('/'); // Chuyển hướng về trang chính
+      });
+
     } catch (error) {
+      setLoading(false); // Dừng loading trong trường hợp có lỗi
       if (error.response && error.response.status === 401) {
         setError(error.response.data);
       } else {
@@ -72,6 +82,9 @@ const Login = () => {
       }
     }
   };
+
+
+  
   
 
   return (
@@ -82,14 +95,37 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="colcol-10-lg-6  mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '100px', marginRight: '100px'}}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
-                  {success && <div style={{ color: 'green', textAlign: 'center' }}>{success}</div>}
+                  {loading && ( // Hiển thị loading full màn hình nếu đang loading
+                    <div style={{
+                      position: 'fixed',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)', // Nền mờ
+                      zIndex: 9999,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}>
+                      <Audio
+                        height="80"
+                        width="80"
+                        radius="9"
+                        color="#e94f37"
+                        ariaLabel="three-dots-loading"
+                        wrapperStyle
+                        wrapperClass
+                      />
+                    </div>
+                  )}
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
-                    <div className="col-lg-12" style={{ marginTop: -30 }}>
+                    <div className="col-12">
                       <input
                         type="text"
                         name="userNameOrEmail"

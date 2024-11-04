@@ -213,3 +213,7 @@ export const search = async (keyword) => {
     throw error;
   }
 };
+
+
+// get order by user id
+export const getOrdersByUserId = async (userId) => axios.get(`${REST_API_BASE_URL}/${userId}/orders`);
