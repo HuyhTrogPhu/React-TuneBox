@@ -13,6 +13,7 @@ import DashBoard from "./SocialMediaAdmin/pageContent/DashBoard";
 import Users from "./SocialMediaAdmin/pageContent/Users";
 import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
 import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
+import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
 
 const SocialMediaAdmin = () => {
   return (
@@ -70,9 +71,9 @@ const SocialMediaAdmin = () => {
                 </li>
                 <li className="p-3">
                   <i className="fa-solid fa-chart-simple" />
-                  <a href="#" className="text-white">
+                  <Link to={"/socialadmin/statistical"} className="text-white">
                     Statistical
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -124,6 +125,7 @@ const SocialMediaAdmin = () => {
               <Route path='users' element={<Users/>} />
               <Route path='postdetail/:id' element={<PostDetail/>} />
               <Route path='report' element={<ReportManagement/>} />
+              <Route path='statistical' element={<Statistical/>}/>
               </Routes>
             </div>
           </div>

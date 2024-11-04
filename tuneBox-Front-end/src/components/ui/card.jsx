@@ -1,6 +1,8 @@
-// src/components/ui/card.jsx
 import React from 'react';
 
-export const Card = ({ children }) => {
-  return <div className="card">{children}</div>;
-};
+export const Card = ({ children }) => (
+  <div className="card">
+    {children}
+  </div>
+);
+

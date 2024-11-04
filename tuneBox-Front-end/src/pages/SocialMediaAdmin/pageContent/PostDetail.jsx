@@ -162,7 +162,7 @@ const PostDetail = () => {
                   <p className="mb-2">
                     <span className="fw-bold text-secondary">Đăng bởi: </span>
                     <span className="fw-semibold text-primary">
-                      {post.userName}
+                      {post.userNickname}
                     </span>
                   </p>
 

@@ -10,11 +10,13 @@ const Posts = () => {
   const [reportedPosts, setReportedPosts] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [countPost, setCountPost] = useState(0);
+  const [trendingPosts, setTrendingPost] = useState([]);
 
   // Search states
   const [searchNewPosts, setSearchNewPosts] = useState("");
   const [searchAllPosts, setSearchAllPosts] = useState("");
   const [searchReportedPosts, setSearchReportedPosts] = useState("");
+  const [searchTrendingPosts, setSearchTrendingPosts] = useState("");
 
   // Report management states
   const [selectedReport, setSelectedReport] = useState(null);
@@ -22,18 +24,20 @@ const Posts = () => {
 
   const fetchData = async () => {
     try {
-      const [countResponse, newResponse, allResponse, reportedResponse] =
+      const [countResponse, newResponse, allResponse, reportedResponse,trendingResponse] =
         await Promise.all([
           axios.get("http://localhost:8082/admin/posts/total"),
           axios.get("http://localhost:8082/admin/posts/new"),
           axios.get("http://localhost:8082/admin/posts"),
           axios.get("http://localhost:8080/api/reports/pending"),
+          axios.get("http://localhost:8082/admin/posts/trending"),
         ]);
 
       setCountPost(countResponse.data);
       setNewPosts(newResponse.data);
       setAllPosts(allResponse.data);
       setReportedPosts(reportedResponse.data);
+      setTrendingPost(trendingResponse.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
       setErrorMessage(
@@ -50,8 +54,11 @@ const Posts = () => {
   // Search handlers
   const handleSearchNewPosts = (e) => setSearchNewPosts(e.target.value);
   const handleSearchAllPosts = (e) => setSearchAllPosts(e.target.value);
-  const handleSearchReportedPosts = (e) =>
-    setSearchReportedPosts(e.target.value);
+  const handleSearchReportedPosts = (e) => setSearchReportedPosts(e.target.value);
+
+  const handleSearchTrendingPosts = (e) => setSearchTrendingPosts(e.target.value);
+
+  
 
   // Report management handlers
   const handleResolve = async (reportId, hidePost) => {
@@ -128,6 +135,10 @@ const Posts = () => {
         ?.toString()
         .includes(searchReportedPosts.toLowerCase()) ||
       post.reporterId?.toString().includes(searchReportedPosts.toLowerCase())
+  );
+
+  const filteredTrendingPosts = trendingPosts.filter((post) =>
+    post.userName?.toLowerCase().includes(searchTrendingPosts.toLowerCase())
   );
 
   const getStatusBadge = (status) => {
@@ -252,8 +263,8 @@ const Posts = () => {
                             : "Text only"}
                         </td>
                         <td>{new Date(post.createdAt).toLocaleDateString()}</td>
-                        <td>{post.totalLikes || 0}</td>
-                        <td>{post.totalComments || 0}</td>
+                        <td>{post.likeCount || 0}</td>
+                        <td>{post.commentCount || 0}</td>
                         <td>
                           <Link
                             to={`/socialadmin/postdetail/${post.id}`}
@@ -349,6 +360,69 @@ const Posts = () => {
           </div>
         </div>
       </div>
+
+      {/* Trending Posts Table */}
+      <div className="row mb-4">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header bg-primary text-white">
+              <h5>Trending Posts</h5>
+            </div>
+            <div className="card-body">
+              <input
+                type="text"
+                className="form-control mb-3"
+                placeholder="Search trending posts by username..."
+                value={searchTrendingPosts}
+                onChange={handleSearchTrendingPosts}
+              />
+              <div className="table-responsive">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Posted by</th>
+                      <th>Likes</th>
+                      <th>Comments</th>
+                      <th>Created at</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTrendingPosts.map((post, index) => (
+                      <tr key={post.id}>
+                        <td>{index + 1}</td>
+                        <td>{post.userName}</td>
+                        <td>
+                          <span className="badge bg-info">
+                            {post.likeCount}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="badge bg-secondary">
+                            {post.commentCount}
+                          </span>
+                        </td>
+                        <td>
+                          {new Date(post.createdAt).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <Link
+                            to={`/socialadmin/postdetail/${post.id}`}
+                            className="btn btn-warning btn-sm"
+                          >
+                            View
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>              
 
       {/* Report Review Modal */}
       {selectedReport && (
