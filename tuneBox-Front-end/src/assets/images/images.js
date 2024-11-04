@@ -91,6 +91,7 @@ import plus from '../images/plus.png';
 import car from '../icon/car.png';
 import logoAdmin from '../images/admin_white.png'
 import heartFilled from '../images/heartFilled.png';
+import musicalNote from '../images/musicalNote.png';
 
 
 
@@ -105,7 +106,7 @@ export const images = {
     level_up, like, heartFilled,
     logoMautrang, love, messsenger, more, music, nai,
     nen1, nen2, nen3, nen4, next_button, notification,
-    order, pen, play1, play2, playlist,
+    order, pen, play1, play2, playlist, musicalNote,
     plus_white, pngegg, pp, pp2, pp3, pp4,
     share, shopping_bag, sign,
     sp1, sp1a, sp2, sp2a, speaker,

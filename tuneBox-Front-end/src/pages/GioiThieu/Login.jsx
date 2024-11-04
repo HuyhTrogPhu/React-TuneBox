@@ -29,34 +29,26 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+  
     setError('');
 
     if (!userNameOrEmail) {
       setError('Vui lòng nhập tên tài khoản hoặc email.');
       return;
     }
-
-    if (isEmail(userNameOrEmail) && !isEmail(userNameOrEmail)) {
-      setError('Vui lòng nhập đúng định dạng email.');
-      return;
-    }
-
+  
     if (!password) {
       setError('Vui lòng nhập mật khẩu.');
       return;
     }
-
-    if (password.length < 4) {
-      setError('Mật khẩu phải có ít nhất 4 ký tự!');
-      return;
-    }
-
+  
+  
     const userDto = {
       userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
       email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
       password: password,
     };
-
+  
     try {
       setLoading(true); // Bắt đầu loading
 
@@ -79,7 +71,7 @@ const Login = () => {
       setTimeout(() => {
         setLoading(false); // Dừng loading
         navigate('/'); // Chuyển hướng về trang chính
-      }, 3000);
+      });
 
     } catch (error) {
       setLoading(false); // Dừng loading trong trường hợp có lỗi
@@ -92,6 +84,8 @@ const Login = () => {
   };
 
 
+  
+  
 
   return (
     <div>
@@ -101,7 +95,7 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="colcol-10-lg-6  mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '500px', marginRight: '500px'}}>
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '100px', marginRight: '100px'}}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
@@ -131,7 +125,7 @@ const Login = () => {
                   )}
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
-                    <div className="col-lg-12" style={{ marginTop: -30 }}>
+                    <div className="col-12">
                       <input
                         type="text"
                         name="userNameOrEmail"

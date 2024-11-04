@@ -16,7 +16,7 @@ import CartDetail from "./pages/Ecommerce/Cart/Cart_detail";
 import DetailProduct from "./pages/Ecommerce/ShopDetail/DetailProduct";
 import InspiredBy from "./pages/GioiThieu/InspiredBy";
 import Genre from "./pages/GioiThieu/Genre";
-import EcommerceAdmin from './pages/EcommerceAdmin'
+import EcommerceAdmin from "./pages/EcommerceAdmin";
 import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
@@ -25,12 +25,22 @@ import OtherUserProfile from "./pages/SocialMedia/Profile/OtherUserProfile";
 import WelcomeUser from "./pages/GioiThieu/WelcomeUser";
 import ResetPassword from "./pages/GioiThieu/ResetPassword";
 import ForgotPassword from "./pages/GioiThieu/ForgotPassword";
-import { FollowProvider } from './pages/SocialMedia/Profile/FollowContext';
-import TrackDetail from './pages/SocialMedia/Profile/Profile_nav/TrackDetail';
+import { FollowProvider } from "./pages/SocialMedia/Profile/FollowContext";
+import TrackDetail from "./pages/SocialMedia/Profile/Profile_nav/TrackDetail";
+
+import AlbumNew from "./pages/SocialMedia/Profile/Profile_nav/AlbumNew";
+import AlbumEdit from "./pages/SocialMedia/Profile/Profile_nav/AlbumEdit";
+import AlbumDetail from "./pages/SocialMedia/Profile/Profile_nav/AlbumDetail";
+import LikePost from "./pages/SocialMedia/Profile/Profile_nav/LikePost";
+import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
+import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
+
+import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
+
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 import ThanhCong from "./pages/Ecommerce/order/doneOr";
-import UserDetail from "./components/UserDetail/UserDetail";
+//import UserDetail from "./components/UserDetail/UserDetail";
 import Post from "./pages/SocialMedia/Post";
 import FriendRequests from "./pages/SocialMedia/FriendRequests";
 import FriendList from "./pages/SocialMedia/FriendList";
@@ -39,6 +49,7 @@ import FollowingPage from "./pages/SocialMedia/FollowingPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { getUserRole, isUserRole } from './service/auth';
 // Layout có Header
+
 function LayoutWithHeader() {
   return (
     <>
@@ -57,11 +68,12 @@ function LayoutWithoutHeader() {
 }
 
 function App() {
-
   const { orderId } = useParams();
 
   return (
-    <FollowProvider> {/* Đặt FollowProvider ở đây */}
+    <FollowProvider>
+      {" "}
+      {/* Đặt FollowProvider ở đây */}
       <div>
         <div className="">
           <Routes>
@@ -79,8 +91,16 @@ function App() {
               <Route path="/DetailProduct/:id" element={<DetailProduct />} />
               <Route path="/BrandPage" element={<BrandPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
-              <Route path="/CategoryPage" element={<CategoryPage />} />
-              <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} />
+              <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
+              <Route
+                path="/albums/album-Edit/:albumId"
+                element={<AlbumEdit />}
+              />
+              <Route path="/album/:id" element={<AlbumDetail />} />
+              <Route
+                path="/InstrumentBelongCategory"
+                element={<CategoryPageDetail />}
+              />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
               <Route path="/checkOut" element={<CheckOut />} />
@@ -91,8 +111,10 @@ function App() {
               <Route path="/FriendList/:userId" element={<FriendList />} />
               <Route path="/Follower/:userId" element={<FollowersPage />} />
               <Route path="/Following/:userId" element={<FollowingPage />} />
-
-
+              <Route path="/likepost" element={<LikePost />} />
+              <Route path="/likeAlbums" element={<LikeAlbums />} />
+              <Route path="/likePlaylist" element={<LikePlaylists />} />
+              <Route path="/search" element={<SearchForm />} />
             </Route>
 
             {/* Các route không có Header */}
@@ -109,7 +131,7 @@ function App() {
               <Route path="/welcome" element={<WelcomeUser />} />
               {/* admin start */}
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
-              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
+              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
               {/* admin end */}

@@ -15,6 +15,8 @@ import UserNotSell from '../components/EcomStatisticalUser/UserNotSell';
 import RevenueCurrently from '../components/EcomRevenue/RevenueCurrently';
 import StatisticalInstrument from '../components/EcomStatisticalInstrument/StatisticalInstrument';
 import { images } from '../assets/images/images';
+import StatisticalRevenueTime from '../components/EcomRevenueTime/StatisticalRevenueTime';
+import StatisticalOrder from '../components/EcomStatisticalOrder/StatisticalOrder';
 
 const EcommerceAdmin = () => {
   return (
@@ -24,7 +26,7 @@ const EcommerceAdmin = () => {
           {/* Logo */}
           <div className="logo p-3">
             <a href="#" style={{}}>
-              <img src={images.logoAdmin} alt="" width="100%" style={{paddingLeft: '50px'}} />
+              <img src={images.logoAdmin} alt="" width="100%" style={{ paddingLeft: '50px' }} />
             </a>
           </div>
           {/* Menu */}
@@ -90,6 +92,29 @@ const EcommerceAdmin = () => {
             <Route path='Statistical/user-not-sell' element={<UserNotSell />} />
 
             <Route path='Statistical/revenue-currently' element={<RevenueCurrently />} />
+
+            <Route path='Statistical/revenue-according-date/:date' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-between-date/:startDate/:endDate' element={<StatisticalRevenueTime />} />
+
+            <Route path='Statistical/revenue-by-week/:selectedWeek' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-between-weeks/:startDate/:endDate' element={<StatisticalRevenueTime />} />
+
+            <Route path='Statistical/revenue-by-month/:year/:month' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-between-months/:year/:startMonth/:endMonth' element={<StatisticalRevenueTime />} />
+
+            <Route path='Statistical/revenue-by-year/:year' element={<StatisticalRevenueTime />} />
+            <Route path='Statistical/revenue-between-years/:startYear/:endYear' element={<StatisticalRevenueTime />} />
+
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
+            <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
 
             <Route path='Statistical/statistical-instrument' element={<StatisticalInstrument />} />
 

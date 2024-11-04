@@ -33,6 +33,8 @@ function Trackdetail() {
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
 
+  const [cmtCount, setCmtCount] = useState(0);
+
   const [comments, setComments] = useState([]); // State lưu trữ comment
   const [newComment, setNewComment] = useState("");
 
@@ -43,7 +45,7 @@ function Trackdetail() {
   const [editingReply, setEditingReply] = useState(null); // Trạng thái theo dõi reply đang chỉnh sửa
   const [editContentReply, setEditContentReply] = useState(""); // Nội dung đang chỉnh sửa
 
-  const userId = Cookies.get("UserID"); // Lấy userId từ cookies
+  const userId = Cookies.get("userId"); // Lấy userId từ cookies
 
   // Gọi service lấy track
   useEffect(() => {
@@ -287,11 +289,11 @@ function Trackdetail() {
   };
 
   // Hiển thị thông báo đang tải hoặc lỗi
-  if (loading) return <p>Đang tải sản phẩm...</p>;
+  if (loading) return <p>Đang tải track...</p>;
   if (error) return <p>{error}</p>;
 
   // Nếu không có track, hiển thị thông báo không tìm thấy
-  if (!track) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+  if (!track) return <p>Track không tồn tại hoặc không thể tìm thấy.</p>;
 
   return (
     <div className="container">
@@ -310,7 +312,7 @@ function Trackdetail() {
             </button>
             <button className="btn">
               <img src={images.conversstion} className="btn-icon" alt="share" />
-              Comment
+              {/* Hiển thị số lượng comments */}
             </button>
           </div>
           <div className="track-player-actions-column">
@@ -359,10 +361,9 @@ function Trackdetail() {
               </div>
               <div className="col-1">
                 <button
-                  className="btn-primary rounded mt-4 p-1"
+                  className="fa-regular fa-paper-plane rounded p-2"
                   onClick={handleAddComment}
                 >
-                  Send
                 </button>
               </div>
             </div>

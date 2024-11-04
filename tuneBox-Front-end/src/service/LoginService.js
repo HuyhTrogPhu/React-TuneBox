@@ -2,6 +2,21 @@ import axios from "axios";
 
 const REST_API_BASE_URL = 'http://localhost:8080/user';
 
+// Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+// axios.interceptors.request.use(
+//   (config) => {
+//       const token = localStorage.getItem('token'); // Lấy token từ localStorage
+//       if (token) {
+//           config.headers['Authorization'] = `Bearer ${token}`;
+//       }
+//       return config;
+//   },
+//   (error) => {
+//       return Promise.reject(error);
+//   }
+// );
+
+
 export const listTalents = () => axios.get(`${REST_API_BASE_URL}/list-talent`);
 
 export const listGenres = () => axios.get(`${REST_API_BASE_URL}/list-genre`);
@@ -36,11 +51,14 @@ export const login = async (userDto) => {
 };
 
 
-// log-out 
+
+// log-out
 export const logout = async () => {
-  const response = await axios.get(`${REST_API_BASE_URL}/log-out`, {
+  const response = await axios.get(`${REST_API_BASE_URL}/log-out`, {}, {
     withCredentials: true
   });
   localStorage.removeItem('jwtToken');
   return response.data;
 };
+
+
