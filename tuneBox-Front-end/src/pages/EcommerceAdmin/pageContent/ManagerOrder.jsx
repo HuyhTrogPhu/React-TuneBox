@@ -259,7 +259,6 @@ const ManagerOrder = () => {
                     <td>{order.shippingMethod}</td>
                     <td>{order.paymentStatus}</td>
                     <td>
-
                       <select
                         value={order.status}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
