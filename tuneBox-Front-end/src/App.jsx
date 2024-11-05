@@ -91,6 +91,7 @@ function App() {
               <Route path="/DetailProduct/:id" element={<DetailProduct />} />
               <Route path="/BrandPage" element={<BrandPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
+              <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
               <Route
                 path="/albums/album-Edit/:albumId"
@@ -131,7 +132,7 @@ function App() {
               <Route path="/welcome" element={<WelcomeUser />} />
               {/* admin start */}
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
-              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
+              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
               {/* admin end */}
