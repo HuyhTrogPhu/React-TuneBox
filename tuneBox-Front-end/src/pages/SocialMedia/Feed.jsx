@@ -4,7 +4,6 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import Cookies from 'js-cookie';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./css/mxh/style.css"
 import "./css/mxh/post.css"
 import "./css/mxh/modal-create-post.css"
@@ -17,6 +16,7 @@ import Picker from '@emoji-mart/react';
 import { getAllTracks } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
+  
   addLike,
   checkUserLikeTrack,
   removeLike,
@@ -24,6 +24,7 @@ import {
 } from "../../service/likeTrackServiceCus";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import UsersToFollow from './Profile/UsersToFollow';
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -53,6 +54,9 @@ const HomeFeed = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [ReportId, setReportId] = useState(null);
+  const [reportType, setReportType] = useState('');
+  const [reportMessage, setReportMessage] = useState("");
+  const [postHiddenStates, setPostHiddenStates] = useState({});
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const commentSectionRef = useRef(null);
@@ -63,9 +67,9 @@ const HomeFeed = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
-  const [reportType, setReportType] = useState('');
-  const [reportMessage, setReportMessage] = useState("");
-  const [postHiddenStates, setPostHiddenStates] = useState({});
+  const tokenjwt = localStorage.getItem('jwtToken');
+
+
 
   // track
   const [tracks, setTracks] = useState([]);
@@ -635,7 +639,6 @@ const HomeFeed = () => {
       console.error("Error adding comment reply:", error);
     }
   };
-
   // reply to reply comment
   const handleAddReplyToReply = async (parentReplyId, commentId) => {
     const replyDto = {
@@ -680,7 +683,6 @@ const HomeFeed = () => {
       console.error("Error adding reply:", error.response?.data || error.message);
     }
   };
-
   // report post 
   const handleReport = (id, type) => {
     console.log('ID to report:', id); // Kiểm tra giá trị ID
@@ -700,7 +702,6 @@ const HomeFeed = () => {
     // Gọi hàm submitReport với các giá trị đúng
     submitReport(currentUserId, ReportId, reportType, reportReason);
   };
-
   const submitReport = async (userId, reportId, reportType, reason) => {
     try {
       const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
@@ -821,52 +822,52 @@ const HomeFeed = () => {
       <div className="container-fluid">
         <div className="row">
           {/* Left Sidebar */}
-          <div className="col-3 sidebar bg-light p-4">
-            <ul className="list-unstyled">
-              <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
-                  <img src={images.web_content} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>
-                    <Link to={'/'}>Bản tin</Link>
-                  </span>
-                </a>
-              </li>
-              <li className="left mb-4">
-                <Link to={`/Following/${currentUserId}`} className="d-flex align-items-center">
-                  <img src={images.followers} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Đang theo dõi</span>
-                </Link>
-              </li>
-              <li className="left mb-4">
-                <Link href="/#" className="d-flex align-items-center">
-                  <img src={images.feedback} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Bài viết đã thích</span>
-                </Link>
-              </li>
-              <li className="left mb-4">
-                <Link to={"/likeAlbums"} className="d-flex align-items-center">
-                  <img
-                    src={images.music}
-                    alt="icon"
-                    width={20}
-                    className="me-2"
-                  />
-                  <span className="fw-bold">Albums đã thích</span>
-                </Link>
-              </li>
-              <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
-                  <img
-                    src={images.playlist}
-                    alt="icon"
-                    width={20}
-                    className="me-2 "
-                  />
-                  <span className="fw-bold">Playlist đã thích</span>
-                </a>
-              </li>
-            </ul>
-          </div>
+          <div className="col-3 sidebar bg-light p-4 ">
+      <ul className="list-unstyled ">
+        <li className="left mb-4">
+          <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
+            <img src={images.web_content} alt='icon' width={20} className="me-2" />
+            <span className='fw-bold'>
+              <Link to={'/'}>Bản tin</Link>
+            </span>
+          </a>
+        </li>
+        <li className="left mb-4">
+          <Link to={`/Following/${currentUserId}`} className="d-flex align-items-center">
+            <img src={images.followers} alt='icon' width={20} className="me-2" />
+            <span className='fw-bold'>Đang theo dõi</span>
+          </Link>
+        </li>
+        <li className="left mb-4">
+          <Link to="#" className="d-flex align-items-center">
+            <img src={images.feedback} alt='icon' width={20} className="me-2" />
+            <span className='fw-bold'>Bài viết đã thích</span>
+          </Link>
+        </li>
+        <li className="left mb-4">
+          <Link to={"/likeAlbums"} className="d-flex align-items-center">
+            <img
+              src={images.music}
+              alt="icon"
+              width={20}
+              className="me-2"
+            />
+            <span className="fw-bold">Albums đã thích</span>
+          </Link>
+        </li>
+        <li className="left mb-4">
+          <Link to="#" className="d-flex align-items-center">
+            <img
+              src={images.playlist}
+              alt="icon"
+              width={20}
+              className="me-2 "
+            />
+            <span className="fw-bold">Playlist đã thích</span>
+          </Link>
+          </li>
+      </ul>
+    </div>
           {/* Main Content */}
           <div className="col-6 content p-4">
             {/* Nút tạo bài */}
@@ -1268,7 +1269,7 @@ const HomeFeed = () => {
                                 style={{ resize: "none" }}
                                 rows={1}
                                 placeholder="Write a comment..."
-                                value={commentContent[post.id] || ""}
+                                value={commentContent[selectedPostId] || ""}
                                 onChange={(e) => handleCommentChange(selectedPost.id, e.target.value)}
                               />
                               <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="btn btn-sm">
@@ -1362,7 +1363,7 @@ const HomeFeed = () => {
       onClick={() => handleReport(post.id, 'post')}
     ></button>
   )}
-</div>
+                    </div>
                     {/* Nội dung bài viết */}
                     <div className="post-content">{post.content}</div>
                     {/* Hiển thị hình ảnh dưới dạng carousel */}
@@ -1425,54 +1426,8 @@ const HomeFeed = () => {
           {/* Right Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
             <ul className="list-unstyled">
-              <h6>Gợi ý theo dõi</h6>
               <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
+                <UsersToFollow userId={currentUserId} token={tokenjwt} />
               </li>
             </ul>
             <div className="advertisement mt-5">

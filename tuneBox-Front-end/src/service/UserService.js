@@ -62,6 +62,8 @@ export const updateUserEmail = async (userId, newEmail) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+
         },
       }
     );
@@ -108,6 +110,8 @@ export const updateUserName = async (userId, newUserName) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+
         },
       }
     );
@@ -127,6 +131,8 @@ export const updatePassword = async (userId, newPassword) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+
         },
       }
     );
@@ -137,6 +143,8 @@ export const updatePassword = async (userId, newPassword) => {
   }
 };
 export const updateUserBirthday = async (userId, newBirthday) => {
+  const token = localStorage.getItem('jwtToken');
+
   try {
     // Kiểm tra định dạng ngày sinh trước khi gửi
     if (!isValidBirthday(newBirthday)) {
@@ -149,6 +157,8 @@ export const updateUserBirthday = async (userId, newBirthday) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+
         },
       }
     );
@@ -173,6 +183,8 @@ export const updateUserGender = async (userId, newGender) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+
         },
       }
     );

@@ -123,7 +123,7 @@ const ProfileUser = () => {
               <div className="fs-4 text-small">
                 <b>{userData.name}</b>
               </div>
-              <div className="">{userData.userName}</div>
+              <div className="">#{userData.userName}</div>
             </div>
             <div className="col text-end">
               <Link to="/ProfileSetting">

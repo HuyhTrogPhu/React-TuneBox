@@ -57,8 +57,8 @@ const FriendList = () => {
                             <div className="card-body text-center">
                                 <h5 className="card-title mb-1">{friend.name}</h5>
                                 <p className="card-text text-muted">@{friend.userName}</p>
-                                <button className="btn btn-primary btn-sm">View Profile</button>
-                            </div>
+                                <a href={`/profile/${friend.userId}`} className="btn btn-primary btn-sm">View Profile</a>
+                                </div>
                         </div>
                     </div>
                 ))}

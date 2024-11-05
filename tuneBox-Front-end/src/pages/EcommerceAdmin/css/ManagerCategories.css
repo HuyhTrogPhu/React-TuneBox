@@ -16,7 +16,7 @@ a {
 .sidebar {
     background-color: #011627;
     min-height: 100vh; 
-    height: auto; 
+    /* height: auto;  */
     position: sticky; 
     top: 0;
     z-index: 100;

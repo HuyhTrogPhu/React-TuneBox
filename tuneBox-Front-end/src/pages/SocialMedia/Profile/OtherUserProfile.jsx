@@ -214,8 +214,6 @@ const toggleBlock = async () => {
       console.error("Error canceling friend request:", error);
     }
   };
-  
-  
 
   const unfriend = async () => {
     try {
@@ -257,8 +255,8 @@ const toggleBlock = async () => {
       <aside className="col-sm-3">
         <div>
           <img src={userData.avatar || "/src/UserImages/Avatar/avt.jpg"} className="avatar" alt="avatar" />
-          <div className="fs-4 text-small mt-3"><b>{userData.userNickname}</b></div>
-          <div>{userData.userName}</div>
+          <div className="fs-4 text-small mt-3"><b>{userData.name}</b></div>
+          <div>#{userData.userName}</div>
         </div>
         <div className="row mt-4">
           <div className="col text-start">

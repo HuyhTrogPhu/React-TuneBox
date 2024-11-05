@@ -5,11 +5,13 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { listGenre } from "../../../../service/TrackServiceCus";
+import { useParams } from "react-router-dom"; // Import useParams để lấy userId từ URL
 
 const Track = () => {
   const [tracks, setTracks] = useState([]); // State luu track
   const [selectedTrack, setSelectedTrack] = useState(null); // State cho track duoc chon
   const userId = Cookies.get("userId"); // Lay userId tu cookies
+  const { id } = useParams(); // Lấy ID từ URL
 
   const [genres, setGenres] = useState([]); // Store the list of genres
   const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
@@ -30,10 +32,12 @@ const Track = () => {
 
   // Ham lay danh sach track
   const fetchTrack = async () => {
+    const targetUserId = id ? id : userId;
+    console.log("Target User ID:", targetUserId);
     try {
       if (!userId) throw new Error("User ID not found."); // Kiem tra userId
       const response = await axios.get(
-        `http://localhost:8080/customer/tracks/user/${userId}`,
+        `http://localhost:8080/customer/tracks/user/${targetUserId}`,
         {
           withCredentials: true,
         }

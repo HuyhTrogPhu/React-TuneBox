@@ -5,14 +5,26 @@ import {
 } from "../../../../service/AlbumsServiceCus";
 import Cookies from "js-cookie";
 import "./css/albums.css";
-import { Link } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Link, useParams } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
+
 
 const Albums = () => {
   const userId = Cookies.get("userId");
+  const { id } = useParams(); // Lấy ID từ URL
   console.log("cookie: ", userId);
   const [albums, setAlbums] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [ReportId, setReportId] = useState(null);
+  const [reportType, setReportType] = useState('');
+  const [reportMessage, setReportMessage] = useState("");
 
   // Fetch initial data
   useEffect(() => {
@@ -21,9 +33,11 @@ const Albums = () => {
 
   // fetch list album
   const fetchListAlbum = async () => {
+    const targetUserId = id || userId;
+    console.log("Target User ID:", targetUserId);
     setIsLoading(true);
     try {
-      const albumsResponse = await getAlbumsByUserId(userId);
+      const albumsResponse = await getAlbumsByUserId(targetUserId);
 
       setAlbums(albumsResponse || []);
 
@@ -62,6 +76,85 @@ const Albums = () => {
     }
   };
 
+    // report post 
+    const handleReport = (id, type) => {
+      console.log('ID to report:', id); // Kiểm tra giá trị ID
+      console.log('Type to report:', type); // Kiểm tra giá trị type
+      setReportId(id);
+      setReportType(type);
+      setShowReportModal(true);
+    };
+    const handleSubmit = () => {
+      console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
+  
+      if (!ReportId || !reportType) {
+        setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
+        return;
+      }
+  
+      // Gọi hàm submitReport với các giá trị đúng
+      submitReport(currentUserId, ReportId, reportType, reportReason);
+    };
+    const submitReport = async (userId, reportId, reportType, reason) => {
+      try {
+        const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
+  
+        const reportExists = await checkReportExists(userId, reportId, reportType);
+        if (reportExists) {
+          setReportMessage("Bạn đã báo cáo nội dung này rồi.");
+          toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
+        } else {
+          const reportData = {
+            userId: userId,
+            postId: reportType === 'post' ? reportId : null,
+            trackId: reportType === 'track' ? reportId : null,
+            albumId: reportType === 'album' ? reportId : null,
+            type: reportType,
+            reason: reason
+          };
+  
+          const response = await axios.post('http://localhost:8080/api/reports', reportData, {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}` // Thêm JWT token vào header
+            }
+          });
+  
+          console.log('Report submitted successfully:', response.data);
+          setReportMessage("Báo cáo đã được gửi thành công.");
+          toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
+          setShowReportModal(false);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tạo báo cáo:", error);
+        if (error.response && error.response.status === 401) {
+          navigate('/login?error=true');
+        } else {
+          setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
+          toast.error("Đã có lỗi xảy ra khi gửi báo cáo."); // Hiển thị toast thông báo lỗi
+        }
+      }
+    };
+    const checkReportExists = async (userId, reportId, reportType) => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/reports/check`, {
+          params: {
+            userId: userId,
+            postId: reportType === 'post' ? reportId : null,
+            trackId: reportType === 'track' ? reportId : null,
+            albumId: reportType === 'album' ? reportId : null,
+            type: reportType,
+          },
+          withCredentials: true,
+        });
+        console.log('Check report response:', response.data);
+        return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
+      } catch (error) {
+        console.error('Error checking report:', error);
+        return false;
+      }
+    };
+
   return (
     <div className="albums">
       <div className="btn-container">
@@ -86,13 +179,13 @@ const Albums = () => {
       </div>
 
       {/* Albums List */}
-      <div className="post-header-albums">
-        {isLoading ? (
-          <div>Loading albums...</div>
-        ) : albums && albums.length > 0 ? (
-          albums.map(
-            (album) =>
-              !album.status && (
+      <div className="post-header-albums position-relative">
+        {
+          albums && albums.length > 0 ? (
+            albums.map((album) => {
+              console.log("albums.creator: ",album.creatorId)
+
+              return(
                 <div key={album.id} className="album-item">
                   <img
                     src={album.albumImage}
@@ -117,37 +210,109 @@ const Albums = () => {
                       <span className="likes">Likes: 0</span>
                     </div>
                   </div>
-
-                  <div className="btn-group" style={{ marginLeft: 25 }}>
+                  {String(album.creatorId) === String(userId) ? (
+                  <div className="dropdown position-absolute top-8 end-0 me-4 ">
                     <button
                       className="btn dropdown-toggle no-border"
                       type="button"
+                      id={`dropdownMenuButton-${album.id}`}
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
                     />
-                    <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${album.id}`}>
                       <li>
-                        <Link to={`/albums/album-Edit/${album.id}`}>
-                          <a className="dropdown-item">Edit</a>
+                        <Link to={`/albums/album-Edit/${album.id}`} >
+                          <button className="dropdown-item">Edit</button>
                         </Link>
                       </li>
                       <li>
-                        <a
+                        <button
                           className="dropdown-item"
-                          onClick={() => handDeleteAlbum(album.id)}
-                        >
+                          onClick={() => handDeleteAlbum(album.id)} >
                           Delete
-                        </a>
+                        </button>
                       </li>
                     </ul>
                   </div>
+                    ) : (
+                      <button
+                        className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
+                        onClick={() => handleReport(album.id, 'album')}
+                      ></button>
+                    )}
                 </div>
               )
-          )
-        ) : (
-          <div className="no-albums">No albums found</div>
-        )}
+            }
+            )
+          ) : (<div className="no-albums">No albums found</div>)
+        }
       </div>
+            {/* Modal báo cáo */}
+            <ToastContainer />
+      {showReportModal && (
+        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    // Reset dữ liệu khi đóng modal
+                    setShowReportModal(false);
+                    setReportReason(""); // Reset lý do báo cáo
+                    setReportMessage(""); // Reset thông báo
+                  }}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                <h6>Chọn lý do báo cáo:</h6>
+                <div className="mb-3">
+                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                    <label className="d-block" key={reason}>
+                      <input
+                        type="radio"
+                        name="reportReason"
+                        value={reason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                      /> {reason}
+                    </label>
+                  ))}
+                </div>
+                <textarea
+                  className="form-control mt-2"
+                  placeholder="Nhập lý do báo cáo"
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  style={{ resize: 'none' }}
+                />
+              </div>
+              <div className="modal-footer">
+                <button
+                  onClick={() => submitReport(userId, ReportId, reportType, reportReason)}
+                  className="btn btn-primary"
+                >
+                  Báo cáo
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowReportModal(false);
+                    setReportReason(""); // Reset lý do báo cáo
+                    setReportMessage(""); // Reset thông báo
+                  }}
+                >
+                  Đóng
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

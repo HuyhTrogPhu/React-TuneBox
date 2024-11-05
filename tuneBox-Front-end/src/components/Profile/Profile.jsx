@@ -71,7 +71,6 @@ const Profile = () => {
             });
         } catch (error) {
             console.error("Error updating avatar:", error);
-            toast.error("Failed to update avatar. Please try again.");
         }
     };
     

@@ -14,6 +14,7 @@ import Picker from '@emoji-mart/react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
 const Activity = () => {
   const [postContent, setPostContent] = useState("");
   const [postImages, setPostImages] = useState([]);
@@ -30,9 +31,7 @@ const Activity = () => {
   const [editingCommentContent, setEditingCommentContent] = useState("");
   const [showAllReplies, setShowAllReplies] = useState({});
   const [likes, setLikes] = useState({}); // Trạng thái lưu trữ like cho mỗi bài viết
-  const [likesCount, setLikesCount] = useState({});
   const [replyToUser, setReplyToUser] = useState("");
-  const currentUserNickname = Cookies.get('userNickname');
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -43,7 +42,6 @@ const Activity = () => {
 
   const [isUploading, setIsUploading] = useState(false);
 
-  const [postHiddenStates, setPostHiddenStates] = useState({});
   const [reportType, setReportType] = useState('');
   const [reportMessage, setReportMessage] = useState("");
   const [ReportId, setReportId] = useState(null);
@@ -143,7 +141,7 @@ const Activity = () => {
     document.getElementById("file-input").value = "";
   };
   const fetchPosts = async () => {
-    const targetUserId = id ? id : userId;
+    const targetUserId = id || userId;
     console.log("Target User ID:", targetUserId);
 
     // Lấy token từ localStorage hoặc nơi bạn lưu trữ
