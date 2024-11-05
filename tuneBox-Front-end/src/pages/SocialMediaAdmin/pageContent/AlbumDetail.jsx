@@ -6,6 +6,7 @@ import { LoadAlbumsById } from "../../../service/SocialMediaAdminService";
 const AlbumDetail = () => {
   const { id } = useParams();
   const [album, setAlbum] = useState([]);
+  const [track, setTrack] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -14,7 +15,8 @@ const AlbumDetail = () => {
       // Gọi API của Album
       const responsePlayList = await LoadAlbumsById(id);
       if (responsePlayList.status) {
-        setAlbum(responsePlayList.data);
+        setAlbum(responsePlayList.dataAlbums);
+        setTrack(responsePlayList.dataTracks);
       }
       setLoading(false);
     };
@@ -58,19 +60,13 @@ const AlbumDetail = () => {
         <div className="row align-items-center mb-4">
           <div className="col-lg-4 col-md-6 mb-4">
             <img
-              src={images.ava}
+              src={album.albumImage}
               alt="Album Image"
               className="img-fluid rounded shadow-sm"
             />
           </div>
           <div className="col-lg-8 col-md-6 mb-4">
             <h4 className="mb-2">{album.tilte}</h4>
-            <img
-              src={album.albumImage}
-              alt="User Image"
-              className="rounded-circle shadow-sm me-2"
-              style={{ width: 50, height: 50 }}
-            />
             <p className="d-inline-block mb-1">
               <strong>{album.creator ? album.creator.userName: "unkown"}</strong>
             </p>
@@ -112,27 +108,32 @@ const AlbumDetail = () => {
               </thead>
 
               <tbody>
-                {album.tracks.map((track, index) => (
+                {track.map((track, index) => (
                   <tr key={track.id}>
                     <th>{index + 1}</th>
                     <td>
                       <div className="d-flex align-items-center">
                         <img
-                          src={track.trackImage || images.ava} // Kiểm tra nếu có trackImage, nếu không thì dùng hình ảnh mặc định
+                          src={track.imageTrack || images.ava} // Kiểm tra nếu có trackImage, nếu không thì dùng hình ảnh mặc định
                           alt="Track Image"
                           className="rounded me-3"
                           style={{ width: 50 }}
                         />
                         <div>
                           <h6 className="mb-0">{track.name}</h6>
-                          <small>by {track.description}</small>
+                          <small>{track.description}</small>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <a href="#" className="btn btn-warning">
-                        View
-                      </a>
+                    <button
+                          className="btn btn-warning"
+                          onClick={() =>
+                            navigate(`/socialadmin/TrackDetail/${track.id}`)
+                          }
+                        >
+                          Views
+                        </button>
                     </td>
                   </tr>
                 ))}

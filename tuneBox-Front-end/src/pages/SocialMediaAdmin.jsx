@@ -15,7 +15,7 @@ import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
 import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
 import Track from "./SocialMediaAdmin/pageContent/Track";
 import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";
-
+import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
 const SocialMediaAdmin = () => {
   return (
     <div>
@@ -72,9 +72,9 @@ const SocialMediaAdmin = () => {
                 </li>
                 <li className="p-3">
                   <i className="fa-solid fa-chart-simple" />
-                  <a href="#" className="text-white">
+                  <Link to={"/socialadmin/statistical"} className="text-white">
                     Statistical
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -122,7 +122,9 @@ const SocialMediaAdmin = () => {
               <Route path='albums' element={<Albums/>} />
               <Route path='Track' element={<Track/>} />
               <Route path='playlists' element={<Playlists/>} />
-              {/* <Route path='albumdetail' element={<AlbumDetail/>} /> */}
+              <Route path='statistical' element={<Statistical/>} />
+      
+             
               <Route path='posts' element={<Posts/>} />
               <Route path='dashboard' element={<DashBoard/>} />
               <Route path='users' element={<Users/>} />

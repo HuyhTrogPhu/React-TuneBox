@@ -1,7 +1,7 @@
 import React from "react";
 import { images } from "../../../assets/images/images";
 
-const Login = () => {
+const LoginS_ADMIN = () => {
   return (
     <div>
       <section className="d-flex align-items-center vh-100">
@@ -109,4 +109,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginS_ADMIN;

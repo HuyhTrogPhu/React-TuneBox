@@ -50,7 +50,7 @@ const Track = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>New Track</h5>
+              <h5 className="text-light">New Track</h5>
             </div>
             <div className="card-body">
               <table className="table">
@@ -94,41 +94,7 @@ const Track = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>Trending Track</h5>
-            </div>
-            <div className="card-body">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Total Posts</th>
-                    <th>Total Likes</th>
-                    <th>Total Comments</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Karina</td>
-                    <td>1000</td>
-                    <td>1000</td>
-                    <td>1000</td>
-                    <td>
-                      <button className="btn btn-danger">Views</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="row">
-        {/* All Users */}
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header bg-dark text-white">
-              <h5>All Track</h5>
+              <h5 className="text-light">All Track</h5>
             </div>
             <div className="card-body">
               <div className="input-group mb-3">
@@ -200,12 +166,17 @@ const Track = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="row">
+        {/* All Users */}
+    
 
         {/* Report */}
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>Report</h5>
+              <h5 className="text-light">Report</h5>
             </div>
             <div className="card-body">
               <table className="table">

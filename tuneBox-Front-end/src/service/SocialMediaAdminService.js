@@ -5,7 +5,7 @@ import axios from "axios";
 export const LoadUserDetail = async (id) => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/userInfor/get/${id}`,
+        `http://localhost:8082/SocialAdmin/static/getUs/${id}`,
         { withCredentials: true }
       );
       const data = response.data;
@@ -192,3 +192,67 @@ export const LoadAlbumsById = async (id) => {
     console.error("Error fetching user data:", error);
   }
 };
+// load user count between dates
+export const LoadUserCountBetweenDates = async (startDate, endDate) => {
+  try {
+      const response = await axios.get(
+          `http://localhost:8082/SocialAdmin/static/getUserBeetWeen/${startDate}/${endDate}`,
+          { withCredentials: true }
+      );
+      const data = response.data;
+      console.log("User count between dates:", data);
+      return data; 
+  } catch (error) {
+      console.error("Error fetching user count:", error);
+      throw error; 
+  }
+};
+// load user count between dates
+export const LoadPostCountBetweenDates = async (startDate, endDate) => {
+  try {
+      const response = await axios.get(
+          `http://localhost:8082/SocialAdmin/static/getPostBeetWeen/${startDate}/${endDate}`,
+          { withCredentials: true }
+      );
+      const data = response.data;
+      console.log("post count between dates:", data);
+      return data; 
+  } catch (error) {
+      console.error("Error fetching user count:", error);
+      throw error; 
+  }
+};
+
+// load user count between dates
+export const LoadTrackCountBetweenDates = async (startDate, endDate) => {
+  try {
+      const response = await axios.get(
+          `http://localhost:8082/SocialAdmin/static/getTrackBeetWeen/${startDate}/${endDate}`,
+          { withCredentials: true }
+      );
+      const data = response.data;
+      console.log("post count between dates:", data);
+      return data; 
+  } catch (error) {
+      console.error("Error fetching user count:", error);
+      throw error; 
+  }
+};
+
+// load user count between dates
+export const LoadTrackCountBetweenDatesGenre = async (startDate, endDate) => {
+  try {
+      const response = await axios.get(
+          `http://localhost:8082/SocialAdmin/static/getTrackGenreBeetWeen/${startDate}/${endDate}`,
+          { withCredentials: true }
+      );
+      const data = response.data;
+      console.log("Genre:", data);
+      return data; 
+  } catch (error) {
+      console.error("Error fetching user count:", error);
+      throw error; 
+  }
+};
+
+

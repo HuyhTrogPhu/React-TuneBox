@@ -73,7 +73,7 @@ const Users = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>New Users</h5>
+              <h5 className="text-light">New Users</h5>
             </div>
             <div className="card-body">
               <table className="table">
@@ -118,7 +118,7 @@ const Users = () => {
         <div className="col-md-6">
         <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>All Users</h5>
+              <h5 className="text-light">All Users</h5>
             </div>
             <div className="card-body">
               <div className="input-group mb-3">

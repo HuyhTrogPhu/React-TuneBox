@@ -49,6 +49,10 @@ import FollowersPage from "./pages/SocialMedia/FollowersPage";
 import FollowingPage from "./pages/SocialMedia/FollowingPage";
 // Layout có Header
 
+//socialadmin
+import SocialMediaAdmin from "./pages/SocialMediaAdmin";
+import LoginS_ADMIN from "./pages/SocialMediaAdmin/pageContent/Login";
+
 function LayoutWithHeader() {
   return (
     <>
@@ -130,6 +134,12 @@ function App() {
               <Route path="/welcome" element={<WelcomeUser />} />
               {/* admin start */}
               <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+              <Route
+              path="/socialadmin/*"
+              element={<SocialMediaAdmin />}
+            />
+            <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
+
               {/* admin end */}
             </Route>
           </Routes>

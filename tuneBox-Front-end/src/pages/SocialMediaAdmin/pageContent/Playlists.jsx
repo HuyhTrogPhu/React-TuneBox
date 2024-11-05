@@ -52,7 +52,7 @@ const Playlists = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>New PlayList</h5>
+              <h5 className="text-light">New PlayList</h5>
             </div>
             <div className="card-body">
               <table className="table">
@@ -93,7 +93,7 @@ const Playlists = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>All PlayList</h5>
+              <h5 className="text-light">All PlayList</h5>
             </div>
             <div className="card-body">
               <div className="input-group mb-3">

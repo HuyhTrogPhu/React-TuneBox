@@ -54,14 +54,14 @@ const filteredUsers = AllUser.filter((user) =>
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>New Album</h5>
+              <h5 className="text-light">New Album</h5>
             </div>
             <div className="card-body">
               <table className="table">
                 <thead>
                   <tr>
                     <th>Title </th>
-                    <th>Type</th>
+            
                     <th>Create Date</th>
                     <th>Total tracks</th>
                   </tr>
@@ -69,8 +69,7 @@ const filteredUsers = AllUser.filter((user) =>
                 <tbody>
                   {NewUser.map((user) => (
                     <tr key={user.id}>
-                      <td>{user.title}</td>
-                      <td>{user.genre.name}</td>
+                      <td>{user.title}</td>   
                       <td>{user.createDate}</td>
                       <td>{user.tracks.length}</td>
                       <td>
@@ -95,7 +94,7 @@ const filteredUsers = AllUser.filter((user) =>
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5>All PlayList</h5>
+              <h5 className="text-light">All Album</h5>
             </div>
             <div className="card-body">
               <div className="input-group mb-3">
@@ -115,7 +114,7 @@ const filteredUsers = AllUser.filter((user) =>
                   <thead>
                   <tr>
                     <th>Title </th>
-                    <th>Type</th>
+               
                     <th>Create Date</th>
                     <th>Total tracks</th>
                   </tr>
@@ -124,7 +123,7 @@ const filteredUsers = AllUser.filter((user) =>
                   {NewUser.map((user) => (
                     <tr key={user.id}>
                       <td>{user.title}</td>
-                      <td>{user.genre.name}</td>
+              
                       <td>{user.createDate}</td>
                       <td>{user.tracks.length}</td>
                       <td>

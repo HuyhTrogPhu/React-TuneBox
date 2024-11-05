@@ -4,6 +4,7 @@ import { images } from "../../../assets/images/images";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../css/User.css"
 import {
   LoadUserDetail,
   LoadUserTrack,
@@ -16,9 +17,11 @@ const UserDetail = () => {
   const { id } = useParams();
   const [user, setUser] = useState({});
   const [userDetail, setUserDetail] = useState({});
+  const [userInfor, setInforUser] = useState({});
   const [postCount, setPostCount] = useState(0);
   const [userTrack, setUserTrack] = useState([]);
   const [userAlbums, setUserAlbums] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +29,7 @@ const UserDetail = () => {
       const responseUserDetail = await LoadUserDetail(id);
       if (responseUserDetail.status) {
         setUserDetail(responseUserDetail.data);
+        setInforUser(responseUserDetail.dataInformation);
       }
 
       // Gọi API của user
@@ -56,15 +60,17 @@ const UserDetail = () => {
     };
 
     fetchData();
+    setLoading(false);
   }, [id]);
 
-  // Thêm các useEffect riêng để theo dõi các state đã được cập nhật
-
+  if (loading) {
+    return <div>Loading...</div>; 
+      }
   return (
     <div className="container-fluid">
       <div className="row vh-100">
         {/* Left Sidebar (User Info) */}
-        <div className="col-lg-3 bg-light p-4 d-flex flex-column align-items-center bg-secondary-subtle">
+        <div className="col-lg-3 bg-light p-4 d-flex flex-column align-items-center bg-secondary-subtle text-start">
           <img
             src="/src/UserImages/Avatar/avt.jpg"
             alt="User Avatar"
@@ -72,8 +78,14 @@ const UserDetail = () => {
             style={{ width: "150px", height: "150px" }}
           />
           <h4>User information</h4>
+          
+          {console.log(userDetail)}
+          {console.log(userInfor)}
+          <h4 className="">Username: {userInfor.userName}</h4>
+          <h4>Email: {userInfor.email}</h4>
+          <h4>Create date :{userInfor.createDate}</h4>
+          <h4></h4>
           <button className="btn btn-danger w-75 my-2">Ban/UnBan</button>
-          <button className="btn btn-dark w-75 my-2">Update</button>
         </div>
 
         {/* Right Side (Tracks, Albums, Playlists) */}
@@ -120,7 +132,7 @@ const UserDetail = () => {
                       <div className="track-info">
                         <h5 className="track-name mb-2">{track.name}</h5>
                         <p className="track-user">
-                          Creator: {track.user || "Unknown"}
+                          Creator: {track.userName || "Unknown"}
                         </p>
                       </div>
 
@@ -170,14 +182,15 @@ const UserDetail = () => {
                               {album.title || "No Title Available"}
                             </h5>
                             <p className="album-details mb-0">
-                              {`Tracks: ${album.tracks?.length || 0} | Likes: ${
-                                album.likes || 0
-                              } | Comments: ${album.comments || 0}`}
+                              {`Tracks: ${album.tracks?.length || 0} `}
                             </p>
                           </div>
                         </div>
                         <div className="album-right">
-                          <button className="btn btn-danger">Views</button>
+                          <button className="btn btn-danger"
+                           onClick={() =>
+                            navigate(`/socialadmin/AlbumDetail/${track.id}`)
+                          }>Views</button>
                         </div>
                       </div>
                     ))
@@ -188,10 +201,9 @@ const UserDetail = () => {
                   <div className="album-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light border rounded">
                     <div className="album-left d-flex align-items-center">
                       <div className="album-thumbnail me-3">
-                        <button className="btn btn-dark play-button">
+                       
                           <img src={userAlbums.albumImage} alt="album img" />
-                          <i className="fa fa-play"></i>
-                        </button>
+                      
                       </div>
                       <div className="album-info">
                         <h5 className="album-title mb-1">
@@ -200,14 +212,15 @@ const UserDetail = () => {
                         <p className="album-details mb-0">
                           {`Tracks: ${
                             userAlbums.tracks?.length || 0
-                          } | Likes: ${userAlbums.likes || 0} | Comments: ${
-                            userAlbums.comments || 0
                           }`}
                         </p>
                       </div>
                     </div>
                     <div className="album-right">
-                      <button className="btn btn-danger">Views</button>
+                      <button className="btn btn-danger"
+                      onClick={() =>
+                        navigate(`/socialadmin/AlbumDetail/${userAlbums.id}`)
+                      }>Views</button>
                     </div>
                   </div>
                 )}
