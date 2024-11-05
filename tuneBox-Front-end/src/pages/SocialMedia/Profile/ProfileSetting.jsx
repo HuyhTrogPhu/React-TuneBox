@@ -17,6 +17,7 @@ const ProfileSetting = () => {
   const handleComponentChange = (componentName) => {
     setActiveComponent(componentName);
   };
+  
 
   return (
     <div className="">

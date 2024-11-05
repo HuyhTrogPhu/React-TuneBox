@@ -4,7 +4,6 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import Cookies from 'js-cookie';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./css/mxh/style.css"
 import "./css/mxh/post.css"
 import "./css/mxh/modal-create-post.css"
@@ -17,12 +16,15 @@ import Picker from '@emoji-mart/react';
 import { getAllTracks } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
+  
   addLike,
   checkUserLikeTrack,
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import UsersToFollow from './Profile/UsersToFollow';
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -51,7 +53,10 @@ const HomeFeed = () => {
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
-  const [reportPostId, setReportPostId] = useState(null);
+  const [ReportId, setReportId] = useState(null);
+  const [reportType, setReportType] = useState('');
+  const [reportMessage, setReportMessage] = useState("");
+  const [postHiddenStates, setPostHiddenStates] = useState({});
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const commentSectionRef = useRef(null);
@@ -62,6 +67,10 @@ const HomeFeed = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
+  const tokenjwt = localStorage.getItem('jwtToken');
+
+
+
   // track
   const [tracks, setTracks] = useState([]);
   const [likedTracks, setLikedTracks] = useState({});
@@ -70,7 +79,6 @@ const HomeFeed = () => {
   useEffect(() => {
     fetchTracks();
   }, []);
-
   const fetchTracks = async () => {
     try {
       const response = await getAllTracks();
@@ -109,7 +117,6 @@ const HomeFeed = () => {
       console.error("Error fetching all track:", error);
     }
   };
-
   const handleLikeTrack = async (trackId) => {
     try {
       if (likedTracks[trackId]?.data) {
@@ -136,9 +143,6 @@ const HomeFeed = () => {
       console.error("Lỗi khi xử lý like:", error);
     }
   };
-
-
-
   // end track
 
   const handleAvatarClick = (post) => {
@@ -169,8 +173,6 @@ const HomeFeed = () => {
     }
   };
 
-
-
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
 
@@ -197,7 +199,6 @@ const HomeFeed = () => {
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
-          console.log('post Id:', post.id);
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
               const repliesResponse = await axios.get(
@@ -239,8 +240,6 @@ const HomeFeed = () => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
-
-
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
@@ -640,7 +639,6 @@ const HomeFeed = () => {
       console.error("Error adding comment reply:", error);
     }
   };
-
   // reply to reply comment
   const handleAddReplyToReply = async (parentReplyId, commentId) => {
     const replyDto = {
@@ -685,41 +683,84 @@ const HomeFeed = () => {
       console.error("Error adding reply:", error.response?.data || error.message);
     }
   };
-
   // report post 
-  const handleReportPost = (postId) => {
-    setReportPostId(postId);
-    setShowReportModal(true); // Hiện modal
+  const handleReport = (id, type) => {
+    console.log('ID to report:', id); // Kiểm tra giá trị ID
+    console.log('Type to report:', type); // Kiểm tra giá trị type
+    setReportId(id);
+    setReportType(type);
+    setShowReportModal(true);
   };
+  const handleSubmit = () => {
+    console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
 
-  const submitReport = async () => {
-    const token = localStorage.getItem('jwtToken')
+    if (!ReportId || !reportType) {
+      setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
+      return;
+    }
+
+    // Gọi hàm submitReport với các giá trị đúng
+    submitReport(currentUserId, ReportId, reportType, reportReason);
+  };
+  const submitReport = async (userId, reportId, reportType, reason) => {
     try {
-      const response = await fetch('http://localhost:8080/api/reports', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-           Authorization : `Bearer ${token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          postId: reportPostId,
-          reason: reportReason,
-        }),
-      });
-      
-      if (response.ok) {
-        console.log('thành công');
-        setShowReportModal(false);
-        setReportReason("");
+      const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
+
+      const reportExists = await checkReportExists(userId, reportId, reportType);
+      if (reportExists) {
+        setReportMessage("Bạn đã báo cáo nội dung này rồi.");
+        toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
       } else {
-        console.error('Có lỗi xảy ra khi gửi báo cáo.');
+        const reportData = {
+          userId: userId,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,
+          reason: reason
+        };
+
+        const response = await axios.post('http://localhost:8080/api/reports', reportData, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}` // Thêm JWT token vào header
+          }
+        });
+
+        console.log('Report submitted successfully:', response.data);
+        setReportMessage("Báo cáo đã được gửi thành công.");
+        toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
+        setShowReportModal(false);
       }
     } catch (error) {
-      console.error('Lỗi mạng:', error);
+      console.error("Lỗi khi tạo báo cáo:", error);
+      if (error.response && error.response.status === 401) {
+        navigate('/login?error=true');
+      } else {
+        setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
+        toast.error("Đã có lỗi xảy ra khi gửi báo cáo."); // Hiển thị toast thông báo lỗi
+      }
     }
   };
-  
+  const checkReportExists = async (userId, reportId, reportType) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/reports/check`, {
+        params: {
+          userId: userId,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,
+        },
+        withCredentials: true,
+      });
+      console.log('Check report response:', response.data);
+      return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
+    } catch (error) {
+      console.error('Error checking report:', error);
+      return false;
+    }
+  };
   // Hàm để bật/tắt emoji picker
   const toggleEmojiPicker = (id) => {
     setShowEmojiPicker((prev) => (prev === id ? null : id));
@@ -746,59 +787,86 @@ const HomeFeed = () => {
     modal.show(); // Mở modal
   };
 
+  // ẩn hiện post
+  const toggleHiddenState = async (postId) => {
+    const token = localStorage.getItem('jwtToken');
+    
+    if (!token) {
+        console.error("No JWT token found");
+        toast.error("You need to be logged in to toggle post visibility.");
+        return; // No token, do not call API
+    }
 
-  return (
+    try {
+        await axios.put(`http://localhost:8080/api/posts/${postId}/toggle-visibility`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+
+        // Update the visibility state of the post
+        setPostHiddenStates(prevStates => ({
+            ...prevStates,
+            [postId]: !prevStates[postId] // Toggle the visibility state
+        }));
+        fetchPosts();
+    } catch (error) {
+        console.error("Error toggling post visibility:", error);
+        toast.error("Failed to toggle post visibility. Please try again."); // Notify user of error
+    }
+};
+    return (
     <div>
+            <ToastContainer />
       <div className="container-fluid">
         <div className="row">
           {/* Left Sidebar */}
-          <div className="col-3 sidebar bg-light p-4">
-            <ul className="list-unstyled">
-              <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
-                  <img src={images.web_content} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>
-                    <Link to={'/'}>Bản tin</Link>
-                  </span>
-                </a>
-              </li>
-              <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
-                  <img src={images.followers} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Đang theo dõi</span>
-                </a>
-              </li>
-
-              <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
-                  <img src={images.feedback} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Bài viết đã thích</span>
-                </a>
-              </li>
-              <li className="left mb-4">
-                <Link to={"/likeAlbums"} className="d-flex align-items-center">
-                  <img
-                    src={images.music}
-                    alt="icon"
-                    width={20}
-                    className="me-2"
-                  />
-                  <span className="fw-bold">Albums đã thích</span>
-                </Link>
-              </li>
-              <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
-                  <img
-                    src={images.playlist}
-                    alt="icon"
-                    width={20}
-                    className="me-2 "
-                  />
-                  <span className="fw-bold">Playlist đã thích</span>
-                </a>
-              </li>
-            </ul>
-          </div>
+          <div className="col-3 sidebar bg-light p-4 ">
+      <ul className="list-unstyled ">
+        <li className="left mb-4">
+          <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
+            <img src={images.web_content} alt='icon' width={20} className="me-2" />
+            <span className='fw-bold'>
+              <Link to={'/'}>Bản tin</Link>
+            </span>
+          </a>
+        </li>
+        <li className="left mb-4">
+          <Link to={`/Following/${currentUserId}`} className="d-flex align-items-center">
+            <img src={images.followers} alt='icon' width={20} className="me-2" />
+            <span className='fw-bold'>Đang theo dõi</span>
+          </Link>
+        </li>
+        <li className="left mb-4">
+          <Link to="#" className="d-flex align-items-center">
+            <img src={images.feedback} alt='icon' width={20} className="me-2" />
+            <span className='fw-bold'>Bài viết đã thích</span>
+          </Link>
+        </li>
+        <li className="left mb-4">
+          <Link to={"/likeAlbums"} className="d-flex align-items-center">
+            <img
+              src={images.music}
+              alt="icon"
+              width={20}
+              className="me-2"
+            />
+            <span className="fw-bold">Albums đã thích</span>
+          </Link>
+        </li>
+        <li className="left mb-4">
+          <Link to="#" className="d-flex align-items-center">
+            <img
+              src={images.playlist}
+              alt="icon"
+              width={20}
+              className="me-2 "
+            />
+            <span className="fw-bold">Playlist đã thích</span>
+          </Link>
+          </li>
+      </ul>
+    </div>
           {/* Main Content */}
           <div className="col-6 content p-4">
             {/* Nút tạo bài */}
@@ -826,104 +894,113 @@ const HomeFeed = () => {
 
             {/* Phần hiển thị track */}
             <div className="container mt-2 mb-5">
-              {tracks.map((track) => (
-                <div className="post border" key={track.id}>
-                  {/* Tiêu đề */}
-                  <div className="post-header position-relative">
-                    <button type="button" className="btn" aria-label="Avatar">
-                      <img
-                        src={track.userId.avatar} //lỗi
-                        className="avatar_small"
-                        alt="Avatar"
-                      />
-                    </button>
-                    <div>
-                      <div className="name">
-                        {track.userName || "Unknown User"}
-                      </div>
-                      <div className="time">
-                        {new Date(track.createDate).toLocaleString()}
-                      </div>
-                    </div>
-                    {/* Dropdown cho bài viết */}
-                    {String(track.userId) === String(currentUserId) ? (
-                      <div className="dropdown position-absolute top-0 end-0">
-                        <button
-                          className="btn btn-options dropdown-toggle"
-                          type="button"
-                          id={`dropdownMenuButton-${track.id}`}
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          ...
-                        </button>
-                        <ul className="dropdown-menu"
-                          aria-labelledby={`dropdownMenuButton-${track.id}`}>
-                          <li>
-                            <button className="dropdown-item" onClick={() => handleEditTrack(track)}>
-                              <i className='fa-solid fa-pen-to-square'></i>Edit
-                            </button>
-                          </li>
-                          <li>
-                            <button className="dropdown-item" onClick={() => handleDeleteTrack(track.id)}>
-                              <i className='fa-solid fa-trash '></i>Delete
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    ) : (
-                      <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReportTrack(track.id)}>
+              {tracks.map((track) => {
+                const createdAt = track.createDate ? new Date(track.createDate) : null;
+                return (
+                  <div className="post border" key={track.id}>
+                    {/* Tiêu đề */}
+                    <div className="post-header position-relative">
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() => handleAvatarClick(track)}
+                        aria-label="Avatar"
+                      >
+                        <img
+                          src={track.avatar}
+                          className="avatar_small"
+                          alt="Avatar"
+                        />
                       </button>
-                    )}
-                  </div>
+                      <div>
+                        <div className="name">
+                          {track.userNickname || "Unknown User"}
+                        </div>
+                        <div className="time">
+                          {createdAt && !isNaN(createdAt.getTime())
+                            ? format(createdAt, "hh:mm a, dd MMM yyyy")
+                            : "Invalid date"}
+                        </div>
+                      </div>
+                      {/* Dropdown cho bài viết */}
+                      {String(track.userId) === String(currentUserId) ? (
+                        <div className="dropdown position-absolute top-0 end-0">
+                          <button
+                            className="btn btn-options dropdown-toggle"
+                            type="button"
+                            id={`dropdownMenuButton-${track.id}`}
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            ...
+                          </button>
+                          <ul className="dropdown-menu"
+                            aria-labelledby={`dropdownMenuButton-${track.id}`}>
+                            <li>
+                              <button className="dropdown-item" onClick={() => handleEditTrack(track)}>
+                                <i className='fa-solid fa-pen-to-square'></i>Edit
+                              </button>
+                            </li>
+                            <li>
+                              <button className="dropdown-item" onClick={() => handleDeleteTrack(track.id)}>
+                                <i className='fa-solid fa-trash '></i>Delete
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      ) : (
+                        <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReport(track.id, 'track')}></button>
 
-                  <div className="post-content description">
-                    {track.description || "Unknown description"}
-                  </div>
-                  {/* Nội dung */}
-                  <div className="track-content audio">
-                    <WaveFormFeed
-                      audioUrl={track.trackFile}
-                      track={track}
-                      className="track-waveform "
-                    />
-                  </div>
+                      )}
+                    </div>
 
-                  {/* Like/Comment */}
-                  <div className="row d-flex justify-content-start align-items-center">
-                    {/* Like track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="like-count">
-                        {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
-                        <i
-                          className={`fa-solid fa-heart ${likedTracks[track.id]?.data
+                    <div className="post-content description">
+                      {track.description || "Unknown description"}
+                    </div>
+                    {/* Nội dung */}
+                    <div className="track-content audio">
+                      <WaveFormFeed
+                        audioUrl={track.trackFile}
+                        track={track}
+                        className="track-waveform "
+                      />
+                    </div>
+
+                    {/* Like/Comment */}
+                    <div className="row d-flex justify-content-start align-items-center">
+                      {/* Like track*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="like-count">
+                          {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
+                          <i
+                            className={`fa-solid fa-heart ${likedTracks[track.id]?.data
                               ? "text-danger"
                               : "text-muted"
-                            }`}
-                          onClick={() => handleLikeTrack(track.id)}
-                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                        ></i>
+                              }`}
+                            onClick={() => handleLikeTrack(track.id)}
+                            style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
+                          ></i>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Comment track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="d-flex justify-content-center align-items-center">
-                        {track.commentCount || 0}
-                        <i
-                          type="button"
-                          style={{ fontSize: "25px" }}
-                          className="fa-regular fa-comment"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalComment"
-                        ></i>
+                      {/* Comment track*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="d-flex justify-content-center align-items-center">
+                          {track.commentCount || 0}
+                          <i
+                            type="button"
+                            style={{ fontSize: "25px" }}
+                            className="fa-regular fa-comment"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalComment"
+                          ></i>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
-
             {/* Phần hiển thị bài viết */}
             <div className="container mt-2 mb-5">
               {posts.map((post) => {
@@ -933,14 +1010,14 @@ const HomeFeed = () => {
                 return (
                   <div key={post.id} className="post border">
                     {/* Modeal hiển thị comment  */}
-                    <div class="modal fade" id="modalComent" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div className="modal fade" id="modalComent" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
+                      <div className="modal-dialog">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
-                          <div class="modal-body">
+                          <div className="modal-body">
                             {/* Danh sách bình luận */}
                             {selectedPost ? (
                               <div className="mt-4">
@@ -1191,7 +1268,7 @@ const HomeFeed = () => {
                                 style={{ resize: "none" }}
                                 rows={1}
                                 placeholder="Write a comment..."
-                                value={commentContent[post.id] || ""}
+                                value={commentContent[selectedPostId] || ""}
                                 onChange={(e) => handleCommentChange(selectedPost.id, e.target.value)}
                               />
                               <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="btn btn-sm">
@@ -1227,61 +1304,67 @@ const HomeFeed = () => {
                     </div>
                     {/* Phần tiêu đề bài viết */}
                     <div className="post-header position-relative">
-                      <button
-                        type="button"
-                        className="btn"
-                        onClick={() => handleAvatarClick(post)}
-                        aria-label="Avatar"
-                      >
-                        <img
-                          src={post.avatar}
-                          className="avatar_small"
-                          alt="Avatar"
-                        />
-                      </button>
-                      <div>
-                        <div className="name">{post.userNickname || "Unknown User"}</div>
-                        <div className="time">
-                          {createdAt && !isNaN(createdAt.getTime())
-                            ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                            : "Invalid date"}
-                          {post.edited && <span className="edited-notice"> (Edited)</span>}
-                        </div>
-                      </div>
-                      {/* Dropdown cho bài viết */}
-                      {String(post.userId) === String(currentUserId) ? (
-                        <div className="dropdown position-absolute top-0 end-0">
-                          <button
-                            className="btn btn-options dropdown-toggle"
-                            type="button"
-                            id={`dropdownMenuButton-${post.id}`}
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            ...
-                          </button>
-                          <ul className="dropdown-menu"
-                            aria-labelledby={`dropdownMenuButton-${post.id}`}>
-                            <li>
-                              <button className="dropdown-item" onClick={() => handleEditPost(post)}>
-                                <i className='fa-solid fa-pen-to-square'></i>Edit
-                              </button>
-                            </li>
-                            <li>
-                              <button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>
-                                <i className='fa-solid fa-trash '></i>Delete
-                              </button>
-                            </li>
-                          </ul>
-                        </div>
-                      ) : (
-                        <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReportPost(post.id)}>
-                        </button>
-                      )}
+  <button
+    type="button"
+    className="btn"
+    onClick={() => handleAvatarClick(post)}
+    aria-label="Avatar"
+  >
+    <img src={post.avatar} className="avatar_small" alt="Avatar" />
+  </button>
+  <div>
+    <div className="name">{post.userNickname || "Người dùng không rõ"}</div>
+    <div className="time">
+      {createdAt && !isNaN(createdAt.getTime())
+        ? format(createdAt, "hh:mm a, dd MMM yyyy")
+        : "Ngày không hợp lệ"}
+      {post.edited && <span className="edited-notice"> (Đã chỉnh sửa)</span>}
+    </div>
+  </div>
+
+  {/* Dropdown cho bài viết */}
+  {String(post.userId) === String(currentUserId) ? (
+    <div className="dropdown position-absolute top-0 end-0">
+      <button
+        className="btn btn-options dropdown-toggle"
+        type="button"
+        id={`dropdownMenuButton-${post.id}`}
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        ...
+      </button>
+      <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${post.id}`}>
+        <li>
+          <button className="dropdown-item" onClick={() => handleEditPost(post)}>
+            <i className="fa-solid fa-pen-to-square"></i> Chỉnh sửa
+          </button>
+        </li>
+        <li>
+          <button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>
+            <i className="fa-solid fa-trash"></i> Xóa
+          </button>
+        </li>
+        <li>
+          <button
+            className="dropdown-item"
+            onClick={() => toggleHiddenState(post.id)}
+          >
+            <i className="fa-solid fa-eye-slash"></i>
+            {postHiddenStates[post.id] ? " Hiện bài viết" : " Ẩn bài viết"}
+          </button>
+        </li>
+      </ul>
+    </div>
+  ) : (
+    <button
+      className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border-0"
+      onClick={() => handleReport(post.id, 'post')}
+    ></button>
+  )}
                     </div>
                     {/* Nội dung bài viết */}
                     <div className="post-content">{post.content}</div>
-                    {/* Hiển thị hình ảnh */}
                     {/* Hiển thị hình ảnh dưới dạng carousel */}
                     {post.images && post.images.length > 0 && (
                       <div id={`carousel-${post.id}`} className="carousel slide post-images" data-bs-ride="carousel">
@@ -1338,162 +1421,12 @@ const HomeFeed = () => {
                 );
               })}
             </div>
-
-            {/* Phần hiển thị track */}
-            <div className="container mt-2 mb-5">
-              {tracks.map((track) => (
-                <div className="post border" key={track.id}>
-                  {/* Tiêu đề */}
-                  <div className="post-header position-relative">
-                    <button type="button" className="btn" aria-label="Avatar">
-                      <img
-                        src={track.userId} //lỗi
-                        className="avatar_small"
-                        alt="Avatar"
-                      />
-                    </button>
-                    <div>
-                      <div className="name">
-                        {track.userName || "Unknown User"}
-                      </div>
-                      <div className="time">
-                        {new Date(track.createDate).toLocaleString()}
-                      </div>
-                    </div>
-                    {/* Dropdown cho bài viết */}
-                    <div className="dropdown position-absolute top-0 end-0">
-                      <button
-                        className="btn btn-options dropdown-toggle"
-                        type="button"
-                        id={`dropdownMenuButton-${track.id}`}
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      ></button>
-                      <ul
-                        className="dropdown-menu"
-                        aria-labelledby={`dropdownMenuButton-${track.id}`}
-                      >
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleEdit(track.id)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i> Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleDelete(track.id)}
-                          >
-                            <i className="fa-solid fa-trash"></i> Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                    <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0  border border-0"></button>
-                  </div>
-
-                  <div className="post-content description">
-                    {track.description || "Unknown description"}
-                  </div>
-                  {/* Nội dung */}
-                  <div className="post-content audio">
-                    <WaveFormFeed
-                      audioUrl={track.trackFile}
-                      track={track}
-                      className=""
-                    />
-
-                  </div>
-
-                  {/* Like/Comment */}
-                  <div className="row d-flex justify-content-start align-items-center">
-                    {/* Like track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="like-count">
-                        {track.likeCount || 0} {/* Hiển thị số lượng like */}
-                        <i
-                          className={`fa-solid fa-heart ${likedTracks[track.id]?.data
-                            ? "text-danger"
-                            : "text-muted"
-                            }`}
-                          onClick={() => handleLikeTrack(track.id)}
-                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                        ></i>
-                      </div>
-                    </div>
-
-                    {/* Comment track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="d-flex justify-content-center align-items-center">
-                        {track.commentCount || 0}
-                        <i
-                          type="button"
-                          style={{ fontSize: "25px" }}
-                          className="fa-regular fa-comment"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalComment"
-                        ></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
           </div>
           {/* Right Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
             <ul className="list-unstyled">
-              <h6>Gợi ý theo dõi</h6>
               <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
+                <UsersToFollow userId={currentUserId} token={tokenjwt} />
               </li>
             </ul>
             <div className="advertisement mt-5">
@@ -1505,27 +1438,67 @@ const HomeFeed = () => {
 
       {/* Các modal */}
       {/* Modal báo cáo */}
+      <ToastContainer />
       {showReportModal && (
         <div className="modal fade show" style={{ display: 'block' }} role="dialog">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Báo cáo bài viết</h5>
-                <button type="button" className="btn-close" onClick={() => setShowReportModal(false)} aria-label="Close"></button>
+                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    // Reset dữ liệu khi đóng modal
+                    setShowReportModal(false);
+                    setReportReason(""); // Reset lý do báo cáo
+                    setReportMessage(""); // Reset thông báo
+                  }}
+                  aria-label="Close"
+                ></button>
               </div>
               <div className="modal-body">
+                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                <h6>Chọn lý do báo cáo:</h6>
+                <div className="mb-3">
+                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                    <label className="d-block" key={reason}>
+                      <input
+                        type="radio"
+                        name="reportReason"
+                        value={reason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                      /> {reason}
+                    </label>
+                  ))}
+                </div>
                 <textarea
-                  className="form-control"
+                  className="form-control mt-2"
                   placeholder="Nhập lý do báo cáo"
                   value={reportReason}
-                  onChange={(e) => setReportReason(e.target.value)} // Cập nhật lý do báo cáo
-                  style={{ resize: 'none' }} // Không cho phép thay đổi kích thước
+                  onChange={(e) => setReportReason(e.target.value)}
+                  style={{ resize: 'none' }}
                 />
               </div>
               <div className="modal-footer">
-                <button className="btn btn-primary" onClick={submitReport}>Gửi báo cáo</button>
-                <button className="btn btn-secondary" onClick={() => setShowReportModal(false)}>Đóng</button>
+                <button
+                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  className="btn btn-primary"
+                >
+                  Báo cáo
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowReportModal(false);
+                    setReportReason(""); // Reset lý do báo cáo
+                    setReportMessage(""); // Reset thông báo
+                  }}
+                >
+                  Đóng
+                </button>
               </div>
+
             </div>
           </div>
         </div>

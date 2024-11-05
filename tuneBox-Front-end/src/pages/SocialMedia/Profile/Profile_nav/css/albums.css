@@ -115,5 +115,29 @@
     padding-right: 10px;
     border-radius: 25px;
   }
+/* Dropdown Menu */
+.dropdown .dropdown-menu {
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.dropdown-item {
+  color: #333;
+  padding: 10px;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+.btn-options {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-options:hover {
+  color: #333;
+}
 
   

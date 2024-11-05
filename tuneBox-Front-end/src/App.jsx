@@ -132,25 +132,25 @@ function App() {
               <Route path="/search" element={<SearchForm />} />
             </Route>
 
-          {/* Các route không có Header */}
-          <Route element={<LayoutWithoutHeader />}>
-            <Route path="/introduce" element={<Introduce />} />
-            <Route path="/register" element={<SignUp/>} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/userInfor" element={<UserInfomation/>} />
-            <Route path="/talent" element={<Talent/>} />
-            <Route path="/inspiredBy" element={<InspiredBy/>} />
-            <Route path="/genre" element={<Genre/>} />
-            <Route path="/welcome" element={<WelcomeUser />} />
-            <Route path="reset-password2" element={<ResetPassword2 />} />
-            <Route path="forgot-password2" element={<ForgotPassword2 />} />
-    
-            {/* admin start */}
-              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
+            {/* Các route không có Header */}
+            <Route element={<LayoutWithoutHeader />}>
+              <Route path="/introduce" element={<Introduce />} />
+              <Route path="/register" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/userInfor" element={<UserInfomation />} />
+              <Route path="/talent" element={<Talent />} />
+              <Route path="/inspiredBy" element={<InspiredBy />} />
+              <Route path="/genre" element={<Genre />} />
+              <Route path="/welcome" element={<WelcomeUser />} />
+              <Route path="reset-password2" element={<ResetPassword2 />} />
+              <Route path="forgot-password2" element={<ForgotPassword2 />} />
+
+              {/* admin start */}
+              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
-              </Route>            
+              </Route>
               {/* admin end */}
             <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
           </Route>

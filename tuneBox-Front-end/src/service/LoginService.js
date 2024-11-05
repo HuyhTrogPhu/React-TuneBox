@@ -57,7 +57,11 @@ export const logout = async () => {
   const response = await axios.get(`${REST_API_BASE_URL}/log-out`, {}, {
     withCredentials: true
   });
+<<<<<<<<< Temporary merge branch 1
+  // localStorage.removeItem('token'); // Xóa token khỏi localStorage sau khi logout
+=========
   localStorage.removeItem('jwtToken');
+>>>>>>>>> Temporary merge branch 2
   return response.data;
 };
 

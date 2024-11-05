@@ -29,9 +29,8 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
     setError('');
-
+    setSuccess('');
     if (!userNameOrEmail) {
       setError('Vui lòng nhập tên tài khoản hoặc email.');
       return;
@@ -42,7 +41,6 @@ const Login = () => {
       return;
     }
   
-  
     const userDto = {
       userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
       email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
@@ -51,42 +49,32 @@ const Login = () => {
   
     try {
       setLoading(true); // Bắt đầu loading
-
       const response = await login(userDto);
-
-
-
       // Lấy userId từ phản hồi của server
       const userId = response.userId;
-
       if (userId !== undefined && userId !== null) {
         const expires = new Date();
         expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // Cookie tồn tại trong 1 ngày
         document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`; // Lưu userId vào cookie
+        // Hiện loading trong 3 giây
+        setTimeout(() => {
+          setLoading(false); // Dừng loading
+          navigate('/'); // Chuyển hướng về trang chính
+        }, 3000);
       } else {
-        console.error('userId is undefined or null');
+        setLoading(false); // Dừng loading nếu userId không hợp lệ
+        setError('User ID không hợp lệ.');
       }
-
-      // Hiện loading trong 3 giây
-      setTimeout(() => {
-        setLoading(false); // Dừng loading
-        navigate('/'); // Chuyển hướng về trang chính
-      });
-
     } catch (error) {
       setLoading(false); // Dừng loading trong trường hợp có lỗi
       if (error.response && error.response.status === 401) {
-        setError(error.response.data);
+        setError('Thông tin đăng nhập không chính xác.');
       } else {
         setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
       }
     }
   };
-
-
   
-  
-
   return (
     <div>
       <Header2 />
@@ -95,7 +83,7 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="colcol-10-lg-6  mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '100px', marginRight: '100px'}}>
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '500px', marginRight: '500px'}}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
@@ -125,7 +113,7 @@ const Login = () => {
                   )}
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
-                    <div className="col-12">
+                    <div className="col-lg-12" style={{ marginTop: -30 }}>
                       <input
                         type="text"
                         name="userNameOrEmail"
