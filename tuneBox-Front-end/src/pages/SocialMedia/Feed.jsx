@@ -693,19 +693,21 @@ const HomeFeed = () => {
   };
 
   const submitReport = async () => {
+    const token = localStorage.getItem('jwtToken')
     try {
       const response = await fetch('http://localhost:8080/api/reports', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+           Authorization : `Bearer ${token}`
         },
-        credentials: 'include', // Đảm bảo gửi cookie cùng với request
+        credentials: 'include',
         body: JSON.stringify({
           postId: reportPostId,
           reason: reportReason,
         }),
       });
-
+      
       if (response.ok) {
         console.log('thành công');
         setShowReportModal(false);
@@ -717,6 +719,7 @@ const HomeFeed = () => {
       console.error('Lỗi mạng:', error);
     }
   };
+  
   // Hàm để bật/tắt emoji picker
   const toggleEmojiPicker = (id) => {
     setShowEmojiPicker((prev) => (prev === id ? null : id));

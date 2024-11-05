@@ -31,14 +31,17 @@
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.13",
     "emoji-mart": "^5.6.0",
+    "file-saver": "^2.0.5",
     "html2canvas-pro": "^1.5.8",
     "i18next": "^23.16.2",
     "jquery": "^3.7.1",
     "js-cookie": "^3.0.5",
     "jspdf": "^2.5.2",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.453.0",
     "qrcode.react": "^4.1.0",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-country-flag": "^3.1.0",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.1.0",
@@ -55,7 +58,8 @@
     "styled-components": "^6.1.13",
     "sweetalert2": "^11.6.13",
     "tunebox": "file:",
-    "wavesurfer.js": "^7.8.7"
+    "wavesurfer.js": "^7.8.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
