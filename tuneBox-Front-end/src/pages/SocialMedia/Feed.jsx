@@ -702,6 +702,7 @@ const HomeFeed = () => {
     // Gọi hàm submitReport với các giá trị đúng
     submitReport(currentUserId, ReportId, reportType, reportReason);
   };
+  
   const submitReport = async (userId, reportId, reportType, reason) => {
     try {
       const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token

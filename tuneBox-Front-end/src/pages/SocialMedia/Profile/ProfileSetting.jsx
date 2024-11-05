@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../../assets/images/images";
 import "../../../pages/SocialMedia/Profile/css/setting.css";
-import { fetchDataUser } from "./js/ProfileJS";
-import Cookies from 'js-cookie';
+// import { fetchDataUser } from "./js/ProfileJS";
+// import Cookies from 'js-cookie';
+import Profile from "../../../components/Profile/Profile";
+import Account from "../../../components/Account/Account"
+import CustomerOrder from "../../../components/CustomerOrder/CustomerOrder"
 
-import i18n from "../../../i18n/i18n";
-
-import ReactCountryFlag from "react-country-flag";
-
-import { useTranslation } from "react-i18next"; // Import hook dịch
 const ProfileSetting = () => {
   // State để quản lý component đang được hiển thị
   const [activeComponent, setActiveComponent] = useState("Profile");

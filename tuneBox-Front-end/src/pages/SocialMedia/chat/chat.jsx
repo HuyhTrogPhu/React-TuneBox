@@ -57,7 +57,7 @@ const Chat = () => {
         `http://localhost:8080/api/messages/between?userId1=${currentUserId}&userId2=${activeUser.id}`,
         {
           headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
           },
         }
       );
@@ -132,7 +132,7 @@ const Chat = () => {
     const client = new Client({
       webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
       connectHeaders: {
-        Authorization: `Bearer ${Cookies.get("token")}`,
+        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
       },
       reconnectDelay: reconnectOptions.reconnectDelay,
       maxReconnectAttempts: reconnectOptions.maxReconnectAttempts,
