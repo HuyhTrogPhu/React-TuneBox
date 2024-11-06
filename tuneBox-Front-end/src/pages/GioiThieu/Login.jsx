@@ -60,7 +60,7 @@ const Login = () => {
         setTimeout(() => {
           setLoading(false); // Dừng loading
           navigate('/'); // Chuyển hướng về trang chính
-        }, 3000);
+        }, 1000);
       } else {
         setLoading(false); // Dừng loading nếu userId không hợp lệ
         setError('User ID không hợp lệ.');
