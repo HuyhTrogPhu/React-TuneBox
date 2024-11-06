@@ -19,7 +19,7 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const clientRef = useRef(null);
   const [attachment, setAttachment] = useState(null);
-
+  const jwtToken = localStorage.getItem('jwtToken'); // Get JWT token
   const reconnectOptions = {
     maxAttempts: 5,
     interval: 1000,
@@ -29,17 +29,17 @@ const Chat = () => {
     try {
       const response = await axios.get("http://localhost:8080/user", {
         headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`,
+          'Authorization': `Bearer ${jwtToken}`,
         },
+        withCredentials: true  
       });
-      const filteredUsers = response.data.filter(
-        (user) => user.id !== currentUserId
-      );
+      const users = Array.isArray(response.data) ? response.data : [];
+      const filteredUsers = users.filter(user => user.id !== currentUserId);
       setUsers(filteredUsers);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching users:", error.response?.data || error);
     }
-  }, [currentUserId]);
+  }, [currentUserId,jwtToken]);
 
   const fetchMessages = useCallback(async () => {
     if (!activeUser) return;
@@ -57,8 +57,9 @@ const Chat = () => {
         `http://localhost:8080/api/messages/between?userId1=${currentUserId}&userId2=${activeUser.id}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+            'Authorization': `Bearer ${jwtToken}`,
           },
+          withCredentials: true
         }
       );
 
@@ -75,10 +76,7 @@ const Chat = () => {
         JSON.stringify(messagesWithAttachments)
       );
     } catch (error) {
-      console.error(
-        "Lỗi khi lấy tin nhắn:",
-        error.response?.data || error.message
-      );
+      console.error("Error fetching messages:", error.response?.data || error);
     }
   }, [activeUser, currentUserId]);
 
@@ -130,9 +128,16 @@ const Chat = () => {
 
   useEffect(() => {
     const client = new Client({
-      webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
+      webSocketFactory: () => {
+        const socket = new SockJS("http://localhost:8080/ws");
+        // Thêm event listeners để debug
+        socket.onopen = () => console.log("SockJS connection opened");
+        socket.onclose = () => console.log("SockJS connection closed");
+        socket.onerror = (error) => console.log("SockJS error:", error);
+        return socket;
+      },      
       connectHeaders: {
-        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+        'Authorization': `Bearer ${jwtToken}`,
       },
       reconnectDelay: reconnectOptions.reconnectDelay,
       maxReconnectAttempts: reconnectOptions.maxReconnectAttempts,
@@ -148,10 +153,13 @@ const Chat = () => {
     });
 
     client.onConnect = () => {
-      console.log("Connected");
+      console.log("Connected to STOMP");
       client.subscribe(
         `/user/${currentUserId}/queue/messages`,
-        onMessageReceived
+        onMessageReceived,
+        {
+          'Authorization': `Bearer ${jwtToken}` // Thêm header cho subscription
+        }
       );
     };
 
@@ -163,10 +171,17 @@ const Chat = () => {
     client.activate();
     clientRef.current = client;
 
+    if (jwtToken) {
+      client.activate();
+      clientRef.current = client;
+    }
+
     return () => {
-      client.deactivate();
+      if (client.active) {
+        client.deactivate();
+      }
     };
-  }, [currentUserId, onMessageReceived]);
+  }, [currentUserId, onMessageReceived, jwtToken]);
 
   useEffect(() => {
     fetchUsers();
@@ -205,7 +220,7 @@ const Chat = () => {
           formData,
           {
             headers: {
-              Authorization: `Bearer ${Cookies.get("token")}`,
+              'Authorization': `Bearer ${jwtToken}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -237,6 +252,9 @@ const Chat = () => {
         clientRef.current.publish({
           destination: "/app/chat.sendMessage",
           body: JSON.stringify(messageData),
+          headers: {
+            'Authorization': `Bearer ${jwtToken}`
+          }
         });
 
         // Tạo bản sao của messageData để tránh tham chiếu
@@ -316,7 +334,7 @@ const Chat = () => {
         `http://localhost:8080/api/messages/${messageId}?userId=${currentUserId}`,
         {
           headers: {
-            Authorization: `Bearer ${Cookies.get("token")}`,
+            'Authorization': `Bearer ${jwtToken}`,
           },
         }
       );
@@ -355,10 +373,10 @@ const Chat = () => {
             <>
               <div className="messenger-chat-header">
                 <div className="user-avatar">
-                  {activeUser.userName.charAt(0).toUpperCase()}
+                  {activeUser.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="user-info">
-                  <span className="user-name">{activeUser.userName}</span>
+                  <span className="user-name">{activeUser.username}</span>
                   <span className="user-status">Active Now</span>
                 </div>
               </div>

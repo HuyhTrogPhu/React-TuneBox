@@ -8,3 +8,7 @@ export const Alert = ({ message }) => {
 export const AlertDescription = ({ description }) => {
   return <div className="alert-description">{description}</div>;
 };
+
+export const AlertTitle = ({ title }) => {
+  return <div className="alert-title">{title}</div>;
+};

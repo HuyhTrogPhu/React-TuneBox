@@ -60,12 +60,12 @@ const Header = () => {
         >
           <li>
             <a className="dropdown-item" href="#">
-            {t('profile')}
+            {('profile')}
             </a>
           </li>
           <li>
             <a className="dropdown-item" href="#">
-            {t('log_out')}
+            {('log_out')}
             </a>
           </li>
         </ul>

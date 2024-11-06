@@ -9,9 +9,9 @@ const UserList = ({ users, setActiveUser, activeUser }) => {
           className={`user-item ${activeUser && activeUser.id === user.id ? 'active' : ''}`}
           onClick={() => setActiveUser(user)}
         >
-          <div className="user-avatar">{user.userName.charAt(0).toUpperCase()}</div>
+          <div className="user-avatar">{user.username.charAt(0).toUpperCase()}</div>
           <div className="user-info">
-            <div className="user-name">{user.userName}</div>
+            <div className="user-name">{user.username}</div>
             <div className="user-last-message">{user.lastMessage || "Nhấn để bắt đầu trò chuyện"}</div>
           </div>
         </div>

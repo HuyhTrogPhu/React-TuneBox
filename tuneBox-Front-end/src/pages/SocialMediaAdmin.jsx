@@ -14,6 +14,8 @@ import Users from "./SocialMediaAdmin/pageContent/Users";
 import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
 import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
 import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
+import StatisticalUser from "./SocialMediaAdmin/pageContent/StatisticalUser";
+import StatisticalPost from "./SocialMediaAdmin/pageContent/StatisticalPost";
 
 const SocialMediaAdmin = () => {
   return (
@@ -126,6 +128,8 @@ const SocialMediaAdmin = () => {
               <Route path='postdetail/:id' element={<PostDetail/>} />
               <Route path='report' element={<ReportManagement/>} />
               <Route path='statistical' element={<Statistical/>}/>
+              <Route path='/statistical/user' element={<StatisticalUser/>}/>
+              <Route path='/statistical/post' element={<StatisticalPost/>}/>
               </Routes>
             </div>
           </div>
