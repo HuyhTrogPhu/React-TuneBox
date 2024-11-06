@@ -16,8 +16,10 @@ import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import CSS cho Toastify
 import { images } from "../../../../assets/images/images";
+import { useNavigate } from "react-router-dom";
 
 const AlbumNew = () => {
+  const navigate = useNavigate();
   const userId = Cookies.get("userId");
   const steps = ["Info", "Track"]; // tên các bước
   const [albumImageUrl, setAlbumImageUrl] = useState(images.musicalNote); // Khởi tạo với hình ảnh mặc định
@@ -90,6 +92,7 @@ const AlbumNew = () => {
       const response = await listTrackByUserId(userId);
       setTracks(response);
       const filteredTracks = response.filter((track) => track.status === false); // Lọc các track có status
+      setFilteredTracks(response);
       console.log("fetchTrack in create album: ", filteredTracks);
     } catch (error) {
       console.error("fetchTrachs error:", error);
@@ -146,6 +149,9 @@ const AlbumNew = () => {
         const response = await createAlbum(formData);
         console.log("Album created successfully:", response);
         toast.success("Album created successfully!");
+
+        // Chuyển hướng đến trang album chi tiết
+        navigate(`/album/${response.id}`);
 
         // Reset form after successful creation
         setTitle("");
@@ -234,6 +240,29 @@ const AlbumNew = () => {
     setActiveStep(0);
   };
   //end control Stepper
+
+  // search
+  const [keyword, setKeyword] = useState("");
+  const [filteredTracks, setFilteredTracks] = useState([]);
+
+  // Hàm xử lý tìm kiếm và lọc danh sách track
+  const handleSearch = (e) => {
+    const searchKeyword = e.target.value; //từ khóa tìm kiếm từ input
+    setKeyword(searchKeyword); // update state từ khóa tìm kiếm
+
+    // từ khóa trống, hiển thị tất cả track
+    if (!searchKeyword.trim()) {
+      setFilteredTracks(tracks);
+      return;
+    }
+
+    // lọc danh sách track theo từ khóa
+    const filtered = tracks.filter((track) =>
+      track.name.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+    setFilteredTracks(filtered); // Cập nhật danh sách track đã lọc
+  };
+  // end search
 
   return (
     <div className="container">
@@ -404,7 +433,21 @@ const AlbumNew = () => {
             <div className="track-container">
               {/* Danh sách các track  */}
               <div className="list-track">
-                {tracks.map(
+                {/* search */}
+                <div className="search-container mb-5">
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    className="search-input"
+                    value={keyword}
+                    onChange={handleSearch} // Gọi handleSearch khi người dùng nhập
+                  />
+                  <button type="button" className="btn-search">
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                  </button>
+                </div>
+                {/* list */}
+                {filteredTracks.map(
                   (track) =>
                     !track.status &&
                     !addedTracks.some(

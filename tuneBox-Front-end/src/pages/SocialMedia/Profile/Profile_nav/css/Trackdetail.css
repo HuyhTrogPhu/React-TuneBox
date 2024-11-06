@@ -54,9 +54,8 @@
 .track-player-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 28px;
-  border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background: #d7dfe0;
 }
 .adaptive-content {
   margin: 0 auto;
@@ -142,7 +141,8 @@
 }
 
 .track-infor {
-  background-color: #e2dfdf;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background: #d7dfe0;
 }
 
 textarea {
