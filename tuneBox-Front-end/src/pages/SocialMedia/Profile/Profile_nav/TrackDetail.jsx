@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./css/Trackdetail.css";
 import { useParams, useLocation } from "react-router-dom";
 import { getTrackById } from "../../../../service/TrackServiceCus";
+import { getTrackByGenreId } from "../../../../service/TrackServiceCus";
 import {
   addLike,
   removeLike,
@@ -21,6 +22,8 @@ import {
 import { images } from "../../../../assets/images/images";
 import Waveform from "../Profile_nav/Waveform";
 import Cookies from "js-cookie";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import { format } from "date-fns"; // Nhập format từ date-fns
 
 function Trackdetail() {
@@ -45,7 +48,25 @@ function Trackdetail() {
   const [editingReply, setEditingReply] = useState(null); // Trạng thái theo dõi reply đang chỉnh sửa
   const [editContentReply, setEditContentReply] = useState(""); // Nội dung đang chỉnh sửa
 
+  const [relatedTracks, setRelatedTracks] = useState([]); // State lưu danh sách các track cùng thể loại
+
   const userId = Cookies.get("userId"); // Lấy userId từ cookies
+
+  // get track genreid
+  useEffect(() => {
+    const fetchRelatedTracks = async () => {
+      if (track) {
+        try {
+          const response = await getTrackByGenreId(track.genreId);
+          setRelatedTracks(response.data); // Cập nhật state với danh sách track
+          console.log("danh sách track theo genre:", response.data);
+        } catch (error) {
+          console.error("Lỗi khi lấy danh sách track theo genre:", error);
+        }
+      }
+    };
+    fetchRelatedTracks();
+  }, [track]);
 
   // Gọi service lấy track
   useEffect(() => {
@@ -288,6 +309,57 @@ function Trackdetail() {
     setEditingReply({ replyId }); // Đặt trạng thái chỉnh sửa với replyId
   };
 
+  // Ham lay danh sach track by userid
+  const [listTrackByUserId, setlistTrackByUserId] = useState([]); // State luu track
+  const fetchTrackByUserId = async () => {
+    try {
+      if (!userId) throw new Error("User ID not found."); // Kiem tra userId
+      const response = await axios.get(
+        `http://localhost:8080/customer/tracks/user/${userId}`,
+        {
+          withCredentials: true,
+        }
+      );
+      const sortedTrack = response.data.sort(
+        (a, b) => new Date(b.createDate) - new Date(a.createDate)
+      ); // Sap xep track
+      setlistTrackByUserId(sortedTrack); // Luu track vao state
+      console.log(response.data);
+    } catch (error) {
+      console.error(
+        "Error fetching Track:",
+        error.response?.data || error.message
+      ); // Log loi neu co
+    }
+  };
+  // Goi ham fetchTrack khi component duoc mount
+  useEffect(() => {
+    fetchTrackByUserId();
+  }, []);
+
+  // search
+  const [keyword, setKeyword] = useState("");
+
+  const handleSearch = async () => {
+    if (!keyword) return; // Không tìm kiếm nếu không có từ khóa
+    try {
+      const results = await search(keyword);
+      console.log("ket qua search: ", results); // Xử lý kết quả tìm kiếm ở đây
+      navigate(`/search?keyword=${encodeURIComponent(keyword)}`, {
+        state: { results },
+      });
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch(); // Gọi tìm kiếm khi nhấn phím Enter
+    }
+  };
+  // end search
+
   // Hiển thị thông báo đang tải hoặc lỗi
   if (loading) return <p>Đang tải track...</p>;
   if (error) return <p>{error}</p>;
@@ -298,7 +370,51 @@ function Trackdetail() {
   return (
     <div className="trackDetail">
       <div className="row">
-        <div className="col-3"></div>
+        <div className="col-3 pt-5 p-5 ">
+          <div className="search-container mb-5">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="search-input"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)} // Cập nhật state khi người dùng nhập
+              onKeyDown={handleKeyDown} // Xử lý sự kiện nhấn phím
+            />
+            <button type="button" className="btn-search" onClick={handleSearch}>
+              <i className="fa-solid fa-magnifying-glass"></i>
+            </button>
+          </div>
+
+          {/* get all track cua ng dùng*/}
+          {listTrackByUserId.map(
+            (track) =>
+              !track.status && (
+                <div key={track.id} className="post-header-track">
+                  <img
+                    src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}
+                    className="avatar_small"
+                    alt="Avatar"
+                  />
+
+                  <div className="info">
+                    <Link
+                      to={{
+                        pathname: `/track/${track.id}`,
+                        state: { track },
+                      }}
+                    >
+                      <div className="name">
+                        {track.name || "Unknown Track"}
+                      </div>
+                    </Link>
+                    <div className="author">
+                      {track.userName || "Unknown userName"}
+                    </div>
+                  </div>
+                </div>
+              )
+          )}
+        </div>
         <div className="col-6">
           <div className="container track-page-header p-0">
             <Waveform audioUrl={track.trackFile} track={track} />
@@ -595,7 +711,56 @@ function Trackdetail() {
               </div> */}
           </div>
         </div>
-        <div className="col-3"></div>
+        <div className="col-3">
+          <div className="orther pt-3">Tracks from the same genre</div>
+          <div>
+            {/* list track theo genre */}
+            <div className="related-tracks">
+              {relatedTracks.length === 0 ? (
+                <p>No related tracks found.</p>
+              ) : (
+                <div className=" show-list p-3">
+                  {relatedTracks.map((relatedTrack) => (
+                    <div key={relatedTrack.id} className="post-header-track">
+                      <img
+                        src={
+                          relatedTrack.imageTrack ||
+                          "/src/UserImages/Avatar/avt.jpg"
+                        }
+                        className="avatar_small"
+                        alt="Avatar"
+                      />
+                      <div className="info">
+                        <Link
+                          to={{
+                            pathname: `/track/${relatedTrack.id}`,
+                            state: { track: relatedTrack },
+                          }}
+                        >
+                          <div className="name">
+                            {relatedTrack.name || "Unknown Track"}
+                          </div>
+                        </Link>
+                        <div className="author">
+                          {relatedTrack.userName || "Unknown userName"}
+                        </div>
+                      </div>
+                      <div className="btn-group" style={{ marginLeft: 25 }}>
+                        <button
+                          className="btn dropdown-toggle no-border"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        ></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* end list track theo genre */}
+          </div>
+        </div>
       </div>
     </div>
   );

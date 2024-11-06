@@ -14,7 +14,7 @@ import "./css/mxh/button.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Picker from "@emoji-mart/react";
-import { getAllTracks } from "../../service/TrackServiceCus";
+import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
   addLike,
@@ -71,13 +71,27 @@ const HomeFeed = () => {
   const [tracks, setTracks] = useState([]);
   const [likedTracks, setLikedTracks] = useState({});
   const [countLikedTracks, setCountLikedTracks] = useState({});
-  // list
-  const [playlists, setPlaylists] = useState([]);
+  const [selectedTrack, setSelectedTrack] = useState(null); // State cho track duoc chon
+  const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
+  const [genres, setGenres] = useState([]);
 
   useEffect(() => {
     fetchTracks();
-    fetchListPlaylist();
-  }, [currentUserId]);
+  }, []);
+
+  useEffect(() => {
+    fetchGenre(); // Fetch genres when the component mounts
+  }, []);
+
+  const fetchGenre = async () => {
+    try {
+      const genreResponse = await listGenre(); // Assuming listGenre is your API call
+      console.log(genreResponse.data);
+      setGenres(genreResponse.data); // Store the fetched genres in state
+    } catch (error) {
+      console.log("Error fetching genres:", error);
+    }
+  };
 
   const fetchTracks = async () => {
     try {
@@ -90,14 +104,14 @@ const HomeFeed = () => {
         response.map(async (track) => {
           const liked = await checkUserLikeTrack(track.id, currentUserId);
           const count = await getLikesCountByTrackId(track.id);
-          // console.log(
-          //   "userId:",
-          //   currentUserId,
-          //   "trackId:",
-          //   track.id,
-          //   "- likeStatus: ",
-          //   liked
-          // );
+          console.log(
+            "userId:",
+            currentUserId,
+            "trackId:",
+            track.id,
+            "- likeStatus: ",
+            liked
+          );
           return { id: track.id, liked, count }; // Trả về id và trạng thái liked
         })
       );
@@ -145,11 +159,109 @@ const HomeFeed = () => {
     }
   };
 
+  // Ham xoa track
+  const deleteTrack = async (trackId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this Track?"
+    ); // Xac nhan xoa
+    if (!confirmDelete) return; // Khong xoa neu nguoi dung khong dong y
+    try {
+      await axios.delete(`http://localhost:8080/customer/tracks/${trackId}`, {
+        withCredentials: true,
+      });
+      fetchTracks(); // Cap nhat danh sach track sau khi xoa
+    } catch (error) {
+      console.error(
+        "Error deleting track:",
+        error.response?.data || error.message
+      ); // Log loi neu co
+    }
+  };
+
+  const handleEditClick = (track) => {
+    // Tạo một đối tượng track mới với đầy đủ thông tin
+    const updatedTrack = {
+      ...track,
+      // Giữ nguyên URL của ảnh hiện tại thay vì tạo Blob mới
+      imageTrack: track.imageTrack,
+      // Giữ nguyên thông tin file nhạc hiện tại
+      trackFile: {
+        name: track.trackFileName || "Current track file", // Thêm tên file nếu có
+      },
+    };
+
+    setSelectedTrack(updatedTrack);
+
+    // Set genre ID từ track hiện tại
+    if (track.genre) {
+      setSelectedGenre(track.genre.id.toString());
+    }
+
+    const editModal = document.getElementById("editModal");
+    editModal.classList.add("show");
+    editModal.style.display = "block";
+    document.body.classList.add("modal-open");
+  };
+  // Save track after editing
+  const handleSave = async () => {
+    if (!selectedTrack) return;
+
+    const formData = new FormData();
+    formData.append("name", selectedTrack.name);
+    formData.append("description", selectedTrack.description);
+    formData.append("status", selectedTrack.status);
+    formData.append("report", selectedTrack.report);
+    formData.append("userId", currentUserId);
+    formData.append("genre", selectedGenre);
+
+    // Chỉ gửi file mới nếu người dùng đã chọn file mới
+    if (selectedTrack.trackFile instanceof File) {
+      formData.append("trackFile", selectedTrack.trackFile);
+    }
+
+    // Chỉ gửi ảnh mới nếu người dùng đã chọn ảnh mới
+    if (selectedTrack.trackImage instanceof File) {
+      formData.append("trackImage", selectedTrack.trackImage);
+    }
+
+    try {
+      await axios.put(
+        `http://localhost:8080/customer/tracks/${selectedTrack.id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      fetchTracks();
+      setSelectedTrack(null);
+
+      const editModal = document.getElementById("editModal");
+      editModal.classList.remove("show");
+      editModal.style.display = "none";
+      document.body.classList.remove("modal-open");
+    } catch (error) {
+      console.error(
+        "Error updating track:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
   // end track
 
   // playlist
+  // list
+  const [playlists, setPlaylists] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
+
+  useEffect(() => {
+    fetchListPlaylist();
+  }, [currentUserId]);
+
   const fetchListPlaylist = async () => {
     try {
       const playlistResponse = await getPlaylistByUserId(currentUserId);
@@ -159,31 +271,25 @@ const HomeFeed = () => {
       console.error("Error fetching playlist:", error);
     }
   };
-
   const addToPlaylist = (trackId) => {
     setShowModal(true); // Mở modal
     setTrackToAddPlayList(trackId);
   };
-
   const handleCloseModal = () => {
     setShowModal(false); // Đóng modal
   };
-
   const handleAddTrackToPlaylist = async (playlistId) => {
     try {
       // lấy thong tin htai cua lít
       const currentPlaylist = await getPlaylistById(playlistId);
-
       console.log("currentPlaylist: ", currentPlaylist.data);
       const formData = new FormData();
-
       // Kiểm tra xem track đã tồn tại trong playlist chưa
       const existingTracks = currentPlaylist.data.tracks; // Danh sách track hiện có trong playlist
       if (existingTracks.includes(trackToAddPlayList)) {
         toast.error("Track đã tồn tại trong playlist!");
         return; // Dừng thực hiện nếu track đã tồn tại
       }
-
       formData.append("trackIds", trackToAddPlayList);
       formData.append("title", currentPlaylist.data.title);
       formData.append("imagePlaylist", currentPlaylist.data.imagePlaylist); // thêm trường này
@@ -192,7 +298,6 @@ const HomeFeed = () => {
       formData.append("report", false);
       formData.append("type", currentPlaylist.data.type);
       formData.append("user", currentUserId);
-
       console.log("handleAddTrackToPlaylist: ", currentPlaylist.data.title);
       await updatePlaylist(playlistId, formData);
       toast.success(" Add Track to Playlist successfully!");
@@ -204,7 +309,6 @@ const HomeFeed = () => {
       toast.error(errorMessage);
     }
   };
-
   // end playlist
 
   const handleAvatarClick = (post) => {
@@ -216,7 +320,7 @@ const HomeFeed = () => {
     //   (config) => {
     //     const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
     //       if (token) {
-    //           config.headers['Authorization'] = token; 
+    //           config.headers['Authorization'] = token;
     //       }
     //       return config;
     //   },
@@ -224,7 +328,6 @@ const HomeFeed = () => {
     //       return Promise.reject(error);
     //   }
     // );
-
 
     if (String(post.userId) === String(currentUserId)) {
       console.log("Navigating to ProfileUser");
@@ -234,7 +337,6 @@ const HomeFeed = () => {
       navigate(`/profile/${post.userId}`);
     }
   };
-
 
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
@@ -258,7 +360,7 @@ const HomeFeed = () => {
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
-          console.log('post Id:', post.id);
+          console.log("post Id:", post.id);
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
               const repliesResponse = await axios.get(
@@ -300,8 +402,6 @@ const HomeFeed = () => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
-
-
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
@@ -429,7 +529,6 @@ const HomeFeed = () => {
     const files = Array.from(e.target.files);
     setPostImages(files); // Cập nhật tệp ảnh
   };
-
   const handleSubmitPost = async () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
@@ -930,121 +1029,131 @@ const HomeFeed = () => {
 
             {/* Phần hiển thị track */}
             <div className="container mt-2 mb-5">
-              {tracks.map((track) => {
-                const createdAt = track.createDate
-                  ? new Date(track.createDate)
-                  : null;
-                return (
-                  <div className="post border" key={track.id}>
-                    {/* Tiêu đề */}
-                    <div className="post-header position-relative">
-                      <button type="button" className="btn" aria-label="Avatar">
-                        <img
-                          src={track.userId.avatar} //lỗi
-                          className="avatar_small"
-                          alt="Avatar"
-                        />
-                      </button>
-                      <div>
-                        <div className="name">
-                          {track.userName || "Unknown User"}
-                        </div>
-                        <div className="time">
-                          {createdAt && !isNaN(createdAt.getTime())
-                            ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                            : "Invalid date"}
-                        </div>
-                      </div>
-                      {/* Dropdown cho bài viết */}
-                      <div className="dropdown position-absolute top-0 end-0">
+              {tracks.map(
+                (track) =>
+                  !track.status && (
+                    <div className="post border" key={track.id}>
+                      {/* Tiêu đề */}
+                      <div className="post-header position-relative">
                         <button
-                          className="btn btn-options dropdown-toggle"
                           type="button"
-                          id={`dropdownMenuButton-${track.id}`}
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        ></button>
-                        <ul
-                          className="dropdown-menu"
-                          aria-labelledby={`dropdownMenuButton-${track.id}`}
+                          className="btn"
+                          aria-label="Avatar"
                         >
-                          <li>
+                          <img
+                            src={track.userId.avatar} //lỗi
+                            className="avatar_small"
+                            alt="Avatar"
+                          />
+                        </button>
+                        <div>
+                          <div className="name">
+                            {track.userName || "Unknown User"}
+                          </div>
+                          <div className="time">
+                            {new Date(track.createDate).toLocaleString()}
+                          </div>
+                        </div>
+                        {/* Dropdown cho bài viết */}
+                        {String(track.userId) === String(currentUserId) ? (
+                          <div className="dropdown position-absolute top-0 end-0">
                             <button
-                              className="dropdown-item"
-                              onClick={() => addToPlaylist(track.id)}
+                              className="btn btn-options dropdown-toggle"
+                              type="button"
+                              id={`dropdownMenuButton-${track.id}`}
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
                             >
-                              <i className="fa-solid fa-pen-to-square"></i> Add
-                              to playlist
+                              ...
                             </button>
-                          </li>
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleEdit(track.id)}
+                            <ul
+                              className="dropdown-menu"
+                              aria-labelledby={`dropdownMenuButton-${track.id}`}
                             >
-                              <i className="fa-solid fa-pen-to-square"></i> Edit
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleDelete(track.id)}
-                            >
-                              <i className="fa-solid fa-trash"></i> Delete
-                            </button>
-                          </li>
-                        </ul>
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => addToPlaylist(track.id)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                  Add to playlist
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => handleEditClick(track)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>
+                                  Edit
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => deleteTrack(track.id)}
+                                >
+                                  <i className="fa-solid fa-trash "></i>Delete
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        ) : (
+                          <button
+                            className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
+                            onClick={() => handleReportTrack(track.id)}
+                          ></button>
+                        )}
                       </div>
-                      <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0"></button>
-                    </div>
 
-                  <div className="post-content description">
-                    {track.description || "Unknown description"}
-                  </div>
-                  {/* Nội dung */}
-                  <div className="post-content audio">
-                    <Waveform
-                      audioUrl={track.trackFile}
-                      track={track}
-                      className="track-waveform "
-                    />
-                  </div>
-
-                  {/* Like/Comment */}
-                  <div className="row d-flex justify-content-start align-items-center">
-                    {/* Like track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="like-count">
-                        {countLikedTracks[track.id]?.data|| 0} {/* Hiển thị số lượng like */}
-                        <i
-                          className={`fa-solid fa-heart ${
-                            likedTracks[track.id]?.data
-                              ? "text-danger"
-                              : "text-muted"
-                          }`}
-                          onClick={() => handleLikeTrack(track.id)}
-                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                        ></i>
+                      <div className="post-content description">
+                        {track.description || "Unknown description"}
                       </div>
-                    </div>
+                      {/* Nội dung */}
+                      <div className="track-content audio">
+                        <WaveFormFeed
+                          audioUrl={track.trackFile}
+                          track={track}
+                          className="track-waveform "
+                        />
+                      </div>
 
-                      {/* Comment track*/}
-                      <div className="col-2 mt-2 text-center">
-                        <div className="d-flex justify-content-center align-items-center">
-                          {track.commentCount || 0}
-                          <i
-                            type="button"
-                            style={{ fontSize: "25px" }}
-                            className="fa-regular fa-comment"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalComment"
-                          ></i>
+                      {/* Like/Comment */}
+                      <div className="row d-flex justify-content-start align-items-center">
+                        {/* Like track*/}
+                        <div className="col-2 mt-2 text-center">
+                          <div className="like-count">
+                            {countLikedTracks[track.id]?.data || 0}{" "}
+                            {/* Hiển thị số lượng like */}
+                            <i
+                              className={`fa-solid fa-heart ${
+                                likedTracks[track.id]?.data
+                                  ? "text-danger"
+                                  : "text-muted"
+                              }`}
+                              onClick={() => handleLikeTrack(track.id)}
+                              style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
+                            ></i>
+                          </div>
+                        </div>
+
+                        {/* Comment track*/}
+                        <div className="col-2 mt-2 text-center">
+                          <div className="d-flex justify-content-center align-items-center">
+                            {track.commentCount || 0}
+                            <i
+                              type="button"
+                              style={{ fontSize: "25px" }}
+                              className="fa-regular fa-comment"
+                              data-bs-toggle="modal"
+                              data-bs-target="#modalComment"
+                            ></i>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  )
+              )}
             </div>
 
             {/* Phần hiển thị bài viết */}
@@ -1622,7 +1731,7 @@ const HomeFeed = () => {
                         </div>
                       ) : (
                         <button
-                          className="fa-regular fa-flag btn-report position-absolute top-0 end-0"
+                          className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
                           onClick={() => handleReportPost(post.id)}
                         ></button>
                       )}
@@ -1712,109 +1821,6 @@ const HomeFeed = () => {
                 );
               })}
             </div>
-
-            {/* Phần hiển thị track */}
-            <div className="container mt-2 mb-5">
-              {tracks.map((track) => (
-                <div className="post border" key={track.id}>
-                  {/* Tiêu đề */}
-                  <div className="post-header position-relative">
-                    <button type="button" className="btn" aria-label="Avatar">
-                      <img
-                        src={track.userId.avatar} //lỗi
-                        className="avatar_small"
-                        alt="Avatar"
-                      />
-                    </button>
-                    <div>
-                      <div className="name">
-                        {track.userName || "Unknown User"}
-                      </div>
-                      <div className="time">
-                        {new Date(track.createDate).toLocaleString()}
-                      </div>
-                    </div>
-                    {/* Dropdown cho bài viết */}
-                    <div className="dropdown position-absolute top-0 end-0">
-                      <button
-                        className="btn btn-options dropdown-toggle"
-                        type="button"
-                        id={`dropdownMenuButton-${track.id}`}
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      ></button>
-                      <ul
-                        className="dropdown-menu"
-                        aria-labelledby={`dropdownMenuButton-${track.id}`}
-                      >
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleEdit(track.id)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i> Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleDelete(track.id)}
-                          >
-                            <i className="fa-solid fa-trash"></i> Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                    <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0"></button>
-                  </div>
-
-                  <div className="post-content description">
-                    {track.description || "Unknown description"}
-                  </div>
-                  {/* Nội dung */}
-                  <div className="post-content audio">
-                    <Waveform
-                      audioUrl={track.trackFile}
-                      track={track}
-                      className="track-waveform "
-                    />
-                  </div>
-
-                  {/* Like/Comment */}
-                  <div className="row d-flex justify-content-start align-items-center">
-                    {/* Like track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="like-count">
-                        {track.likeCount || 0} {/* Hiển thị số lượng like */}
-                        <i
-                          className={`fa-solid fa-heart ${likedTracks[track.id]?.data
-                              ? "text-danger"
-                              : "text-muted"
-                            }`}
-                          onClick={() => handleLikeTrack(track.id)}
-                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                        ></i>
-                      </div>
-                    </div>
-
-                    {/* Comment track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="d-flex justify-content-center align-items-center">
-                        {track.commentCount || 0}
-                        <i
-                          type="button"
-                          style={{ fontSize: "25px" }}
-                          className="fa-regular fa-comment"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalComment"
-                        ></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
           </div>
           {/* Right Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
@@ -2035,6 +2041,179 @@ const HomeFeed = () => {
         </div>
       </div>
 
+      {/* Modal for editing track */}
+      <div
+        className="modal fade"
+        id="editModal"
+        tabIndex="-1"
+        aria-labelledby="editTrackModalLabel"
+        aria-hidden="true"
+        data-bs-backdrop="false"
+      >
+        <div className="modal-dialog modal-xl">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="editTrackModalLabel">
+                Edit Track
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => handleSave()}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <form className="row">
+                {/* Track Name */}
+                <div className="mb-3">
+                  <label className="form-label">Track Name: </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={selectedTrack ? selectedTrack.name : ""}
+                    onChange={(e) =>
+                      setSelectedTrack({
+                        ...selectedTrack,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Image Track */}
+                <div className="mt-3">
+                  <label className="form-label">Image Track: </label>
+                  {selectedTrack && (
+                    <div>
+                      <img
+                        src={selectedTrack.imageTrack}
+                        alt="Current Track"
+                        style={{ width: "100px", marginTop: "10px" }}
+                      />
+                      <div className="custom-file mt-2">
+                        <input
+                          type="file"
+                          id="fileInput"
+                          className="custom-file-input"
+                          onChange={(e) => {
+                            if (e.target.files[0]) {
+                              setSelectedTrack({
+                                ...selectedTrack,
+                                trackImage: e.target.files[0],
+                              });
+                            }
+                          }}
+                          style={{ display: "none" }}
+                        />
+                        <label
+                          className="custom-file-label"
+                          htmlFor="fileInput"
+                        >
+                          Choose new file
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* File Track */}
+                <div className="mt-3">
+                  <label className="form-label">Current File Track: </label>
+                  <label className="custom-file-label" htmlFor="fileInput">
+                    Choose file
+                  </label>
+                  {selectedTrack && (
+                    <div>
+                      <p>
+                        Current file:{" "}
+                        {selectedTrack.trackFileName || selectedTrack.name}
+                      </p>
+                      <div className="custom-file mt-2">
+                        <input
+                          type="file"
+                          id="fileInput"
+                          className="custom-file-input"
+                          onChange={(e) => {
+                            if (e.target.files[0]) {
+                              setSelectedTrack({
+                                ...selectedTrack,
+                                trackFile: e.target.files[0],
+                              });
+                            }
+                          }}
+                          style={{ display: "none" }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Select Genre */}
+                <div className="mt-3">
+                  <label className="form-label">Genre</label>
+                  <select
+                    className="form-select"
+                    value={selectedGenre}
+                    onChange={(e) => setSelectedGenre(e.target.value)}
+                  >
+                    {genres.map((genre) => (
+                      <option
+                        key={genre.id}
+                        value={genre.id}
+                        // Set selected cho genre hiện tại
+                        selected={selectedTrack?.genre?.id === genre.id}
+                      >
+                        {genre.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Description */}
+                <div className="mt-3">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    cols="50"
+                    rows="5"
+                    className="form-control"
+                    value={selectedTrack ? selectedTrack.description : ""}
+                    onChange={(e) =>
+                      setSelectedTrack({
+                        ...selectedTrack,
+                        description: e.target.value,
+                      })
+                    }
+                  ></textarea>
+                </div>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  const editModal = document.getElementById("editModal");
+                  editModal.classList.remove("show");
+                  editModal.style.display = "none";
+                  document.body.classList.remove("modal-open");
+                }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSave}
+              >
+                Save Track
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* end modal edit */}
+
       {/* Modal để chọn playlist */}
       <div
         className={`modal fade ${showModal ? "show" : ""}`}
@@ -2084,32 +2263,9 @@ const HomeFeed = () => {
           </div>
         </div>
       </div>
+      {/* Modal để chọn playlist */}
     </div>
   );
-};
-const modalOverlayStyle = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const modalContentStyle = {
-  backgroundColor: "white",
-  padding: "20px",
-  borderRadius: "8px",
-  width: "400px",
-};
-
-const textareaStyle = {
-  width: "100%",
-  height: "100px",
-  marginBottom: "10px",
 };
 
 export default HomeFeed;

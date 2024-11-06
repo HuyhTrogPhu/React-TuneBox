@@ -10,15 +10,16 @@
 }
 
 .player {
-    display: grid;
-    grid-template-columns: 10rem 1fr;
-    width: 40rem;
-    background-color: #D7DFE0;
-    border-radius: 0.5rem;
-    box-shadow: 0 1rem 1.5rem #10101024;
-    overflow: hidden;
-    place-content: center;
-    padding: 25px;
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  width: 40rem;
+  background-color: #d7dfe0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1rem 1.5rem #10101024;
+  overflow: hidden;
+  place-content: center;
+  padding: 25px;
 }
 
 .player .thumb {
@@ -42,13 +43,13 @@
   font-size: 1.5rem;
   padding-bottom: 1rem;
   text-shadow: 0.1em 0.1em 0.15em #1d1c1c88;
-  color: #e4e1e1;
+  color: #080808;
 }
 
 .player .title .time {
   font-size: 0.9rem;
-  text-shadow: 0.1em 0.1em 0.15em #ffc0cb;
-  color: #e4e1e1;
+  text-shadow: 0.1em 0.1em 0.15em #f1ebec;
+  color: #080808;
   margin-top: 0.25rem;
 }
 
@@ -66,22 +67,21 @@
 }
 
 .player .control i:hover {
-    box-shadow: 0 0 1.5rem gray;
-    font-size: 1.5rem;
+  box-shadow: 0 0 1.5rem gray;
+  font-size: 1.5rem;
 }
 
 .control button {
-    background-color: #4F4F4F;
-    color: white;
-    border: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding: 5px;
-  }
-  
-  .player .control button:hover {
-    background-color: #777;
-  }
-  
+  background-color: #4f4f4f;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 5px;
+}
+
+.player .control button:hover {
+  background-color: #777;
+}

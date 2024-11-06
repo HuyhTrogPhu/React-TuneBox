@@ -1,5 +1,5 @@
 .trackDetail {
-  background-color: #000000;
+  /* background-color: #000000; */
 }
 .track-page-player img {
   width: 200px;
@@ -33,7 +33,6 @@
   border-radius: 16px;
   margin-top: 24px;
   padding: 32px 32px 20px;
-  background: linear-gradient(to bottom, #101081, #000000 20%);
   position: relative;
   height: 120vh;
   box-shadow: 0 4px 15px rgba(105, 101, 101, 0.6);
@@ -56,7 +55,6 @@
   display: flex;
   justify-content: space-between;
   margin-top: 28px;
-  background-color: #ffeaed;
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
@@ -160,7 +158,7 @@ textarea {
 }
 
 .btn-send {
-  background: linear-gradient(to bottom, #ffeaed, #101081);
+  background: #e94f37;
   color: white;
   border: none;
   padding: 7px;
