@@ -145,6 +145,9 @@ const HomeFeed = () => {
   };
   // end track
 
+  //avatar
+  
+
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
     console.log("Post User ID:", post.userId);
