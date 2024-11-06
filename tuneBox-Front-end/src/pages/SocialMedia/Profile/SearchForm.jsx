@@ -64,6 +64,9 @@ const SearchForm = () => {
 
                       <div className="info">
                         <div className="author">
+                          {user.name || "Unknown userName"}
+                        </div>
+                        <div className="author">
                           @{user.userName || "Unknown userName"}
                         </div>
                       </div>
