@@ -15,6 +15,7 @@ import {
   checkUserLikeAlbums,
   removeLikeAlbums,
   addLikeAlbums,
+  checkUserLikeTrack,
 } from "../../../../service/likeTrackServiceCus";
 import Cookies from "js-cookie";
 import { getUserInfo } from "../../../../service/UserService";
@@ -123,6 +124,7 @@ const AlbumDetail = () => {
   };
 
   // Fetch Track Details
+  const [likedTrack, setLikedTrack] = useState(false);
   const fetchTrackDetails = async (trackIds) => {
     if (!trackIds || trackIds.length === 0) return; // Kiểm tra trackIds có tồn tại không
     try {
@@ -138,6 +140,7 @@ const AlbumDetail = () => {
           return duration;
         })
       );
+
       setTrackDurations(durations);
     } catch (error) {
       console.error("Error fetching track details:", error);
@@ -291,6 +294,11 @@ const AlbumDetail = () => {
     });
   };
 
+  const handleRandomTrack = () => {
+    const randomIndex = Math.floor(Math.random() * trackDetails.length);
+    handleTrackChange(randomIndex); // Gọi hàm phát bài theo chỉ số ngẫu nhiên
+  };
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
   if (!album) return <div className="p-4">No album data found</div>;
@@ -412,37 +420,39 @@ const AlbumDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {trackDetails.map((track, index) => (
-                        <tr
-                          key={track.id}
-                          className={
-                            currentTrackIndex === index ? "current-track" : ""
-                          }
-                        >
-                          <td>{index + 1}</td>
-                          <td>{track.name}</td>
-                          <td>{track.description}</td>
-                          <td>
-                            {trackDurations[index]
-                              ? formatDuration(trackDurations[index])
-                              : "Loading..."}
-                          </td>
-                          <td>
-                            <button
-                              className="player-track-button custom-button"
-                              onClick={() => handleTrackChange(index)}
-                            >
-                              <i
-                                className={`fa-solid ${
-                                  playingTrackIndex === index && isPlaying
-                                    ? "fa-pause"
-                                    : "fa-play"
-                                }`}
-                              ></i>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {trackDetails
+                        .filter((track) => track.status !== true) // Lọc bỏ các track có status = true
+                        .map((track, index) => (
+                          <tr
+                            key={track.id}
+                            className={
+                              currentTrackIndex === index ? "current-track" : ""
+                            }
+                          >
+                            <td>{index + 1}</td>
+                            <td>{track.name}</td>
+                            <td>{track.description}</td>
+                            <td>
+                              {trackDurations[index]
+                                ? formatDuration(trackDurations[index])
+                                : "Loading..."}
+                            </td>
+                            <td>
+                              <button
+                                className="player-track-button custom-button"
+                                onClick={() => handleTrackChange(index)}
+                              >
+                                <i
+                                  className={`fa-solid ${
+                                    playingTrackIndex === index && isPlaying
+                                      ? "fa-pause"
+                                      : "fa-play"
+                                  }`}
+                                ></i>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
@@ -512,7 +522,7 @@ const AlbumDetail = () => {
                     fontSize: "20px",
                     margin: "0 15px",
                   }}
-                  // onClick={handleRandomTrack}
+                  onClick={handleRandomTrack}
                 ></button>
                 <button
                   className="fa-solid fa-arrow-right custom-button"
