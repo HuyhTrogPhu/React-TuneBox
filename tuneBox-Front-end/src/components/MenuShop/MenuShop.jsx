@@ -56,6 +56,11 @@ const MenuShop = () => {
         return shuffled.slice(0, 16).map(brand => brand.name);
     };
 
+    // sản phẩm tương tự 
+    const handleBrandClick = (brand) => {
+        navigate('/brand-detail', { state: { brand } });
+    };
+
     const randomBrands = getRandomBrands(brands);
     const randomBrandNames = getRandomBrandNames(brands);
 
@@ -73,21 +78,21 @@ const MenuShop = () => {
                                         <h6 style={{ fontSize: '16px' }}>Nhãn hiệu hàng đầu</h6>
                                         <div className='row'>
                                             {randomBrands.map((brand) => (
-                                                <Link to={`/brand-detail/${brand.id}`} key={brand.id} className='col-5 m-2'>
+                                                <span onClick={() => handleBrandClick(brand.id)} className='col-5 m-2'>
                                                     <img src={brand.brandImage} alt={brand.name} style={{ width: '100px' }} />
-                                                </Link>
+                                                </span>
                                             ))}
                                         </div>
                                     </div>
                                     <div className='col-6'>
-                                        <h6 className='pe-0 ps-0' style={{ fontSize: '16px'}}>Thương hiệu thịnh hành</h6>
+                                        <h6 className='pe-0 ps-0' style={{ fontSize: '16px' }}>Thương hiệu thịnh hành</h6>
                                         <Link to={'/BrandPage'} className='ms-5'>Xem từ (A-Z)</Link>
                                         {randomBrandNames.map((name, index) => (
-                                            <Link to={'/brand-detail'}>
+                                            <span onClick={() => handleBrandClick(name.id)}>
                                                 <div className='brand-name' key={name.id}>
                                                     <h6>{name}</h6>
                                                 </div>
-                                            </Link>
+                                            </span>
                                         ))}
                                     </div>
                                 </div>
