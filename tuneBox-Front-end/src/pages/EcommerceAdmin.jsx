@@ -17,6 +17,8 @@ import StatisticalInstrument from '../components/EcomStatisticalInstrument/Stati
 import { images } from '../assets/images/images';
 import StatisticalRevenueTime from '../components/EcomRevenueTime/StatisticalRevenueTime';
 import StatisticalOrder from '../components/EcomStatisticalOrder/StatisticalOrder';
+import StatisticalBrand from '../components/EcomStatisticalBrand/StatisticalBrand';
+import StatisticalCategory from '../components/EcomStatisticalCategory/StatisticalCategory';
 
 const EcommerceAdmin = () => {
   return (
@@ -117,6 +119,8 @@ const EcommerceAdmin = () => {
             <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
 
             <Route path='Statistical/statistical-instrument' element={<StatisticalInstrument />} />
+            <Route path='Statistical/statistical-brand' element={<StatisticalBrand />} />
+            <Route path='Statistical/statistical-category' element={<StatisticalCategory />} />
 
             <Route path='Brand' element={<ManagerBrand />} />
             <Route path='Categories' element={<ManagerCategories />} />

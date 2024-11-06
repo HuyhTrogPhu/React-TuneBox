@@ -90,6 +90,7 @@ function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/DetailProduct/:id" element={<DetailProduct />} />
               <Route path="/BrandPage" element={<BrandPage />} />
+              <Route path="/categoryPage" element={<CategoryPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
               <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />

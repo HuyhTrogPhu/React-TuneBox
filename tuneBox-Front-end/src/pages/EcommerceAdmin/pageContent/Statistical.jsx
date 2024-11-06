@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Line } from 'react-chartjs-2';
 import { getRevenueBeforeCurrently, getRevenueCurrently } from '../../../service/EcommerceStatistical';
+import '../css/Statistical.css';
+
 
 const Statistical = () => {
 
@@ -221,7 +223,7 @@ const Statistical = () => {
                     </div>
                 </section>
 
-                {/* Statistical instrument */}
+                {/* Statistical shop */}
                 <section className='row mt-5 d-flex justify-content-center gap-3'>
                     <div className='col-4 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
                         <Link to={'/ecomadmin/Statistical/statistical-instrument'}>
@@ -259,7 +261,6 @@ const Statistical = () => {
                             </div>
                         </Link>
                     </div>
-
                 </section>
 
                 {/* Search revenue by day or between day */}
