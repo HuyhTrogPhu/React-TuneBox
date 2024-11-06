@@ -1169,12 +1169,12 @@ const HomeFeed = () => {
                                 </button>
                               </li>
                               <li>
-                              <button className="dropdown-item" onClick={() => handleEditTrack(track)}>
+                              <button className="dropdown-item" onClick={() => handleEditClick(track)}>
                                 <i className='fa-solid fa-pen-to-square'></i>Edit
                               </button>
                               </li>
                               <li>
-                              <button className="dropdown-item" onClick={() => handleDeleteTrack(track.id)}>
+                              <button className="dropdown-item" onClick={() => deleteTrack(track.id)}>
                                 <i className='fa-solid fa-trash '></i>Delete
                               </button>
                               </li>
