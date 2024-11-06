@@ -257,7 +257,7 @@ const CheckOut = () => {
         }
 
         // Xác định trạng thái thanh toán dựa trên phương thức thanh toán đã chọn
-        const paymentStatus = paymentMethod === 'vnpay' ? 'Paid' : 'Not Paid';
+        const paymentStatus = paymentMethod === 'VNPAY' ? 'Paid' : 'Not Paid';
 
         const orderData = {
             userId: userId,
@@ -284,7 +284,7 @@ const CheckOut = () => {
             // Gọi API tạo đơn hàng dựa trên phương thức thanh toán
             setIsLoading(true);
             let response;
-            if (paymentMethod === 'vnpay') {
+            if (paymentMethod === 'VNPAY') {
                 response = await axios.post('http://localhost:8080/customer/checkout/create_payment', orderData, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -319,7 +319,7 @@ const CheckOut = () => {
 
 
                 Swal.fire({
-                    title: 'Success',
+title: 'Success',
                     text: 'Your order has been placed successfully!',
                     icon: 'success',
                     showCancelButton: true,
@@ -479,8 +479,8 @@ const CheckOut = () => {
                                 id="normal"
                                 name="shipping"
                                 value="normal"
-                                checked={shippingMethod === 'normal'}
-                                onChange={() => handleShippingChange('normal')}
+                                checked={shippingMethod === 'Normal'}
+                                onChange={() => handleShippingChange('Normal')}
                                 className="me-2"  // thêm khoảng cách giữa radio và label
                             />
                             <label htmlFor="normal">Regular Delivery</label>
@@ -491,8 +491,8 @@ const CheckOut = () => {
                                 id="fast"
                                 name="shipping"
                                 value="fast"  // Cập nhật giá trị 'value' cho đúng
-                                checked={shippingMethod === 'fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
-                                onChange={() => handleShippingChange('fast')}
+                                checked={shippingMethod === 'Fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
+                                onChange={() => handleShippingChange('Fast')}
                                 className="me-2"
                             />
                             <label htmlFor="fast">Fast Delivery</label>
@@ -510,21 +510,21 @@ const CheckOut = () => {
                                         <button
                                             className="accordion-button"
                                             type="button"
-                                            onClick={() => handlePaymentChange('cod')}
+                                            onClick={() => handlePaymentChange('COD')}
                                         >
                                             <input
                                                 type="radio"
                                                 id="codRadio"
                                                 name="paymentMethod"
-                                                value="cod"
+                                                value="COD"
                                                 className="me-2"
-                                                checked={paymentMethod === 'cod'}
-                                                onChange={() => handlePaymentChange('cod')}
+                                                checked={paymentMethod === 'COD'}
+                                                onChange={() => handlePaymentChange('COD')}
                                             />
                                             COD
                                         </button>
                                     </h2>
-                                    <div className={`accordion-collapse collapse ${paymentMethod === 'cod' ? 'show' : ''}`}>
+                                    <div className={`accordion-collapse collapse ${paymentMethod === 'COD' ? 'show' : ''}`}>
                                         <div className="accordion-body">
                                             <p>After clicking "Pay", you will receive the goods and pay directly with our delivery staff.</p>
                                         </div>
@@ -535,21 +535,21 @@ const CheckOut = () => {
                                         <button
                                             className="accordion-button collapsed"
                                             type="button"
-                                            onClick={() => handlePaymentChange('vnpay')}
+                                            onClick={() => handlePaymentChange('VNPAY')}
                                         >
                                             <input
                                                 type="radio"
                                                 id="payment-vnpay"
                                                 name="paymentMethod"
-                                                value="vnpay"
+                                                value="VNPAY"
                                                 className="me-2"
-                                                checked={paymentMethod === 'vnpay'}
-                                                onChange={() => handlePaymentChange('vnpay')}
+                                                checked={paymentMethod === 'VNPAY'}
+                                                onChange={() => handlePaymentChange('VNPAY')}
                                             />
                                             VNPAY
                                         </button>
                                     </h2>
-                                    <div className={`accordion-collapse collapse ${paymentMethod === 'vnpay' ? 'show' : ''}`}>
+                                    <div className={`accordion-collapse collapse ${paymentMethod === 'VNPAY' ? 'show' : ''}`}>
                                         <div className="accordion-body">
                                             <p>After clicking "Pay", you will be forwarded to the payment page using VNPAY.</p>
                                         </div>

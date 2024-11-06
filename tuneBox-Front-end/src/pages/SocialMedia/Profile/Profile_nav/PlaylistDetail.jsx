@@ -47,7 +47,6 @@ const PlayListDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(
-        // "https://lottie.host/00751c51-bae6-402d-b996-f93783213501/yYktBnFt38.json"
         "https://lottie.host/4e8622cb-39bc-4ebe-99f7-1859864b347d/0ax8kjT4X0.json"
       );
       const data = await response.json();

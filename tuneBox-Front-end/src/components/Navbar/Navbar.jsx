@@ -11,10 +11,13 @@ import {
 } from "../../service/TrackServiceCus";
 import { getNotifications } from "../../service/NotificationService.js";
 import { logout } from "../../service/LoginService";
-import { SwipeableList, SwipeableListItem, SwipeAction } from 'react-swipeable-list';
-import 'react-swipeable-list/dist/styles.css';
+import {
+  SwipeableList,
+  SwipeableListItem,
+  SwipeAction,
+} from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
 import axios from "axios";
-
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
@@ -162,7 +165,6 @@ const Navbar = () => {
       console.error("Error creating track:", error);
     }
   };
-
 
   // log-out
   const handleLogout = async () => {
@@ -426,7 +428,7 @@ const Navbar = () => {
               className="dropdown-item"
               onClick={() => navigate("/profileUser")}
             >
-              Profile 
+              Profile
             </button>
 
             <button className="dropdown-item" onClick={handleLogout}>
@@ -476,8 +478,9 @@ const Navbar = () => {
                     <label className="form-label">Track Name</label>
                     <input
                       type="text"
-                      className={`form-control ${errors.name ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.name ? "is-invalid" : ""
+                      }`}
                       value={newTrackName}
                       onChange={(e) => setTrackName(e.target.value)}
                     />
@@ -490,8 +493,9 @@ const Navbar = () => {
                     <label className="form-label">Image Track</label>
                     <input
                       type="file"
-                      className={`form-control ${errors.image ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.image ? "is-invalid" : ""
+                      }`}
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -520,8 +524,9 @@ const Navbar = () => {
                     <label className="form-label">File Track</label>
                     <input
                       type="file"
-                      className={`form-control ${errors.file ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.file ? "is-invalid" : ""
+                      }`}
                       accept=".mp3"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -549,8 +554,9 @@ const Navbar = () => {
                   <div className="mt-3">
                     <label className="form-label">Genre</label>
                     <select
-                      className={`form-select ${errors.genre ? "is-invalid" : ""
-                        }`}
+                      className={`form-select ${
+                        errors.genre ? "is-invalid" : ""
+                      }`}
                       value={newTrackGenre}
                       onChange={(e) => setTrackGenre(e.target.value)}
                     >
@@ -577,8 +583,9 @@ const Navbar = () => {
                     <textarea
                       cols="50"
                       rows="5"
-                      className={`form-control ${errors.description ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.description ? "is-invalid" : ""
+                      }`}
                       value={newTrackDescription}
                       onChange={(e) => setTrackDescription(e.target.value)}
                     ></textarea>
