@@ -92,14 +92,14 @@ import car from '../icon/car.png';
 import logoAdmin from '../images/admin_white.png'
 import heartFilled from '../images/heartFilled.png';
 import musicalNote from '../images/musicalNote.png';
-import adminImage from "./admin.png";
-import karinaImage from "./karina.jpg";
+import girlmusic from "../images/girlMusic.png";
 
 
 
 export const images = {
     adminImage,
     karinaImage,
+    girlmusic,
     logoTuneBox,
     home, anime_girl, ava, avt, backg, background, bannerpre, bell,plus,car,
     camonnhangiai, casi, pause, index,

@@ -21,13 +21,14 @@ export const listTalents = () => axios.get(`${REST_API_BASE_URL}/list-talent`);
 
 export const listGenres = () => axios.get(`${REST_API_BASE_URL}/list-genre`);
 
-export const listInspiredBys = () => axios.get(`${REST_API_BASE_URL}/list-inspired-by`);
+export const listInspiredBys = () =>
+  axios.get(`${REST_API_BASE_URL}/list-inspired-by`);
 
 export const register = async (formData) => {
   const response = await axios.post(`${REST_API_BASE_URL}/register`, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
-    }
+      "Content-Type": "multipart/form-data",
+    },
   });
   return response.data;
 };

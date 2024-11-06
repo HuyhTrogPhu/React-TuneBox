@@ -78,3 +78,14 @@ export const deletePlaylist = async (playlistId) => {
     throw error;
   }
 };
+
+// xóa track khỏi playlist
+export const removeTrackFromPlaylist = async (playlistId, trackId) => {
+  try {
+      const response = await axios.delete(`${API_URL}/${playlistId}/tracks/${trackId}`);
+      return response.data; 
+  } catch (error) {
+      console.error('Error removing track from playlist:', error);
+      throw error;
+  }
+};

@@ -267,7 +267,12 @@ const Playlists = () => {
                       <span className="tracks">
                         Tracks: {list.tracks.length}
                       </span>
-                      <span className="likes">Likes: 0</span>
+                      <span className="likes">
+                        Likes:{" "}
+                        {likesCount && likesCount[list.id]
+                          ? likesCount[list.id]
+                          : 0}
+                      </span>
                     </div>
                   </div>
 

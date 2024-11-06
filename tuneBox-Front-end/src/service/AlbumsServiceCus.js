@@ -75,11 +75,14 @@ export const getAlbumById = async (albumId) => {
 // Tạo album mới
 export const createAlbum = async (albumData) => {
   try {
-    const response = await axios.post(API_URL, albumData);
-
+    const response = await axios.post(API_URL, albumData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
-    console.error("Error creating album:", error.response?.data || error);
+    console.error("Create album error:", error);
     throw error;
   }
 };

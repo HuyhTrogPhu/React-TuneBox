@@ -103,7 +103,7 @@ const LikePlaylists = () => {
           </nav>
         </div>
         <div className="albums-list col-6 pe-5">
-          {/* Albums List */}
+          {/* Play List */}
           <div className="post-header-albums">
             {isLoading ? (
               <div>Loading albums...</div>
@@ -123,7 +123,7 @@ const LikePlaylists = () => {
                         {/* link album detail */}
                         <Link
                           to={{
-                            pathname: `/album/${list.id}`,
+                            pathname: `/playlist/${list.id}`,
                             state: { list },
                           }}
                         >
