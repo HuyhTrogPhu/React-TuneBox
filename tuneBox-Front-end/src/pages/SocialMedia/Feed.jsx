@@ -23,6 +23,16 @@ import {
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import UsersToFollow from './Profile/UsersToFollow';
+import {
+  getPlaylistByUserId,
+  getPlaylistById,
+  updatePlaylist,
+} from "../../service/PlaylistServiceCus";
+import { getUserInfo } from "../../service/UserService";
+
 
 
 const HomeFeed = () => {
@@ -68,6 +78,23 @@ const HomeFeed = () => {
 
   const tokenjwt = localStorage.getItem('jwtToken');
 
+  //get avatar
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (currentUserId) {
+        try {
+          const userData = await getUserInfo(currentUserId);
+          setUserData(userData);
+        } catch (error) {
+          console.error("Error fetching user", error);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [currentUserId]);
 
 
   // track
@@ -260,12 +287,11 @@ const HomeFeed = () => {
   const [showModal, setShowModal] = useState(false);
   const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
 
-  useEffect(() => {
-    fetchListPlaylist();
-  }, [currentUserId]);
+
 
   const fetchListPlaylist = async () => {
     try {
+      
       const playlistResponse = await getPlaylistByUserId(currentUserId);
       setPlaylists(playlistResponse);
       console.log("playlist  ", playlistResponse);
@@ -277,6 +303,11 @@ const HomeFeed = () => {
     setShowModal(true); // Mở modal
     setTrackToAddPlayList(trackId);
   };
+  
+  useEffect(() => {
+    fetchListPlaylist();
+  }, [currentUserId]);
+
   const handleCloseModal = () => {
     setShowModal(false); // Đóng modal
   };
@@ -316,20 +347,6 @@ const HomeFeed = () => {
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
     console.log("Post User ID:", post.userId);
-
-    // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
-    // axios.interceptors.request.use(
-    //   (config) => {
-    //     const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
-    //       if (token) {
-    //           config.headers['Authorization'] = token;
-    //       }
-    //       return config;
-    //   },
-    //   (error) => {
-    //       return Promise.reject(error);
-    //   }
-    // );
 
     if (String(post.userId) === String(currentUserId)) {
       console.log("Navigating to ProfileUser");
@@ -995,59 +1012,91 @@ const HomeFeed = () => {
         <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
-          <div className="col-3 sidebar bg-light p-4 ">
-      <ul className="list-unstyled ">
-        <li className="left mb-4">
-          <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
-            <img src={images.web_content} alt='icon' width={20} className="me-2" />
-            <span className='fw-bold'>
-              <Link to={'/'}>Bản tin</Link>
-            </span>
-          </a>
-        </li>
-        <li className="left mb-4">
-          <Link to={`/Following/${currentUserId}`} className="d-flex align-items-center">
-            <img src={images.followers} alt='icon' width={20} className="me-2" />
-            <span className='fw-bold'>Đang theo dõi</span>
-          </Link>
-        </li>
-        <li className="left mb-4">
-          <Link to="#" className="d-flex align-items-center">
-            <img src={images.feedback} alt='icon' width={20} className="me-2" />
-            <span className='fw-bold'>Bài viết đã thích</span>
-          </Link>
-        </li>
-        <li className="left mb-4">
-          <Link to={"/likeAlbums"} className="d-flex align-items-center">
-            <img
-              src={images.music}
-              alt="icon"
-              width={20}
-              className="me-2"
-            />
-            <span className="fw-bold">Albums đã thích</span>
-          </Link>
-        </li>
-        <li className="left mb-4">
-          <Link to="#" className="d-flex align-items-center">
-            <img
-              src={images.playlist}
-              alt="icon"
-              width={20}
-              className="me-2 "
-            />
-            <span className="fw-bold">Playlist đã thích</span>
-          </Link>
-          </li>
-      </ul>
-    </div>
+          <div className="col-3 sidebar bg-light p-4">
+            <ul className="list-unstyled">
+              <li className="left mb-4">
+                <a
+                  href="/#"
+                  className="d-flex align-items-center "
+                  style={{ textAlign: "center" }}
+                >
+                  <img
+                    src={images.web_content}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">
+                    <Link to={"/"}>Bản tin</Link>
+                  </span>
+                </a>
+              </li>
+              <li className="left mb-4">
+                <a href="/#" className="d-flex align-items-center">
+                  <img
+                    src={images.followers}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Đang theo dõi</span>
+                </a>
+              </li>
+
+              <li className="left mb-4">
+                <Link to={"/likepost"} className="d-flex align-items-center">
+                  <img
+                    src={images.feedback}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Bài viết đã thích</span>
+                </Link>
+              </li>
+              <li className="left mb-4">
+                <Link to={"/likeAlbums"} className="d-flex align-items-center">
+                  <img
+                    src={images.music}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Albums đã thích</span>
+                </Link>
+              </li>
+              <li className="left mb-4">
+                <Link
+                  to={"/likePlaylist"}
+                  className="d-flex align-items-center"
+                >
+                  <img
+                    src={images.playlist}
+                    alt="icon"
+                    width={20}
+                    className="me-2 "
+                  />
+                  <span className="fw-bold">Playlist đã thích</span>
+                </Link>
+              </li>
+              <li className="left mb-4">
+                <Link
+                  to={"/FriendRequests"}
+                  className="d-flex align-items-center"
+                >
+                  <span className="fw-bold">Danh sách lời mời kết bạn</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
           {/* Main Content */}
           <div className="col-6 content p-4">
             {/* Nút tạo bài */}
             <div className="container mt-2 mb-5">
               <div className="row align-items-center">
                 <div className="col-auto post-header">
-                  <img src={images.ava} className="avatar_small" alt="avatar" />
+                  <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                  />
                 </div>
                 <div className="col">
                   <button
@@ -1060,7 +1109,7 @@ const HomeFeed = () => {
                       height: 50,
                     }}
                   >
-                    Bạn đang nghĩ gì vậy?
+                    What are you thinking about?
                   </button>
                 </div>
               </div>
@@ -1111,79 +1160,93 @@ const HomeFeed = () => {
                           <ul className="dropdown-menu"
                             aria-labelledby={`dropdownMenuButton-${track.id}`}>
                               <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => addToPlaylist(track.id)}
-                            >
-                              <i className="fa-solid fa-pen-to-square"></i> Add
-                              to playlist
-                            </button>
-                          </li>
-                            <li>
-                              <button className="dropdown-item" onClick={() => handleEdit(track)}>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => addToPlaylist(track.id)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                  Add to playlist
+                                </button>
+                              </li>
+                              <li>
+                              <button className="dropdown-item" onClick={() => handleEditTrack(track)}>
                                 <i className='fa-solid fa-pen-to-square'></i>Edit
                               </button>
-                            </li>
-                            <li>
-                              <button className="dropdown-item" onClick={() => handleDelete(track.id)}>
+                              </li>
+                              <li>
+                              <button className="dropdown-item" onClick={() => handleDeleteTrack(track.id)}>
                                 <i className='fa-solid fa-trash '></i>Delete
                               </button>
-                            </li>
+                              </li>
                           </ul>
                         </div>
                       ) : (
-                        <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReport(track.id, 'track')}></button>
+                        <div className="dropdown position-absolute top-0 end-0">
+                          <ul>
+                            <li>
+                            <button className="fa-regular fa-flag btn-report border border-0" onClick={() => handleReport(track.id, 'track')}></button>
+                            </li>
+                            <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => addToPlaylist(track.id)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                  Add to playlist
+                                </button>
+                              </li>
+                          </ul>
+                        </div>
+
                       )}
                     </div>
 
-                      <div className="post-content description">
-                        {track.description || "Unknown description"}
-                      </div>
-                      {/* Nội dung */}
-                      <div className="track-content audio">
-                        <WaveFormFeed
-                          audioUrl={track.trackFile}
-                          track={track}
-                          className="track-waveform "
-                        />
-                      </div>
+                    <div className="post-content description">
+                      {track.description || "Unknown description"}
+                    </div>
+                    {/* Nội dung */}
+                    <div className="track-content audio">
+                      <WaveFormFeed
+                        audioUrl={track.trackFile}
+                        track={track}
+                        className="track-waveform "
+                      />
+                    </div>
 
-                      {/* Like/Comment */}
-                      <div className="row d-flex justify-content-start align-items-center">
-                        {/* Like track*/}
-                        <div className="col-2 mt-2 text-center">
-                          <div className="like-count">
-                            {countLikedTracks[track.id]?.data || 0}{" "}
-                            {/* Hiển thị số lượng like */}
-                            <i
-                              className={`fa-solid fa-heart ${
-                                likedTracks[track.id]?.data
-                                  ? "text-danger"
-                                  : "text-muted"
+                    {/* Like/Comment */}
+                    <div className="row d-flex justify-content-start align-items-center">
+                      {/* Like track*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="like-count">
+                          {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
+                          <i
+                            className={`fa-solid fa-heart ${likedTracks[track.id]?.data
+                              ? "text-danger"
+                              : "text-muted"
                               }`}
-                              onClick={() => handleLikeTrack(track.id)}
-                              style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                            ></i>
-                          </div>
+                            onClick={() => handleLikeTrack(track.id)}
+                            style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
+                          ></i>
                         </div>
+                      </div>
 
-                        {/* Comment track*/}
-                        <div className="col-2 mt-2 text-center">
-                          <div className="d-flex justify-content-center align-items-center">
-                            {track.commentCount || 0}
-                            <i
-                              type="button"
-                              style={{ fontSize: "25px" }}
-                              className="fa-regular fa-comment"
-                              data-bs-toggle="modal"
-                              data-bs-target="#modalComment"
-                            ></i>
-                          </div>
+                      {/* Comment track*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="d-flex justify-content-center align-items-center">
+                          {track.commentCount || 0}
+                          <i
+                            type="button"
+                            style={{ fontSize: "25px" }}
+                            className="fa-regular fa-comment"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalComment"
+                          ></i>
                         </div>
                       </div>
                     </div>
-                  )
-              )}
+                  </div>
+                )
+              })}
             </div>
             {/* Phần hiển thị bài viết */}
             <div className="container mt-2 mb-5">
@@ -1195,7 +1258,7 @@ const HomeFeed = () => {
 
                 return (
                   <div key={post.id} className="post border">
-                    {/* Modeal hiển thị comment  */}
+                    {/* Modal hiển thị comment  */}
                     <div className="modal fade" id="modalComent" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
                       <div className="modal-dialog">
                         <div className="modal-content">
@@ -1729,8 +1792,8 @@ const HomeFeed = () => {
                       ) : (
                         <button
                           className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
-                          onClick={() => handleReportPost(post.id)}
-                        ></button>
+                          onClick={() => handleReport(post.id, 'post')}
+                          ></button>
                       )}
                     </div>
                     {/* Nội dung bài viết */}
@@ -1822,65 +1885,11 @@ const HomeFeed = () => {
           <div className="col-3 sidebar bg-light p-4">
             <ul className="list-unstyled">
               <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
+                <UsersToFollow userId={currentUserId} token={tokenjwt} />
               </li>
             </ul>
             <div className="advertisement mt-5">
-              <a href>
-                {" "}
-                <img
-                  src={images.bannerpre}
-                  alt="Banner quảng cáo"
-                  className="img-fluid"
-                  width="80%"
-                  style={{ marginLeft: 30 }}
-                />
-              </a>
+              <a href>  <img src={images.bannerpre} alt="Banner quảng cáo" className="img-fluid" width="80%" style={{ marginLeft: 30 }} /></a>
             </div>
           </div>
         </div>
@@ -1966,9 +1975,9 @@ const HomeFeed = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-              <img src={images.ava} className="avatar_small" alt="Avatar" />
+            <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}/>
               <div>
-                <div className="name">Phạm Xuân Trường</div>
+                <div className="name">{userData.name}</div>
                 <div className="time">Posting to Feed</div>
               </div>
               <button

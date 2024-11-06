@@ -275,7 +275,7 @@ const Navbar = () => {
 
 
   return (
-    <header className="navbar-container">
+    <header className="navbar-container ">
       {/* Navbar Left */}
       <div className="col-3 d-flex align-items-center">
         <button className="navbar-button" onClick={() => navigate("/")}>
