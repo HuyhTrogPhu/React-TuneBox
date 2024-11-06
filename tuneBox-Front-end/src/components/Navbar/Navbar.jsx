@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getAvatarUser, search } from "../../service/UserService";
 import {
@@ -18,6 +18,8 @@ import {
 } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
 import axios from "axios";
+
+
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
@@ -394,12 +396,14 @@ const Navbar = () => {
 
         {/* chat */}
         <span className="mx-3">
+          <Link to={'/chat'}>
           <img
             alt="icon-chat"
             style={{ width: "30px", height: "30px" }}
             src={images.conversstion}
             className="icon"
           />
+          </Link>
         </span>
 
         {/* cart */}

@@ -49,6 +49,7 @@ import FollowersPage from "./pages/SocialMedia/FollowersPage";
 import FollowingPage from "./pages/SocialMedia/FollowingPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { getUserRole, isUserRole } from './service/auth';
+import Chat from "./pages/SocialMedia/chat/chat";
 // Layout có Header
 
 function LayoutWithHeader() {
@@ -93,6 +94,7 @@ function App() {
               <Route path="/BrandPage" element={<BrandPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
+              <Route path="/chat" element={<Chat />} />
               <Route
                 path="/albums/album-Edit/:albumId"
                 element={<AlbumEdit />}
