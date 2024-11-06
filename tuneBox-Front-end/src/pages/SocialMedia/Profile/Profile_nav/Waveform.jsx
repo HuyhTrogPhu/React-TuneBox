@@ -34,12 +34,11 @@ const Waveform = ({ audioUrl, track }) => {
     // Khởi tạo WaveSurfer
     wavesurferRef.current = WaveSurfer.create({
       container: waveformRef.current,
-      waveColor: gradient,
-      progressColor: progressGradient,
-      barWidth: 5,
-      
+      waveColor: "#363537",
+      progressColor: "#ffeaed",
     });
 
+    // Tải file âm thanh từ Cloudinary
     wavesurferRef.current.load(audioUrl);
 
     wavesurferRef.current.on("ready", () => {
@@ -73,34 +72,31 @@ const Waveform = ({ audioUrl, track }) => {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`; // Định dạng MM:SS
   };
 
   return (
     <div className="player w-100">
       <div className="thumb">
-        <img src={track.imageTrack || images.avt} alt="Track Thumbnail" />
+        <img src={track.imageTrack || images.avt} />
       </div>
       <div className="info">
-        <div className="detail row d-flex">
-          <div className="title col-7">
+        <div className="detail">
+          <div className="title">
             {track.name || "Tiêu đề Track"}
             <div className="time">
               <span id="current">{formatTime(currentTime)}</span> /
               <span id="duration">{formatTime(duration)}</span>
             </div>
           </div>
-          <div className="control col-5 d-flex">
-            <button onClick={() => skipBackward(10)}>⏪10s</button>
-            <button onClick={() => skipBackward(5)}>⏪5s</button>
-            <i className={isPlaying ? "fi-rr-pause" : "fi-rr-play"} id="playPause" onClick={togglePlayPause}></i>
-            <button onClick={() => skipForward(5)}>5s⏩</button>
-            <button onClick={() => skipForward(10)}>10s⏩</button>
+          <div className="control" onClick={togglePlayPause}>
+            <i
+              className={isPlaying ? "fi-rr-pause" : "fi-rr-play"}
+              id="playPause"
+            ></i>
           </div>
         </div>
-        <div id="wave" ref={waveformRef} className="waveform-container">
-          <div id="hover" className="waveform-hover"></div>
-        </div>
+        <div id="wave" ref={waveformRef}></div>
       </div>
     </div>
   );

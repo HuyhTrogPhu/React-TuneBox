@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/customer/playlist"; // Đường dẫn base
-const URL = "http://localhost:8080/customer/tracks"; // get listgenre, listTrackByUserID
 
 // lấy info playlist theo id
 export const getPlaylistById = async (playlistId) => {
@@ -23,51 +22,70 @@ export const getPlaylistByUserId = async (userId) => {
     const response = await axios.get(`${API_URL}/user/${userId}`, {});
     return response.data;
   } catch (error) {
-    console.error("Error fetching albums:", error);
+    console.error("Error fetching playlist:", error);
     throw error;
   }
 };
 
-//  Lấy danh sách Track theo người dùng
-export const listTrackByUserId = async (userId) => {
+// new Playlist
+export const createPlaylist = async (playlistData) => {
   try {
-    if (!userId) throw new Error("User ID not found in create album"); // Kiem tra userId
-    const response = await axios.get(`${URL}/user/${userId}`, {
-      withCredentials: true,
+    const response = await axios.post(API_URL, playlistData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
-    const sortedTrack = response.data.sort(
-      (a, b) => new Date(b.createDate) - new Date(a.createDate)
-    ); // Sap xep track
 
-    return sortedTrack; // trả về mảng track đã sắp xếp
-  } catch (error) {
-    console.error("Error fetching Track in creat album:", error);
-    throw error;
-  }
-};
-
-// Lấy danh sách thể loại (genre)
-export const listGenre = async () => {
-  try {
-    const response = await axios.get(`${URL}/getAllGenre`, {
-      withCredentials: true,
-    });
     return response.data;
   } catch (error) {
-    console.error("Error fetching genres:", error);
+    console.error(
+      "Lỗi khi tạo playlist:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
 
-// Lấy danh sách album styles
-export const listAlbumStyle = async () => {
+// update or add track
+export const updatePlaylist = async (playlistId, formData) => {
   try {
-    const response = await axios.get(`${API_URL}/getAllAlbumStyle`, {
-      withCredentials: true,
+    // Log request data
+    console.log("Updating playlist with ID:", playlistId);
+    console.log("FormData contents:");
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    const response = await axios.put(`${API_URL}/${playlistId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
-    return response.data;
+    return response;
   } catch (error) {
-    console.error("Error fetching album styles:", error);
+    console.error("Error updating album:", error);
+    console.error("Server response:", error.response?.data);
     throw error;
+  }
+};
+
+// Xóa theo ID
+export const deletePlaylist = async (playlistId) => {
+  try {
+    await axios.delete(`${API_URL}/${playlistId}`, { withCredentials: true });
+  } catch (error) {
+    console.error("Error deleting playlist:", error);
+    throw error;
+  }
+};
+
+// xóa track khỏi playlist
+export const removeTrackFromPlaylist = async (playlistId, trackId) => {
+  try {
+      const response = await axios.delete(`${API_URL}/${playlistId}/tracks/${trackId}`);
+      return response.data; 
+  } catch (error) {
+      console.error('Error removing track from playlist:', error);
+      throw error;
   }
 };

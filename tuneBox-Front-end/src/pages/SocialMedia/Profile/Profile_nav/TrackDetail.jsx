@@ -296,290 +296,306 @@ function Trackdetail() {
   if (!track) return <p>Track không tồn tại hoặc không thể tìm thấy.</p>;
 
   return (
-    <div className="container">
-      <div className="container track-page-header p-0">
-        <Waveform audioUrl={track.trackFile} track={track} />
+    <div className="trackDetail">
+      <div className="row">
+        <div className="col-3"></div>
+        <div className="col-6">
+          <div className="container track-page-header p-0">
+            <Waveform audioUrl={track.trackFile} track={track} />
 
-        <div className="adaptive-content track-player-actions">
-          <div className="track-player-actions-column">
-            <button className="btn" onClick={handleLikeClick}>
-              <img
-                src={liked ? images.heartFilled : images.heart}
-                className="btn-icon"
-                alt="Like"
-              />
-              {likeCount} {/* Hiển thị số lượng like */}
-            </button>
-            <button className="btn">
-              <img src={images.conversstion} className="btn-icon" alt="share" />
-              {/* Hiển thị số lượng comments */}
-            </button>
-          </div>
-          <div className="track-player-actions-column">
-            <div className="btn-group" style={{ marginLeft: 25 }}>
-              <button
-                className="btn dropdown-toggle no-border"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              ></button>
-              <ul className="dropdown-menu dropdown-menu-lg-end">
-                <li>
-                  <a
-                    className="dropdown-item"
-                    onClick={() => handleEditClick(track)}
-                  >
-                    Edit
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="dropdown-item"
-                    onClick={() => deleteTrack(track.id)}
-                  >
-                    Delete
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="row mb-2 mt-3">
-        <div className=" col-md-7 border rounded-3 ms-4">
-          <div>
-            {/* form comment */}
-            <div className="comment-content row m-4">
-              <div className="col-11">
-                <textarea
-                  className="form-control"
-                  rows="3"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)} // Cập nhật nội dung bình luận
-                  placeholder="Viết một bình luận..."
-                />
-              </div>
-              <div className="col-1">
-                <button
-                  className="fa-regular fa-paper-plane rounded p-2"
-                  onClick={handleAddComment}
-                >
+            <div className="adaptive-content track-player-actions">
+              <div className="track-player-actions-column">
+                <button className="btn" onClick={handleLikeClick}>
+                  <img
+                    src={liked ? images.heartFilled : images.heart}
+                    className="btn-icon"
+                    alt="Like"
+                  />
+                  {likeCount} {/* Hiển thị số lượng like */}
+                </button>
+                <button className="btn">
+                  <img
+                    src={images.conversstion}
+                    className="btn-icon"
+                    alt="share"
+                  />
+                  Comment
                 </button>
               </div>
+              <div className="track-player-actions-column">
+                <div className="btn-group" style={{ marginLeft: 25 }}>
+                  <button
+                    className="btn dropdown-toggle no-border"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  ></button>
+                  <ul className="dropdown-menu dropdown-menu-lg-end">
+                    <li>
+                      <a
+                        className="dropdown-item"
+                        onClick={() => handleEditClick(track)}
+                      >
+                        Edit
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        className="dropdown-item"
+                        onClick={() => deleteTrack(track.id)}
+                      >
+                        Delete
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
-            {/* list cmt */}
-            <div className="comment-list mt-4">
-              {comments.map((comment) => (
-                <div className="comment mt-2" key={comment.id}>
-                  <div className="container">
-                    <div className="row justify-content-start">
-                      {/* list comment */}
-
-                      <div className="comment-content position-relative ">
-                        <div className="d-flex align-items-start">
-                          <img
-                            src={images.avt}
-                            alt=""
-                            width={50}
-                            height={50}
-                            className="avatar-comment"
-                          />
-                          <div>
-                            <div className="comment-author">
-                              @{comment.userNickname}
-                            </div>
-                            <div className="comment-time">
-                              {format(
-                                new Date(comment.creationDate),
-                                "dd/MM/yyyy"
-                              )}
-                            </div>
-                            <p>{comment.content}</p>
-                          </div>
-                        </div>
-                        {/* Dropdown chỉnh sửa/xóa bình luận */}
-                        <div className="dropdown position-absolute top-0 end-0">
-                          <div className="btn-group" style={{ marginLeft: 25 }}>
-                            <button
-                              className="btn dropdown-toggle no-border"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            ></button>
-                            <ul className="dropdown-menu dropdown-menu-lg-end">
-                              <li>
-                                <a
-                                  className="dropdown-item"
-                                  onClick={() => handleEditComment(comment)}
-                                >
-                                  Edit
-                                </a>
-                              </li>
-                              <li>
-                                <a
-                                  className="dropdown-item"
-                                  onClick={() =>
-                                    handleDeleteComment(comment.id)
-                                  }
-                                >
-                                  Delete
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                        {/* Nút trả lời */}
-                        <button
-                          className="btn btn-link mt-2"
-                          onClick={() => {
-                            setReplyContent((prevState) => ({
-                              ...prevState,
-                              [comment.id]: prevState[comment.id] ? "" : "", // Toggle khung nhập
-                            }));
-                          }}
-                        >
-                          Reply
-                        </button>
-                        {/* Khung nhập trả lời */}
-                        {replyContent[comment.id] !== undefined && (
-                          <div className="reply-input-container d-flex align-items-start">
-                            <textarea
-                              className="reply-input mt-2 form-control me-2"
-                              rows={1}
-                              placeholder="Write a reply..."
-                              value={
-                                editingReply
-                                  ? editContentReply
-                                  : replyContent[comment.id] || "" // Hiển thị nội dung đang chỉnh sửa hoặc nội dung mới
-                              }
-                              onChange={(e) => {
-                                if (editingReply?.replyId === comment.id) {
-                                  setEditContentReply(e.target.value); // Cập nhật nội dung khi chỉnh sửa
-                                } else {
-                                  setReplyContent((prevState) => ({
-                                    ...prevState,
-                                    [comment.id]: e.target.value, // Cập nhật nội dung khi thêm mới
-                                  }));
-                                }
-                              }}
-                            />
-                            <button
-                              className="btn-primary rounded mt-2 p-1"
-                              onClick={() => handleAddReply(comment.id)}
-                            >
-                              {editingReply ? "Update" : "Reply"}{" "}
-                              {/* Thay đổi nút theo trạng thái */}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Hiển thị reply */}
-                    <div className="row justify-content-center">
-                      <div className="replies-list mt-2">
-                        {replies[comment.id] &&
-                          replies[comment.id].map((reply) => (
-                            <div
-                              className="reply d-flex align-items-start"
-                              key={reply.id}
-                            >
-                              <img
-                                src="/src/UserImages/Avatar/avt.jpg"
-                                className="avatar_small"
-                                alt="Avatar"
-                              />
-                              <div className="reply-content">
-                                <div>
-                                  <div className="comment-author">
-                                    @{reply.userNickname}
-                                  </div>
-                                  <div className="comment-time">
-                                    {format(
-                                      new Date(comment.creationDate),
-                                      "dd/MM/yyyy"
-                                    )}
-                                  </div>
-                                  <p>{reply.content}</p>
-                                </div>
-                              </div>
-                              <div>
-                                {/* Dropdown chỉnh sửa/xóa bình luận */}
-                                <div className="dropdown top-0 end-0">
-                                  <div
-                                    className="btn-group"
-                                    style={{ marginLeft: 25 }}
-                                  >
-                                    <button
-                                      className="btn dropdown-toggle no-border"
-                                      type="button"
-                                      data-bs-toggle="dropdown"
-                                      aria-expanded="false"
-                                    ></button>
-                                    <ul className="dropdown-menu dropdown-menu-lg-end">
-                                      <li>
-                                        <a
-                                          className="dropdown-item"
-                                          onClick={() =>
-                                            handleEditReply(
-                                              reply.id,
-                                              reply.content
-                                            )
-                                          }
-                                        >
-                                          Edit
-                                        </a>
-                                      </li>
-                                      <li>
-                                        <a
-                                          className="dropdown-item"
-                                          onClick={() =>
-                                            handleDeleteReply(
-                                              reply.id,
-                                              comment.id
-                                            )
-                                          }
-                                        >
-                                          Delete
-                                        </a>
-                                      </li>
-                                    </ul>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
+            <div className="mt-3">
+              <div>
+                {/* form comment */}
+                <div className="comment-content row m-4">
+                  <div className="col-11">
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)} // Cập nhật nội dung bình luận
+                      placeholder="Viết một bình luận..."
+                    />
+                  </div>
+                  <div className="col-1">
+                    <button className="btn-send " onClick={handleAddComment}>
+                      Send
+                    </button>
                   </div>
                 </div>
-              ))}
-              {/* end list cmt */}
+
+                {/* list cmt */}
+                <div className="comment-list mt-4">
+                  {comments.map((comment) => (
+                    <div className="comment mt-2" key={comment.id}>
+                      <div className="container">
+                        <div className="row justify-content-start">
+                          {/* list comment */}
+
+                          <div className="comment-content position-relative ">
+                            <div className="d-flex align-items-start">
+                              <img
+                                src={images.avt}
+                                alt=""
+                                width={50}
+                                height={50}
+                                className="avatar-comment"
+                              />
+                              <div>
+                                <div className="comment-author">
+                                  @{comment.userNickname}
+                                </div>
+                                <div className="comment-time">
+                                  {format(
+                                    new Date(comment.creationDate),
+                                    "dd/MM/yyyy"
+                                  )}
+                                </div>
+                                <p>{comment.content}</p>
+                              </div>
+                            </div>
+                            {/* Dropdown chỉnh sửa/xóa bình luận */}
+                            <div className="dropdown position-absolute top-0 end-0">
+                              <div
+                                className="btn-group"
+                                style={{ marginLeft: 25 }}
+                              >
+                                <button
+                                  className="btn no-border"
+                                  type="button"
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                  style={{
+                                    color: "white",
+                                    backgroundColor: "transparent",
+                                  }}
+                                >
+                                  ...
+                                </button>
+                                <ul className="dropdown-menu dropdown-menu-lg-end">
+                                  <li>
+                                    <a
+                                      className="dropdown-item"
+                                      onClick={() => handleEditComment(comment)}
+                                    >
+                                      Edit
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a
+                                      className="dropdown-item"
+                                      onClick={() =>
+                                        handleDeleteComment(comment.id)
+                                      }
+                                    >
+                                      Delete
+                                    </a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                            {/* Nút trả lời */}
+                            <button
+                              className="btn btn-link mt-2"
+                              onClick={() => {
+                                setReplyContent((prevState) => ({
+                                  ...prevState,
+                                  [comment.id]: prevState[comment.id] ? "" : "", // Toggle khung nhập
+                                }));
+                              }}
+                            >
+                              Reply
+                            </button>
+                            {/* Khung nhập trả lời */}
+                            {replyContent[comment.id] !== undefined && (
+                              <div className="reply-input-container d-flex align-items-start">
+                                <textarea
+                                  className="reply-input mt-2 form-control me-2"
+                                  rows={1}
+                                  placeholder="Write a reply..."
+                                  value={
+                                    editingReply
+                                      ? editContentReply
+                                      : replyContent[comment.id] || "" // Hiển thị nội dung đang chỉnh sửa hoặc nội dung mới
+                                  }
+                                  onChange={(e) => {
+                                    if (editingReply?.replyId === comment.id) {
+                                      setEditContentReply(e.target.value); // Cập nhật nội dung khi chỉnh sửa
+                                    } else {
+                                      setReplyContent((prevState) => ({
+                                        ...prevState,
+                                        [comment.id]: e.target.value, // Cập nhật nội dung khi thêm mới
+                                      }));
+                                    }
+                                  }}
+                                />
+                                <button
+                                  className="btn-primary rounded mt-2 p-1"
+                                  onClick={() => handleAddReply(comment.id)}
+                                >
+                                  {editingReply ? "Update" : "Reply"}{" "}
+                                  {/* Thay đổi nút theo trạng thái */}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Hiển thị reply */}
+                        <div className="row justify-content-center">
+                          <div className="replies-list mt-2">
+                            {replies[comment.id] &&
+                              replies[comment.id].map((reply) => (
+                                <div
+                                  className="reply d-flex align-items-start"
+                                  key={reply.id}
+                                >
+                                  <img
+                                    src="/src/UserImages/Avatar/avt.jpg"
+                                    className="avatar_small"
+                                    alt="Avatar"
+                                  />
+                                  <div className="reply-content">
+                                    <div>
+                                      <div className="comment-author">
+                                        @{reply.userNickname}
+                                      </div>
+                                      <div className="comment-time">
+                                        {format(
+                                          new Date(comment.creationDate),
+                                          "dd/MM/yyyy"
+                                        )}
+                                      </div>
+                                      <p>{reply.content}</p>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    {/* Dropdown chỉnh sửa/xóa bình luận */}
+                                    <div className="dropdown top-0 end-0">
+                                      <div
+                                        className="btn-group"
+                                        style={{ marginLeft: 25 }}
+                                      >
+                                        <button
+                                          className="btn dropdown-toggle no-border"
+                                          type="button"
+                                          data-bs-toggle="dropdown"
+                                          aria-expanded="false"
+                                        ></button>
+                                        <ul className="dropdown-menu dropdown-menu-lg-end">
+                                          <li>
+                                            <a
+                                              className="dropdown-item"
+                                              onClick={() =>
+                                                handleEditReply(
+                                                  reply.id,
+                                                  reply.content
+                                                )
+                                              }
+                                            >
+                                              Edit
+                                            </a>
+                                          </li>
+                                          <li>
+                                            <a
+                                              className="dropdown-item"
+                                              onClick={() =>
+                                                handleDeleteReply(
+                                                  reply.id,
+                                                  comment.id
+                                                )
+                                              }
+                                            >
+                                              Delete
+                                            </a>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {/* end list cmt */}
+                </div>
+
+                {/*  */}
+              </div>
             </div>
 
-            {/*  */}
+            {/* Form thong tin */}
+            {/* <div className="track-infor col-md-4 border rounded-3 ms-5 p-3 ">
+                <div className="d-flex align-items-start">
+                  <img
+                    src={images.avt}
+                    alt=""
+                    width={50}
+                    height={50}
+                    className="avatar_small"
+                  />
+                  <div className="infor ms-3">
+                    <div className="info-author">{track.userName}</div>
+                    <div className="info-genre">{track.genreName}</div>
+                    <p>{track.description}</p>
+                  </div>
+                </div>
+                <hr></hr>
+              </div> */}
           </div>
         </div>
-
-        {/* Form thong tin */}
-        <div className="track-infor col-md-4 border rounded-3 ms-5 p-3 ">
-          <div className="d-flex align-items-start">
-            <img
-              src={images.avt}
-              alt=""
-              width={50}
-              height={50}
-              className="avatar_small"
-            />
-            <div className="infor ms-3">
-              <div className="info-author">{track.userName}</div>
-              <div className="info-genre">{track.genreName}</div>
-              <p>{track.description}</p>
-            </div>
-          </div>
-          <hr></hr>
-        </div>
+        <div className="col-3"></div>
       </div>
     </div>
   );

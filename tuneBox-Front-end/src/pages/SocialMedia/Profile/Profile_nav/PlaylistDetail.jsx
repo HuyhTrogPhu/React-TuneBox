@@ -1,41 +1,46 @@
 import React, { useEffect, useState, useRef } from "react";
-import { getAlbumById } from "../../../../service/AlbumsServiceCus";
+import {
+  getPlaylistById,
+  removeTrackFromPlaylist,
+  getPlaylistByUserId,
+} from "../../../../service/PlaylistServiceCus";
 import { getTrackById } from "../../../../service/TrackServiceCus"; // Nhập khẩu hàm này
 import "./css/albumDetail.css";
+import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Lottie from "lottie-react";
 import {
-  getLikesCountByAlbumsId,
-  checkUserLikeAlbums,
-  removeLikeAlbums,
-  addLikeAlbums,
+  getLikesCountByPlaylistId,
+  checkUserLikePlaylist,
+  removeLikePlaylist,
+  addLikePlaylist,
 } from "../../../../service/likeTrackServiceCus";
-import Cookies from "js-cookie";
 import { getUserInfo } from "../../../../service/UserService";
+import Lottie from "lottie-react";
 
-const AlbumDetail = () => {
+const PlayListDetail = () => {
   const { id } = useParams();
   const userId = Cookies.get("userId");
-  const [album, setAlbum] = useState(null);
+  const [allplaylists, setAllPlaylists] = useState([]);
+  const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [trackDetails, setTrackDetails] = useState([]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const audioRef = useRef(null);
   const [trackDurations, setTrackDurations] = useState([]);
-
-  const [playingTrackIndex, setPlayingTrackIndex] = useState(null);
   const [currentTrackName, setCurrentTrackName] = useState("");
   const [currentImageTrack, setCurrentImageTrack] = useState("");
+  const [userNamePlaylist, setUserName] = useState("");
+  const [userImg, setUserImg] = useState("");
 
   const [likesCount, setLikesCount] = useState(0);
   const [statusliked, setStatusLiked] = useState(false);
 
-  const [userNamePlaylist, setUserName] = useState("");
-  const [userImg, setUserImg] = useState("");
+  const [playingTrackIndex, setPlayingTrackIndex] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // animation Lottie
   const [animationData, setAnimationData] = useState(null);
@@ -54,14 +59,14 @@ const AlbumDetail = () => {
   // animation Lottie
 
   useEffect(() => {
-    fetchAlbum();
+    fetchPlaylist();
   }, [id]);
 
-  const fetchAlbum = async () => {
+  const fetchPlaylist = async () => {
     try {
-      console.log(id); // Kiểm tra ID album
-      const response = await getAlbumById(id);
-      setAlbum(response.data);
+      console.log(id); // Kiểm tra ID playlist
+      const response = await getPlaylistById(id);
+      setPlaylist(response.data);
 
       const user = await getUserInfo(response.data.creatorId);
       setUserName(user.userName);
@@ -69,22 +74,40 @@ const AlbumDetail = () => {
       console.log("username cua playlist: ", user);
 
       await fetchTrackDetails(response.data.tracks); // Gọi hàm fetchTrackDetails
-      console.log(response.data); // Xem dữ liệu album
+      console.log(response.data); // Xem dữ liệu playlist
 
       //ktra luot like
-      const likeCount = await getLikesCountByAlbumsId(id);
+      const likeCount = await getLikesCountByPlaylistId(id);
       setLikesCount(likeCount.data);
       console.log("likecount: ", likeCount.data);
 
       // kiem tra trạng thái like cua user với playlist
-      const liked = await checkUserLikeAlbums(id, userId);
+      const liked = await checkUserLikePlaylist(id, userId);
       setStatusLiked(liked.data);
       console.log("trạng thái like: ", liked.data);
     } catch (err) {
-      setError(err.message || "Error fetching album data");
-      toast.error("Failed to load album data");
+      setError(err.message || "Error fetching playlist data");
+      toast.error("Failed to load playlist data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Lấy danh sách playlist ban đầu
+  useEffect(() => {
+    fetchListPlaylist();
+  }, [userId]);
+
+  const fetchListPlaylist = async () => {
+    setIsLoading(true);
+    try {
+      const playlistResponse = await getPlaylistByUserId(userId);
+      setAllPlaylists(playlistResponse || []);
+      console.log("fetchListPlaylist: ", playlistResponse);
+    } catch (error) {
+      console.error("Error fetching playlist:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -96,7 +119,7 @@ const AlbumDetail = () => {
       const trackResults = await Promise.all(trackPromises);
       console.log("Track Results: ", trackResults);
       setTrackDetails(trackResults.map((result) => result.data));
-      console.log("Track detail: ", trackResults[0].data.name);
+
       // Tính toán thời gian cho từng track
       const durations = await Promise.all(
         trackResults.map(async (result) => {
@@ -111,19 +134,19 @@ const AlbumDetail = () => {
     }
   };
 
-  const handleLikeALbum = async (id) => {
+  const handleLikePlaylist = async (id) => {
     console.log("statusliked: ", statusliked);
     try {
       if (statusliked) {
         // nếu đã thích, gọi hàm xóa like
-        await removeLikeAlbums(userId, id);
+        await removeLikePlaylist(userId, id);
         setStatusLiked(false);
 
         setLikesCount((prevCount) => prevCount - 1);
-        console.log("Đã xóa like id album:", id);
+        console.log("Đã xóa like idplaylist:", id);
       } else {
         // nếu chưa thích, gọi hàm thêm like
-        await addLikeAlbums(userId, id);
+        await addLikePlaylist(userId, id);
         setStatusLiked(true);
         setLikesCount((prevCount) => prevCount + 1);
       }
@@ -132,6 +155,20 @@ const AlbumDetail = () => {
         "Lỗi khi xử lý like:",
         error.response?.data || error.message
       );
+    }
+  };
+
+  const handleRemoveTrack = async (playlistId, trackId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to remove this track from your playlist??"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await removeTrackFromPlaylist(playlistId, trackId);
+      alert(response);
+    } catch (error) {
+      alert("Failed! Please try again");
     }
   };
 
@@ -155,7 +192,6 @@ const AlbumDetail = () => {
     )}`;
   };
 
-  // Hàm phát nhạc
   const [isPlaying, setIsPlaying] = useState(false);
   const handleTrackChange = async (index) => {
     if (index < 0 || index >= trackDetails.length) return;
@@ -192,6 +228,7 @@ const AlbumDetail = () => {
       );
     }
   };
+
   const togglePlayPause = async () => {
     // Nếu không có bài hát nào đang phát
     if (playingTrackIndex === null) {
@@ -257,14 +294,19 @@ const AlbumDetail = () => {
     });
   };
 
+  const handleRandomTrack = () => {
+    const randomIndex = Math.floor(Math.random() * trackDetails.length);
+    handleTrackChange(randomIndex); // Gọi hàm phát bài theo chỉ số ngẫu nhiên
+  };
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
-  if (!album) return <div className="p-4">No album data found</div>;
+  if (!playlist) return <div className="p-4">No album data found</div>;
 
   return (
     <div className="content-audio">
       <div className="music-background">
-        <div className="title-detail">{/* <p>Playlist</p> */}</div>
+        <div className="title-detail">My Playlist</div>
         <div className="note">&#9835;</div>
         <div className="note">&#9833;</div>
         <div className="note">&#9839;</div>
@@ -276,150 +318,197 @@ const AlbumDetail = () => {
         <div className="note">&#9835;</div>
         <div className="note">&#9839;</div>
         <ToastContainer position="top-right" />
-        <div className="container" style={{ marginLeft: "140px" }}>
-          <div className="album-info">
-            <div className="album-info-cover">
-              <div className="album-info-img">
-                <img
-                  src={album.albumImage || ""}
-                  className="album-avatar"
-                  alt="Album Cover"
-                />
-                <button
-                  className="player-audio-button"
-                  onClick={togglePlayPause}
-                >
-                  <i
-                    className={`fa-solid fa-signal music-wave-icon ${
-                      playingTrackIndex === currentTrackIndex && isPlaying
-                        ? "playing"
-                        : ""
-                    }`}
-                  ></i>
-                </button>
-              </div>
-              <div className="album-info-description">
-                <div className="album-name">{album.title}</div>
-                <div className="author">
-                  <img src={userImg} className="user-ava"></img>
-                  {userNamePlaylist || "Gia Nhu"}
+        <div className="" style={{ marginLeft: "140px" }}>
+          <div className="row">
+            <div className="col-9">
+              <div className="album-info">
+                <div className="album-info-cover">
+                  <div className="album-info-img">
+                    <img
+                      src={playlist.imagePlaylist || ""}
+                      className="album-avatar"
+                      alt="Album Cover"
+                    />
+                    <button
+                      className="player-audio-button"
+                      onClick={togglePlayPause}
+                    >
+                      <i
+                        className={`fa-solid fa-signal music-wave-icon ${
+                          playingTrackIndex === currentTrackIndex && isPlaying
+                            ? "playing"
+                            : ""
+                        }`}
+                      ></i>
+                    </button>
+                  </div>
+                  <div className="album-info-description">
+                    <div className="album-name">{playlist.title}</div>
+                    <div className="author">
+                      <img src={userImg} className="user-ava"></img>
+                      {userNamePlaylist || "Gia Nhu"}
+                    </div>
+                    <div className="album-description">
+                      {playlist.description || "No description available."}
+                    </div>
+                    <div className="album-information">
+                      <div className="info-date">
+                        {playlist.createDate || "Date not available"}
+                      </div>
+                      <div className="info-type">
+                        .{playlist.type || "Type not available"}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="animation">
+                    {animationData && (
+                      <Lottie animationData={animationData} loop={true} />
+                    )}
+                  </div>
                 </div>
-                <div className="album-description">
-                  {album.description || "No description available."}
-                </div>
-                <div className="album-information">
-                  <div className="info-date">
-                    {album.createDate || "Date not available"}
+                <div className="album-info-actions">
+                  <div>
+                    <button
+                      className="btn"
+                      onClick={() => handleLikePlaylist(id)}
+                    >
+                      {likesCount}
+                      <i
+                        className={`fa-solid fa-heart ${
+                          statusliked ? "text-danger" : "text-muted"
+                        }`}
+                        style={{ cursor: "pointer", fontSize: "20px" }}
+                      ></i>
+                    </button>
+                    <button className="btn">
+                      <i
+                        type="button"
+                        style={{ fontSize: "20px", color: "white" }}
+                        className="fa-solid fa-share mt-1"
+                      ></i>
+                    </button>
+                  </div>
+                  <div className="default">
+                    <div className="btn-group" style={{ marginLeft: 25 }}>
+                      <button
+                        className="btn dropdown-toggle no-border"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      ></button>
+                      <ul className="dropdown-menu dropdown-menu-lg-end">
+                        <li>
+                          <a className="dropdown-item">Edit</a>
+                        </li>
+                        <li>
+                          <a className="dropdown-item">Delete</a>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="animation">
-                {animationData && (
-                  <Lottie animationData={animationData} loop={true} />
-                )}
-              </div>
-            </div>
-            <div className="album-info-actions">
-              <div>
-                <button
-                  className="btn"
-                  onClick={() => handleLikeALbum(album.id)}
-                >
-                  {likesCount}
-                  <i
-                    className={`fa-solid fa-heart ${
-                      statusliked ? "text-danger" : "text-muted"
-                    }`}
-                    style={{ cursor: "pointer", fontSize: "20px" }}
-                  ></i>
-                </button>
-                <button className="btn">
-                  <img
-                    src={images.conversstion}
-                    className="btn-icon"
-                    alt="Share"
-                  />
-                  1
-                </button>
-              </div>
-              <div className="default">
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a className="dropdown-item">Edit</a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item">Delete</a>
-                    </li>
-                  </ul>
+
+              {/* List nhạc  */}
+              <div className="album-track">
+                <div className="list-track">
+                  {/* Hiển thị danh sách track đã thêm */}
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Duration</th>
+                        <th>Actions</th> {/* Thêm cột cho hành động phát */}
+                        <th>remove</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {trackDetails.map((track, index) => (
+                        <tr
+                          key={track.id}
+                          className={
+                            currentTrackIndex === index ? "current-track" : ""
+                          }
+                        >
+                          <td>{index + 1}</td>
+                          <td>{track.name}</td>
+                          <td>{track.description}</td>
+                          <td>
+                            {trackDurations[index]
+                              ? formatDuration(trackDurations[index])
+                              : "Loading..."}
+                          </td>
+                          {/* Hiển thị thời gian */}
+                          <td>
+                            <button
+                              className="player-track-button custom-button"
+                              onClick={() => handleTrackChange(index)}
+                            >
+                              <i
+                                className={`fa-solid ${
+                                  playingTrackIndex === index && isPlaying
+                                    ? "fa-pause"
+                                    : "fa-play"
+                                }`}
+                              ></i>
+                            </button>
+                          </td>
+                          <td>
+                            {" "}
+                            <a
+                              href=""
+                              onClick={() =>
+                                handleRemoveTrack(playlist.id, track.id)
+                              }
+                            >
+                              X
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="album-track">
-            <div className="list-track">
-              {/* Hiển thị danh sách track đã thêm */}
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Duration</th>
-                    <th>Actions</th> {/* Thêm cột cho hành động phát */}
-                  </tr>
-                </thead>
-                <tbody>
-                  {trackDetails.map((track, index) => (
-                    <tr
-                      key={track.id}
-                      className={
-                        currentTrackIndex === index ? "current-track" : ""
-                      }
-                    >
-                      <td>{index + 1}</td>
-                      <td>{track.name}</td>
-                      <td>{track.description}</td>
-                      <td>
-                        {trackDurations[index]
-                          ? formatDuration(trackDurations[index])
-                          : "Loading..."}
-                      </td>
-                      <td>
-                        <button
-                          className="player-track-button custom-button"
-                          onClick={() => handleTrackChange(index)}
-                        >
-                          <i
-                            className={`fa-solid ${
-                              playingTrackIndex === index && isPlaying
-                                ? "fa-pause"
-                                : "fa-play"
-                            }`}
-                          ></i>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="col-3">
+              <div className="orther">Orther</div>
+              <div>
+                {isLoading && <p>Loading...</p>}
+                <div className="playlist-container">
+                  {allplaylists.slice(0, 4).map(
+                    (playlist, index) =>
+                      !playlist.status && (
+                        <div key={index} className="card text-bg-dark">
+                          <img
+                            src={
+                              playlist.imagePlaylist ||
+                              "/src/assets/images/nai.jpg"
+                            }
+                            className="card-img"
+                            alt={playlist.title || "Playlist image"}
+                          />
+                          <div className="card-img-overlay">
+                            <p className="card-text">{playlist.title}</p>
+                          </div>
+                        </div>
+                      )
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* audio  */}
+        {/* audio */}
         <div className="audio-player">
           <div className="row">
             <div className="col-3">
               <p className="title-audio">
                 <img
-                  src={currentImageTrack || album.albumImage}
+                  src={currentImageTrack || playlist.imagePlaylist}
                   className={`ImageTrack-audio ${
                     isPlaying ? "rotating-image" : ""
                   }`}
@@ -448,7 +537,7 @@ const AlbumDetail = () => {
                     fontSize: "20px",
                     margin: "0 15px",
                   }}
-                  // onClick={handleRandomTrack}
+                  onClick={handleRandomTrack}
                 ></button>
                 <button
                   className="fa-solid fa-arrow-right custom-button"
@@ -488,12 +577,13 @@ const AlbumDetail = () => {
               <div className="ms-5 mt-1">
                 <button className="btn">
                   <i
-                    className={`fa-solid fa-heart`}
+                    className={`fa-solid fa-heart ${
+                      statusliked ? "text-danger" : "text-muted"
+                    }`}
                     style={{
                       cursor: "pointer",
                       fontSize: "20px",
                       padding: "10px",
-                      color: "white",
                     }}
                   ></i>
                 </button>
@@ -513,4 +603,4 @@ const AlbumDetail = () => {
   );
 };
 
-export default AlbumDetail;
+export default PlayListDetail;

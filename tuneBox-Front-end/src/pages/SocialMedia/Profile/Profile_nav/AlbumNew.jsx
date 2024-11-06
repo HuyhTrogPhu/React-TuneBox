@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import "./css/albumNew.css";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
@@ -111,20 +111,22 @@ const AlbumNew = () => {
 
   // Hàm create album
   const handleAddAlbum = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
+
     if (validateForm()) {
       const formData = new FormData();
 
       // Append basic information
       formData.append("title", title);
-      formData.append("description", description);
       formData.append("albumImage", albumImage);
+      formData.append("description", description);
       formData.append("status", "false");
       formData.append("report", "false");
 
       // Append IDs instead of objects
-      formData.append("user", Number(userId)); // ID của user
+
       formData.append("genre", Number(selectedGenre)); // ID của genre
+      formData.append("user", Number(userId)); // ID của user
       formData.append("albumStyle", Number(selectedType)); // ID của albumStyle
 
       // Handle track IDs
@@ -149,6 +151,7 @@ const AlbumNew = () => {
         setTitle("");
         setDescription("");
         setAlbumImage(null);
+        setAlbumImageUrl(images.musicalNote);
         setSelectedGenre("");
         setSelectedType("");
         setAddedTracks([]);

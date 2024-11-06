@@ -247,7 +247,9 @@ const Navbar = () => {
   //Xóa từng thông báo
   const deleteNotification = async (notificationId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/notifications/${notificationId}`);
+      await axios.delete(
+        `http://localhost:8080/api/notifications/${notificationId}`
+      );
       // Update notifications in state
       setNotifications(notifications.filter((n) => n.id !== notificationId));
     } catch (error) {
@@ -419,10 +421,7 @@ const Navbar = () => {
 
         {/* drop down */}
         {dropdownVisible && (
-          <div
-            className=" dropdown-menu show"
-            onMouseLeave={handleMouseLeave}
-          >
+          <div className=" dropdown-menu show" onMouseLeave={handleMouseLeave}>
             <button
               className="dropdown-item"
               onClick={() => navigate("/profileUser")}
