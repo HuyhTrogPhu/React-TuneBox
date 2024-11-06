@@ -264,16 +264,16 @@ const Albums = () => {
                         ></button>
                       </div>
                       <div className="modal-body">
-                        {modalData ? (
+                      {modalData ? (
                           <>
-                            <p>Tên: {modalData.track.name}</p>
-                            <p>Trạng thái: {modalData.status}</p>
-                            <p>Ngày tạo: {modalData.createDate}</p>
-                            <p>Lý do: {modalData.reason}</p>
+                            <p>Track Name: {modalData.track.name}</p>
+                            <p>Status: {modalData.status}</p>
+                            <p>Report created day: {modalData.createDate}</p>
+                            <p>Reson: {modalData.reason}</p>
                             
                           </>
                         ) : (
-                          <p>Đang tải dữ liệu...</p>
+                          <p>In loading process...</p>
                         )}
                       </div>
                       <div className="modal-footer">
@@ -304,7 +304,7 @@ const Albums = () => {
                           className="btn btn-secondary"
                           onClick={handleCloseModal}
                         >
-                          Đóng
+                          Closing
                         </button>
                       </div>
                     </div>
