@@ -138,7 +138,7 @@
 .album-track {
   margin-top: 50px;
 }
-.table {
+.tableA {
   width: 100%;
   border-collapse: collapse; /* Gộp các đường viền bảng */
   background-color: #cecaca;
@@ -146,13 +146,13 @@
   backdrop-filter: blur(5px);
 }
 
-.table th {
+.tableA th {
   text-align: center;
   text-shadow: 0.1em 0.1em 0.15em #1d1c1c88;
   color: #080808;
 }
 
-.table td {
+.tableA td {
   padding: 10px;
   text-align: center;
   vertical-align: middle;
@@ -217,7 +217,7 @@ audio {
   background-color: transparent !important;
 }
 
-.text-muted {
+.text-mutedA {
   color: #f1eeee !important; /* Màu trắng */
 }
 
@@ -350,8 +350,8 @@ audio {
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
 
-.card {
-  display: flex;
+.cardA {
+  display: flex; 
   grid-template-columns: repeat(1, 1fr);
   margin: auto;
   width: 200px;

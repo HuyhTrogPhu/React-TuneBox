@@ -607,25 +607,25 @@ title: 'Success',
                             )}
 
                             {/* Total item */}
-                            <div className='total-item d-flex'>
+                            <div className='total-item d-flexC' >
                                 <h5>Total items:</h5>
-                                <p>{cartItems.length} items</p>
+                                <p  >{cartItems.length} items</p>
                             </div>
 
                             {/* Total price */}
-                            <div className='total-price d-flex'>
+                            <div className='total-price d-flexC'>
                                 <h5>Total price:</h5>
                                 <p>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                             </div>
 
                             {/* Tax */}
-                            <div className='tax d-flex'>
+                            <div className='tax d-flexC'>
                                 <h5>Delivery fee:</h5>
                                 <p>{deliveryFee.toLocaleString('vi')} VND</p>
                             </div>
 
                             {/* Sum total */}
-                            <div className='sum d-flex'>
+                            <div className='sum d-flexC'>
                                 <h3>Total order value</h3>
                                 <strong style={{ fontSize: '30px' }}>{(totalPrice + deliveryFee).toLocaleString('vi')} VND</strong>
                             </div>

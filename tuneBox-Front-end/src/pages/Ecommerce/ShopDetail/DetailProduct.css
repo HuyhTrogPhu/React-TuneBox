@@ -91,7 +91,7 @@ hr {
     font-size: 20px;
   }
 }
-.d-flex {
+.d-flexC {
   display: flex;
 
   justify-content: space-between;
