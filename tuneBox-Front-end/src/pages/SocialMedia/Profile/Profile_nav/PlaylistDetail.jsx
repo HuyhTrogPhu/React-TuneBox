@@ -420,16 +420,17 @@ const PlayListDetail = () => {
                         <th>Description</th>
                         <th>Duration</th>
                         <th>Actions</th> {/* Thêm cột cho hành động phát */}
-                        <th>remove</th>
+                        <th>Remove</th> {/* Cột Remove */}
                       </tr>
                     </thead>
                     <tbody>
                       {trackDetails.map((track, index) => (
                         <tr
                           key={track.id}
-                          className={
+                          className={`${track.status ? "track-disabled" : ""} ${
                             currentTrackIndex === index ? "current-track" : ""
-                          }
+                          }`}
+                          style={{ opacity: track.status ? 0.5 : 1 }} // Làm mờ track nếu có status = true
                         >
                           <td>{index + 1}</td>
                           <td>{track.name}</td>
@@ -444,6 +445,7 @@ const PlayListDetail = () => {
                             <button
                               className="player-track-button custom-button"
                               onClick={() => handleTrackChange(index)}
+                              disabled={track.status} // Disable nút phát nếu track bị vô hiệu hóa
                             >
                               <i
                                 className={`fa-solid ${
@@ -455,15 +457,19 @@ const PlayListDetail = () => {
                             </button>
                           </td>
                           <td>
-                            {" "}
-                            <a
-                              href=""
-                              onClick={() =>
-                                handleRemoveTrack(playlist.id, track.id)
-                              }
-                            >
-                              X
-                            </a>
+                            {/* Nếu track có status = true, hiển thị "Không còn tồn tại" */}
+                            {track.status ? (
+                              <span>Không còn tồn tại</span>
+                            ) : (
+                              <a
+                                href="#"
+                                onClick={() =>
+                                  handleRemoveTrack(playlist.id, track.id)
+                                }
+                              >
+                                X
+                              </a>
+                            )}
                           </td>
                         </tr>
                       ))}

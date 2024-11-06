@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import "./css/waveForm.css";
 import { images } from "../../../../assets/images/images";
+import { Link } from "react-router-dom";
 
 const Waveform = ({ audioUrl, track }) => {
   const waveformRef = useRef(null);
@@ -23,12 +24,29 @@ const Waveform = ({ audioUrl, track }) => {
     gradient.addColorStop((canvas.height * 0.7 + 3) / canvas.height, "#B1B1B1");
     gradient.addColorStop(1, "#B1B1B1");
 
-    const progressGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 1.35);
+    const progressGradient = ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      canvas.height * 1.35
+    );
     progressGradient.addColorStop(0, "#E94F37");
-    progressGradient.addColorStop((canvas.height * 0.7) / canvas.height, "#E94F37");
-    progressGradient.addColorStop((canvas.height * 0.7 + 1) / canvas.height, "#E94F37");
-    progressGradient.addColorStop((canvas.height * 0.7 + 2) / canvas.height, "#E94F37");
-    progressGradient.addColorStop((canvas.height * 0.7 + 3) / canvas.height, "#E94F37");
+    progressGradient.addColorStop(
+      (canvas.height * 0.7) / canvas.height,
+      "#E94F37"
+    );
+    progressGradient.addColorStop(
+      (canvas.height * 0.7 + 1) / canvas.height,
+      "#E94F37"
+    );
+    progressGradient.addColorStop(
+      (canvas.height * 0.7 + 2) / canvas.height,
+      "#E94F37"
+    );
+    progressGradient.addColorStop(
+      (canvas.height * 0.7 + 3) / canvas.height,
+      "#E94F37"
+    );
     progressGradient.addColorStop(1, "#E94F37");
 
     // Khởi tạo WaveSurfer
@@ -37,7 +55,6 @@ const Waveform = ({ audioUrl, track }) => {
       waveColor: gradient,
       progressColor: progressGradient,
       barWidth: 5,
-      
     });
 
     // Tải file âm thanh từ Cloudinary
@@ -85,16 +102,28 @@ const Waveform = ({ audioUrl, track }) => {
       <div className="info">
         <div className="detail row d-flex">
           <div className="title col-7">
-            {track.name || "Tiêu đề Track"}
+            <Link
+              to={{
+                pathname: `/track/${track.id}`,
+                state: { track },
+              }}
+            >
+              {track.name || "Tiêu đề Track"}
+            </Link>
+
             <div className="time">
               <span id="current">{formatTime(currentTime)}</span> /
               <span id="duration">{formatTime(duration)}</span>
             </div>
           </div>
-          <div className="control col-5 d-flex">
+          <div className="control col-5 d-flex m-2">
             <button onClick={() => skipBackward(10)}>⏪10s</button>
             <button onClick={() => skipBackward(5)}>⏪5s</button>
-            <i className={isPlaying ? "fi-rr-pause" : "fi-rr-play"} id="playPause" onClick={togglePlayPause}></i>
+            <i
+              className={isPlaying ? "fi-rr-pause" : "fi-rr-play"}
+              id="playPause"
+              onClick={togglePlayPause}
+            ></i>
             <button onClick={() => skipForward(5)}>5s⏩</button>
             <button onClick={() => skipForward(10)}>10s⏩</button>
           </div>
