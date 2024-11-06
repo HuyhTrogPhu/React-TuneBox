@@ -6,6 +6,8 @@ import { getUserProfileSetting, listGenres, updateUserInfo } from "../../service
 import { listTalents, listInspiredBys } from "../../service/LoginService";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from "axios";
+
 
 const Profile = () => {
     const [listTalent, setListTalent] = useState([]);
@@ -24,10 +26,12 @@ const Profile = () => {
     const [selectedTalents, setSelectedTalents] = useState([]);
     const [selectedGenres, setSelectedGenres] = useState([]);
     const [selectedInspiredBy, setSelectedInspiredBy] = useState([]);
+    const userId = Cookies.get("userId");
     // Quản lý modal
     const [showModal, setShowModal] = useState(false);
     const [filteredInspiredBy, setFilteredInspiredBy] = useState([]);
 
+    const [file, setFile] = useState(null);
     // Fetch danh sách Talent, Genre, InspiredBy từ server
     useEffect(() => {
         const fetchTalents = async () => {
@@ -40,7 +44,36 @@ const Profile = () => {
         };
         fetchTalents();
     }, []);
-
+    //Đổi avatar
+    const handleImageChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            setAvatar(e.target.result); // Cập nhật ảnh avatar hiển thị
+            setFile(selectedFile); // Lưu file để upload sau
+          };
+          reader.readAsDataURL(selectedFile);
+        }
+      };
+      const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        formData.append("image", file);
+        const token = localStorage.getItem('jwtToken');
+    
+        try {
+            await axios.put(`http://localhost:8080/user/${userId}/avatar`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}` // Thêm JWT token vào headers
+                },
+            });
+        } catch (error) {
+            console.error("Error updating avatar:", error);
+        }
+    };
+    
     useEffect(() => {
         const fetchGenres = async () => {
             try {
@@ -148,18 +181,20 @@ const Profile = () => {
             }
         }
     };
-    
-
     const handleToggleItem = (item, setSelected, selected) => {
         setSelected((prev) => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
     };
-
     const getIdsFromNames = (selectedNames, options) => {
         return options
           .filter(option => selectedNames.includes(option.name))
           .map(option => option.id);
     };
-    
+
+    const handleUpdate = (event) => {
+        handleUpdateUserInfo(event); // Gọi hàm cập nhật thông tin người dùng
+        handleSubmit(event); // Gọi hàm cập nhật avatar
+      };
+
     return (
         <div>
             <ToastContainer />
@@ -171,9 +206,16 @@ const Profile = () => {
             <div className="profile-container">
                 <div className="row d-flex">
                     {/* Avatar */}
-                    <div className="profile-avatar col-3">
-                        <img src={avatar} className="avatar-setting border" alt="Avatar" />
-                    </div>
+                    <div className="profile-avatar col-3" onClick={() => document.getElementById('logoInput').click()}>
+        <img src={avatar || "/path/to/default/avatar.png"} className="avatar-setting border" alt="Avatar" />
+      </div>
+      <input
+        type="file"
+        id="logoInput"
+        style={{ display: "none" }}
+        accept="image/*"
+        onChange={handleImageChange}
+      />
                     <div className="profile-container col-9">
                         {/* Form */}
                         <form className="g-3">
@@ -369,7 +411,7 @@ const Profile = () => {
             </div>
 
             <div className="update mt-5">
-                <button className="btn text-white" onClick={handleUpdateUserInfo}>Update</button>
+            <button className="btn text-white" onClick={handleUpdate}>Update</button>
             </div>
         </div >
     );

@@ -11,10 +11,13 @@ import {
 } from "../../service/TrackServiceCus";
 import { getNotifications } from "../../service/NotificationService.js";
 import { logout } from "../../service/LoginService";
-import { SwipeableList, SwipeableListItem, SwipeAction } from 'react-swipeable-list';
-import 'react-swipeable-list/dist/styles.css';
+import {
+  SwipeableList,
+  SwipeableListItem,
+  SwipeAction,
+} from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
 import axios from "axios";
-
 
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
@@ -163,7 +166,6 @@ const Navbar = () => {
     }
   };
 
-
   // log-out
   const handleLogout = async () => {
     try {
@@ -247,7 +249,9 @@ const Navbar = () => {
   //Xóa từng thông báo
   const deleteNotification = async (notificationId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/notifications/${notificationId}`);
+      await axios.delete(
+        `http://localhost:8080/api/notifications/${notificationId}`
+      );
       // Update notifications in state
       setNotifications(notifications.filter((n) => n.id !== notificationId));
     } catch (error) {
@@ -271,7 +275,7 @@ const Navbar = () => {
 
 
   return (
-    <header className="navbar-container">
+    <header className="navbar-container ">
       {/* Navbar Left */}
       <div className="col-3 d-flex align-items-center">
         <button className="navbar-button" onClick={() => navigate("/")}>
@@ -419,15 +423,12 @@ const Navbar = () => {
 
         {/* drop down */}
         {dropdownVisible && (
-          <div
-            className=" dropdown-menu show"
-            onMouseLeave={handleMouseLeave}
-          >
+          <div className=" dropdown-menu show" onMouseLeave={handleMouseLeave}>
             <button
               className="dropdown-item"
               onClick={() => navigate("/profileUser")}
             >
-              Profile 
+              Profile
             </button>
 
             <button className="dropdown-item" onClick={handleLogout}>
@@ -477,8 +478,9 @@ const Navbar = () => {
                     <label className="form-label">Track Name</label>
                     <input
                       type="text"
-                      className={`form-control ${errors.name ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.name ? "is-invalid" : ""
+                      }`}
                       value={newTrackName}
                       onChange={(e) => setTrackName(e.target.value)}
                     />
@@ -491,8 +493,9 @@ const Navbar = () => {
                     <label className="form-label">Image Track</label>
                     <input
                       type="file"
-                      className={`form-control ${errors.image ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.image ? "is-invalid" : ""
+                      }`}
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -521,8 +524,9 @@ const Navbar = () => {
                     <label className="form-label">File Track</label>
                     <input
                       type="file"
-                      className={`form-control ${errors.file ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.file ? "is-invalid" : ""
+                      }`}
                       accept=".mp3"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -550,8 +554,9 @@ const Navbar = () => {
                   <div className="mt-3">
                     <label className="form-label">Genre</label>
                     <select
-                      className={`form-select ${errors.genre ? "is-invalid" : ""
-                        }`}
+                      className={`form-select ${
+                        errors.genre ? "is-invalid" : ""
+                      }`}
                       value={newTrackGenre}
                       onChange={(e) => setTrackGenre(e.target.value)}
                     >
@@ -578,8 +583,9 @@ const Navbar = () => {
                     <textarea
                       cols="50"
                       rows="5"
-                      className={`form-control ${errors.description ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.description ? "is-invalid" : ""
+                      }`}
                       value={newTrackDescription}
                       onChange={(e) => setTrackDescription(e.target.value)}
                     ></textarea>

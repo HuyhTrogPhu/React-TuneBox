@@ -53,7 +53,9 @@
     align-items: center;
     margin-bottom: 8px;
     padding: 3px;
-    border-radius: 10px;
+    border-radius: 25px;
+    background-color: #e7e5e5;
+    padding: 5px 20px;
   }
   
   .album-item > div:first-child {
@@ -109,10 +111,33 @@
   }
 
   .post-header-albums{
-    background-color: #e7e5e5;
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 25px;
   }
+/* Dropdown Menu */
+.dropdown .dropdown-menu {
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.dropdown-item {
+  color: #333;
+  padding: 10px;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+.btn-options {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-options:hover {
+  color: #333;
+}
 
   

@@ -40,6 +40,7 @@ const Waveform = ({ audioUrl, track }) => {
       
     });
 
+    // Tải file âm thanh từ Cloudinary
     wavesurferRef.current.load(audioUrl);
 
     wavesurferRef.current.on("ready", () => {

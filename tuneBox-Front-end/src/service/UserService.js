@@ -62,6 +62,8 @@ export const updateUserEmail = async (userId, newEmail) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+
         },
       }
     );
@@ -96,7 +98,6 @@ export const getFriendCount = async (userId) => {
     throw new Error("Failed to fetch friend count");
   }
   const count = await response.json();
-  console.log("Fetched friend count:", count); // Log giá trị trước khi trả về
   return count;
 };
 
@@ -109,6 +110,8 @@ export const updateUserName = async (userId, newUserName) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+
         },
       }
     );
@@ -128,6 +131,8 @@ export const updatePassword = async (userId, newPassword) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+
         },
       }
     );
@@ -138,6 +143,8 @@ export const updatePassword = async (userId, newPassword) => {
   }
 };
 export const updateUserBirthday = async (userId, newBirthday) => {
+  const token = localStorage.getItem('jwtToken');
+
   try {
     // Kiểm tra định dạng ngày sinh trước khi gửi
     if (!isValidBirthday(newBirthday)) {
@@ -150,6 +157,8 @@ export const updateUserBirthday = async (userId, newBirthday) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+
         },
       }
     );
@@ -174,6 +183,8 @@ export const updateUserGender = async (userId, newGender) => {
       {
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+
         },
       }
     );
@@ -214,4 +225,14 @@ export const search = async (keyword) => {
   }
 };
 
+export const updateBackground = async (userId, formData) => {
+  const response = await axios.post(`${REST_API_BASE_URL}/users/${userId}/background`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+    },
+  });
+  
+  return response.data; // Hoặc xử lý phản hồi theo cách bạn cần
+};
 

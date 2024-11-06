@@ -1,34 +1,45 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import { images } from "../../assets/images/images";
-import axios from 'axios';
-import { format } from 'date-fns';
-import Cookies from 'js-cookie';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import "./css/mxh/style.css"
-import "./css/mxh/post.css"
-import "./css/mxh/modal-create-post.css"
-import "./css/profile.css"
-import "./css/mxh/comment.css"
-import "./css/mxh/button.css"
-import { useParams, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import Picker from '@emoji-mart/react';
-import { getAllTracks } from "../../service/TrackServiceCus";
+import axios from "axios";
+import { format } from "date-fns";
+import Cookies from "js-cookie";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "./css/mxh/style.css";
+import "./css/mxh/post.css";
+import "./css/mxh/modal-create-post.css";
+import "./css/profile.css";
+import "./css/mxh/comment.css";
+import "./css/mxh/button.css";
+import { useParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import Picker from "@emoji-mart/react";
+import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
+  
   addLike,
   checkUserLikeTrack,
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import UsersToFollow from './Profile/UsersToFollow';
+import {
+  getPlaylistByUserId,
+  getPlaylistById,
+  updatePlaylist,
+} from "../../service/PlaylistServiceCus";
+import { getUserInfo } from "../../service/UserService";
+
 
 
 const HomeFeed = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
-  console.log('currentUserId: ', currentUserId)
+  console.log("currentUserId: ", currentUserId);
   const [postContent, setPostContent] = useState("");
   const [postImages, setPostImages] = useState([]);
   const [postImageUrls, setPostImageUrls] = useState([]);
@@ -45,13 +56,16 @@ const HomeFeed = () => {
   const [likes, setLikes] = useState({}); // Trạng thái lưu trữ like cho mỗi bài viết
   const [likesCount, setLikesCount] = useState({});
   const [replyToUser, setReplyToUser] = useState("");
-  const currentUserNickname = Cookies.get('userNickname');
+  const currentUserNickname = Cookies.get("userNickname");
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
-  const [reportPostId, setReportPostId] = useState(null);
+  const [ReportId, setReportId] = useState(null);
+  const [reportType, setReportType] = useState('');
+  const [reportMessage, setReportMessage] = useState("");
+  const [postHiddenStates, setPostHiddenStates] = useState({});
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const commentSectionRef = useRef(null);
@@ -62,14 +76,52 @@ const HomeFeed = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
+  const tokenjwt = localStorage.getItem('jwtToken');
+
+  //get avatar
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (currentUserId) {
+        try {
+          const userData = await getUserInfo(currentUserId);
+          setUserData(userData);
+        } catch (error) {
+          console.error("Error fetching user", error);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [currentUserId]);
+
+
   // track
   const [tracks, setTracks] = useState([]);
   const [likedTracks, setLikedTracks] = useState({});
   const [countLikedTracks, setCountLikedTracks] = useState({});
+  const [selectedTrack, setSelectedTrack] = useState(null); // State cho track duoc chon
+  const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
+  const [genres, setGenres] = useState([]);
 
   useEffect(() => {
     fetchTracks();
   }, []);
+
+  useEffect(() => {
+    fetchGenre(); // Fetch genres when the component mounts
+  }, []);
+
+  const fetchGenre = async () => {
+    try {
+      const genreResponse = await listGenre(); // Assuming listGenre is your API call
+      console.log(genreResponse.data);
+      setGenres(genreResponse.data); // Store the fetched genres in state
+    } catch (error) {
+      console.log("Error fetching genres:", error);
+    }
+  };
 
   const fetchTracks = async () => {
     try {
@@ -109,7 +161,6 @@ const HomeFeed = () => {
       console.error("Error fetching all track:", error);
     }
   };
-
   const handleLikeTrack = async (trackId) => {
     try {
       if (likedTracks[trackId]?.data) {
@@ -137,51 +188,182 @@ const HomeFeed = () => {
     }
   };
 
+  // Ham xoa track
+  const deleteTrack = async (trackId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this Track?"
+    ); // Xac nhan xoa
+    if (!confirmDelete) return; // Khong xoa neu nguoi dung khong dong y
+    try {
+      await axios.delete(`http://localhost:8080/customer/tracks/${trackId}`, {
+        withCredentials: true,
+      });
+      fetchTracks(); // Cap nhat danh sach track sau khi xoa
+    } catch (error) {
+      console.error(
+        "Error deleting track:",
+        error.response?.data || error.message
+      ); // Log loi neu co
+    }
+  };
 
+  const handleEditClick = (track) => {
+    // Tạo một đối tượng track mới với đầy đủ thông tin
+    const updatedTrack = {
+      ...track,
+      // Giữ nguyên URL của ảnh hiện tại thay vì tạo Blob mới
+      imageTrack: track.imageTrack,
+      // Giữ nguyên thông tin file nhạc hiện tại
+      trackFile: {
+        name: track.trackFileName || "Current track file", // Thêm tên file nếu có
+      },
+    };
+
+    setSelectedTrack(updatedTrack);
+
+    // Set genre ID từ track hiện tại
+    if (track.genre) {
+      setSelectedGenre(track.genre.id.toString());
+    }
+
+    const editModal = document.getElementById("editModal");
+    editModal.classList.add("show");
+    editModal.style.display = "block";
+    document.body.classList.add("modal-open");
+  };
+  // Save track after editing
+  const handleSave = async () => {
+    if (!selectedTrack) return;
+
+    const formData = new FormData();
+    formData.append("name", selectedTrack.name);
+    formData.append("description", selectedTrack.description);
+    formData.append("status", selectedTrack.status);
+    formData.append("report", selectedTrack.report);
+    formData.append("userId", currentUserId);
+    formData.append("genre", selectedGenre);
+
+    // Chỉ gửi file mới nếu người dùng đã chọn file mới
+    if (selectedTrack.trackFile instanceof File) {
+      formData.append("trackFile", selectedTrack.trackFile);
+    }
+
+    // Chỉ gửi ảnh mới nếu người dùng đã chọn ảnh mới
+    if (selectedTrack.trackImage instanceof File) {
+      formData.append("trackImage", selectedTrack.trackImage);
+    }
+
+    try {
+      await axios.put(
+        `http://localhost:8080/customer/tracks/${selectedTrack.id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      fetchTracks();
+      setSelectedTrack(null);
+
+      const editModal = document.getElementById("editModal");
+      editModal.classList.remove("show");
+      editModal.style.display = "none";
+      document.body.classList.remove("modal-open");
+    } catch (error) {
+      console.error(
+        "Error updating track:",
+        error.response?.data || error.message
+      );
+    }
+  };
 
   // end track
+
+  // playlist
+  // list
+  const [playlists, setPlaylists] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
+
+
+
+  const fetchListPlaylist = async () => {
+    try {
+      
+      const playlistResponse = await getPlaylistByUserId(currentUserId);
+      setPlaylists(playlistResponse);
+      console.log("playlist  ", playlistResponse);
+    } catch (error) {
+      console.error("Error fetching playlist:", error);
+    }
+  };
+  const addToPlaylist = (trackId) => {
+    setShowModal(true); // Mở modal
+    setTrackToAddPlayList(trackId);
+  };
+  
+  useEffect(() => {
+    fetchListPlaylist();
+  }, [currentUserId]);
+
+  const handleCloseModal = () => {
+    setShowModal(false); // Đóng modal
+  };
+  const handleAddTrackToPlaylist = async (playlistId) => {
+    try {
+      // lấy thong tin htai cua lít
+      const currentPlaylist = await getPlaylistById(playlistId);
+      console.log("currentPlaylist: ", currentPlaylist.data);
+      const formData = new FormData();
+      // Kiểm tra xem track đã tồn tại trong playlist chưa
+      const existingTracks = currentPlaylist.data.tracks; // Danh sách track hiện có trong playlist
+      if (existingTracks.includes(trackToAddPlayList)) {
+        toast.error("Track đã tồn tại trong playlist!");
+        return; // Dừng thực hiện nếu track đã tồn tại
+      }
+      formData.append("trackIds", trackToAddPlayList);
+      formData.append("title", currentPlaylist.data.title);
+      formData.append("imagePlaylist", currentPlaylist.data.imagePlaylist); // thêm trường này
+      formData.append("description", currentPlaylist.data.description);
+      formData.append("status", false);
+      formData.append("report", false);
+      formData.append("type", currentPlaylist.data.type);
+      formData.append("user", currentUserId);
+      console.log("handleAddTrackToPlaylist: ", currentPlaylist.data.title);
+      await updatePlaylist(playlistId, formData);
+      toast.success(" Add Track to Playlist successfully!");
+      handleCloseModal();
+    } catch (error) {
+      console.error("Failed to create add track to playlist:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed. Please try again.";
+      toast.error(errorMessage);
+    }
+  };
+  // end playlist
 
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
     console.log("Post User ID:", post.userId);
 
-    // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
-    // axios.interceptors.request.use(
-    //   (config) => {
-    //     const token = localStorage.getItem('token').trim(); // Lấy token từ localStorage
-    //       if (token) {
-    //           config.headers['Authorization'] = token; 
-    //       }
-    //       return config;
-    //   },
-    //   (error) => {
-    //       return Promise.reject(error);
-    //   }
-    // );
-
-
     if (String(post.userId) === String(currentUserId)) {
       console.log("Navigating to ProfileUser");
-      navigate('/profileUser');
+      navigate("/profileUser");
     } else {
       console.log("Navigating to OtherUserProfile");
       navigate(`/profile/${post.userId}`);
     }
   };
 
-
-
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
-
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/posts/all`,
-        {
-          params: { currentUserId }, // Truyền currentUserId vào request
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(`http://localhost:8080/api/posts/all`, {
+        params: { currentUserId }, // Truyền currentUserId vào request
+        withCredentials: true,
+      });
 
       console.log(response.data); // Kiểm tra dữ liệu nhận được
 
@@ -197,7 +379,6 @@ const HomeFeed = () => {
           const commentsResponse = await axios.get(
             `http://localhost:8080/api/comments/post/${post.id}`
           );
-          console.log('post Id:', post.id);
           const commentsWithReplies = await Promise.all(
             commentsResponse.data.map(async (comment) => {
               const repliesResponse = await axios.get(
@@ -223,7 +404,7 @@ const HomeFeed = () => {
             ...post,
             comments: commentsWithReplies,
             likeCount: likeCountResponse.data, // Thêm số lượng likes vào bài viết
-            liked: liked // Thêm trạng thái like
+            liked: liked, // Thêm trạng thái like
           }; // Kết hợp comments và likeCount vào post
         })
       );
@@ -231,7 +412,7 @@ const HomeFeed = () => {
       setPosts(postsWithCommentsAndLikes); // Cập nhật state với danh sách bài viết
       // Cập nhật trạng thái likes cho từng bài viết
       const updatedLikes = {};
-      postsWithCommentsAndLikes.forEach(post => {
+      postsWithCommentsAndLikes.forEach((post) => {
         updatedLikes[post.id] = post.liked; // Cập nhật trạng thái like cho post
       });
       setLikes(updatedLikes); // Cập nhật trạng thái likes
@@ -240,13 +421,13 @@ const HomeFeed = () => {
     }
   };
 
-
-
   useEffect(() => {
     const fetchLikesCounts = async () => {
-      const counts = await Promise.all(posts.map(post =>
-        axios.get(`http://localhost:8080/api/likes/post/${post.id}/count`)
-      ));
+      const counts = await Promise.all(
+        posts.map((post) =>
+          axios.get(`http://localhost:8080/api/likes/post/${post.id}/count`)
+        )
+      );
 
       const likesCountsMap = {};
       counts.forEach((response, index) => {
@@ -263,7 +444,6 @@ const HomeFeed = () => {
     fetchPosts(); // Gọi hàm để lấy bài viết khi component được mount
   }, [currentUserId]); // Theo dõi currentUserId để gọi lại khi thay đổi
 
-
   // like post
   const handleLike = async (postId) => {
     try {
@@ -274,15 +454,20 @@ const HomeFeed = () => {
 
       if (likes[postId]) {
         // Nếu đã like, thực hiện unlike
-        await fetch(`http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`, {
-          method: "DELETE",
-        });
+        await fetch(
+          `http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`,
+          {
+            method: "DELETE",
+          }
+        );
         setLikes((prevLikes) => ({ ...prevLikes, [postId]: false })); // Cập nhật trạng thái like
 
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
-            post.id === postId ? { ...post, likeCount: post.likeCount - 1 } : post
+            post.id === postId
+              ? { ...post, likeCount: post.likeCount - 1 }
+              : post
           )
         );
       } else {
@@ -290,13 +475,13 @@ const HomeFeed = () => {
         const response = await fetch(`http://localhost:8080/api/likes/add`, {
           method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(likeDto)
+          body: JSON.stringify(likeDto),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to like the post');
+          throw new Error("Failed to like the post");
         }
 
         setLikes((prevLikes) => ({ ...prevLikes, [postId]: true })); // Cập nhật trạng thái like
@@ -304,7 +489,9 @@ const HomeFeed = () => {
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
-            post.id === postId ? { ...post, likeCount: post.likeCount + 1 } : post
+            post.id === postId
+              ? { ...post, likeCount: post.likeCount + 1 }
+              : post
           )
         );
       }
@@ -313,7 +500,7 @@ const HomeFeed = () => {
     }
   };
 
-  // reply comment 
+  // reply comment
   const handleToggleReplies = (commentId) => {
     setShowAllReplies((prev) => ({
       ...prev,
@@ -486,7 +673,7 @@ const HomeFeed = () => {
 
       // Đặt lại commentContent và ẩn emoji picker
       setCommentContent((prev) => ({ ...prev, [postId]: "" }));
-      setShowEmojiPicker(false);  // Ẩn emoji picker sau khi bình luận
+      setShowEmojiPicker(false); // Ẩn emoji picker sau khi bình luận
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -526,7 +713,9 @@ const HomeFeed = () => {
   const handleDeleteReply = async (replyId) => {
     try {
       // Gọi API để xóa reply
-      await axios.delete(`http://localhost:8080/api/replies/reply/${replyId}/user/${currentUserId}`);
+      await axios.delete(
+        `http://localhost:8080/api/replies/reply/${replyId}/user/${currentUserId}`
+      );
 
       // Cập nhật lại danh sách reply trong state
       setPosts((prevPosts) =>
@@ -536,23 +725,28 @@ const HomeFeed = () => {
             comments: post.comments.map((comment) => {
               return {
                 ...comment,
-                replies: comment.replies.filter((reply) => reply.id !== replyId),
+                replies: comment.replies.filter(
+                  (reply) => reply.id !== replyId
+                ),
               };
             }),
           };
         })
       );
     } catch (error) {
-      console.error('Error deleting reply:', error);
-      alert('Failed to delete reply');
+      console.error("Error deleting reply:", error);
+      alert("Failed to delete reply");
     }
   };
   const handleUpdateReply = async (replyId) => {
     try {
       // Sử dụng biến đúng để cập nhật nội dung
-      const response = await axios.put(`http://localhost:8080/api/replies/reply/${replyId}/user/${currentUserId}`, {
-        content: editingReplyContent // Sử dụng biến này để cập nhật nội dung
-      });
+      const response = await axios.put(
+        `http://localhost:8080/api/replies/reply/${replyId}/user/${currentUserId}`,
+        {
+          content: editingReplyContent, // Sử dụng biến này để cập nhật nội dung
+        }
+      );
 
       // Cập nhật lại danh sách reply trong state
       setPosts((prevPosts) =>
@@ -563,7 +757,9 @@ const HomeFeed = () => {
               return {
                 ...comment,
                 replies: comment.replies.map((reply) =>
-                  reply.id === replyId ? { ...reply, content: editingReplyContent } : reply
+                  reply.id === replyId
+                    ? { ...reply, content: editingReplyContent }
+                    : reply
                 ),
               };
             }),
@@ -575,8 +771,8 @@ const HomeFeed = () => {
       setEditingReplyId(null);
       setEditingReplyContent("");
     } catch (error) {
-      console.error('Error updating reply:', error);
-      alert('Failed to update reply');
+      console.error("Error updating reply:", error);
+      alert("Failed to update reply");
     }
   };
   // Hàm để hiển thị tất cả comment hoặc chỉ một số lượng nhất định
@@ -640,12 +836,11 @@ const HomeFeed = () => {
       console.error("Error adding comment reply:", error);
     }
   };
-
   // reply to reply comment
   const handleAddReplyToReply = async (parentReplyId, commentId) => {
     const replyDto = {
       content: replyContent[parentReplyId] || "",
-      commentId: commentId
+      commentId: commentId,
     };
 
     if (!replyDto.content.trim()) return;
@@ -682,17 +877,32 @@ const HomeFeed = () => {
       setReplyContent((prev) => ({ ...prev, [parentReplyId]: "" }));
       setReplyingTo((prev) => ({ ...prev, [parentReplyId]: false }));
     } catch (error) {
-      console.error("Error adding reply:", error.response?.data || error.message);
+      console.error(
+        "Error adding reply:",
+        error.response?.data || error.message
+      );
     }
   };
-
   // report post 
-  const handleReportPost = (postId) => {
-    setReportPostId(postId);
-    setShowReportModal(true); // Hiện modal
+  const handleReport = (id, type) => {
+    console.log('ID to report:', id); // Kiểm tra giá trị ID
+    console.log('Type to report:', type); // Kiểm tra giá trị type
+    setReportId(id);
+    setReportType(type);
+    setShowReportModal(true);
   };
+  const handleSubmit = () => {
+    console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
 
-  const submitReport = async () => {
+    if (!ReportId || !reportType) {
+      setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
+      return;
+    }
+
+    // Gọi hàm submitReport với các giá trị đúng
+    submitReport(currentUserId, ReportId, reportType, reportReason);
+  };
+  const submitReport = async (userId, reportId, reportType, reason) => {
     try {
       const response = await fetch('http://localhost:8080/api/reports', {
         method: 'POST',
@@ -709,14 +919,35 @@ const HomeFeed = () => {
       if (response.ok) {
         console.log('thành công');
         setShowReportModal(false);
-        setReportReason("");
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo báo cáo:", error);
+      if (error.response && error.response.status === 401) {
+        navigate('/login?error=true');
       } else {
         console.error('Có lỗi xảy ra khi gửi báo cáo.');
       }
+    }
+  };
+  const checkReportExists = async (userId, reportId, reportType) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/reports/check`, {
+        params: {
+          userId: userId,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,
+        },
+        withCredentials: true,
+      });
+      console.log('Check report response:', response.data);
+      return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
     } catch (error) {
       console.error('Lỗi mạng:', error);
     }
   };
+
   // Hàm để bật/tắt emoji picker
   const toggleEmojiPicker = (id) => {
     setShowEmojiPicker((prev) => (prev === id ? null : id));
@@ -731,46 +962,97 @@ const HomeFeed = () => {
   };
 
   const handleClickOutside = (event) => {
-    if (commentSectionRef.current && !commentSectionRef.current.contains(event.target)) {
+    if (
+      commentSectionRef.current &&
+      !commentSectionRef.current.contains(event.target)
+    ) {
       setShowEmojiPicker(false); // Đóng bảng emoji nếu nhấp bên ngoài
     }
   };
 
   const handleOpenModal = (postId) => {
     setSelectedPostId(postId);
-    console.log('PostId', postId)
+    console.log("PostId", postId);
     const modal = new bootstrap.Modal(document.getElementById("modalComent"));
     modal.show(); // Mở modal
   };
 
+  // ẩn hiện post
+  const toggleHiddenState = async (postId) => {
+    const token = localStorage.getItem('jwtToken');
+    
+    if (!token) {
+        console.error("No JWT token found");
+        toast.error("You need to be logged in to toggle post visibility.");
+        return; // No token, do not call API
+    }
 
-  return (
+    try {
+        await axios.put(`http://localhost:8080/api/posts/${postId}/toggle-visibility`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+
+        // Update the visibility state of the post
+        setPostHiddenStates(prevStates => ({
+            ...prevStates,
+            [postId]: !prevStates[postId] // Toggle the visibility state
+        }));
+        fetchPosts();
+    } catch (error) {
+        console.error("Error toggling post visibility:", error);
+        toast.error("Failed to toggle post visibility. Please try again."); // Notify user of error
+    }
+};
+    return (
     <div>
+            <ToastContainer />
       <div className="container-fluid">
+        <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
             <ul className="list-unstyled">
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center " style={{ textAlign: 'center' }}>
-                  <img src={images.web_content} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>
-                    <Link to={'/'}>Bản tin</Link>
+                <a
+                  href="/#"
+                  className="d-flex align-items-center "
+                  style={{ textAlign: "center" }}
+                >
+                  <img
+                    src={images.web_content}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">
+                    <Link to={"/"}>Bản tin</Link>
                   </span>
                 </a>
               </li>
               <li className="left mb-4">
                 <a href="/#" className="d-flex align-items-center">
-                  <img src={images.followers} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Đang theo dõi</span>
+                  <img
+                    src={images.followers}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Đang theo dõi</span>
                 </a>
               </li>
 
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
-                  <img src={images.feedback} alt='icon' width={20} className="me-2" />
-                  <span className='fw-bold'>Bài viết đã thích</span>
-                </a>
+                <Link to={"/likepost"} className="d-flex align-items-center">
+                  <img
+                    src={images.feedback}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Bài viết đã thích</span>
+                </Link>
               </li>
               <li className="left mb-4">
                 <Link to={"/likeAlbums"} className="d-flex align-items-center">
@@ -784,7 +1066,10 @@ const HomeFeed = () => {
                 </Link>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <Link
+                  to={"/likePlaylist"}
+                  className="d-flex align-items-center"
+                >
                   <img
                     src={images.playlist}
                     alt="icon"
@@ -792,7 +1077,15 @@ const HomeFeed = () => {
                     className="me-2 "
                   />
                   <span className="fw-bold">Playlist đã thích</span>
-                </a>
+                </Link>
+              </li>
+              <li className="left mb-4">
+                <Link
+                  to={"/FriendRequests"}
+                  className="d-flex align-items-center"
+                >
+                  <span className="fw-bold">Danh sách lời mời kết bạn</span>
+                </Link>
               </li>
             </ul>
           </div>
@@ -802,7 +1095,8 @@ const HomeFeed = () => {
             <div className="container mt-2 mb-5">
               <div className="row align-items-center">
                 <div className="col-auto post-header">
-                  <img src={images.ava} className="avatar_small" alt="avatar" />
+                  <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                  />
                 </div>
                 <div className="col">
                   <button
@@ -815,7 +1109,7 @@ const HomeFeed = () => {
                       height: 50,
                     }}
                   >
-                    Bạn đang nghĩ gì vậy?
+                    What are you thinking about?
                   </button>
                 </div>
               </div>
@@ -823,126 +1117,167 @@ const HomeFeed = () => {
 
             {/* Phần hiển thị track */}
             <div className="container mt-2 mb-5">
-              {tracks.map((track) => (
-                <div className="post border" key={track.id}>
-                  {/* Tiêu đề */}
-                  <div className="post-header position-relative">
-                    <button type="button" className="btn" aria-label="Avatar">
-                      <img
-                        src={track.userId.avatar} //lỗi
-                        className="avatar_small"
-                        alt="Avatar"
-                      />
-                    </button>
-                    <div>
-                      <div className="name">
-                        {track.userName || "Unknown User"}
-                      </div>
-                      <div className="time">
-                        {new Date(track.createDate).toLocaleString()}
-                      </div>
-                    </div>
-                    {/* Dropdown cho bài viết */}
-                    {String(track.userId) === String(currentUserId) ? (
-                      <div className="dropdown position-absolute top-0 end-0">
-                        <button
-                          className="btn btn-options dropdown-toggle"
-                          type="button"
-                          id={`dropdownMenuButton-${track.id}`}
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          ...
-                        </button>
-                        <ul className="dropdown-menu"
-                          aria-labelledby={`dropdownMenuButton-${track.id}`}>
-                          <li>
-                            <button className="dropdown-item" onClick={() => handleEditTrack(track)}>
-                              <i className='fa-solid fa-pen-to-square'></i>Edit
-                            </button>
-                          </li>
-                          <li>
-                            <button className="dropdown-item" onClick={() => handleDeleteTrack(track.id)}>
-                              <i className='fa-solid fa-trash '></i>Delete
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    ) : (
-                      <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReportTrack(track.id)}>
+              {tracks.map((track) => {
+                const createdAt = track.createDate ? new Date(track.createDate) : null;
+                return (
+                  <div className="post border" key={track.id}>
+                    {/* Tiêu đề */}
+                    <div className="post-header position-relative">
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() => handleAvatarClick(track)}
+                        aria-label="Avatar"
+                      >
+                        <img
+                          src={track.avatar}
+                          className="avatar_small"
+                          alt="Avatar"
+                        />
                       </button>
-                    )}
-                  </div>
+                      <div>
+                        <div className="name">
+                          {track.userNickname || "Unknown User"}
+                        </div>
+                        <div className="time">
+                          {createdAt && !isNaN(createdAt.getTime())
+                            ? format(createdAt, "hh:mm a, dd MMM yyyy")
+                            : "Invalid date"}
+                        </div>
+                      </div>
+                      {/* Dropdown cho bài viết */}
+                      {String(track.userId) === String(currentUserId) ? (
+                        <div className="dropdown position-absolute top-0 end-0">
+                          <button
+                            className="btn btn-options dropdown-toggle"
+                            type="button"
+                            id={`dropdownMenuButton-${track.id}`}
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            ...
+                          </button>
+                          <ul className="dropdown-menu"
+                            aria-labelledby={`dropdownMenuButton-${track.id}`}>
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => addToPlaylist(track.id)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                  Add to playlist
+                                </button>
+                              </li>
+                              <li>
+                              <button className="dropdown-item" onClick={() => handleEditClick(track)}>
+                                <i className='fa-solid fa-pen-to-square'></i>Edit
+                              </button>
+                              </li>
+                              <li>
+                              <button className="dropdown-item" onClick={() => deleteTrack(track.id)}>
+                                <i className='fa-solid fa-trash '></i>Delete
+                              </button>
+                              </li>
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="dropdown position-absolute top-0 end-0">
+                          <ul>
+                            <li>
+                            <button className="fa-regular fa-flag btn-report border border-0" onClick={() => handleReport(track.id, 'track')}></button>
+                            </li>
+                            <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => addToPlaylist(track.id)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                  Add to playlist
+                                </button>
+                              </li>
+                          </ul>
+                        </div>
 
-                  <div className="post-content description">
-                    {track.description || "Unknown description"}
-                  </div>
-                  {/* Nội dung */}
-                  <div className="track-content audio">
-                    <WaveFormFeed
-                      audioUrl={track.trackFile}
-                      track={track}
-                      className="track-waveform "
-                    />
-                  </div>
+                      )}
+                    </div>
 
-                  {/* Like/Comment */}
-                  <div className="row d-flex justify-content-start align-items-center">
-                    {/* Like track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="like-count">
-                        {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
-                        <i
-                          className={`fa-solid fa-heart ${likedTracks[track.id]?.data
+                    <div className="post-content description">
+                      {track.description || "Unknown description"}
+                    </div>
+                    {/* Nội dung */}
+                    <div className="track-content audio">
+                      <WaveFormFeed
+                        audioUrl={track.trackFile}
+                        track={track}
+                        className="track-waveform "
+                      />
+                    </div>
+
+                    {/* Like/Comment */}
+                    <div className="row d-flex justify-content-start align-items-center">
+                      {/* Like track*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="like-count">
+                          {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
+                          <i
+                            className={`fa-solid fa-heart ${likedTracks[track.id]?.data
                               ? "text-danger"
                               : "text-muted"
-                            }`}
-                          onClick={() => handleLikeTrack(track.id)}
-                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                        ></i>
+                              }`}
+                            onClick={() => handleLikeTrack(track.id)}
+                            style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
+                          ></i>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Comment track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="d-flex justify-content-center align-items-center">
-                        {track.commentCount || 0}
-                        <i
-                          type="button"
-                          style={{ fontSize: "25px" }}
-                          className="fa-regular fa-comment"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalComment"
-                        ></i>
+                      {/* Comment track*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="d-flex justify-content-center align-items-center">
+                          {track.commentCount || 0}
+                          <i
+                            type="button"
+                            style={{ fontSize: "25px" }}
+                            className="fa-regular fa-comment"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalComment"
+                          ></i>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
-
             {/* Phần hiển thị bài viết */}
             <div className="container mt-2 mb-5">
               {posts.map((post) => {
-                const createdAt = post.createdAt ? new Date(post.createdAt) : null;
+                const createdAt = post.createdAt
+                  ? new Date(post.createdAt)
+                  : null;
                 const showAll = showAllComments[post.id];
 
                 return (
                   <div key={post.id} className="post border">
-                    {/* Modeal hiển thị comment  */}
-                    <div class="modal fade" id="modalComent" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    {/* Modal hiển thị comment  */}
+                    <div className="modal fade" id="modalComent" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
+                      <div className="modal-dialog">
+                        <div className="modal-content">
+                          <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
-                          <div class="modal-body">
+                          <div className="modal-body">
                             {/* Danh sách bình luận */}
                             {selectedPost ? (
                               <div className="mt-4">
-                                {(showAllComments[selectedPost.id] ? selectedPost.comments : selectedPost.comments.slice(0, 3)).map((comment) => (
-                                  <div key={comment.id} className="comment mt-2">
+                                {(showAllComments[selectedPost.id]
+                                  ? selectedPost.comments
+                                  : selectedPost.comments.slice(0, 3)
+                                ).map((comment) => (
+                                  <div
+                                    key={comment.id}
+                                    className="comment mt-2"
+                                  >
                                     <div className="container">
                                       <div className="row justify-content-start">
                                         <div className="comment-content position-relative">
@@ -952,10 +1287,20 @@ const HomeFeed = () => {
                                             alt="Avatar"
                                           />
                                           <div>
-                                            <div className="comment-author">{comment.userNickname}</div>
+                                            <div className="comment-author">
+                                              {comment.userNickname}
+                                            </div>
                                             <div className="comment-time">
-                                              {format(new Date(comment.creationDate), "hh:mm a, dd MMM yyyy")}
-                                              {comment.edited && <span className="edited-notice"> (Edited)</span>}
+                                              {format(
+                                                new Date(comment.creationDate),
+                                                "hh:mm a, dd MMM yyyy"
+                                              )}
+                                              {comment.edited && (
+                                                <span className="edited-notice">
+                                                  {" "}
+                                                  (Edited)
+                                                </span>
+                                              )}
                                             </div>
                                             {editingCommentId === comment.id ? (
                                               <div>
@@ -963,11 +1308,20 @@ const HomeFeed = () => {
                                                   className="form-control"
                                                   rows={2}
                                                   value={editingCommentContent}
-                                                  onChange={(e) => setEditingCommentContent(e.target.value)}
+                                                  onChange={(e) =>
+                                                    setEditingCommentContent(
+                                                      e.target.value
+                                                    )
+                                                  }
                                                 />
                                                 <button
                                                   className="btn btn-primary mt-2"
-                                                  onClick={() => handleUpdateComment(comment.id, selectedPost.id)}
+                                                  onClick={() =>
+                                                    handleUpdateComment(
+                                                      comment.id,
+                                                      selectedPost.id
+                                                    )
+                                                  }
                                                 >
                                                   Save
                                                 </button>
@@ -975,7 +1329,9 @@ const HomeFeed = () => {
                                                   className="btn btn-secondary mt-2 ms-2"
                                                   onClick={() => {
                                                     setEditingCommentId(null);
-                                                    setEditingCommentContent("");
+                                                    setEditingCommentContent(
+                                                      ""
+                                                    );
                                                   }}
                                                 >
                                                   Cancel
@@ -985,7 +1341,10 @@ const HomeFeed = () => {
                                               <p>{comment.content}</p>
                                             )}
                                           </div>
-                                          {(String(comment.userId) === String(currentUserId) || String(selectedPost.userId) === String(currentUserId)) && (
+                                          {(String(comment.userId) ===
+                                            String(currentUserId) ||
+                                            String(selectedPost.userId) ===
+                                              String(currentUserId)) && (
                                             <div className="dropdown position-absolute top-0 end-0">
                                               <button
                                                 className="btn btn-options dropdown-toggle"
@@ -996,13 +1355,20 @@ const HomeFeed = () => {
                                               >
                                                 ...
                                               </button>
-                                              <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${comment.id}`}>
+                                              <ul
+                                                className="dropdown-menu"
+                                                aria-labelledby={`dropdownMenuButton-${comment.id}`}
+                                              >
                                                 <li>
                                                   <button
                                                     className="dropdown-item"
                                                     onClick={() => {
-                                                      setEditingCommentId(comment.id);
-                                                      setEditingCommentContent(comment.content);
+                                                      setEditingCommentId(
+                                                        comment.id
+                                                      );
+                                                      setEditingCommentContent(
+                                                        comment.content
+                                                      );
                                                     }}
                                                   >
                                                     Edit
@@ -1012,7 +1378,12 @@ const HomeFeed = () => {
                                                 <li>
                                                   <button
                                                     className="dropdown-item"
-                                                    onClick={() => handleDeleteComment(comment.id, selectedPost.id)}
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        comment.id,
+                                                        selectedPost.id
+                                                      )
+                                                    }
                                                   >
                                                     Delete
                                                   </button>
@@ -1022,7 +1393,12 @@ const HomeFeed = () => {
                                           )}
 
                                           {/* Nút trả lời cho bình luận bậc 2 */}
-                                          <button className="btn btn-link mt-2" onClick={() => handleReplyClick(comment)}>
+                                          <button
+                                            className="btn btn-link mt-2"
+                                            onClick={() =>
+                                              handleReplyClick(comment)
+                                            }
+                                          >
                                             Reply
                                           </button>
 
@@ -1033,139 +1409,256 @@ const HomeFeed = () => {
                                                 className="reply-input mt-2 form-control"
                                                 rows={1}
                                                 placeholder={`Reply to ${comment.userNickname}`}
-                                                value={replyContent[comment.id] || ""}
-                                                onChange={(e) => handleReplyChange(comment.id, e.target.value)}
+                                                value={
+                                                  replyContent[comment.id] || ""
+                                                }
+                                                onChange={(e) =>
+                                                  handleReplyChange(
+                                                    comment.id,
+                                                    e.target.value
+                                                  )
+                                                }
                                               />
                                               <i
-                                                type='button' className="fa-regular fa-paper-plane ms-3 mt-2"
+                                                type="button"
+                                                className="fa-regular fa-paper-plane ms-3 mt-2"
                                                 style={{ fontSize: "20px" }}
-                                                onClick={() => handleAddCommentReply(comment.id, selectedPost.id)}
-                                              >
-
-                                              </i>
+                                                onClick={() =>
+                                                  handleAddCommentReply(
+                                                    comment.id,
+                                                    selectedPost.id
+                                                  )
+                                                }
+                                              ></i>
                                             </div>
                                           )}
                                         </div>
                                       </div>
                                       {/* Hiển thị danh sách trả lời bậc 2 */}
                                       <div className="row justify-content-center">
-                                        {comment.replies && comment.replies.length > 0 && (
-                                          <div className="replies-list mt-2">
-                                            {showAllReplies[comment.id] ? (
-                                              <>
-                                                {comment.replies.map((reply) => (
-                                                  <div key={`reply-${reply.id}`} className="reply">
-                                                    <div className="reply-content" style={{ marginLeft: "20px" }}>
-                                                      <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
-                                                      <div>
-                                                        <div className="d-flex align-items-center">
-                                                          <span className="comment-author pe-3">{reply.userNickname}</span>
-                                                          <span className="reply-time">
-                                                            {format(new Date(reply.creationDate), "hh:mm a, dd MMM yyyy") || "Invalid date"}
-                                                          </span>
-                                                        </div>
-                                                        {editingReplyId === reply.id ? (
+                                        {comment.replies &&
+                                          comment.replies.length > 0 && (
+                                            <div className="replies-list mt-2">
+                                              {showAllReplies[comment.id] ? (
+                                                <>
+                                                  {comment.replies.map(
+                                                    (reply) => (
+                                                      <div
+                                                        key={`reply-${reply.id}`}
+                                                        className="reply"
+                                                      >
+                                                        <div
+                                                          className="reply-content"
+                                                          style={{
+                                                            marginLeft: "20px",
+                                                          }}
+                                                        >
+                                                          <img
+                                                            src="/src/UserImages/Avatar/avt.jpg"
+                                                            className="avatar_small"
+                                                            alt="Avatar"
+                                                          />
                                                           <div>
-                                                            <textarea
-                                                              className="form-control"
-                                                              rows={2}
-                                                              value={editingReplyContent}
-                                                              onChange={(e) => setEditingReplyContent(e.target.value)}
-                                                            />
-                                                            <button
-                                                              className="btn btn-primary mt-2"
-                                                              onClick={() => handleUpdateReply(reply.id)}
-                                                            >
-                                                              Save
-                                                            </button>
-                                                            <button
-                                                              className="btn btn-secondary mt-2 ms-2"
-                                                              onClick={() => {
-                                                                setEditingReplyId(null);
-                                                                setEditingReplyContent("");
-                                                              }}
-                                                            >
-                                                              Cancel
-                                                            </button>
-                                                          </div>
-                                                        ) : (
-                                                          <p>
-                                                            <strong>{reply.repliedToNickname}:</strong> {reply.content}
-                                                          </p>
-                                                        )}
-
-                                                        {/* Nút trả lời cho reply bậc 2 */}
-                                                        <button className="btn btn-link" onClick={() => handleReplyClick(reply)}>
-                                                          Reply
-                                                        </button>
-                                                        {/* Dropdown cho reply bậc 2 */}
-                                                        {String(reply.userId) === String(currentUserId) && (
-                                                          <div className="dropdown position-absolute top-0 end-0">
-                                                            <button
-                                                              className="btn btn-options dropdown-toggle"
-                                                              type="button"
-                                                              id={`dropdownMenuButton-${reply.id}`}
-                                                              data-bs-toggle="dropdown"
-                                                              aria-expanded="false"
-                                                            >
-                                                              ...
-                                                            </button>
-                                                            <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${reply.id}`}>
-                                                              <li>
+                                                            <div className="d-flex align-items-center">
+                                                              <span className="comment-author pe-3">
+                                                                {
+                                                                  reply.userNickname
+                                                                }
+                                                              </span>
+                                                              <span className="reply-time">
+                                                                {format(
+                                                                  new Date(
+                                                                    reply.creationDate
+                                                                  ),
+                                                                  "hh:mm a, dd MMM yyyy"
+                                                                ) ||
+                                                                  "Invalid date"}
+                                                              </span>
+                                                            </div>
+                                                            {editingReplyId ===
+                                                            reply.id ? (
+                                                              <div>
+                                                                <textarea
+                                                                  className="form-control"
+                                                                  rows={2}
+                                                                  value={
+                                                                    editingReplyContent
+                                                                  }
+                                                                  onChange={(
+                                                                    e
+                                                                  ) =>
+                                                                    setEditingReplyContent(
+                                                                      e.target
+                                                                        .value
+                                                                    )
+                                                                  }
+                                                                />
                                                                 <button
-                                                                  className="dropdown-item"
+                                                                  className="btn btn-primary mt-2"
+                                                                  onClick={() =>
+                                                                    handleUpdateReply(
+                                                                      reply.id
+                                                                    )
+                                                                  }
+                                                                >
+                                                                  Save
+                                                                </button>
+                                                                <button
+                                                                  className="btn btn-secondary mt-2 ms-2"
                                                                   onClick={() => {
-                                                                    setEditingReplyId(reply.id);
-                                                                    setEditingReplyContent(reply.content);
+                                                                    setEditingReplyId(
+                                                                      null
+                                                                    );
+                                                                    setEditingReplyContent(
+                                                                      ""
+                                                                    );
                                                                   }}
                                                                 >
-                                                                  Edit
+                                                                  Cancel
                                                                 </button>
-                                                              </li>
-                                                              <li>
-                                                                <button
-                                                                  className="dropdown-item"
-                                                                  onClick={() => handleDeleteReply(reply.id)}
-                                                                >
-                                                                  Delete
-                                                                </button>
-                                                              </li>
-                                                            </ul>
-                                                          </div>
-                                                        )}
+                                                              </div>
+                                                            ) : (
+                                                              <p>
+                                                                <strong>
+                                                                  {
+                                                                    reply.repliedToNickname
+                                                                  }
+                                                                  :
+                                                                </strong>{" "}
+                                                                {reply.content}
+                                                              </p>
+                                                            )}
 
-                                                        {/* Input trả lời cho reply bậc 2 */}
-                                                        {replyingTo[reply.id] && (
-                                                          <div className="d-flex reply-input-container">
-                                                            <textarea
-                                                              className="reply-input mt-2 form-control"
-                                                              rows={1}
-                                                              placeholder="Write a reply..."
-                                                              value={replyContent[reply.id] || ""}
-                                                              onChange={(e) => handleReplyChange(reply.id, e.target.value)}
-                                                            />
-                                                            <i
-                                                              type='button' className="fa-regular fa-paper-plane ms-3 mt-2"
-                                                              onClick={() => handleAddReplyToReply(reply.id, comment.id)}
-                                                            />
+                                                            {/* Nút trả lời cho reply bậc 2 */}
+                                                            <button
+                                                              className="btn btn-link"
+                                                              onClick={() =>
+                                                                handleReplyClick(
+                                                                  reply
+                                                                )
+                                                              }
+                                                            >
+                                                              Reply
+                                                            </button>
+                                                            {/* Dropdown cho reply bậc 2 */}
+                                                            {String(
+                                                              reply.userId
+                                                            ) ===
+                                                              String(
+                                                                currentUserId
+                                                              ) && (
+                                                              <div className="dropdown position-absolute top-0 end-0">
+                                                                <button
+                                                                  className="btn btn-options dropdown-toggle"
+                                                                  type="button"
+                                                                  id={`dropdownMenuButton-${reply.id}`}
+                                                                  data-bs-toggle="dropdown"
+                                                                  aria-expanded="false"
+                                                                >
+                                                                  ...
+                                                                </button>
+                                                                <ul
+                                                                  className="dropdown-menu"
+                                                                  aria-labelledby={`dropdownMenuButton-${reply.id}`}
+                                                                >
+                                                                  <li>
+                                                                    <button
+                                                                      className="dropdown-item"
+                                                                      onClick={() => {
+                                                                        setEditingReplyId(
+                                                                          reply.id
+                                                                        );
+                                                                        setEditingReplyContent(
+                                                                          reply.content
+                                                                        );
+                                                                      }}
+                                                                    >
+                                                                      Edit
+                                                                    </button>
+                                                                  </li>
+                                                                  <li>
+                                                                    <button
+                                                                      className="dropdown-item"
+                                                                      onClick={() =>
+                                                                        handleDeleteReply(
+                                                                          reply.id
+                                                                        )
+                                                                      }
+                                                                    >
+                                                                      Delete
+                                                                    </button>
+                                                                  </li>
+                                                                </ul>
+                                                              </div>
+                                                            )}
+
+                                                            {/* Input trả lời cho reply bậc 2 */}
+                                                            {replyingTo[
+                                                              reply.id
+                                                            ] && (
+                                                              <div className="d-flex reply-input-container">
+                                                                <textarea
+                                                                  className="reply-input mt-2 form-control"
+                                                                  rows={1}
+                                                                  placeholder="Write a reply..."
+                                                                  value={
+                                                                    replyContent[
+                                                                      reply.id
+                                                                    ] || ""
+                                                                  }
+                                                                  onChange={(
+                                                                    e
+                                                                  ) =>
+                                                                    handleReplyChange(
+                                                                      reply.id,
+                                                                      e.target
+                                                                        .value
+                                                                    )
+                                                                  }
+                                                                />
+                                                                <i
+                                                                  type="button"
+                                                                  className="fa-regular fa-paper-plane ms-3 mt-2"
+                                                                  onClick={() =>
+                                                                    handleAddReplyToReply(
+                                                                      reply.id,
+                                                                      comment.id
+                                                                    )
+                                                                  }
+                                                                />
+                                                              </div>
+                                                            )}
                                                           </div>
-                                                        )}
+                                                        </div>
                                                       </div>
-                                                    </div>
-                                                  </div>
-                                                ))}
-                                                {/* Nút để ẩn các phản hồi */}
-                                                <button className="btn btn-link" onClick={() => handleToggleReplies(comment.id)}>
-                                                  Hide replies
+                                                    )
+                                                  )}
+                                                  {/* Nút để ẩn các phản hồi */}
+                                                  <button
+                                                    className="btn btn-link"
+                                                    onClick={() =>
+                                                      handleToggleReplies(
+                                                        comment.id
+                                                      )
+                                                    }
+                                                  >
+                                                    Hide replies
+                                                  </button>
+                                                </>
+                                              ) : (
+                                                <button
+                                                  className="btn btn-link"
+                                                  onClick={() =>
+                                                    handleToggleReplies(
+                                                      comment.id
+                                                    )
+                                                  }
+                                                >
+                                                  View all replies
                                                 </button>
-                                              </>
-                                            ) : (
-                                              <button className="btn btn-link" onClick={() => handleToggleReplies(comment.id)}>
-                                                View all replies
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                              )}
+                                            </div>
+                                          )}
                                       </div>
                                     </div>
                                   </div>
@@ -1173,8 +1666,15 @@ const HomeFeed = () => {
 
                                 {/* Hiển thị nút xem thêm bình luận */}
                                 {selectedPost.comments.length > 3 && (
-                                  <button className="btn btn-link" onClick={() => handleToggleComments(selectedPost.id)}>
-                                    {showAllComments[selectedPost.id] ? "View less comments" : "View all comments"}
+                                  <button
+                                    className="btn btn-link"
+                                    onClick={() =>
+                                      handleToggleComments(selectedPost.id)
+                                    }
+                                  >
+                                    {showAllComments[selectedPost.id]
+                                      ? "View less comments"
+                                      : "View all comments"}
                                   </button>
                                 )}
                               </div>
@@ -1188,34 +1688,52 @@ const HomeFeed = () => {
                                 style={{ resize: "none" }}
                                 rows={1}
                                 placeholder="Write a comment..."
-                                value={commentContent[post.id] || ""}
+                                value={commentContent[selectedPostId] || ""}
                                 onChange={(e) => handleCommentChange(selectedPost.id, e.target.value)}
                               />
-                              <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="btn btn-sm">
+                              <button
+                                onClick={() =>
+                                  setShowEmojiPicker(!showEmojiPicker)
+                                }
+                                className="btn btn-sm"
+                              >
                                 😀
                               </button>
 
                               {showEmojiPicker && (
-                                <div style={{ position: "absolute", bottom: "100%", left: "0", zIndex: 10 }}>
-                                  <Picker onEmojiSelect={(emoji) => {
-                                    addEmoji(selectedPost.id, emoji);
-                                    // Không đóng bảng emoji ở đây
-                                  }} />
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    bottom: "100%",
+                                    left: "0",
+                                    zIndex: 10,
+                                  }}
+                                >
+                                  <Picker
+                                    onEmojiSelect={(emoji) => {
+                                      addEmoji(selectedPost.id, emoji);
+                                      // Không đóng bảng emoji ở đây
+                                    }}
+                                  />
                                   {/* Nút để đóng bảng emoji */}
-                                  <button onClick={() => setShowEmojiPicker(false)} className="btn btn-link">
+                                  <button
+                                    onClick={() => setShowEmojiPicker(false)}
+                                    className="btn btn-link"
+                                  >
                                     Close
                                   </button>
                                 </div>
                               )}
                               <div className="button-comment">
-                                <i type='button' className="fa-regular fa-paper-plane mt-2"
+                                <i
+                                  type="button"
+                                  className="fa-regular fa-paper-plane mt-2"
                                   style={{ fontSize: "20px" }}
                                   onClick={() => {
                                     handleAddComment(selectedPost.id);
                                     setShowEmojiPicker(false);
                                   }}
-                                >
-                                </i>
+                                ></i>
                               </div>
                             </div>
                           </div>
@@ -1272,19 +1790,29 @@ const HomeFeed = () => {
                           </ul>
                         </div>
                       ) : (
-                        <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0" onClick={() => handleReportPost(post.id)}>
-                        </button>
+                        <button
+                          className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
+                          onClick={() => handleReport(post.id, 'post')}
+                          ></button>
                       )}
                     </div>
                     {/* Nội dung bài viết */}
                     <div className="post-content">{post.content}</div>
-                    {/* Hiển thị hình ảnh */}
                     {/* Hiển thị hình ảnh dưới dạng carousel */}
                     {post.images && post.images.length > 0 && (
-                      <div id={`carousel-${post.id}`} className="carousel slide post-images" data-bs-ride="carousel">
+                      <div
+                        id={`carousel-${post.id}`}
+                        className="carousel slide post-images"
+                        data-bs-ride="carousel"
+                      >
                         <div className="carousel-inner">
                           {post.images.map((image, index) => (
-                            <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={index}>
+                            <div
+                              className={`carousel-item ${
+                                index === 0 ? "active" : ""
+                              }`}
+                              key={index}
+                            >
                               <img
                                 src={image.postImage}
                                 className="d-block w-100"
@@ -1293,24 +1821,42 @@ const HomeFeed = () => {
                             </div>
                           ))}
                         </div>
-                        <button className="carousel-control-prev" type="button" data-bs-target={`#carousel-${post.id}`} data-bs-slide="prev">
-                          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <button
+                          className="carousel-control-prev"
+                          type="button"
+                          data-bs-target={`#carousel-${post.id}`}
+                          data-bs-slide="prev"
+                        >
+                          <span
+                            className="carousel-control-prev-icon"
+                            aria-hidden="true"
+                          ></span>
                           <span className="visually-hidden">Previous</span>
                         </button>
-                        <button className="carousel-control-next" type="button" data-bs-target={`#carousel-${post.id}`} data-bs-slide="next">
-                          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                        <button
+                          className="carousel-control-next"
+                          type="button"
+                          data-bs-target={`#carousel-${post.id}`}
+                          data-bs-slide="next"
+                        >
+                          <span
+                            className="carousel-control-next-icon"
+                            aria-hidden="true"
+                          ></span>
                           <span className="visually-hidden">Next</span>
                         </button>
                       </div>
                     )}
                     {/* Interact post */}
-                    <div className='row d-flex justify-content-start align-items-center'>
+                    <div className="row d-flex justify-content-start align-items-center">
                       {/* like post */}
                       <div className="col-2 mt-2 text-center">
                         <div className="like-count">
                           {post.likeCount || 0}
                           <i
-                            className={`fa-solid fa-heart text-danger ${likes[post.id] ? "like" : "noLike"}`}
+                            className={`fa-solid fa-heart text-danger ${
+                              likes[post.id] ? "like" : "noLike"
+                            }`}
                             onClick={() => handleLike(post.id)}
                           >
                             {likes[post.id]}
@@ -1319,15 +1865,14 @@ const HomeFeed = () => {
                       </div>
                       {/* comment post */}
                       <div className="col-2 mt-2 text-center">
-                        <div className='d-flex justify-content-center align-items-center'>
+                        <div className="d-flex justify-content-center align-items-center">
                           {post.comments.length}
                           <i
                             type="button"
-                            style={{ fontSize: '25px' }}
+                            style={{ fontSize: "25px" }}
                             className="fa-regular fa-comment"
                             onClick={() => handleOpenModal(post.id)}
-                          >
-                          </i>
+                          ></i>
                         </div>
                       </div>
                     </div>
@@ -1335,162 +1880,12 @@ const HomeFeed = () => {
                 );
               })}
             </div>
-
-            {/* Phần hiển thị track */}
-            <div className="container mt-2 mb-5">
-              {tracks.map((track) => (
-                <div className="post border" key={track.id}>
-                  {/* Tiêu đề */}
-                  <div className="post-header position-relative">
-                    <button type="button" className="btn" aria-label="Avatar">
-                      <img
-                        src={track.userId} //lỗi
-                        className="avatar_small"
-                        alt="Avatar"
-                      />
-                    </button>
-                    <div>
-                      <div className="name">
-                        {track.userName || "Unknown User"}
-                      </div>
-                      <div className="time">
-                        {new Date(track.createDate).toLocaleString()}
-                      </div>
-                    </div>
-                    {/* Dropdown cho bài viết */}
-                    <div className="dropdown position-absolute top-0 end-0">
-                      <button
-                        className="btn btn-options dropdown-toggle"
-                        type="button"
-                        id={`dropdownMenuButton-${track.id}`}
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      ></button>
-                      <ul
-                        className="dropdown-menu"
-                        aria-labelledby={`dropdownMenuButton-${track.id}`}
-                      >
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleEdit(track.id)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i> Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleDelete(track.id)}
-                          >
-                            <i className="fa-solid fa-trash"></i> Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                    <button className="fa-regular fa-flag btn-report position-absolute top-0 end-0  border border-0"></button>
-                  </div>
-
-                  <div className="post-content description">
-                    {track.description || "Unknown description"}
-                  </div>
-                  {/* Nội dung */}
-                  <div className="post-content audio">
-                    <WaveFormFeed
-                      audioUrl={track.trackFile}
-                      track={track}
-                      className=""
-                    />
-
-                  </div>
-
-                  {/* Like/Comment */}
-                  <div className="row d-flex justify-content-start align-items-center">
-                    {/* Like track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="like-count">
-                        {track.likeCount || 0} {/* Hiển thị số lượng like */}
-                        <i
-                          className={`fa-solid fa-heart ${likedTracks[track.id]?.data
-                            ? "text-danger"
-                            : "text-muted"
-                            }`}
-                          onClick={() => handleLikeTrack(track.id)}
-                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                        ></i>
-                      </div>
-                    </div>
-
-                    {/* Comment track*/}
-                    <div className="col-2 mt-2 text-center">
-                      <div className="d-flex justify-content-center align-items-center">
-                        {track.commentCount || 0}
-                        <i
-                          type="button"
-                          style={{ fontSize: "25px" }}
-                          className="fa-regular fa-comment"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalComment"
-                        ></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
           </div>
           {/* Right Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
             <ul className="list-unstyled">
-              <h6>Gợi ý theo dõi</h6>
               <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
-              </li>
-              <li className=" mb-4">
-                <a href="/#" className style={{ marginLeft: 30 }}>
-                  <div className="d-flex align-items-center post-header " style={{ marginLeft: 25 }}>
-                    <img src={images.ava} className alt="Avatar" />
-                    <div>
-                      <div className="name">Phạm Xuân Trường</div>
-                      <div className="title">Posting to Feed</div>
-                    </div>
-                    <img src={images.plus} alt="icon" style={{ marginLeft: 100, width: '10%', height: '10%' }} />
-                  </div>
-                </a>
+                <UsersToFollow userId={currentUserId} token={tokenjwt} />
               </li>
             </ul>
             <div className="advertisement mt-5">
@@ -1502,27 +1897,71 @@ const HomeFeed = () => {
 
       {/* Các modal */}
       {/* Modal báo cáo */}
+      <ToastContainer />
       {showReportModal && (
-        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+        <div
+          className="modal fade show"
+          style={{ display: "block" }}
+          role="dialog"
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Báo cáo bài viết</h5>
-                <button type="button" className="btn-close" onClick={() => setShowReportModal(false)} aria-label="Close"></button>
+                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    // Reset dữ liệu khi đóng modal
+                    setShowReportModal(false);
+                    setReportReason(""); // Reset lý do báo cáo
+                    setReportMessage(""); // Reset thông báo
+                  }}
+                  aria-label="Close"
+                ></button>
               </div>
               <div className="modal-body">
+                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                <h6>Chọn lý do báo cáo:</h6>
+                <div className="mb-3">
+                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                    <label className="d-block" key={reason}>
+                      <input
+                        type="radio"
+                        name="reportReason"
+                        value={reason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                      /> {reason}
+                    </label>
+                  ))}
+                </div>
                 <textarea
-                  className="form-control"
+                  className="form-control mt-2"
                   placeholder="Nhập lý do báo cáo"
                   value={reportReason}
-                  onChange={(e) => setReportReason(e.target.value)} // Cập nhật lý do báo cáo
-                  style={{ resize: 'none' }} // Không cho phép thay đổi kích thước
+                  onChange={(e) => setReportReason(e.target.value)}
+                  style={{ resize: 'none' }}
                 />
               </div>
               <div className="modal-footer">
-                <button className="btn btn-primary" onClick={submitReport}>Gửi báo cáo</button>
-                <button className="btn btn-secondary" onClick={() => setShowReportModal(false)}>Đóng</button>
+                <button
+                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  className="btn btn-primary"
+                >
+                  Báo cáo
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowReportModal(false);
+                    setReportReason(""); // Reset lý do báo cáo
+                    setReportMessage(""); // Reset thông báo
+                  }}
+                >
+                  Đóng
+                </button>
               </div>
+
             </div>
           </div>
         </div>
@@ -1536,9 +1975,9 @@ const HomeFeed = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-              <img src={images.ava} className="avatar_small" alt="Avatar" />
+            <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}/>
               <div>
-                <div className="name">Phạm Xuân Trường</div>
+                <div className="name">{userData.name}</div>
                 <div className="time">Posting to Feed</div>
               </div>
               <button
@@ -1565,7 +2004,9 @@ const HomeFeed = () => {
                     onChange={(e) => {
                       const files = Array.from(e.target.files);
                       setPostImages(files);
-                      setPostImageUrls(files.map(file => URL.createObjectURL(file)));
+                      setPostImageUrls(
+                        files.map((file) => URL.createObjectURL(file))
+                      );
                     }}
                   />
                 </div>
@@ -1573,7 +2014,7 @@ const HomeFeed = () => {
                   <button
                     id="submit-post"
                     type="button"
-                    style={{ backgroundColor: '#E94F37' }}
+                    style={{ backgroundColor: "#E94F37" }}
                     className="btn btn-secondary"
                     onClick={handleSubmitPost}
                   >
@@ -1584,7 +2025,17 @@ const HomeFeed = () => {
                 {postImageUrls.length > 0 && (
                   <div className="selected-images mt-3">
                     {postImageUrls.map((url, index) => (
-                      <img key={index} src={url} alt={`Selected ${index}`} style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '5px' }} />
+                      <img
+                        key={index}
+                        src={url}
+                        alt={`Selected ${index}`}
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                          marginRight: "5px",
+                        }}
+                      />
                     ))}
                   </div>
                 )}
@@ -1593,9 +2044,232 @@ const HomeFeed = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for editing track */}
+      <div
+        className="modal fade"
+        id="editModal"
+        tabIndex="-1"
+        aria-labelledby="editTrackModalLabel"
+        aria-hidden="true"
+        data-bs-backdrop="false"
+      >
+        <div className="modal-dialog modal-xl">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="editTrackModalLabel">
+                Edit Track
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => handleSave()}
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <form className="row">
+                {/* Track Name */}
+                <div className="mb-3">
+                  <label className="form-label">Track Name: </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={selectedTrack ? selectedTrack.name : ""}
+                    onChange={(e) =>
+                      setSelectedTrack({
+                        ...selectedTrack,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Image Track */}
+                <div className="mt-3">
+                  <label className="form-label">Image Track: </label>
+                  {selectedTrack && (
+                    <div>
+                      <img
+                        src={selectedTrack.imageTrack}
+                        alt="Current Track"
+                        style={{ width: "100px", marginTop: "10px" }}
+                      />
+                      <div className="custom-file mt-2">
+                        <input
+                          type="file"
+                          id="fileInput"
+                          className="custom-file-input"
+                          onChange={(e) => {
+                            if (e.target.files[0]) {
+                              setSelectedTrack({
+                                ...selectedTrack,
+                                trackImage: e.target.files[0],
+                              });
+                            }
+                          }}
+                          style={{ display: "none" }}
+                        />
+                        <label
+                          className="custom-file-label"
+                          htmlFor="fileInput"
+                        >
+                          Choose new file
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* File Track */}
+                <div className="mt-3">
+                  <label className="form-label">Current File Track: </label>
+                  <label className="custom-file-label" htmlFor="fileInput">
+                    Choose file
+                  </label>
+                  {selectedTrack && (
+                    <div>
+                      <p>
+                        Current file:{" "}
+                        {selectedTrack.trackFileName || selectedTrack.name}
+                      </p>
+                      <div className="custom-file mt-2">
+                        <input
+                          type="file"
+                          id="fileInput"
+                          className="custom-file-input"
+                          onChange={(e) => {
+                            if (e.target.files[0]) {
+                              setSelectedTrack({
+                                ...selectedTrack,
+                                trackFile: e.target.files[0],
+                              });
+                            }
+                          }}
+                          style={{ display: "none" }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Select Genre */}
+                <div className="mt-3">
+                  <label className="form-label">Genre</label>
+                  <select
+                    className="form-select"
+                    value={selectedGenre}
+                    onChange={(e) => setSelectedGenre(e.target.value)}
+                  >
+                    {genres.map((genre) => (
+                      <option
+                        key={genre.id}
+                        value={genre.id}
+                        // Set selected cho genre hiện tại
+                        selected={selectedTrack?.genre?.id === genre.id}
+                      >
+                        {genre.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Description */}
+                <div className="mt-3">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    cols="50"
+                    rows="5"
+                    className="form-control"
+                    value={selectedTrack ? selectedTrack.description : ""}
+                    onChange={(e) =>
+                      setSelectedTrack({
+                        ...selectedTrack,
+                        description: e.target.value,
+                      })
+                    }
+                  ></textarea>
+                </div>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  const editModal = document.getElementById("editModal");
+                  editModal.classList.remove("show");
+                  editModal.style.display = "none";
+                  document.body.classList.remove("modal-open");
+                }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSave}
+              >
+                Save Track
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* end modal edit */}
+
+      {/* Modal để chọn playlist */}
+      <div
+        className={`modal fade ${showModal ? "show" : ""}`}
+        tabIndex="-1"
+        style={{ display: showModal ? "block" : "none" }}
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Chọn Playlist</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={handleCloseModal}
+              ></button>
+            </div>
+            <div className="modal-body">
+              <ul className="list-group">
+                {playlists.map(
+                  (playlist) =>
+                    !playlist.status && (
+                      <div key={playlist.id} className="post-header-track m-5">
+                        <img
+                          src={playlist.imagePlaylist}
+                          className="avatar_small"
+                          alt="playlist"
+                        />
+                        <div className="info">
+                          <div className="name">{playlist.title}</div>
+                        </div>
+                        <div className="btn-group" style={{ marginLeft: 25 }}>
+                          <button
+                            type="button"
+                            className="btn-new rounded-5"
+                            onClick={() =>
+                              handleAddTrackToPlaylist(playlist.id)
+                            }
+                          >
+                            add
+                          </button>
+                        </div>
+                      </div>
+                    )
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Modal để chọn playlist */}
     </div>
   );
 };
-
 
 export default HomeFeed;

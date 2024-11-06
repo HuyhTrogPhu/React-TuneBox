@@ -6,8 +6,9 @@ import Albums from "./Profile_nav/Albums";
 import Playlists from "./Profile_nav/Playlists";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { getUserInfo, getFriendCount } from "../../../service/UserService";
 import { FollowContext } from "./FollowContext";
+import ConfirmBlockModal from "./Profile_nav/ConfirmBlockModal";
+import {getFriendCount} from "../../../service/UserService"
 
 const OtherUserProfile = () => {
   const { id } = useParams();
@@ -23,6 +24,24 @@ const OtherUserProfile = () => {
   const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
   const [followCountsLocal, setFollowCountsLocal] = useState({ followersCount: 0, followingCount: 0 });
   const [requestId, setRequestId] = useState(null);
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  
+// Moves block confirmation into modal
+const handleBlockConfirmation = async () => {
+  setShowBlockModal(false); // Close the modal
+  await toggleBlock(); // Proceed with blocking/unblocking
+};
+
+// Opens the modal only when trying to block, not unblock
+const handleBlockClick = () => {
+  if (!isBlocked) {
+    setShowBlockModal(true); // Show modal only for blocking
+  } else {
+    toggleBlock(); // Directly unblock if already blocked
+  }
+};
+
+  
   //fetch count friends
   useEffect(() => {
     const fetchUser = async () => {
@@ -48,15 +67,31 @@ const OtherUserProfile = () => {
       try {
         const response = await axios.get(`http://localhost:8080/user/${id}/profile`);
         setUserData(response.data);
-        setIsBlocked(response.data.isBlocked);
-        await checkFriendStatus();
+  
+        // Check if the user is blocked
+        const isBlockedResponse = await axios.get(`http://localhost:8080/api/blocks/is-blocked`, {
+          params: { blockerId: userId, blockedId: id },
+        });
+        setIsBlocked(isBlockedResponse.data);
+  
+        // Check friend status and save requestId
+        const friendStatusResponse = await axios.get(`http://localhost:8080/api/friends/check`, {
+          params: { userId, friendId: id },
+        });
+        console.log("Friend Status from API:", friendStatusResponse.data); // Log trạng thái trả về từ API
+  
+        // Lưu `friendStatus` và `requestId` từ API
+        setFriendStatus(friendStatusResponse.data.status);
+        setRequestId(friendStatusResponse.data.requestId);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching user data or checking friend status:", error);
       }
     };
-
+  
     fetchUserData();
-  }, [id]);
+  }, [id, userId]);
+  
+  
 
   // Check friend status
   const checkFriendStatus = async () => {
@@ -64,17 +99,13 @@ const OtherUserProfile = () => {
       const response = await axios.get(`http://localhost:8080/api/friends/check`, {
         params: { userId, friendId: id },
       });
-      const statusMap = {
-        pending: "Pending Request",
-        accepted: "Friends",
-        default: "Add Friend",
-      };
-      setFriendStatus(statusMap[response.data] || statusMap.default);
+      console.log("Friend Status:", response.data); // Kiểm tra trạng thái trả về từ API
+      setFriendStatus(response.data);
     } catch (error) {
       console.error("Error checking friend status:", error);
     }
   };
-
+  
   // Fetch follow counts
   useEffect(() => {
     const fetchFollowCounts = async () => {
@@ -138,46 +169,43 @@ const OtherUserProfile = () => {
       setIsUpdatingFollow(false);
     }
   };
-
-  // Toggle block status
-  const toggleBlock = async () => {
-    try {
-      const endpoint = isBlocked 
-        ? `http://localhost:8080/api/blocks/unblock?blockerId=${userId}&blockedId=${id}`
-        : `http://localhost:8080/api/blocks/block?blockerId=${userId}&blockedId=${id}`;
-
-      await axios({ method: isBlocked ? "delete" : "post", url: endpoint });
-      setIsBlocked(!isBlocked);
-    } catch (error) {
-      console.error("Error toggling block status:", error);
+  
+// Modify toggleBlock to remove window.confirm and handle blocking directly
+const toggleBlock = async () => {
+  if (!isBlocked) {
+    // Calls unfriend and unfollow actions before blocking
+    await unfriend();
+    if (isFollowing) {
+      await toggleFollow(); // Unfollow if currently following
     }
-  };
+  }
 
+  try {
+    const endpoint = isBlocked 
+      ? `http://localhost:8080/api/blocks/unblock?blockerId=${userId}&blockedId=${id}`
+      : `http://localhost:8080/api/blocks/block?blockerId=${userId}&blockedId=${id}`;
+    await axios({ method: isBlocked ? "delete" : "post", url: endpoint });
+    setIsBlocked(!isBlocked); // Toggle the blocked state
+  } catch (error) {
+    console.error("Error toggling block status:", error);
+  }
+};
   // Toggle friend status
   const toggleFriend = async () => {
     try {
-      if (friendStatus === "Friends") {
-        await unfriend();
-      } else if (friendStatus === "Add Friend") {
-        const response = await axios.post(`http://localhost:8080/api/friends/${userId}/${id}`);
-        setFriendStatus("Request Sent");
-        setRequestId(response.data);
+      if (friendStatus === "ACCEPTED") {
+        await axios.delete(`http://localhost:8080/api/friends/${userId}/${id}`);
+        setFriendStatus("Add Friend");
+      } else {
+        await axios.post(`http://localhost:8080/api/friends/${userId}/${id}`);
+        setFriendStatus("PENDING_SENT");
       }
     } catch (error) {
       console.error("Error toggling friend status:", error);
     }
   };
-
-  const unfriend = async () => {
-    try {
-      await axios.delete(`http://localhost:8080/api/friends/${userId}/${id}`);
-      setFriendStatus("Add Friend");
-      await checkFriendStatus();
-    } catch (error) {
-      console.error("Error unfriending:", error);
-    }
-  };
-
+  
+  
   const cancelFriendRequest = async () => {
     try {
       await axios.delete(`http://localhost:8080/api/friends/cancel-request/${userId}/${id}`);
@@ -187,24 +215,36 @@ const OtherUserProfile = () => {
     }
   };
 
-  const acceptFriendRequest = async () => {
+  const unfriend = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/friends/${userId}/${id}`);
+      setFriendStatus("Add Friend");
+      await friendStatus();
+    } catch (error) {
+      console.error("Error unfriending:", error);
+    }
+  };
+  const acceptFriendRequest = async (requestId) => {
+    console.log("Accepting friend request with ID:", requestId); // Kiểm tra requestId
     try {
       await axios.post(`http://localhost:8080/api/friends/accept/${requestId}`);
-      setFriendStatus("Friends");
+      setFriendStatus("ACCEPTED");
     } catch (error) {
       console.error("Error accepting friend request:", error);
     }
   };
-
-  const declineFriendRequest = async () => {
+  
+  const declineFriendRequest = async (requestId) => {
+    console.log("Declining friend request with ID:", requestId); // Kiểm tra requestId
     try {
       await axios.post(`http://localhost:8080/api/friends/decline/${requestId}`);
-      setFriendStatus("Add Friend");
+      setFriendStatus("PENDING_SENT");
     } catch (error) {
       console.error("Error declining friend request:", error);
     }
   };
-
+  
+  
   if (!userData) {
     return <div>Đang tải dữ liệu...</div>;
   }
@@ -215,8 +255,8 @@ const OtherUserProfile = () => {
       <aside className="col-sm-3">
         <div>
           <img src={userData.avatar || "/src/UserImages/Avatar/avt.jpg"} className="avatar" alt="avatar" />
-          <div className="fs-4 text-small mt-3"><b>{userData.userNickname}</b></div>
-          <div>{userData.userName}</div>
+          <div className="fs-4 text-small mt-3"><b>{userData.name}</b></div>
+          <div>#{userData.userName}</div>
         </div>
         <div className="row mt-4">
           <div className="col text-start">
@@ -225,9 +265,14 @@ const OtherUserProfile = () => {
             </button>
           </div>
           <div className="col text-end">
-            <button className="btn btn-danger" id="blockButton" onClick={toggleBlock}>
-              {isBlocked ? "Unblock" : "Block"}
-            </button>
+          <button className="btn btn-danger" onClick={handleBlockClick}>
+        {isBlocked ? "Unblock" : "Block"}
+      </button>
+      <ConfirmBlockModal
+        show={showBlockModal}
+        onConfirm={handleBlockConfirmation}
+        onCancel={() => setShowBlockModal(false)}
+      />
           </div>
         </div>
         <div className="row mt-4">
@@ -251,27 +296,74 @@ const OtherUserProfile = () => {
           </div>
         </div>
         <div className="col text-center">
-          {userId === id ? null : (
-            <>
-              {friendStatus === "Pending Request" ? (
-                <div>
-                  <span className="text-warning">Pending Request</span>
-                  <button className="btn btn-success" onClick={acceptFriendRequest}>Accept</button>
-                  <button className="btn btn-danger" onClick={declineFriendRequest}>Decline</button>
-                </div>
-              ) : friendStatus === "Request Sent" ? (
-                <button className="btn btn-warning" onClick={cancelFriendRequest}>Cancel Request</button>
-              ) : friendStatus === "Friends" ? (
-                <div>
-                  <span className="text-success">Friends</span>
-                  <button className="btn btn-danger" onClick={unfriend}>Unfriend</button>
-                </div>
-              ) : (
-                <button className="btn btn-success" onClick={toggleFriend}>Add Friend</button>
-              )}
-            </>
-          )}
-        </div>
+  {userId === id ? null : (
+    (friendStatus === "PENDING_SENT" && requestId) ? (
+      <button className="btn btn-warning" id="cancelRequestButton" onClick={() => cancelFriendRequest(requestId)}>
+        Cancel Request
+      </button>
+    ) : (friendStatus === "PENDING_RECEIVED" && requestId) ? (
+      <div>
+        <button className="btn btn-success" onClick={() => acceptFriendRequest(requestId)}>
+          Accept
+        </button>
+        <button className="btn btn-danger" onClick={() => declineFriendRequest(requestId)}>
+          Decline
+        </button>
+      </div>
+    ) : (friendStatus === "ACCEPTED") ? (
+      <button className="btn btn-danger" onClick={() => unfriend(requestId)}>
+        Unfriend
+      </button>
+    ) : (
+      <button className="btn btn-success" onClick={() => toggleFriend()}>
+        Add Friend
+      </button>
+    )
+  )}
+</div>
+<div style={{ paddingTop: 30 }}>
+            <label>InspiredBy</label> <br />
+            {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
+              userData.inspiredBy.map((name, index) => (
+                <span
+                  key={index}
+                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
+                >
+                  {name}
+                </span>
+              ))
+            ) : (
+              <p>No favorite artists.</p>
+            )}
+            <br />
+            <label>Talent</label> <br />
+            {userData.talent && userData.talent.length > 0 ? (
+              userData.talent.map((name, index) => (
+                <span
+                  key={index}
+                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
+                >
+                  {name}
+                </span>
+              ))
+            ) : (
+              <p>No talents selected.</p>
+            )}
+            <br />
+            <label>Genre</label> <br />
+            {userData.genre && userData.genre.length > 0 ? (
+              userData.genre.map((name, index) => (
+                <span
+                  key={index}
+                  className="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill m-1"
+                >
+                  {name}
+                </span>
+              ))
+            ) : (
+              <p>No favorite genres.</p>
+            )}
+          </div>
       </aside>
       <div className="col-sm-9 d-flex flex-column">
           <nav className="nav flex-column flex-md-row p-5">

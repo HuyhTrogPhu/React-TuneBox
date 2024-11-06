@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Header2 from "../../components/Navbar/Header2.jsx";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
@@ -7,11 +8,10 @@ import axios from 'axios';
 import { GoogleLogin } from '@react-oauth/google';
 import {loginWithGoogle} from "../../service/LoginService.js"
 const SignUp = () => {
-
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -55,10 +55,10 @@ const SignUp = () => {
       avatar: null,
       inspiredBys: [],
       talents: [],
-      genres: []
+      genres: [],
     };
 
-    navigate('/userInfor', { state: formData });
+    navigate("/userInfor", { state: formData });
   };
 
 
@@ -87,7 +87,10 @@ const SignUp = () => {
         <div className="container">
           <div className="row">
             <div className="col-lg-6 col-10 mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleSignUp}>
+              <form
+                className="custom-form ticket-form mb-5 mb-lg-0"
+                onSubmit={handleSignUp}
+              >
                 <h2 className="text-center mb-4">Tạo tài khoản</h2>
                 <div className="ticket-form-body">
                   <div className="row">
@@ -133,7 +136,15 @@ const SignUp = () => {
 
                   {/* Hiển thị thông báo lỗi */}
                   {error && (
-                    <div className="row" style={{ marginTop: 10, marginBottom: 10, color: 'red', textAlign: 'center' }}>
+                    <div
+                      className="row"
+                      style={{
+                        marginTop: 10,
+                        marginBottom: 10,
+                        color: "red",
+                        textAlign: "center",
+                      }}
+                    >
                       {error}
                     </div>
                   )}
@@ -143,10 +154,16 @@ const SignUp = () => {
                       Đăng kí
                     </button>
                   </div>
-                  <div className="col-lg-4 col-md-10 col-8 mx-auto" style={{ marginTop: 20, paddingLeft: 20 }}>
+                  <div
+                    className="col-lg-4 col-md-10 col-8 mx-auto"
+                    style={{ marginTop: 20, paddingLeft: 20 }}
+                  >
                     <span className="text-center">Hoặc tiếp tục với</span>
                   </div>
-                  <div className="row d-flex justify-content-center" style={{ marginTop: 20 }}>
+                  <div
+                    className="row d-flex justify-content-center"
+                    style={{ marginTop: 20 }}
+                  >
                     <div className="col-lg-6 col-md-6 col-12 d-flex justify-content-center image-container">
                       
                       <GoogleLogin
@@ -156,15 +173,24 @@ const SignUp = () => {
                       />
                     </div>
                   </div>
-                  <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
+                  <div
+                    className="col-lg-8 text-center mx-auto"
+                    style={{ marginTop: 20 }}
+                  >
                     <span className="text-center">
-                      Bằng cách tiếp tục tạo tài khoản bạn đã đồng ý với các điều khoản của TuneBox.
+                      Bằng cách tiếp tục tạo tài khoản bạn đã đồng ý với các
+                      điều khoản của TuneBox.
                     </span>
                   </div>
-                  <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 80 }}>
+                  <div
+                    className="col-lg-8 text-center mx-auto"
+                    style={{ marginTop: 80 }}
+                  >
                     <span className="text-center">
                       Bạn đã có tài khoản?
-                      <Link to={'/login'}><b>Đăng nhập ngay.</b></Link>
+                      <Link to={"/login"}>
+                        <b>Đăng nhập ngay.</b>
+                      </Link>
                     </span>
                   </div>
                 </div>
