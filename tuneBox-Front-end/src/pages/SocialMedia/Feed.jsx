@@ -1259,8 +1259,12 @@ const HomeFeed = () => {
                       </div>
                     </div>
                   )
+                }
               )}
             </div>
+
+
+
             {/* Phần hiển thị bài viết */}
             <div className="container mt-2 mb-5">
               {posts.map((post) => {
@@ -1404,7 +1408,6 @@ const HomeFeed = () => {
                                               </ul>
                                             </div>
                                           )}
-
                                           {/* Nút trả lời cho bình luận bậc 2 */}
                                           <button
                                             className="btn btn-link mt-2"
