@@ -1,28 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../../assets/images/images";
 import { useNavigate } from "react-router-dom";
-import { LoadTrack } from "../../../service/SocialMediaAdminService";
+
+import {
+  LoadTrack,
+  LoadTrackReport,
+  LoadTrackReportDetail,
+  DeniedRPTrack,
+  ApproveRPTrack
+} from "../../../service/SocialMediaAdminService";
 const Track = () => {
   const [AllUser, setAllUser] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [NewUser, setNewUser] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [postCount, setPostCount] = useState(0);
+  const [Report, setReport] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalData, setModalData] = useState(null);
+ 
   const usersPerPage = 5;
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      // Gọi API load all user
-      const responseLoadAllUser = await LoadTrack();
-      console.log("All Track:", responseLoadAllUser);
-      if (responseLoadAllUser.status) {
-        setAllUser(responseLoadAllUser.data);
-        console.log(AllUser);
-      }
-    };
-    fetchData();
-  }, []);
+  const fetchData = async () => {
+    const responseLoadAllUser = await LoadTrack();
+    if (responseLoadAllUser.status) {
+      setAllUser(responseLoadAllUser.data);
+    }
+  
+    const responseLoadAllReport = await LoadTrackReport();
+    if (responseLoadAllReport.status) {
+      setReport(responseLoadAllReport.data);
+    }
+  };
   useEffect(() => {
     const lastFiveUsers = AllUser.slice(-5);
     setNewUser(lastFiveUsers);
@@ -43,6 +52,37 @@ const Track = () => {
     pageNumbers.push(i);
   }
 
+  const handleShowModal = async (id) => {
+    try {
+      // Lấy dữ liệu từ API theo id
+      const response = await LoadTrackReportDetail(id);
+      setModalData(response.data); // Lưu dữ liệu vào state
+      setShowModal(true); // Hiển thị modal
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu:", error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+  const handleCloseModal = () => setShowModal(false);
+  const handleDenied =async (id) =>{
+    const Denied = await DeniedRPTrack(id);
+    
+    if (Denied.status) {
+      setShowModal(false);
+      fetchData(); // Gọi lại fetchData để cập nhật dữ liệu
+    }
+    
+  }
+  const handleApprove = async (id) =>{
+    const Approve = await ApproveRPTrack(id);
+  
+    if (Approve.status) {
+      setShowModal(false);
+      fetchData(); // Gọi lại fetchData để cập nhật dữ liệu
+    }
+  }
   return (
     <div className="container mt-4">
       <div className="row">
@@ -112,36 +152,36 @@ const Track = () => {
               <div>
                 <table className="table">
                   <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>createDate</th>
-                    <th>Total Likes</th>
-                    <th>Total Comments</th>
-                    <th>Description</th>
-                    <th>Action</th>
-                  </tr>
+                    <tr>
+                      <th>Name</th>
+                      <th>createDate</th>
+                      <th>Total Likes</th>
+                      <th>Total Comments</th>
+                      <th>Description</th>
+                      <th>Action</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  {currentUsers.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.name}</td>
-                      <td>{user.createDate}</td>
-                      <td>{user.likes.length}</td>
-                      <td>{user.comments.length}</td>
-                      <td>{user.description}</td>
-                      <td>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() =>
-                            navigate(`/socialadmin/TrackDetail/${user.id}`)
-                          }
-                        >
-                          Views
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                    {currentUsers.map((user) => (
+                      <tr key={user.id}>
+                        <td>{user.name}</td>
+                        <td>{user.createDate}</td>
+                        <td>{user.likes.length}</td>
+                        <td>{user.comments.length}</td>
+                        <td>{user.description}</td>
+                        <td>
+                          <button
+                            className="btn btn-danger"
+                            onClick={() =>
+                              navigate(`/socialadmin/TrackDetail/${user.id}`)
+                            }
+                          >
+                            Views
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
                 <nav>
                   <ul className="pagination">
@@ -170,9 +210,9 @@ const Track = () => {
 
       <div className="row">
         {/* All Users */}
-    
 
         {/* Report */}
+        {console.log(Report)}
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
@@ -184,23 +224,101 @@ const Track = () => {
                   <tr>
                     <th>Name</th>
                     <th>Report Date</th>
-                    <th></th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Karina</td>
-                    <td>05/09/2023</td>
-                    <td>
-                      <button className="btn btn-danger">Views</button>
-                    </td>
-                  </tr>
+                  {Report.map((rp) => (
+                    <tr key={rp.id}>
+                      <td>{rp.track.name}</td>
+                      <td>{rp.createDate}</td>
+                      <td>{rp.status}</td>
+                      <td>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleShowModal(rp.id)}
+                        >
+                          Views
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
+
             </div>
           </div>
         </div>
       </div>
+      {showModal && (
+                <div
+                  className="modal fade show"
+                  style={{ display: "block" }}
+                  tabIndex="-1"
+                  aria-labelledby="exampleModalLabel"
+                  aria-hidden="true"
+                >
+                  <div className="modal-dialog">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title" id="exampleModalLabel">
+                          Chi tiết Report
+                        </h5>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          onClick={handleCloseModal}
+                          aria-label="Close"
+                        ></button>
+                      </div>
+                      <div className="modal-body">
+                        {modalData ? (
+                          <>
+                            <p>Tên: {modalData.track.name}</p>
+                            <p>Trạng thái: {modalData.status}</p>
+                            <p>Ngày tạo: {modalData.createDate}</p>
+                            <p>Lý do: {modalData.reason}</p>
+                            
+                          </>
+                        ) : (
+                          <p>Đang tải dữ liệu...</p>
+                        )}
+                      </div>
+                      <div className="modal-footer">
+                      <button
+                            className="btn btn-info"
+                            onClick={() =>
+                              navigate(`/socialadmin/TrackDetail/${modalData.track.id}`)
+                            }
+                          >
+                            Views Track Detail
+                          </button>
+                      <button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() =>handleApprove(modalData.id)}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() =>handleDenied(modalData.id)}
+                        >
+                          Denied
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={handleCloseModal}
+                        >
+                          Đóng
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
     </div>
   );
 };

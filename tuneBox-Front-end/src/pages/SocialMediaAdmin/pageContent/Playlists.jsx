@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../../assets/images/images";
 import { useNavigate } from "react-router-dom";
-import { LoadPLayList } from "../../../service/SocialMediaAdminService";
+import { LoadPLayList,
+  LoadTrackReportDetail,
+  DeniedRPTrack,
+  ApproveRPTrack
+ } from "../../../service/SocialMediaAdminService";
 const Playlists = () => {
   const [AllUser, setAllUser] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);

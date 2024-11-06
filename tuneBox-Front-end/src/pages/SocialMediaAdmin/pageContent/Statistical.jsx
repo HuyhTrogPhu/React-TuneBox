@@ -17,20 +17,20 @@ function Statistical() {
   const [genreLabels, setGenreLabels] = useState([]);
   const [trackCounts, setTrackCounts] = useState([]);
 
-  // Hàm để lấy danh sách ngày trong khoảng thời gian
   const getDatesInRange = (startDate, endDate) => {
     const dateArray = [];
     let currentDate = new Date(startDate);
-
-    while (currentDate <= new Date(endDate)) {
-      // Chỉ lấy phần yyyy-mm-dd từ toISOString
+    const end = new Date(endDate);
+    end.setDate(end.getDate() + 1);  // Thêm 1 ngày vào endDate
+  
+    while (currentDate < end) { // Bây giờ sẽ bao gồm cả ngày kết thúc
       dateArray.push(currentDate.toISOString().split("T")[0]);
       currentDate.setDate(currentDate.getDate() + 1);
     }
-
+  
     return dateArray;
   };
-
+  
   // Hàm kiểm tra hợp lệ cho ngày bắt đầu và ngày kết thúc
   const validateDates = () => {
     const today = new Date();
@@ -53,7 +53,9 @@ function Statistical() {
   };
   useEffect(() => {
     if (validateDates()) {
-      setDateLabels(getDatesInRange(startDate, endDate));
+      const dates = getDatesInRange(startDate, endDate);
+      console.log("Date Labels:", dates);
+      setDateLabels(dates);
     }
   }, [startDate, endDate]);
   //tạo chart
