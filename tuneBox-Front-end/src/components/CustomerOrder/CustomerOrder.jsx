@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import { getOrdersByUserId } from '../../service/UserService';
+import { getOrdersByUserId } from '../../service/CheckoutService';
+import { useNavigate } from 'react-router-dom';
 
 const CustomerOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -11,7 +12,7 @@ const CustomerOrder = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [ordersPerPage] = useState(5); // Orders per page
   const userIdCookie = Cookies.get('userId');
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -43,6 +44,10 @@ const CustomerOrder = () => {
     });
     setFilteredOrders(filtered);
     setCurrentPage(1); // Reset to first page
+  };
+
+  const handleViewDetails = (orderId) => {
+    navigate(`/orderDetail/${orderId}`); // Điều hướng tới trang chi tiết của hóa đơn
   };
 
   // Logic for pagination
@@ -127,18 +132,13 @@ const CustomerOrder = () => {
                 <td style={{ textAlign: "center" }}>{order.totalItem}</td>
                 <td style={{ textAlign: "center" }}>{order.paymentMethod}</td>
                 <td style={{ textAlign: "center" }}>{order.shippingMethod}</td>
+           
+                <td style={{ textAlign: "center" }}>
+                  {order.paymentStatus}
+                </td>
                 <td style={{ textAlign: "center" }}>{order.status}</td>
                 <td style={{ textAlign: "center" }}>
-                  <select value={order.status} className="form-select">
-                    <option value="Wait for confirmation">Wait for confirmation</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Delivering">Delivering</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Canceled">Canceled</option>
-                  </select>
-                </td>
-                <td>
-                  <button className="btn btn-link">View</button>
+                <button className="btn btn-link" style={{textDecoration: 'none', color: '#e94f37'}}  onClick={() => handleViewDetails(order.id)}>View Details</button>
                 </td>
               </tr>
             ))}

@@ -16,8 +16,10 @@ const Sellwell = () => {
     function getInstrumentList() {
         listInstruments()
             .then((response) => {
-                setInstrumentList(response.data);
-                console.log(response.data)
+                // Lọc các sản phẩm có status là false
+                const filteredInstruments = response.data.filter(ins => !ins.status);
+                setInstrumentList(filteredInstruments);
+                console.log(filteredInstruments);
             })
             .catch((error) => {
                 console.error("Error fetching instruments", error);

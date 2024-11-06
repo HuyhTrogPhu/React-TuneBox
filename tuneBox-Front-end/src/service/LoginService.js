@@ -2,20 +2,6 @@ import axios from "axios";
 
 const REST_API_BASE_URL = 'http://localhost:8080/user';
 
-// Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
-// axios.interceptors.request.use(
-//   (config) => {
-//       const token = localStorage.getItem('token'); // Lấy token từ localStorage
-//       if (token) {
-//           config.headers['Authorization'] = `Bearer ${token}`;
-//       }
-//       return config;
-//   },
-//   (error) => {
-//       return Promise.reject(error);
-//   }
-// );
-
 
 export const listTalents = () => axios.get(`${REST_API_BASE_URL}/list-talent`);
 
@@ -50,6 +36,23 @@ export const login = async (userDto) => {
   return response.data;
 };
 
+// Đăng nhập bằng Google
+export const loginWithGoogle = async (idToken) => {
+  const response = await axios.get(`${REST_API_BASE_URL}/oauth2/success`, {
+    headers: {
+      'Authorization': `Bearer ${idToken}`, // Gửi idToken trong header Authorization
+    },
+    withCredentials: true,
+  });
+
+  // Lưu token vào LocalStorage
+  const token = response.data.token;
+  if (token) {
+    localStorage.setItem('jwtToken', token);
+  }
+
+  return response.data;
+};
 
 
 // log-out

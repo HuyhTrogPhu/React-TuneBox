@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Header2 from "../../components/Navbar/Header2.jsx";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
+import axios from 'axios'; 
+import { GoogleLogin } from '@react-oauth/google';
+import {loginWithGoogle} from "../../service/LoginService.js"
 const SignUp = () => {
 
   const [userName, setUserName] = useState('');
@@ -10,20 +13,20 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const navigate =  useNavigate();
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    if(!userName.trim()){
+    if (!userName.trim()) {
       return "Không được để trống tên người dùng";
     }
 
-    if(!email.trim()) {
+    if (!email.trim()) {
       return "Không được để trống email";
     }
 
-    if(!password.trim()) {
+    if (!password.trim()) {
       return "Không được để trống mật khẩu";
     }
 
@@ -58,6 +61,24 @@ const SignUp = () => {
     navigate('/userInfor', { state: formData });
   };
 
+
+  const responseGoogle = async (response) => {
+    try {
+      const { credential } = response;
+      
+      // Call backend to handle Google OAuth2 login
+      const res = await axios.get('http://localhost:8080/user/oauth2/authorization/google', {
+        headers: {
+          Authorization: `Bearer ${credential}`
+        }
+      });
+      
+      navigate('/login');
+    } catch (error) {
+      console.error("Error during Google login", error);
+      setError("Đăng nhập bằng Google không thành công!");
+    }
+  };
   return (
     <div>
       <Header2 />
@@ -127,9 +148,12 @@ const SignUp = () => {
                   </div>
                   <div className="row d-flex justify-content-center" style={{ marginTop: 20 }}>
                     <div className="col-lg-6 col-md-6 col-12 d-flex justify-content-center image-container">
-                      <div>
-                        <img src={images.google} alt="google" width="65px" height="65px" />
-                      </div>
+                      
+                      <GoogleLogin
+                        onSuccess={responseGoogle}
+                        onFailure={responseGoogle}
+                        cookiePolicy={'single_host_origin'}
+                      />
                     </div>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
