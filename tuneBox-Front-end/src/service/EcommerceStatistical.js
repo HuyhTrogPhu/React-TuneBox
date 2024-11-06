@@ -6,7 +6,7 @@ const REST_API_BASE_URL = 'http://localhost:8081/e-statistical';
 export const getUserSellTheMost = () => axios.get(`${REST_API_BASE_URL}/user-sell-most`);
 
 // get user revenue sell the most
-export const getTop1UserSellTheMost = () => axios.get(`${REST_API_BASE_URL}/top1-user-sell-least`);
+export const getTop1UserSellTheMost = () => axios.get(`${REST_API_BASE_URL}/top1-user-sell-most`);
 
 // get user sell the least 
 export const getUserSellTheLeast = () => axios.get(`${REST_API_BASE_URL}/user-sell-least`);

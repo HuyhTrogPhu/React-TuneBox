@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { updateCateIns } from "../../service/CategoryService";
 import { useNavigate } from "react-router-dom";
 import "../../pages/EcommerceAdmin/css/ManagerCategories.css"
+import * as XLSX from 'xlsx'; 
 const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { // Nhận prop categories và onUpdate
 
 
@@ -151,6 +152,22 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
     return valid; // Trả về kết quả xác thực
   }
 
+  const exportToExcel = () => {
+    const exportData = categories.map((cate) => ({
+      id: cate.id,
+      name: cate.name.length > 32767 ? cate.name.substring(0, 32767) : cate.name, // Giới hạn độ dài
+      description: cate.description.length > 32767 ? cate.description.substring(0, 32767) : cate.description, // Giới hạn độ dài
+    
+      status: cate.status ? 'Unavailable' : 'Available',
+    }));
+  
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Categories');
+  
+    // Xuất file Excel
+    XLSX.writeFile(wb, 'Categories.xlsx');
+  };
 
   return (
     <div>
@@ -212,7 +229,7 @@ const CatogoriesList = ({ categories, onUpdate, sortOrder, handleSort }) => { //
         </tbody>
 
       </table>
-
+      <button className="btn btn-success mb-3" onClick={exportToExcel}>Export to Excel</button> 
       {/* modal edit */}
       <style dangerouslySetInnerHTML={{ __html: "\n      /* styles.css hoặc tệp CSS tương tự */\n.btn-danger-custom {\n  background-color: #dc3545; /* Màu đỏ */\n  color: white; /* Màu chữ */\n}\n\n.btn-danger-custom:hover {\n  background-color: #c82333; /* Màu đỏ đậm khi hover */\n}\n\n      " }} />
 

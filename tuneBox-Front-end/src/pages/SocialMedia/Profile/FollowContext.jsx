@@ -8,6 +8,20 @@ export const FollowProvider = ({ children }) => {
   const [followCounts, setFollowCounts] = useState({});
   const currentUserId = Cookies.get("userId");
 
+  // Cấu hình interceptor cho Axios để thêm Authorization header vào mỗi yêu cầu
+  axios.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('token'); // Lấy token từ localStorage
+      if (token) {
+        config.headers['Authorization'] = token;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
   useEffect(() => {
     const fetchFollowCounts = async () => {
       if (currentUserId) {
@@ -26,7 +40,7 @@ export const FollowProvider = ({ children }) => {
         }
       }
     };
-    
+
 
     fetchFollowCounts();
 
@@ -58,11 +72,11 @@ export const FollowProvider = ({ children }) => {
   const toggleFollow = async () => {
     if (isUpdatingFollow) return;
     setIsUpdatingFollow(true);
-  
+
     try {
       let newFollowerCount = followerCount; // Dùng followerCount lấy từ useMemo
       let newFollowingCount = followCounts[currentUserId]?.followingCount || 0;
-  
+
       if (isFollowing) {
         // Unfollow
         await axios.delete(`http://localhost:8080/api/follow/unfollow`, {
@@ -86,7 +100,7 @@ export const FollowProvider = ({ children }) => {
         newFollowingCount += 1;
         setIsFollowing(true);
       }
-  
+
       // Cập nhật ngay lập tức vào FollowContext
       updateFollowerCount(id, newFollowerCount);
       updateFollowingCount(newFollowingCount);
@@ -96,8 +110,8 @@ export const FollowProvider = ({ children }) => {
       setIsUpdatingFollow(false);
     }
   };
-  
-  
+
+
   return (
     <FollowContext.Provider
       value={{

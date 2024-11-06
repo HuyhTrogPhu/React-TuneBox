@@ -17,8 +17,8 @@ export const getPlaylistById = async (playlistId) => {
   }
 };
 
-// Lấy danh sách album theo userId
-export const getAlbumsByUserId = async (userId) => {
+// Lấy danh sách playlist theo userId
+export const getPlaylistByUserId = async (userId) => {
   try {
     const response = await axios.get(`${API_URL}/user/${userId}`, {});
     return response.data;
@@ -68,62 +68,6 @@ export const listAlbumStyle = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching album styles:", error);
-    throw error;
-  }
-};
-
-// Tạo album mới
-export const createAlbum = async (albumData) => {
-  try {
-    const response = await axios.post(API_URL, albumData);
-
-    return response.data;
-  } catch (error) {
-    console.error("Error creating album:", error.response?.data || error);
-    throw error;
-  }
-};
-
-// Xóa album theo ID
-export const deleteAlbum = async (albumId) => {
-  try {
-    await axios.delete(`${API_URL}/${albumId}`, { withCredentials: true });
-  } catch (error) {
-    console.error("Error deleting album:", error);
-    throw error;
-  }
-};
-
-// Cập nhật album theo ID
-// export const updateAlbum = async (albumId, albumData) => {
-//   try {
-//     const response = await axios.put(`${API_URL}/${albumId}`, albumData, {
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error updating album:", error);
-//     throw error;
-//   }
-// };
-// AlbumsServiceCus.js
-export const updateAlbum = async (albumId, formData) => {
-  try {
-    // Log request data
-    console.log("Updating album with ID:", albumId);
-    console.log("FormData contents:");
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-
-    const response = await axios.put(`${API_URL}/${albumId}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response;
-  } catch (error) {
-    console.error("Error updating album:", error);
-    console.error("Server response:", error.response?.data);
     throw error;
   }
 };
