@@ -1256,7 +1256,7 @@ const HomeFeed = () => {
                       </div>
                     </div>
                   )
-              )}
+ } )}
             </div>
             {/* Phần hiển thị bài viết */}
             <div className="container mt-2 mb-5">
