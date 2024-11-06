@@ -904,20 +904,32 @@ const HomeFeed = () => {
   };
   const submitReport = async (userId, reportId, reportType, reason) => {
     try {
-      const response = await fetch('http://localhost:8080/api/reports', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Đảm bảo gửi cookie cùng với request
-        body: JSON.stringify({
-          postId: reportPostId,
-          reason: reportReason,
-        }),
-      });
+      const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
 
-      if (response.ok) {
-        console.log('thành công');
+      const reportExists = await checkReportExists(userId, reportId, reportType);
+      if (reportExists) {
+        setReportMessage("Bạn đã báo cáo nội dung này rồi.");
+        toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
+      } else {
+        const reportData = {
+          userId: userId,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,
+          reason: reason
+        };
+
+        const response = await axios.post('http://localhost:8080/api/reports', reportData, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}` // Thêm JWT token vào header
+          }
+        });
+
+        console.log('Report submitted successfully:', response.data);
+        setReportMessage("Báo cáo đã được gửi thành công.");
+        toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
         setShowReportModal(false);
       }
     } catch (error) {
@@ -925,7 +937,8 @@ const HomeFeed = () => {
       if (error.response && error.response.status === 401) {
         navigate('/login?error=true');
       } else {
-        console.error('Có lỗi xảy ra khi gửi báo cáo.');
+        setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
+        toast.error("Đã có lỗi xảy ra khi gửi báo cáo."); // Hiển thị toast thông báo lỗi
       }
     }
   };
@@ -1896,14 +1909,10 @@ const HomeFeed = () => {
       </div>
 
       {/* Các modal */}
-      {/* Modal báo cáo */}
-      <ToastContainer />
+ {/* Modal báo cáo */}
+ <ToastContainer />
       {showReportModal && (
-        <div
-          className="modal fade show"
-          style={{ display: "block" }}
-          role="dialog"
-        >
+        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
