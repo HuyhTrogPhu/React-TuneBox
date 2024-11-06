@@ -19,6 +19,7 @@ import {
   deleteReply,
   updateReply,
 } from "../../../../service/CommentTrackCus";
+import { search } from "../../../../service/UserService";
 import { images } from "../../../../assets/images/images";
 import Waveform from "../Profile_nav/Waveform";
 import Cookies from "js-cookie";
@@ -324,6 +325,7 @@ function Trackdetail() {
         (a, b) => new Date(b.createDate) - new Date(a.createDate)
       ); // Sap xep track
       setlistTrackByUserId(sortedTrack); // Luu track vao state
+      setFilteredTracks(sortedTrack); //ban đầu, filteredTracks bằng tất cả tracks
       console.log(response.data);
     } catch (error) {
       console.error(
@@ -339,24 +341,24 @@ function Trackdetail() {
 
   // search
   const [keyword, setKeyword] = useState("");
+  const [filteredTracks, setFilteredTracks] = useState([]);
 
-  const handleSearch = async () => {
-    if (!keyword) return; // Không tìm kiếm nếu không có từ khóa
-    try {
-      const results = await search(keyword);
-      console.log("ket qua search: ", results); // Xử lý kết quả tìm kiếm ở đây
-      navigate(`/search?keyword=${encodeURIComponent(keyword)}`, {
-        state: { results },
-      });
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-    }
-  };
+  // Hàm xử lý tìm kiếm và lọc danh sách track
+  const handleSearch = (e) => {
+    const searchKeyword = e.target.value; //từ khóa tìm kiếm từ input
+    setKeyword(searchKeyword); // update state từ khóa tìm kiếm
 
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      handleSearch(); // Gọi tìm kiếm khi nhấn phím Enter
+    // từ khóa trống, hiển thị tất cả track
+    if (!searchKeyword.trim()) {
+      setFilteredTracks(listTrackByUserId);
+      return;
     }
+
+    // lọc danh sách track theo từ khóa
+    const filtered = listTrackByUserId.filter((track) =>
+      track.name.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+    setFilteredTracks(filtered); // Cập nhật danh sách track đã lọc
   };
   // end search
 
@@ -370,51 +372,57 @@ function Trackdetail() {
   return (
     <div className="trackDetail">
       <div className="row">
-        <div className="col-3 pt-5 p-5 ">
+        {/* tìm kiếm track của người dùng */}
+        <div className="col-3 pt-5 p-5">
+          <div className="orther">My tracks</div>
           <div className="search-container mb-5">
             <input
               type="text"
               placeholder="Search..."
               className="search-input"
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)} // Cập nhật state khi người dùng nhập
-              onKeyDown={handleKeyDown} // Xử lý sự kiện nhấn phím
+              onChange={handleSearch} // Gọi handleSearch khi người dùng nhập
             />
-            <button type="button" className="btn-search" onClick={handleSearch}>
+            <button type="button" className="btn-search">
               <i className="fa-solid fa-magnifying-glass"></i>
             </button>
           </div>
 
-          {/* get all track cua ng dùng*/}
-          {listTrackByUserId.map(
-            (track) =>
-              !track.status && (
-                <div key={track.id} className="post-header-track">
-                  <img
-                    src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}
-                    className="avatar_small"
-                    alt="Avatar"
-                  />
-
-                  <div className="info">
-                    <Link
-                      to={{
-                        pathname: `/track/${track.id}`,
-                        state: { track },
-                      }}
-                    >
-                      <div className="name">
-                        {track.name || "Unknown Track"}
+          {/* Hiển thị danh sách track đã lọc hoặc tất cả track */}
+          {filteredTracks.length > 0 ? (
+            filteredTracks.map(
+              (track) =>
+                !track.status && (
+                  <div key={track.id} className="post-header-track">
+                    <img
+                      src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}
+                      className="avatar_small"
+                      alt="Avatar"
+                    />
+                    <div className="info">
+                      <Link
+                        to={{
+                          pathname: `/track/${track.id}`,
+                          state: { track },
+                        }}
+                      >
+                        <div className="name">
+                          {track.name || "Unknown Track"}
+                        </div>
+                      </Link>
+                      <div className="author">
+                        {track.userName || "Unknown userName"}
                       </div>
-                    </Link>
-                    <div className="author">
-                      {track.userName || "Unknown userName"}
                     </div>
                   </div>
-                </div>
-              )
+                )
+            )
+          ) : (
+            <div>No results</div>
           )}
         </div>
+
+        {/* track detail */}
         <div className="col-6">
           <div className="container track-page-header p-0">
             <Waveform audioUrl={track.trackFile} track={track} />
@@ -468,10 +476,28 @@ function Trackdetail() {
               </div>
             </div>
 
+            {/* Form thong tin */}
+            <div className="track-infor">
+              <div className="d-flex align-items-start p-3">
+                <img
+                  src={images.avt}
+                  alt=""
+                  width={50}
+                  height={50}
+                  className="avatar_small"
+                />
+                <div className="infor ms-3">
+                  <div className="info-author">@{track.userName}</div>
+                  <div className="info-genre">Genre: {track.genreName}</div>
+                  <p>{track.description}</p>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-3">
               <div>
                 {/* form comment */}
-                <div className="comment-content row m-4">
+                <div className="comment-content row">
                   <div className="col-11">
                     <textarea
                       className="form-control"
@@ -690,29 +716,12 @@ function Trackdetail() {
                 {/*  */}
               </div>
             </div>
-
-            {/* Form thong tin */}
-            {/* <div className="track-infor col-md-4 border rounded-3 ms-5 p-3 ">
-                <div className="d-flex align-items-start">
-                  <img
-                    src={images.avt}
-                    alt=""
-                    width={50}
-                    height={50}
-                    className="avatar_small"
-                  />
-                  <div className="infor ms-3">
-                    <div className="info-author">{track.userName}</div>
-                    <div className="info-genre">{track.genreName}</div>
-                    <p>{track.description}</p>
-                  </div>
-                </div>
-                <hr></hr>
-              </div> */}
           </div>
         </div>
-        <div className="col-3">
-          <div className="orther pt-3">Tracks from the same genre</div>
+
+        {/* các track có cùng thể loại */}
+        <div className="col-3 pt-5 p-2">
+          <div className="orther">Tracks from the same genre</div>
           <div>
             {/* list track theo genre */}
             <div className="related-tracks">
@@ -720,41 +729,47 @@ function Trackdetail() {
                 <p>No related tracks found.</p>
               ) : (
                 <div className=" show-list p-3">
-                  {relatedTracks.map((relatedTrack) => (
-                    <div key={relatedTrack.id} className="post-header-track">
-                      <img
-                        src={
-                          relatedTrack.imageTrack ||
-                          "/src/UserImages/Avatar/avt.jpg"
-                        }
-                        className="avatar_small"
-                        alt="Avatar"
-                      />
-                      <div className="info">
-                        <Link
-                          to={{
-                            pathname: `/track/${relatedTrack.id}`,
-                            state: { track: relatedTrack },
-                          }}
+                  {relatedTracks.map(
+                    (relatedTrack) =>
+                      !relatedTrack.status && (
+                        <div
+                          key={relatedTrack.id}
+                          className="post-header-track"
                         >
-                          <div className="name">
-                            {relatedTrack.name || "Unknown Track"}
+                          <img
+                            src={
+                              relatedTrack.imageTrack ||
+                              "/src/UserImages/Avatar/avt.jpg"
+                            }
+                            className="avatar_small"
+                            alt="Avatar"
+                          />
+                          <div className="info">
+                            <Link
+                              to={{
+                                pathname: `/track/${relatedTrack.id}`,
+                                state: { track: relatedTrack },
+                              }}
+                            >
+                              <div className="name">
+                                {relatedTrack.name || "Unknown Track"}
+                              </div>
+                            </Link>
+                            <div className="author">
+                              {relatedTrack.userName || "Unknown userName"}
+                            </div>
                           </div>
-                        </Link>
-                        <div className="author">
-                          {relatedTrack.userName || "Unknown userName"}
+                          <div className="btn-group" style={{ marginLeft: 25 }}>
+                            <button
+                              className="btn dropdown-toggle no-border"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            ></button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="btn-group" style={{ marginLeft: 25 }}>
-                        <button
-                          className="btn dropdown-toggle no-border"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        ></button>
-                      </div>
-                    </div>
-                  ))}
+                      )
+                  )}
                 </div>
               )}
             </div>
