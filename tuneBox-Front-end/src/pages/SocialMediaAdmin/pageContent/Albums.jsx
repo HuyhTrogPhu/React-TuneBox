@@ -103,7 +103,6 @@ const Albums = () => {
                 <thead>
                   <tr>
                     <th>Title </th>
-
                     <th>Create Date</th>
                     <th>Total tracks</th>
                   </tr>

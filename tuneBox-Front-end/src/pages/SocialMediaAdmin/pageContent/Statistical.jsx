@@ -239,6 +239,9 @@ function Statistical() {
       <button onClick={handleTrackGenre} className="btn btn-primary m-3 ">
       New track by genre
       </button>
+      <table>
+        
+      </table>
 
       {chartType === "line" ? (
         <Line
