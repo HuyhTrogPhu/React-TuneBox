@@ -360,6 +360,7 @@ audio {
   margin-top: 20px;
 }
 
+
 @media (min-width: 540px) {
   .card {
     grid-template-columns: repeat(2, 1fr);

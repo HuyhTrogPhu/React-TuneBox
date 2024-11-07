@@ -1020,7 +1020,6 @@ const HomeFeed = () => {
 };
     return (
     <div>
-            <ToastContainer />
       <div className="container-fluid">
         <ToastContainer />
         <div className="row">
@@ -1133,6 +1132,7 @@ const HomeFeed = () => {
               {tracks.map((track) => {
                 const createdAt = track.createDate ? new Date(track.createDate) : null;
                 return (
+                  !track.status && (
                   <div className="post border" key={track.id}>
                     {/* Tiêu đề */}
                     <div className="post-header position-relative">
@@ -1255,6 +1255,7 @@ const HomeFeed = () => {
                         </div>
                       </div>
                     </div>
+                  )
                   )
  } )}
             </div>
@@ -1907,7 +1908,7 @@ const HomeFeed = () => {
 
       {/* Các modal */}
  {/* Modal báo cáo */}
- <ToastContainer />
+
       {showReportModal && (
         <div className="modal fade show" style={{ display: 'block' }} role="dialog">
           <div className="modal-dialog">

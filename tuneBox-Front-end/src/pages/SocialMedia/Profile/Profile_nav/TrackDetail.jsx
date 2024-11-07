@@ -3,6 +3,7 @@ import "./css/Trackdetail.css";
 import { useParams, useLocation } from "react-router-dom";
 import { getTrackById } from "../../../../service/TrackServiceCus";
 import { getTrackByGenreId } from "../../../../service/TrackServiceCus";
+import { getUserInfo } from "../../../../service/UserService";
 import {
   addLike,
   removeLike,
@@ -52,6 +53,7 @@ function Trackdetail() {
   const [relatedTracks, setRelatedTracks] = useState([]); // State lưu danh sách các track cùng thể loại
 
   const userId = Cookies.get("userId"); // Lấy userId từ cookies
+  console.log("replies: ", replies)
 
   // get track genreid
   useEffect(() => {
