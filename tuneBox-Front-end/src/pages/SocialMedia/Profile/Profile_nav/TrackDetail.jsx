@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./css/Trackdetail.css";
 import { useParams, useLocation } from "react-router-dom";
 import { getTrackById } from "../../../../service/TrackServiceCus";
+import { getAvatarUser } from "../../../../service/UserService";
 import { getTrackByGenreId } from "../../../../service/TrackServiceCus";
-import { getUserInfo } from "../../../../service/UserService";
 import {
   addLike,
   removeLike,
@@ -42,6 +42,9 @@ function Trackdetail() {
 
   const [comments, setComments] = useState([]); // State lưu trữ comment
   const [newComment, setNewComment] = useState("");
+  const [avataCmt, setAvataCmt] = useState("");
+  const [avataTrackDetail, setAvataTrackDetail] = useState("");
+  const [avatarReplies, setAvatarReplies] = useState({});
 
   const [editingCommentId, setEditingCommentId] = useState(null); // ID của bình luận đang chỉnh sửa
 
@@ -53,7 +56,6 @@ function Trackdetail() {
   const [relatedTracks, setRelatedTracks] = useState([]); // State lưu danh sách các track cùng thể loại
 
   const userId = Cookies.get("userId"); // Lấy userId từ cookies
-  console.log("replies: ", replies)
 
   // get track genreid
   useEffect(() => {
@@ -77,6 +79,11 @@ function Trackdetail() {
       try {
         const response = await getTrackById(id);
         setTrack(response.data);
+        console.log("track detail: ", response.data);
+
+        const avatar = await getAvatarUser(response.data.userId);
+        console.log("avatar user track", avatar);
+        setAvataTrackDetail(avatar);
       } catch (err) {
         setError("Không tìm thấy Track");
       } finally {
@@ -130,16 +137,22 @@ function Trackdetail() {
       try {
         const response = await getCommentsByTrack(id);
         setComments(response); // Cập nhật danh sách bình luận
+        console.log("bình luận:", response);
 
         // Duyệt qua từng bình luận để lấy replies
         for (const comment of response) {
           await fetchReplies(comment.id); // Gọi hàm fetchReplies cho từng comment
+
+          const avatar = await getAvatarUser(comment.userId);
+          console.log("avatar comment:", avatar);
+          setAvataCmt(avatar);
         }
       } catch (error) {
         console.error("Lỗi khi lấy bình luận:", error);
       }
     };
 
+    fetchReplies();
     fetchComments();
   }, [id]);
 
@@ -164,6 +177,9 @@ function Trackdetail() {
         console.error("Lỗi khi thêm bình luận:", error);
       }
     }
+
+    fetchReplies(commentId);
+    fetchComments();
   };
 
   // Xóa comment
@@ -225,6 +241,15 @@ function Trackdetail() {
         ...prevReplies,
         [commentId]: replies, // Cập nhật danh sách replies cho bình luận cụ thể
       }));
+
+      // Lấy avatar cho từng reply
+      const avatarRepliesObj = {};
+      for (const reply of replies) {
+        const avatar = await getAvatarUser(reply.userId);
+        avatarRepliesObj[reply.id] = avatar; // Lưu avatar cho từng reply
+        console.log("avatar reply: ", avatar);
+      }
+      setAvatarReplies((prev) => ({ ...prev, [commentId]: avatarRepliesObj }));
     } catch (error) {
       console.error(error.message); // Hiển thị thông báo lỗi nếu có
     }
@@ -290,6 +315,9 @@ function Trackdetail() {
         ...prevState,
         [commentId]: "", // Xóa nội dung đã nhập
       }));
+
+      fetchReplies(commentId);
+      fetchComments();
     } catch (error) {
       console.error("Lỗi khi thêm phản hồi:", error.message);
     }
@@ -482,7 +510,7 @@ function Trackdetail() {
             <div className="track-infor">
               <div className="d-flex align-items-start p-3">
                 <img
-                  src={images.avt}
+                  src={avataTrackDetail}
                   alt=""
                   width={50}
                   height={50}
@@ -527,7 +555,7 @@ function Trackdetail() {
                           <div className="comment-content position-relative ">
                             <div className="d-flex align-items-start">
                               <img
-                                src={images.avt}
+                                src={avataCmt}
                                 alt=""
                                 width={50}
                                 height={50}
@@ -558,7 +586,6 @@ function Trackdetail() {
                                   data-bs-toggle="dropdown"
                                   aria-expanded="false"
                                   style={{
-                                    color: "white",
                                     backgroundColor: "transparent",
                                   }}
                                 >
@@ -643,7 +670,7 @@ function Trackdetail() {
                                   key={reply.id}
                                 >
                                   <img
-                                    src="/src/UserImages/Avatar/avt.jpg"
+                                    src={avatarReplies[comment.id]?.[reply.id]}
                                     className="avatar_small"
                                     alt="Avatar"
                                   />
