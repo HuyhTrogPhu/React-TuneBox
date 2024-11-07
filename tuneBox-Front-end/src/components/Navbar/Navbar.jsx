@@ -17,6 +17,7 @@ import {
   SwipeAction,
 } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
+import { Audio } from 'react-loader-spinner'
 import axios from "axios";
 
 const Navbar = () => {
@@ -34,6 +35,8 @@ const Navbar = () => {
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const userId = Cookies.get("userId");
@@ -144,7 +147,7 @@ const Navbar = () => {
 
   const handleSave = async () => {
     if (!validateForm()) return;
-
+    setIsLoading(true);
     const newTrack = new FormData();
     newTrack.append("name", newTrackName);
     newTrack.append("trackImage", newTrackImage);
@@ -163,6 +166,8 @@ const Navbar = () => {
       getAllTrack();
     } catch (error) {
       console.error("Error creating track:", error);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -478,9 +483,8 @@ const Navbar = () => {
                     <label className="form-label">Track Name</label>
                     <input
                       type="text"
-                      className={`form-control ${
-                        errors.name ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.name ? "is-invalid" : ""
+                        }`}
                       value={newTrackName}
                       onChange={(e) => setTrackName(e.target.value)}
                     />
@@ -493,9 +497,8 @@ const Navbar = () => {
                     <label className="form-label">Image Track</label>
                     <input
                       type="file"
-                      className={`form-control ${
-                        errors.image ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.image ? "is-invalid" : ""
+                        }`}
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -524,9 +527,8 @@ const Navbar = () => {
                     <label className="form-label">File Track</label>
                     <input
                       type="file"
-                      className={`form-control ${
-                        errors.file ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.file ? "is-invalid" : ""
+                        }`}
                       accept=".mp3"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -554,9 +556,8 @@ const Navbar = () => {
                   <div className="mt-3">
                     <label className="form-label">Genre</label>
                     <select
-                      className={`form-select ${
-                        errors.genre ? "is-invalid" : ""
-                      }`}
+                      className={`form-select ${errors.genre ? "is-invalid" : ""
+                        }`}
                       value={newTrackGenre}
                       onChange={(e) => setTrackGenre(e.target.value)}
                     >
@@ -583,9 +584,8 @@ const Navbar = () => {
                     <textarea
                       cols="50"
                       rows="5"
-                      className={`form-control ${
-                        errors.description ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.description ? "is-invalid" : ""
+                        }`}
                       value={newTrackDescription}
                       onChange={(e) => setTrackDescription(e.target.value)}
                     ></textarea>
@@ -610,8 +610,13 @@ const Navbar = () => {
                   type="button"
                   className="btn btn-primary"
                   onClick={handleSave}
+                  disabled={isLoading} // Disable button during loading
                 >
-                  Save Track
+                  {isLoading ? (
+                    <Audio height="20" width="20" color="white" ariaLabel="loading" />
+                  ) : (
+                    "Save Track"
+                  )}
                 </button>
               </div>
             </div>

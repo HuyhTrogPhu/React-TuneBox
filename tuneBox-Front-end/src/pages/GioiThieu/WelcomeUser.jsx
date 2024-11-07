@@ -1,4 +1,5 @@
 import React from 'react';
+import Swal from 'sweetalert2';
 import './css/bootstrap.min.css';
 import './css/bootstrap-icons.css';
 import './css/header.css';
@@ -42,16 +43,28 @@ const WelcomeUser = () => {
   
     try {
       await register(formDataToSend); 
-      alert('Đăng ký thành công!');
-      navigate('/login'); 
+      
+      // Sử dụng swal để thông báo đăng ký thành công
+      Swal.fire({
+        title: 'Đăng ký thành công!',
+        text: 'Bạn đã đăng ký thành công tài khoản của mình.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        navigate('/login'); // Điều hướng sau khi nhấn OK
+      });
+      
     } catch (error) {
       console.log("Error during registration", error);
-      alert('Đăng ký không thành công!');
+      Swal.fire({
+        title: 'Đăng ký không thành công!',
+        text: 'Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   };
   
-  
-
   return (
     <div>
       <div>

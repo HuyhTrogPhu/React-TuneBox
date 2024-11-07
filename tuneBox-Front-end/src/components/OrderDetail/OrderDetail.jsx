@@ -135,7 +135,6 @@ const OrderDetail = () => {
                 {orderDetail.status}
               </span>
             </p>
-            <p><strong>Order Date: </strong> <span style={{ color: 'blue' }}>{orderDetail.orderDate}</span></p>
             <p><strong>Delivery Date: </strong> <span style={{ color: 'blue' }}>{orderDetail.deliveryDate}</span></p>
           </div>
         </div>

@@ -5,6 +5,8 @@ import Header2 from "../../components/Navbar/Header2.jsx";
 import Footer2 from "../../components/Footer/Footer2.jsx";
 import { images } from "../../assets/images/images.js";
 import axios from 'axios'; 
+import Swal from "sweetalert2";
+import { Audio } from 'react-loader-spinner'
 import { GoogleLogin } from '@react-oauth/google';
 import {loginWithGoogle} from "../../service/LoginService.js"
 const SignUp = () => {
