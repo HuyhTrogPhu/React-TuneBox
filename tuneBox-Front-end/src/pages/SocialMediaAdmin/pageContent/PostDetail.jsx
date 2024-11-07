@@ -14,10 +14,10 @@ const PostDetail = () => {
   const fetchPostDetail = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8082/admin/posts/${id}`
+        `http://localhost:8082/SocialAdmin/static/getPost/${id}`
       );
       console.log("Post data:", response.data);
-      setPost(response.data);
+      setPost(response.data.data);
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết bài đăng:", error);
       setErrorMessage("Không thể lấy thông tin bài đăng.");
@@ -162,7 +162,7 @@ const PostDetail = () => {
                   <p className="mb-2">
                     <span className="fw-bold text-secondary">Đăng bởi: </span>
                     <span className="fw-semibold text-primary">
-                      {post.userNickname}
+                      {post.userName}
                     </span>
                   </p>
 

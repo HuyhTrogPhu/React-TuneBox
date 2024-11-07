@@ -1,5 +1,6 @@
-import React from "react";
-import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Route, Routes, Outlet,useParams } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -53,6 +54,10 @@ import Chat from "./pages/SocialMedia/chat/chat";
 import SocialMediaAdmin from "./pages/SocialMediaAdmin";
 // Layout có Header
 
+//socialadmin
+import SocialMediaAdmin from "./pages/SocialMediaAdmin";
+import LoginS_ADMIN from "./pages/SocialMediaAdmin/pageContent/Login";
+
 function LayoutWithHeader() {
   return (
     <>
@@ -86,7 +91,6 @@ function App() {
               <Route path="/HomeEcommerce" element={<Home />} />
               <Route path="/Shop" element={<Shop />} />
               <Route path="/profileUser/*" element={<ProfileUser />} />
-              <Route path="/shop" element={<Shop />} />
               <Route path="/profileUser" element={<ProfileUser />} />
               <Route path="/profileSetting" element={<ProfileSetting />} />
               <Route path="/CartDetail" element={<CartDetail />} />

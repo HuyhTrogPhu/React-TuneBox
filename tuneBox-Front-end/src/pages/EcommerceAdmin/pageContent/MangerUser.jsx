@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { images } from "../../../assets/images/images";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
   LoadAllPost,
   LoadAllUser,
 } from "../../../service/SocialMediaAdminService";
-const Users = () => {
+const MangerUser = () => {
   const [AllUser, setAllUser] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [NewUser, setNewUser] = useState([]);
@@ -22,34 +22,22 @@ const Users = () => {
       if (responseLoadAllUser.status) {
         setAllUser(responseLoadAllUser.data);
         console.log(AllUser);
-        // Lấy 5 user mới nhất
-        const lastFiveUsers = AllUser.slice(-5);
+        // lay 5 user moi nhat
+        const lastFiveUsers = responseLoadAllUser.data.slice(-5);
         setNewUser(lastFiveUsers);
       }
-    };
-    fetchData();
-  }, []);
-  useEffect(() => {
-    const calculatePostCounts = async () => {
+      //dem so post
       const allPosts = await LoadAllPost();
+
       const usersWithPosts = AllUser.map((user) => {
-        const userPostCount = allPosts.data.filter(
-          (post) => post.userId === user.id
-        ).length;
+        const userPostCount = allPosts.data.filter((post) => post.userId === user.id).length;
         return { ...user, totalPosts: userPostCount };
       });
-  
       setAllUser(usersWithPosts);
     };
-  
-    if (AllUser.length > 0) {
-      calculatePostCounts();
-    }
-    const lastFiveUsers = AllUser.slice(-5);
-    setNewUser(lastFiveUsers);
-  }, [AllUser]);
-  
-  
+
+    fetchData();
+  }, []);
 
   //count cho table all user
   const indexOfLastUser = currentPage * usersPerPage;
@@ -73,7 +61,7 @@ const Users = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5 className="text-light">New Users</h5>
+              <h5>New Users</h5>
             </div>
             <div className="card-body">
               <table className="table">
@@ -85,7 +73,7 @@ const Users = () => {
                     <th>Total Post</th>
                     <th>Total Track</th>
                     <th>Total Oders</th>
-                    <th>Action</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -101,7 +89,7 @@ const Users = () => {
                         <button
                           className="btn btn-danger"
                           onClick={() =>
-                            navigate(`/socialadmin/detailUser/${user.id}`)
+                            navigate(`/ecomadmin/detailUser/${user.id}`)
                           }
                         >
                           Views
@@ -114,11 +102,47 @@ const Users = () => {
             </div>
           </div>
         </div>
-        {/* ALl USER */}
+
+        {/* Featured Users */}
         <div className="col-md-6">
-        <div className="card mb-4">
+          <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5 className="text-light">All Users</h5>
+              <h5>Featured Users</h5>
+            </div>
+            <div className="card-body">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Total Posts</th>
+                    <th>Total Likes</th>
+                    <th>Total Comments</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Karina</td>
+                    <td>1000</td>
+                    <td>1000</td>
+                    <td>1000</td>
+                    <td>
+                      <button className="btn btn-danger">Views</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="row">
+        {/* All Users */}
+        <div className="col-md-6">
+          <div className="card mb-4">
+            <div className="card-header bg-dark text-white">
+              <h5>All Users</h5>
             </div>
             <div className="card-body">
               <div className="input-group mb-3">
@@ -147,7 +171,7 @@ const Users = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {
+                    {currentUsers.length > 0 ? (
                       currentUsers.map((user) => (
                         <tr key={user.id}>
                           <td>{user.userName}</td>
@@ -160,7 +184,7 @@ const Users = () => {
                             <button
                               className="btn btn-danger"
                               onClick={() =>
-                                navigate(`/socialadmin/detailUser/${user.id}`)
+                                navigate(`/ecomadmin/detailUser/${user.id}`)
                               }
                             >
                               Views
@@ -168,7 +192,11 @@ const Users = () => {
                           </td>
                         </tr>
                       ))
-}
+                    ) : (
+                      <tr>
+                        <td colSpan="7">No users found</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
                 <nav>
@@ -193,10 +221,39 @@ const Users = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Report */}
+        <div className="col-md-6">
+          <div className="card mb-4">
+            <div className="card-header bg-dark text-white">
+              <h5>Report</h5>
+            </div>
+            <div className="card-body">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Report Date</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Karina</td>
+                    <td>05/09/2023</td>
+                    <td>
+                      <button className="btn btn-danger">Views</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Users;
+export default MangerUser;

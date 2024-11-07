@@ -62,7 +62,6 @@ const Shop = () => {
 
 
 
-
   // Tạo số trang
   const totalPages = Math.ceil(instruments.length / itemsPerPage);
 

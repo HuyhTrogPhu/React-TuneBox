@@ -12,11 +12,10 @@ import Posts from "./SocialMediaAdmin/pageContent/Posts";
 import DashBoard from "./SocialMediaAdmin/pageContent/DashBoard";
 import Users from "./SocialMediaAdmin/pageContent/Users";
 import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
-import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
+import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
+import Track from "./SocialMediaAdmin/pageContent/Track";
+import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";
 import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
-import StatisticalUser from "./SocialMediaAdmin/pageContent/StatisticalUser";
-import StatisticalPost from "./SocialMediaAdmin/pageContent/StatisticalPost";
-
 const SocialMediaAdmin = () => {
   return (
     <div>
@@ -47,10 +46,10 @@ const SocialMediaAdmin = () => {
                   </Link>
                 </li>
                 <li className="p-3">
-                  <i className="fa-solid fa-music" />
-                  <a href="#" className="text-white">
-                    Tracks
-                  </a>
+                  <i className="fa-solid fa-user" />
+                  <Link to={"/socialadmin/Track"} className="text-white">
+                    Track
+                  </Link>
                 </li>
                 <li className="p-3">
                   <i className="fa-solid fa-headphones" />
@@ -121,15 +120,19 @@ const SocialMediaAdmin = () => {
             <Routes>
               <Route path='playlists' element={<Playlists/>} />
               <Route path='albums' element={<Albums/>} />
-              {/* <Route path='albumdetail' element={<AlbumDetail/>} /> */}
+              <Route path='Track' element={<Track/>} />
+              <Route path='playlists' element={<Playlists/>} />
+              <Route path='statistical' element={<Statistical/>} />
+      
+             
               <Route path='posts' element={<Posts/>} />
               <Route path='dashboard' element={<DashBoard/>} />
               <Route path='users' element={<Users/>} />
+              <Route path='detailUser/:id' element={<UserDetail />} /> 
+              <Route path='TrackDetail/:id' element={<TrackDetail />} /> 
+              <Route path='PlaylistDetail/:id' element={<PlaylistDetail/>} />
               <Route path='postdetail/:id' element={<PostDetail/>} />
-              <Route path='report' element={<ReportManagement/>} />
-              <Route path='statistical' element={<Statistical/>}/>
-              <Route path='/statistical/user' element={<StatisticalUser/>}/>
-              <Route path='/statistical/post' element={<StatisticalPost/>}/>
+              <Route path='AlbumDetail/:id' element={<AlbumDetail/>} />
               </Routes>
             </div>
           </div>

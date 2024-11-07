@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../../assets/images/images";
 import { useNavigate } from "react-router-dom";
+
 import {
-  LoadAlbum,
-  LoadAlbumReport,
+  LoadTrack,
+  LoadTrackReport,
+  LoadTrackReportDetail,
   DeniedRPTrack,
-  ApproveRPTrack,
-  LoadTrackReportDetail
+  ApproveRPTrack
 } from "../../../service/SocialMediaAdminService";
-const Albums = () => {
+const Track = () => {
   const [AllUser, setAllUser] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [NewUser, setNewUser] = useState([]);
@@ -17,28 +18,20 @@ const Albums = () => {
   const [Report, setReport] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState(null);
+ 
   const usersPerPage = 5;
   const navigate = useNavigate();
   const fetchData = async () => {
-    // Gọi API load all playlist
-    const responseLoadAllUser = await LoadAlbum();
-    console.log("All album:", responseLoadAllUser);
+    const responseLoadAllUser = await LoadTrack();
     if (responseLoadAllUser.status) {
       setAllUser(responseLoadAllUser.data);
-      console.log(AllUser);
     }
-
-    // Gọi API load all Album RP
-    const responseLoadAllReport = await LoadAlbumReport();
-    console.log("All Report:", responseLoadAllReport);
+  
+    const responseLoadAllReport = await LoadTrackReport();
     if (responseLoadAllReport.status) {
       setReport(responseLoadAllReport.data);
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
   useEffect(() => {
     const lastFiveUsers = AllUser.slice(-5);
     setNewUser(lastFiveUsers);
@@ -48,12 +41,9 @@ const Albums = () => {
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   //loc danh sach all user
-  // Lọc danh sách all user
-  const filteredUsers = AllUser.filter(
-    (user) =>
-      user.title && user.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = AllUser.filter((user) =>
+    user.userName.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   //lay ra user da tim kiem
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
@@ -62,7 +52,6 @@ const Albums = () => {
     pageNumbers.push(i);
   }
 
-  
   const handleShowModal = async (id) => {
     try {
       // Lấy dữ liệu từ API theo id
@@ -73,20 +62,25 @@ const Albums = () => {
       console.error("Lỗi khi lấy dữ liệu:", error);
     }
   };
-
+  useEffect(() => {
+    fetchData();
+  }, []);
   const handleCloseModal = () => setShowModal(false);
-  const handleDenied =(id) =>{
-    const Denied = DeniedRPTrack(id);
-    if (Denied.status){
+  const handleDenied =async (id) =>{
+    const Denied = await DeniedRPTrack(id);
+    
+    if (Denied.status) {
       setShowModal(false);
-      fetchData(); 
+      fetchData(); // Gọi lại fetchData để cập nhật dữ liệu
     }
+    
   }
-  const handleApprove =(id) =>{
-    const Approve = ApproveRPTrack(id);
-    if (Approve.status){
+  const handleApprove = async (id) =>{
+    const Approve = await ApproveRPTrack(id);
+  
+    if (Approve.status) {
       setShowModal(false);
-      fetchData(); 
+      fetchData(); // Gọi lại fetchData để cập nhật dữ liệu
     }
   }
   return (
@@ -96,28 +90,33 @@ const Albums = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5 className="text-light">New Album</h5>
+              <h5 className="text-light">New Track</h5>
             </div>
             <div className="card-body">
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Title </th>
-                    <th>Create Date</th>
-                    <th>Total tracks</th>
+                    <th>Name</th>
+                    <th>createDate</th>
+                    <th>Total Likes</th>
+                    <th>Total Comments</th>
+                    <th>Description</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {NewUser.map((user) => (
                     <tr key={user.id}>
-                      <td>{user.title}</td>
+                      <td>{user.name}</td>
                       <td>{user.createDate}</td>
-                      <td>{user.tracks.length}</td>
+                      <td>{user.likes.length}</td>
+                      <td>{user.comments.length}</td>
+                      <td>{user.description}</td>
                       <td>
                         <button
                           className="btn btn-danger"
                           onClick={() =>
-                            navigate(`/socialadmin/AlbumDetail/${user.id}`)
+                            navigate(`/socialadmin/TrackDetail/${user.id}`)
                           }
                         >
                           Views
@@ -135,7 +134,7 @@ const Albums = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
-              <h5 className="text-light">All Album</h5>
+              <h5 className="text-light">All Track</h5>
             </div>
             <div className="card-body">
               <div className="input-group mb-3">
@@ -154,24 +153,27 @@ const Albums = () => {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Title </th>
-
-                      <th>Create Date</th>
-                      <th>Total tracks</th>
+                      <th>Name</th>
+                      <th>createDate</th>
+                      <th>Total Likes</th>
+                      <th>Total Comments</th>
+                      <th>Description</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {NewUser.map((user) => (
+                    {currentUsers.map((user) => (
                       <tr key={user.id}>
-                        <td>{user.title}</td>
-
+                        <td>{user.name}</td>
                         <td>{user.createDate}</td>
-                        <td>{user.tracks.length}</td>
+                        <td>{user.likes.length}</td>
+                        <td>{user.comments.length}</td>
+                        <td>{user.description}</td>
                         <td>
                           <button
                             className="btn btn-danger"
                             onClick={() =>
-                              navigate(`/socialadmin/AlbumDetail/${user.id}`)
+                              navigate(`/socialadmin/TrackDetail/${user.id}`)
                             }
                           >
                             Views
@@ -204,6 +206,13 @@ const Albums = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="row">
+        {/* All Users */}
+
+        {/* Report */}
+        {console.log(Report)}
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
@@ -263,7 +272,7 @@ const Albums = () => {
                         ></button>
                       </div>
                       <div className="modal-body">
-                      {modalData ? (
+                        {modalData ? (
                           <>
                             <p>Track Name: {modalData.track.name}</p>
                             <p>Status: {modalData.status}</p>
@@ -303,7 +312,7 @@ const Albums = () => {
                           className="btn btn-secondary"
                           onClick={handleCloseModal}
                         >
-                          Closing
+                          Close
                         </button>
                       </div>
                     </div>
@@ -314,4 +323,4 @@ const Albums = () => {
   );
 };
 
-export default Albums;
+export default Track;

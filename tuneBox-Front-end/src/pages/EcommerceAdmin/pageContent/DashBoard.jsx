@@ -6,7 +6,6 @@ const Dashboard = () => {
   const [postData, setPostData] = useState([]);
   const [sortedUsers, setSortedUsers] = useState([]);
   const [AllUser, setAllUser] = useState([]);
-  const [reported, setReported] = useState([]);
   const navigate = useNavigate();
   //count User API
   const LoadCount = async () => {
@@ -44,7 +43,7 @@ const Dashboard = () => {
         { withCredentials: true }
       );
       const data = response.data;
-      console.log("user:", data);
+      console.log("userID:", data);
       return data;
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -63,20 +62,6 @@ const Dashboard = () => {
       console.error("Error fetching user data:", error);
     }
   };
-
-  //get all User API
-  const LoadReportedUser = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8082/SocialAdmin/static/getUserReported`,
-        { withCredentials: true }
-      );
-      const data = response.data;
-      return data;
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
   //bat dau useEffect
   useEffect(() => {
     const fetchData = async () => {
@@ -84,15 +69,8 @@ const Dashboard = () => {
       const responseLoadCount = await LoadCount();
       console.log("Tổng số user:", responseLoadCount);
       if (responseLoadCount.status) {
-        console.log(AllUser);
         setcountUser(responseLoadCount.data);
-        
-      }
-//goi API reported
-      const responseReported = await LoadReportedUser();
-      console.log("Tổng số user reported:", responseReported);
-      if (responseReported.status) {
-        setReported(responseReported.data);
+        console.log(AllUser);
       }
 
       // Gọi API load all user
@@ -125,7 +103,7 @@ const Dashboard = () => {
         const userPostCountArray = Object.values(userPostCount);
         const userInfoPromises = userPostCountArray.map(async (user) => {
           const userData = await LoadUserbyID(user.userId); // Gọi API lấy thông tin user
-          return { ...user, userName: userData.userName }; // Cập nhật userName
+          return { ...user, userName: userData.data.userName }; // Cập nhật userName
         });
 
         // Promise đợi API xong
@@ -150,9 +128,9 @@ const Dashboard = () => {
         <div className="col-md-4">
           <div className="card text-center bg-dark text-white">
             <div className="card-body">
-              <h5 className="text-light">Total Users</h5>
-              <h2 className="text-light">{countUser}</h2>
-               
+              <h5>Total Users</h5>
+              <h2>{countUser}</h2>
+              <p className="text-success">+1.20% than last week</p>
             </div>
           </div>
         </div>
@@ -182,35 +160,20 @@ const Dashboard = () => {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Follower</th>
-                    <th>Following</th>
-                    <th>Total Post</th>
-                    <th>Total Track</th>
-                    <th>Total Oders</th>
-                    <th>Action</th>
+                    <th>Report Date</th>
+                    <th>Report Type</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {reported.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.userName}</td>
-                      <td>{user.followers.length}</td>
-                      <td>{user.following.length}</td>
-                      <td>{user.totalPosts}</td>
-                      <td>{user.tracks.length}</td>
-                      <td>{user.orderList.length}</td>
-                      <td>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() =>
-                            navigate(`/socialadmin/detailUser/${user.id}`)
-                          }
-                        >
-                          Views
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  <tr>
+                    <td>Karina</td>
+                    <td>05/09/2023</td>
+                    <td>Post</td>
+                    <td>
+                      <button className="btn btn-danger">View</button>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -219,7 +182,32 @@ const Dashboard = () => {
       </div>
 
       {/* New Registrations and Trending Users */}
-      {/* <div className="row mt-4">
+      <div className="row mt-4">
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-body">
+              <h5>New Registrations</h5>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Total Posts</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Karina</td>
+                    <td>10</td>
+                    <td>
+                      <button className="btn btn-danger">Views</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
         <div className="col-md-6">
           <div className="card">
             <div className="card-body">
@@ -252,7 +240,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };
