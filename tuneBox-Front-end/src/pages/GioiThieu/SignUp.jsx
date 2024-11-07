@@ -8,7 +8,7 @@ import axios from 'axios';
 import Swal from "sweetalert2";
 import { Audio } from 'react-loader-spinner'
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+
 
 const SignUp = () => {
   const [userName, setUserName] = useState('');
