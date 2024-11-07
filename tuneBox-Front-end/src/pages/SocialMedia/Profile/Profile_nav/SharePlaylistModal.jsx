@@ -10,6 +10,9 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
   const userId = Cookies.get("userId");
   console.log("User ID from Cookie:", userId);
 
+  const token = localStorage.getItem('jwtToken');
+  
+
   useEffect(() => {
     if (isOpen && userId) {
       fetchReceivers();
@@ -35,12 +38,19 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
       alert('Please select a user to share with');
       return;
     }
-
+  
     try {
-      const response = await axios.post(`http://localhost:8080/api/share/playlist`, null, {
-        params: { senderId: userId, receiverId: selectedReceiver, playlistId },
-      });
-
+      const response = await axios.post(
+        'http://localhost:8080/api/share/playlist',
+        null,
+        {
+          params: { senderId: userId, receiverId: selectedReceiver, playlistId },
+          headers: {
+            Authorization: `Bearer ${token}`, // Thêm token xác thực vào header
+          },
+        }
+      );
+  
       if (response.status === 200) {
         alert('Playlist shared successfully!');
         onClose();
@@ -52,6 +62,7 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
       alert('Error sharing playlist');
     }
   };
+  
 
   if (!isOpen) return null;
 
