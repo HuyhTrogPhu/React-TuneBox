@@ -127,15 +127,15 @@ function Statistical() {
 
   // bắt đầu gọi API, ép data
   useEffect(() => { 
-    const fetchData = async () => {
+    const fetchData = async (startDate,endDate) => {
       try {
         let headers = [];
         let rows = [];
 switch (activeHandler) {
   case "newUser":
     headers = ["ID", "User Name", "Registration Date", "Action"];
-          const data = await LoadUserForTable(startDate, endDate);
-          rows = data.map((user, index) => (
+          const dataTrack = await LoadUserForTable(startDate, endDate);
+          rows = dataTrack.map((user, index) => (
             <tr key={index}>
               <td>{user.id}</td>
               <td>{user.userName}</td>
@@ -151,27 +151,89 @@ switch (activeHandler) {
             </tr>
           ));
     break;
+    case"newTrack":
+    headers = ["ID", "Track Name", "createDate", "Action"];
+    const data = await LoadTrackForTable(startDate, endDate);
+    rows = data.map((user, index) => (
+      <tr key={index}>
+        <td>{user.id}</td>
+        <td>{user.name}</td>
+        <td>{user.createDate}</td>
+        <td>
+          <button
+            className="btn btn-danger"
+            onClick={() => navigate(`/socialadmin/TrackDetail/${user.id}`)}
+          >
+            View
+          </button>
+        </td>
+      </tr>
+    ));
+    break;
+
+    case"newAlbum":
+    headers = ["ID", "Album Name", "createDate", "Action"];
+    const dataAlbum = await LoadAlbumForTable(startDate, endDate);
+    rows = dataAlbum.map((user, index) => (
+      <tr key={index}>
+        <td>{user.id}</td>
+        <td>{user.name}</td>
+        <td>{user.createDate}</td>
+        <td>
+          <button
+            className="btn btn-danger"
+            onClick={() => navigate(`/socialadmin/AlbumDetail/${user.id}`)}
+          >
+            View
+          </button>
+        </td>
+      </tr>
+    ));
+    break;
+
+    case"newPlayList":
+    headers = ["ID", "Album Name", "createDate", "Action"];
+    const dataPlayList = await LoadPlayListFortable(startDate, endDate);
+    rows = dataPlayList.map((user, index) => (
+      <tr key={index}>
+        <td>{user.id}</td>
+        <td>{user.name}</td>
+        <td>{user.createDate}</td>
+        <td>
+          <button
+            className="btn btn-danger"
+            onClick={() => navigate(`/socialadmin/PlaylistDetail/${user.id}`)}
+          >
+            View
+          </button>
+        </td>
+      </tr>
+    ));
+
+    break;
+
 
           }//close switch
-        
+          setTableData({ headers, rows });
         } catch (error) {
       console.error("Error fetching data:", error);
     }
 }
     
 if (activeHandler) {
-  fetchData();
+  fetchData(startDate, endDate);
 }
   }, [activeHandler, navigate]);
+
+
   //newuser
   const handleNewUser = async (event) => {
     event.preventDefault();
     setActiveHandler("newUser");
- 
+    console.log(activeHandler);
     //static
     switch (timeType) {
       case "day":
-        console.log("get in case");
         if (new Date(startDate) > new Date(endDate)) {
           alert("Ngày bắt đầu không thể sau ngày kết thúc.");
           return;
@@ -181,15 +243,12 @@ if (activeHandler) {
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
-          setStartDate(onDate);
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             const registrationCounts = [];
             if (onDate) {
               setEndDate(onDate);
             }
-            console.log("Fetching data for 1 day:", startDate, endDate, onDate);
-            console.log("Fetching data for 1 day:", startDate, endDate, onDate);
             const response = await LoadUserCountBetweenDates(
               startDate,
               endDate
@@ -319,7 +378,8 @@ if (activeHandler) {
   //newTrack
   const handleNewTrack = async () => {
     event.preventDefault();
-    console.log("Creating new Track...");
+    setActiveHandler("newTrack");
+    console.log(activeHandler);
     switch (timeType) {
       case "day":
         if (new Date(startDate) > new Date(endDate)) {
@@ -332,7 +392,7 @@ if (activeHandler) {
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
-          setStartDate(onDate);
+ 
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             setEndDate(onDate);
@@ -418,7 +478,8 @@ if (activeHandler) {
   // //newAlbum
   const handleNewAlbum = async () => {
     event.preventDefault();
-    console.log("Creating new album...");
+    setActiveHandler("newAlbum");
+    console.log(activeHandler);
     switch (timeType) {
       case "day":
         if (new Date(startDate) > new Date(endDate)) {
@@ -430,7 +491,7 @@ if (activeHandler) {
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
-          setStartDate(onDate);
+        
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             setEndDate(onDate);
@@ -516,7 +577,8 @@ if (activeHandler) {
   // //newPlaylist
   const handleNewPlayList = async () => {
     event.preventDefault();
-    console.log("Creating new playlist...");
+    setActiveHandler("newPlayList");
+    console.log(activeHandler);
     switch (timeType) {
       case "day":
         if (new Date(startDate) > new Date(endDate)) {
@@ -528,7 +590,7 @@ if (activeHandler) {
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
-          setStartDate(onDate);
+         
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             setEndDate(onDate);

@@ -530,7 +530,9 @@ export const LoadUserForTable = async (startDate, endDate) => {
       { withCredentials: true }
     );
     const data = response.data.data;
+    const mess = response.data.message;
     console.log("getUserToTable", data);
+    console.log("Log", mess );
     return data;
   } catch (error) {
     console.error("Error fetching user count:", error);

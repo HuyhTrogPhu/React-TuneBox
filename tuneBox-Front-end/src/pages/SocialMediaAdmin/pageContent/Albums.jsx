@@ -3,7 +3,7 @@ import { images } from "../../../assets/images/images";
 import { useNavigate } from "react-router-dom";
 import {
   LoadAlbum,
-  LoadAlbumkReport,
+  LoadAlbumReport,
   DeniedRPTrack,
   ApproveRPTrack,
   LoadTrackReportDetail
@@ -29,7 +29,7 @@ const Albums = () => {
     }
 
     // Gọi API load all Album RP
-    const responseLoadAllReport = await LoadAlbumkReport();
+    const responseLoadAllReport = await LoadAlbumReport();
     console.log("All Report:", responseLoadAllReport);
     if (responseLoadAllReport.status) {
       setReport(responseLoadAllReport.data);
@@ -221,7 +221,7 @@ const Albums = () => {
                 <tbody>
                   {Report.map((rp) => (
                     <tr key={rp.id}>
-                      <td>{rp.track.name}</td>
+                      <td>{rp.name}</td>
                       <td>{rp.createDate}</td>
                       <td>{rp.status}</td>
                       <td>
