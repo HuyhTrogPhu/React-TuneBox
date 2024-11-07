@@ -9,6 +9,10 @@ export const listGenres = () => axios.get(`${REST_API_BASE_URL}/list-genre`);
 
 export const listInspiredBys = () => axios.get(`${REST_API_BASE_URL}/list-inspired-by`);
 
+// check register form
+export const checkRegisterForm = () => axios.get(`${REST_API_BASE_URL}/check-Signup`);
+
+// register
 export const register = async (formData) => {
   const response = await axios.post(`${REST_API_BASE_URL}/register`, formData, {
     headers: {

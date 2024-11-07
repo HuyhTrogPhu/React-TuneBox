@@ -144,7 +144,7 @@ const OrderDetail = () => {
       <div className='row'>
         <hr />
         <h6 className='text-center'>Items</h6>
-        <table className='table'>
+        <table className='table table-bordered'>
           <thead>
             <tr>
               <th style={{ textAlign: "center" }} scope='col'>#</th>
@@ -155,7 +155,7 @@ const OrderDetail = () => {
               <th style={{ textAlign: "center" }} scope='col'>SubTotal</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className='table-group-divider'>
             {orderDetail.orderItems.map((item, index) => (
               <tr key={item.orderDetailId}>
                 <td style={{ textAlign: "center" }}>{index + 1}</td>
@@ -172,19 +172,19 @@ const OrderDetail = () => {
         </table>
 
         {/* Total */}
-        <table className='table mt-5 mb-5'>
+        <table className='table mt-5 mb-5 table-bordered'>
           <thead>
             <tr>
-              <th style={{textAlign: 'center'}} scope='col'>SUBTOTAL</th>
-              <th style={{textAlign: 'center'}} scope='col'>TAX(5%)</th>
-              <th style={{textAlign: 'center'}} scope='col'>TOTAL</th>
+              <th style={{ textAlign: 'center' }} scope='col'>SUBTOTAL</th>
+              <th style={{ textAlign: 'center' }} scope='col'>TAX(5%)</th>
+              <th style={{ textAlign: 'center' }} scope='col'>TOTAL</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className='table-group-divider'>
             <tr>
-              <td style={{textAlign: 'center'}}>{subtotal.toLocaleString('vi')} VND</td>
-              <td style={{textAlign: 'center'}}>{tax.toLocaleString('vi')} VND</td>
-              <td style={{textAlign: 'center'}}>{total.toLocaleString('vi')} VND</td>
+              <td style={{ textAlign: 'center' }}>{subtotal.toLocaleString('vi')} VND</td>
+              <td style={{ textAlign: 'center' }}>{tax.toLocaleString('vi')} VND</td>
+              <td style={{ textAlign: 'center' }}>{total.toLocaleString('vi')} VND</td>
             </tr>
           </tbody>
         </table>

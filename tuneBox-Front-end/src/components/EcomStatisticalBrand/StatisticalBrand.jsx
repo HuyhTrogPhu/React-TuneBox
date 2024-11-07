@@ -1,17 +1,13 @@
-import React, { useState } from 'react'
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { getNameAndIdBrand, getRevenueBrandByBrandId, getStatisticalOfTimeBrand } from '../../service/EcommerceStatistical';
 
 const StatisticalBrand = () => {
-
   const [brandSoldData, setBrandSoldData] = useState(null);
   const [error, seterror] = useState(null);
-
   const [brandData, setBrandData] = useState(null);
-  const [selectedBrandId, setSelectedBrandId] = useState("");
+  const [selectedBrandId, setSelectedBrandId] = useState('');
   const [revenueData, setRevenueData] = useState(null);
-
 
   // total sold brand
   useEffect(() => {
@@ -48,12 +44,12 @@ const StatisticalBrand = () => {
         const response = await getRevenueBrandByBrandId(brandId);
         setRevenueData(response.data);
       } catch (error) {
-        seterror(error)
+        seterror(error);
       }
     } else {
       setRevenueData(null);
     }
-  }
+  };
 
   if (error) {
     return <div>Error fetching data: {error.message}</div>;
@@ -94,6 +90,20 @@ const StatisticalBrand = () => {
     ],
   };
 
+  const getCurrentDate = (period) => {
+    const date = new Date();
+    if (period === 'day') return date.toLocaleDateString();
+    if (period === 'week') {
+      const startDate = new Date(date.setDate(date.getDate() - date.getDay()));
+      const endDate = new Date(startDate.setDate(startDate.getDate() + 6));
+      return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+    }
+    if (period === 'month') {
+      return `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+    }
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="container">
       {/* Brand the most */}
@@ -102,8 +112,8 @@ const StatisticalBrand = () => {
           <h5 className='text-center'>Brand sales the most</h5>
         </div>
         <div className="col-12">
-          <h6 className='text-center'>Of Day:</h6>
-          <table className='table border'>
+          <h6 className='text-center'>Current Day</h6>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -116,13 +126,11 @@ const StatisticalBrand = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldToday.map((brand, index) => (
                 <tr key={brand.brandId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <img src={brand.image} alt="" style={{ width: '50px' }} />
-                  </td>
+                  <td style={{ textAlign: 'center' }}><img src={brand.image} alt="" style={{ width: '50px' }} /></td>
                   <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
@@ -133,11 +141,11 @@ const StatisticalBrand = () => {
               ))}
             </tbody>
           </table>
-
         </div>
+
         <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Week:</h6>
-          <table className='table border'>
+          <h6 className='text-center'>Current Week</h6>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -150,13 +158,11 @@ const StatisticalBrand = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldThisWeek.map((brand, index) => (
                 <tr key={brand.brandId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <img src={brand.image} alt="" style={{ width: '50px' }} />
-                  </td>
+                  <td style={{ textAlign: 'center' }}><img src={brand.image} alt="" style={{ width: '50px' }} /></td>
                   <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
@@ -167,11 +173,11 @@ const StatisticalBrand = () => {
               ))}
             </tbody>
           </table>
-
         </div>
+
         <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Month:</h6>
-          <table className='table border'>
+          <h6 className='text-center'>Current Month</h6>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -184,122 +190,11 @@ const StatisticalBrand = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldThisMonth.map((brand, index) => (
                 <tr key={brand.brandId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <img src={brand.image} alt="" style={{ width: '50px' }} />
-                  </td>
-                  <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-        </div>
-      </section>
-
-      {/* Brand the least */}
-      <section className="row mt-5">
-        <div className="col-12">
-          <h5 className='text-center'>Brand sales the least</h5>
-        </div>
-        <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Day:</h6>
-          <table className='table border'>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'center' }} scope='col'>#</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Image</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Instrument name</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Brand name</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Cost price</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Original quantity</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Quantity sold</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leastSoldToday.map((brand, index) => (
-                <tr key={brand.brandId}>
-                  <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <img src={brand.image} alt="" style={{ width: '50px' }} />
-                  </td>
-                  <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-        </div>
-        <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Week:</h6>
-          <table className='table border'>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'center' }} scope='col'>#</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Image</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Instrument name</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Brand name</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Cost price</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Original quantity</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Quantity sold</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leastSoldThisWeek.map((brand, index) => (
-                <tr key={brand.brandId}>
-                  <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <img src={brand.image} alt="" style={{ width: '50px' }} />
-                  </td>
-                  <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-        </div>
-        <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Month:</h6>
-          <table className='table border'>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'center' }} scope='col'>#</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Image</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Instrument name</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Brand name</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Cost price</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Original quantity</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Quantity sold</th>
-                <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leastSoldThisMonth.map((brand, index) => (
-                <tr key={brand.brandId}>
-                  <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <img src={brand.image} alt="" style={{ width: '50px' }} />
-                  </td>
+                  <td style={{ textAlign: 'center' }}><img src={brand.image} alt="" style={{ width: '50px' }} /></td>
                   <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
@@ -311,36 +206,144 @@ const StatisticalBrand = () => {
             </tbody>
           </table>
         </div>
-      </section>
 
-      {/* brand Select */}
-      <section className="row mt-5">
-        <div className="col-3">
-          <label className="form-label">Select brand</label>
-          <select
-            className="form-select"
-            value={selectedBrandId}
-            onChange={handleBrandSelectect}
-          >
-            <option value="">Select brands</option>
-            {brandData?.map((brand) => (
-              <option key={brand.brandId} value={brand.brandId}>
-                {brand.brandName}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Chart revenue brand by brand id */}
-        <div className='row mt-4'>
-          <h5>Revenue of brand:</h5>
-          <div className='col'>
-            <Line data={revenueChartData} />
+        {/* Brand the least */}
+        <section className="row mt-5">
+          <div className="col-12">
+            <h5 className='text-center'>Brand sales the least</h5>
           </div>
-        </div>
+          <div className="col-12 mt-3">
+            <h6 className='text-center'>Current Day</h6>
+            <table className='table table-bordered'>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'center' }} scope='col'>#</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Image</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Instrument name</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Brand name</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Cost price</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Original quantity</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Quantity sold</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
+                </tr>
+              </thead>
+              <tbody className='table-group-divider'>
+                {leastSoldToday.map((brand, index) => (
+                  <tr key={brand.brandId}>
+                    <td style={{ textAlign: 'center' }}>{index + 1}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <img src={brand.image} alt="" style={{ width: '50px' }} />
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+          </div>
+          <div className="col-12 mt-3">
+            <h6 className='text-center'>Current Week</h6>
+            <table className='table table-bordered'>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'center' }} scope='col'>#</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Image</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Instrument name</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Brand name</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Cost price</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Original quantity</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Quantity sold</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
+                </tr>
+              </thead>
+              <tbody className='table-group-divider'>
+                {leastSoldThisWeek.map((brand, index) => (
+                  <tr key={brand.brandId}>
+                    <td style={{ textAlign: 'center' }}>{index + 1}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <img src={brand.image} alt="" style={{ width: '50px' }} />
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+          </div>
+          <div className="col-12 mt-3">
+            <h6 className='text-center'>Current Month</h6>
+            <table className='table table-bordered'>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'center' }} scope='col'>#</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Image</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Instrument name</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Brand name</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Cost price</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Original quantity</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Quantity sold</th>
+                  <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
+                </tr>
+              </thead>
+              <tbody className='table-group-divider'>
+                {leastSoldThisMonth.map((brand, index) => (
+                  <tr key={brand.brandId}>
+                    <td style={{ textAlign: 'center' }}>{index + 1}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <img src={brand.image} alt="" style={{ width: '50px' }} />
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className='row mt-5'>
+          {/* Select brand */}
+          <div className="col-3">
+            <label className="form-label">Select brand</label>
+            <select
+              className="form-select"
+              value={selectedBrandId}
+              onChange={handleBrandSelectect}
+            >
+              <option value="">Select brands</option>
+              {brandData?.map((brand) => (
+                <option key={brand.brandId} value={brand.brandId}>
+                  {brand.brandName}
+                </option>
+              ))}
+            </select>
+          </div>
+          {/* Chart revenue category by category id */}
+          <div className='row mt-4'>
+            <h5>Revenue of brand:</h5>
+            <div className='col'>
+              <Line data={revenueChartData} />
+            </div>
+          </div>
+        </section>
+
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default StatisticalBrand
+export default StatisticalBrand;

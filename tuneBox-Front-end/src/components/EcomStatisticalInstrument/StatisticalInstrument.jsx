@@ -98,6 +98,21 @@ const StatisticalInstrument = () => {
     ],
   };
 
+  const getCurrentDate = (period) => {
+    const date = new Date();
+    if (period === 'day') return date.toLocaleDateString();
+    if (period === 'week') {
+      const startDate = new Date(date.setDate(date.getDate() - date.getDay()));
+      const endDate = new Date(startDate.setDate(startDate.getDate() + 6));
+      return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+    }
+    if (period === 'month') {
+      return `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+    }
+    return date.toLocaleDateString();
+  };
+
+
   return (
     <div className="container">
       {/* Instrument the most */}
@@ -106,8 +121,8 @@ const StatisticalInstrument = () => {
           <h5>Instrument sales the most</h5>
         </div>
         <div className="col-12">
-          <h6 className='text-center'>Of Day:</h6>
-          <table className='table border'>
+          <h6 className='text-center'>Of Day: {getCurrentDate('day')}</h6>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -119,7 +134,7 @@ const StatisticalInstrument = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldToday.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -138,8 +153,8 @@ const StatisticalInstrument = () => {
 
         </div>
         <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Week:</h6>
-          <table className='table border'>
+          <h6 className='text-center'>Current Week</h6>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -151,7 +166,7 @@ const StatisticalInstrument = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldThisWeek.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -171,7 +186,7 @@ const StatisticalInstrument = () => {
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Month:</h6>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -183,7 +198,7 @@ const StatisticalInstrument = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldThisMonth.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -210,7 +225,7 @@ const StatisticalInstrument = () => {
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Day:</h6>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -222,7 +237,7 @@ const StatisticalInstrument = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {leastSoldToday.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -242,7 +257,7 @@ const StatisticalInstrument = () => {
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Week:</h6>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -254,7 +269,7 @@ const StatisticalInstrument = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {leastSoldThisWeek.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -274,7 +289,7 @@ const StatisticalInstrument = () => {
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Month:</h6>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>

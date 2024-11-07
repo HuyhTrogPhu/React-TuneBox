@@ -121,9 +121,10 @@ const ManagerCustomer = () => {
         <div>
             {/* Main content */}
             <div className='container-fluid'>
-                <div className='row'>
+                {/* Search */}
+                <div className='row mt-5 gap-2'>
                     {/* Search by keyword */}
-                    <div className='col-4'>
+                    <div className='col-3 border rounded p-2'>
                         <form action="">
                             <div className='mt-3'>
                                 <label className='form-label'>Search by keyword:</label>
@@ -135,10 +136,13 @@ const ManagerCustomer = () => {
                                     onChange={handleKeywordChange}
                                 />
                             </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
+                            </div>
                         </form>
                     </div>
                     {/* Search by province */}
-                    <div className='col-2'>
+                    <div className='col-2 border rounded p-2'>
                         <form action="">
                             <div className='mt-3'>
                                 <label className='form-label'>Search by province:</label>
@@ -154,7 +158,7 @@ const ManagerCustomer = () => {
                         </form>
                     </div>
                     {/* Total price filter */}
-                    <div className='col-3'>
+                    <div className='col-3 border rounded p-2'>
                         <form>
                             <div className="mt-3">
                                 <label className="form-label">Total order amount:</label>
@@ -176,10 +180,13 @@ const ManagerCustomer = () => {
                                     />
                                 </div>
                             </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
+                            </div>
                         </form>
                     </div>
                     {/* Total order count filter */}
-                    <div className='col-3'>
+                    <div className='col-3 border rounded p-2'>
                         <form>
                             <div className="mt-3">
                                 <label className="form-label">Total order count:</label>
@@ -201,6 +208,9 @@ const ManagerCustomer = () => {
                                     />
                                 </div>
                             </div>
+                            <div className='mt-3'>
+                                <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -208,7 +218,7 @@ const ManagerCustomer = () => {
                 {/* Table */}
                 <div className='row mt-5'>
                     <div className='col-12'>
-                        <table className='table'>
+                        <table className='table table-bordered'>
                             <thead>
                                 <tr>
                                     <th style={{ textAlign: "center" }} scope='col'>#</th>
@@ -220,17 +230,17 @@ const ManagerCustomer = () => {
                                     <th style={{ textAlign: "center" }} scope='col'>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className='table-group-divider'>
                                 {paginateUsers().map((user, index) => (
                                     <tr key={user.id}>
                                         <th style={{ textAlign: "center" }} scope='row'>{index + 1 + (currentPage - 1) * rowsPerPage}</th>
-                                        <td>{user.userName}</td>
-                                        <td>{user.email}</td>
-                                        <td>location</td>
-                                        <td>{(user.totalOrderAmount).toLocaleString('vi')} VND</td>
-                                        <td>{user.totalOrderCount} order</td>
-                                        <td>
-                                            <Link className='btn btn-primary' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.id}`}>View</Link>
+                                        <td style={{ textAlign: "center" }}>{user.userName}</td>
+                                        <td style={{ textAlign: "center" }}>{user.email}</td>
+                                        <td style={{ textAlign: "center" }}>{user.location || 'null'}</td>
+                                        <td style={{ textAlign: "center" }}>{(user.totalOrderAmount).toLocaleString('vi')} VND</td>
+                                        <td style={{ textAlign: "center" }}>{user.totalOrderCount} order</td>
+                                        <td style={{ textAlign: "center" }}>
+                                            <Link className='btn text-white'  style={{ backgroundColor: '#e94f37'}} to={`/ecomadmin/Customer/detail/${user.id}`}>View</Link>
                                         </td>
                                     </tr>
                                 ))}
@@ -238,7 +248,7 @@ const ManagerCustomer = () => {
                         </table>
                         <div className="mt-3">
                             <button className="btn btn-success" onClick={exportToExcel}>
-                                Xuất Excel
+                                Export Excel
                             </button>
                         </div>
 

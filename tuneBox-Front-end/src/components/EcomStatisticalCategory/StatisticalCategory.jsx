@@ -101,7 +101,7 @@ const StatisticalCategory = () => {
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Day:</h6>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -114,7 +114,7 @@ const StatisticalCategory = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldToday.map((category, index) => (
                 <tr key={category.categoryId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -135,7 +135,7 @@ const StatisticalCategory = () => {
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Week:</h6>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -148,7 +148,7 @@ const StatisticalCategory = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldThisWeek.map((category, index) => (
                 <tr key={category.categoryId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -169,7 +169,7 @@ const StatisticalCategory = () => {
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Month:</h6>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -182,7 +182,7 @@ const StatisticalCategory = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {mostSoldThisMonth.map((category, index) => (
                 <tr key={category.categoryId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -209,8 +209,8 @@ const StatisticalCategory = () => {
           <h5 className='text-center'>Category sales the least</h5>
         </div>
         <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Day:</h6>
-          <table className='table border'>
+          <h6 className='text-center'>Current Day</h6>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -223,7 +223,7 @@ const StatisticalCategory = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {leastSoldToday.map((category, index) => (
                 <tr key={category.categoryId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -243,8 +243,8 @@ const StatisticalCategory = () => {
 
         </div>
         <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Week:</h6>
-          <table className='table border'>
+          <h6 className='text-center'>Current Week</h6>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -257,7 +257,7 @@ const StatisticalCategory = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {leastSoldThisWeek.map((category, index) => (
                 <tr key={category.categoryId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
@@ -277,8 +277,8 @@ const StatisticalCategory = () => {
 
         </div>
         <div className="col-12 mt-3">
-          <h6 className='text-center'>Of Month:</h6>
-          <table className='table border'>
+          <h6 className='text-center'>Current Month</h6>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -291,7 +291,7 @@ const StatisticalCategory = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Remaining quantity</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {leastSoldThisMonth.map((category, index) => (
                 <tr key={category.categoryId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
