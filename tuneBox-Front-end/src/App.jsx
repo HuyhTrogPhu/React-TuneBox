@@ -60,6 +60,8 @@ import ResetPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ResetPas
 import ForgotPassword2 from "../../tuneBox-Front-end/src/pages/GioiThieu/ForgotPassword2";
 import Trackdetail from "../../tuneBox-Front-end/src/pages/SocialMedia/Profile/Profile_nav/TrackDetail";
 import SocialMediaAdmin from "../src/pages/SocialMediaAdmin";
+import StatisticalUser from "./pages/SocialMediaAdmin/pageContent/StatisticalUser";
+import StatisticalPost from "./pages/SocialMediaAdmin/pageContent/StatisticalPost";
 
 
 // Layout có Header
@@ -148,7 +150,8 @@ function App() {
               <Route path="/welcome" element={<WelcomeUser />} />
               <Route path="reset-password2" element={<ResetPassword2 />} />
               <Route path="forgot-password2" element={<ForgotPassword2 />} />
-
+              <Route path='/statistical/user' element={<StatisticalUser/>}/>
+              <Route path='/statistical/post' element={<StatisticalPost/>}/>
               {/* admin start */}
               <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
