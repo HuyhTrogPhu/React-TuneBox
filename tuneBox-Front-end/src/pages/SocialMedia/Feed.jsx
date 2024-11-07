@@ -2530,7 +2530,6 @@ const HomeFeed = () => {
           </div>
         </div>
       </div>
-
       {/* Modal for editing track */}
       <div
         className="modal fade"
