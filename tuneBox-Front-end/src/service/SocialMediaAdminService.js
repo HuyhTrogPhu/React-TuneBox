@@ -205,7 +205,7 @@ export const LoadPostReport = async () => {
   }
 };
 //load all Track<Report>
-export const LoadAlbumkReport = async () => {
+export const LoadAlbumReport = async () => {
   try {
     const response = await axios.get(
       `http://localhost:8082/SocialAdmin/static/getAlbumReport`,
@@ -234,7 +234,7 @@ export const LoadTrackReportDetail = async (id) => {
 //load Track<Report>
 export const DeniedRPTrack = async (id) => {
   try {
-    const response = await axios.get(
+    const response = await axios.put(
       `http://localhost:8082/SocialAdmin/static/DeniedRPTrack/${id}`,
       { withCredentials: true }
     );
@@ -248,7 +248,7 @@ export const DeniedRPTrack = async (id) => {
 //load Track<Report>
 export const ApproveRPTrack = async (id) => {
   try {
-    const response = await axios.get(
+    const response = await axios.put(
       `http://localhost:8082/SocialAdmin/static/ApproveRPTrack/${id}`,
       { withCredentials: true }
     );
@@ -288,39 +288,9 @@ export const LoadUserCountBetweenDates = async (startDate, endDate) => {
     throw error;
   }
 };
-// load user count between dates
-export const LoadPostCountBetweenDates = async (startDate, endDate) => {
-  try {
-    const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getPostBeetWeen/${startDate}/${endDate}`,
-      { withCredentials: true }
-    );
-    const data = response.data;
-    console.log("post count between dates:", data);
-    return data;
-  } catch (error) {
-    console.error("Error fetching user count:", error);
-    throw error;
-  }
-};
 
-// load user count between dates
-export const LoadTrackCountBetweenDates = async (startDate, endDate) => {
-  try {
-    const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getTrackBeetWeen/${startDate}/${endDate}`,
-      { withCredentials: true }
-    );
-    const data = response.data;
-    console.log("post count between dates:", data);
-    return data;
-  } catch (error) {
-    console.error("Error fetching user count:", error);
-    throw error;
-  }
-};
 
-// load user count between dates
+// load Track Genre count between dates
 export const LoadTrackCountBetweenDatesGenre = async (startDate, endDate) => {
   try {
     const response = await axios.get(
@@ -335,3 +305,266 @@ export const LoadTrackCountBetweenDatesGenre = async (startDate, endDate) => {
     throw error;
   }
 };
+// load User count between week
+export const LoadUserCountBetweenWeek = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getUserBeetWeenWeek/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("User count between week:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};// load User count between month
+export const LoadUserCountBetweenMonth = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getUserBetweenMonth/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("Track count between month:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+
+
+// load Track count between dates
+export const LoadTrackCountBetweenDates = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getTrackBeetWeen/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("post count between dates:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+// load Track count between week
+export const LoadTrackCountBetweenWeek = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getTrackBeetWeenWeek/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("User count between week:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};// load Track count between month
+export const LoadTrackCountBetweenMonth = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getTrackBetweenMonth/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("Track count between month:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+
+
+// load Album count between dates
+export const LoadAlbumCountBetweenDates = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAlbumBeetWeen/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("Album count between dates:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+
+// load Album count between week
+export const LoadAlbumCountBetweenWeek = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAlbumBeetWeenWeek/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("User Album between week:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};// load Album count between month
+export const LoadAlbumCountBetweenMonth = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAlbumBetweenMonth/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("Album count between month:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+
+//playlist
+// load PlayList count between dates
+export const LoadPlayListCountBetweenDates = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getPlayListBeetWeen/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("PlayList count between dates:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+
+// load PlayList count between week
+export const LoadPlayListountBetweenWeek = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getPlayListBeetWeenWeek/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("User PlayList between week:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+
+// load PlayList count between month
+export const LoadPlayListCountBetweenMonth = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getPlayListBetweenMonth/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("Album count between month:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+// load most followed
+export const LoadMostFollowed = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getMostFollowed`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    console.log("LoadMostFollowed:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+
+// load most track uploader
+export const LoadMostUploader = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getMostTrackUploader/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data.data;
+    console.log("MostTrackUploader", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+// load PlayList for table
+export const LoadPlayListFortable = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getPlayListToTable/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data.data;
+    console.log("LoadPlayListFortable", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+// load  user for table
+export const LoadUserForTable = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getUserToTable/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data.data;
+    console.log("getUserToTable", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+// load track for table
+export const LoadTrackForTable = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getTrackToTable/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data.data;
+    console.log("getTrackToTable", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+// load  Album for table
+export const LoadAlbumForTable = async (startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAlbumToTable/${startDate}/${endDate}`,
+      { withCredentials: true }
+    );
+    const data = response.data.data;
+    console.log("getAlbumToTable", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    throw error;
+  }
+};
+
