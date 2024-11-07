@@ -93,7 +93,8 @@ import logoAdmin from '../images/admin_white.png'
 import heartFilled from '../images/heartFilled.png';
 import musicalNote from '../images/musicalNote.png';
 import girlmusic from "../images/girlMusic.png";
-
+import adminImage from "./admin.png";
+import karinaImage from "./karina.jpg";
 
 
 export const images = {
