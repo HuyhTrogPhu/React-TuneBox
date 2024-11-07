@@ -206,10 +206,7 @@ const DetailProduct = () => {
                 <div className="gioiThieu mt-4 p-3">
                   <p>{instrument.description}</p>
                 </div>
-                <h3>About the product</h3>
-                <div className="gioiThieu mt-4 p-3">
-                  <p>{instrument.description}</p>
-                </div>
+                
               </div>
 
 
@@ -239,7 +236,7 @@ const DetailProduct = () => {
                     <div className="col-lg-5 col-md-5 col-sm 12">
                       <div className="instrument-brand">
                         <img src={instrument.brand.brandImage} alt={instrument.brand.name} />
-                        <span onClick={() => handleBrandClick(instrument.brand.id)}>
+                        <span onClick={() => handleBrandClick(instrument.brand)}>
                           <a href="">Similar products <i className="fa-solid fa-arrow-right"></i></a>
                         </span>
                       </div>

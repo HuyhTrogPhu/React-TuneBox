@@ -5,6 +5,7 @@ import "../Profile/css/UsersToFollow.css";
 function UsersToFollow({ userId }) {
     const [users, setUsers] = useState([]);
     const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
+    const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
         const fetchUsersToFollow = async () => {
@@ -25,7 +26,7 @@ function UsersToFollow({ userId }) {
         setIsUpdatingFollow(true);
     
         try {
-            const token = localStorage.getItem('jwtToken'); // Lấy token từ local storage hoặc từ nơi bạn lưu trữ
+            const token = localStorage.getItem('jwtToken');
             const headers = {
                 Authorization: `Bearer ${token}`,
             };
@@ -35,9 +36,8 @@ function UsersToFollow({ userId }) {
             if (isFollowing) {
                 await axios.delete(`http://localhost:8080/api/follow/unfollow`, {
                     params: { followerId: userId, followedId: followedId },
-                    headers: headers, // Thêm headers vào yêu cầu
+                    headers: headers,
                 });
-                // Cập nhật trạng thái trong state
                 setUsers(prevUsers => 
                     prevUsers.map(user => 
                         user.userId === followedId ? { ...user, isFollowing: false } : user
@@ -46,9 +46,8 @@ function UsersToFollow({ userId }) {
             } else {
                 await axios.post(`http://localhost:8080/api/follow/follow`, null, {
                     params: { followerId: userId, followedId: followedId },
-                    headers: headers, // Thêm headers vào yêu cầu
+                    headers: headers,
                 });
-                // Cập nhật trạng thái trong state
                 setUsers(prevUsers => 
                     prevUsers.map(user => 
                         user.userId === followedId ? { ...user, isFollowing: true } : user
@@ -62,16 +61,18 @@ function UsersToFollow({ userId }) {
         }
     };
     
-    // Xử lý loại bỏ người dùng khỏi danh sách
     const handleFollowUser = (userId) => {
         setUsers(prevUsers => prevUsers.filter(user => user.userId !== userId));
     }
 
+    // Hiển thị 6 người dùng đầu tiên hoặc toàn bộ danh sách nếu showAll = true
+    const displayedUsers = showAll ? users : users.slice(0, 6);
+
     return (
         <div className="users-to-follow-container">
-            <h2>Gợi ý theo dõi</h2>
-            {users.length > 0 ? (
-                users.map((user) => (
+            <h2>Suggested follow-up</h2>
+            {displayedUsers.length > 0 ? (
+                displayedUsers.map((user) => (
                     <div key={user.userName} className="user-card">
                         <img src={user.avatar || 'default-avatar.png'} alt={user.name} className="Avatar" />
                         <div className="user-info">
@@ -83,8 +84,8 @@ function UsersToFollow({ userId }) {
                                 className="btn btn-primary" 
                                 id="followButton" 
                                 onClick={() => {
-                                    toggleFollow(user.userId); // Gọi toggleFollow với id của người dùng
-                                    handleFollowUser(user.userId); // Loại bỏ người dùng khỏi danh sách ngay lập tức
+                                    toggleFollow(user.userId);
+                                    handleFollowUser(user.userId);
                                 }}
                             >
                                 {user.isFollowing ? "Unfollow" : "Follow"}
@@ -93,7 +94,16 @@ function UsersToFollow({ userId }) {
                     </div>
                 ))
             ) : (
-                <p>Ayyyyo ông bạn thật sự đã follow tất cả mọi người trên cái nền tảng này </p>
+                <p>Ayyyyo man you really followed everyone on this platform.</p>
+            )}
+
+            {/* Nút xem thêm */}
+            {users.length > 6 && !showAll && (
+                <div className='d-flex align-item-center justify-content-center'>
+                    <a onClick={() => setShowAll(true)} ><i class="fa-solid fa-caret-down"></i></a>
+                </div>
+
+                
             )}
         </div>
     );

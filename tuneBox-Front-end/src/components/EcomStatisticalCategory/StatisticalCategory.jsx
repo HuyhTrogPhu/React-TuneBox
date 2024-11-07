@@ -123,7 +123,7 @@ const StatisticalCategory = () => {
                   </td>
                   <td style={{ textAlign: 'center' }}>{category.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{category.categoryName}</td>
-                  <td style={{ textAlign: 'center' }}>{category.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{category.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity + category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity}</td>
@@ -157,7 +157,7 @@ const StatisticalCategory = () => {
                   </td>
                   <td style={{ textAlign: 'center' }}>{category.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{category.categoryName}</td>
-                  <td style={{ textAlign: 'center' }}>{category.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{category.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity + category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity}</td>
@@ -191,7 +191,7 @@ const StatisticalCategory = () => {
                   </td>
                   <td style={{ textAlign: 'center' }}>{category.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{category.categoryName}</td>
-                  <td style={{ textAlign: 'center' }}>{category.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{category.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity + category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity}</td>
@@ -232,7 +232,7 @@ const StatisticalCategory = () => {
                   </td>
                   <td style={{ textAlign: 'center' }}>{category.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{category.categoryName}</td>
-                  <td style={{ textAlign: 'center' }}>{category.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{category.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity + category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity}</td>
@@ -265,8 +265,8 @@ const StatisticalCategory = () => {
                     <img src={category.image} alt="" style={{ width: '50px' }} />
                   </td>
                   <td style={{ textAlign: 'center' }}>{category.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{category.categoryName}</td>
-                  <td style={{ textAlign: 'center' }}>{category.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{category.categoryName} </td>
+                  <td style={{ textAlign: 'center' }}>{category.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity + category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity}</td>
@@ -300,7 +300,7 @@ const StatisticalCategory = () => {
                   </td>
                   <td style={{ textAlign: 'center' }}>{category.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{category.categoryName}</td>
-                  <td style={{ textAlign: 'center' }}>{category.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{category.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity + category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{category.quantity}</td>

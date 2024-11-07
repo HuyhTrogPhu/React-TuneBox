@@ -135,7 +135,7 @@ function App() {
               <Route path="/welcome" element={<WelcomeUser />} />
               {/* admin start */}
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
-              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
+              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
               {/* admin end */}

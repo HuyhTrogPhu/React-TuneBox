@@ -29,12 +29,12 @@ const Footer2 = () => {
         </ul>
       </div>
       <div className="col-lg-3 col-md-6 col-12 mb-4 mb-lg-0" id="lienhe">
-        <h5 className="site-footer-title mb-3 text-white">Liên hệ với chúng tôi</h5>
+        <h5 className="site-footer-title mb-3 text-white">Contact us</h5>
         <p className="text-white d-flex mb-1">
           <Link to={'email'} className="site-footer-link text-white">Email:</Link>
         </p>
         <p className="text-white d-flex">
-          <Link to={'/bachdangsu.site'} className="site-footer-link text-white">bachdangsu@gmail.com</Link>
+          <Link to={'/bachdangsu.site'} className="site-footer-link text-white">tuneboxvietnam@gmail.com</Link>
         </p>
       </div>
     </div>

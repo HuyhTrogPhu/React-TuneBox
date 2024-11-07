@@ -22,10 +22,10 @@ const Header2 = () => {
             <div className="collapse navbar-collapse" id="navbarNav">
               <ul className="navbar-nav align-items-lg-center ms-auto me-lg-5">
                 <li className="nav-item">
-                  <Link to={'/login'} className="nav-link  text-white">Đăng nhập</Link>
+                  <Link to={'/login'} className="nav-link  text-white">Log in</Link>
                 </li>
               </ul>
-              <Link to={'/register'} className="btn custom-btn d-lg-block d-none">Đăng ký</Link>
+              <Link to={'/register'} className="btn custom-btn d-lg-block d-none">Register</Link>
             </div>
           </div>
         </nav>

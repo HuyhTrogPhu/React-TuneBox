@@ -1040,7 +1040,7 @@ const HomeFeed = () => {
                     className="me-2"
                   />
                   <span className="fw-bold">
-                    <Link to={"/"}>Bản tin</Link>
+                    <Link to={"/"}>Feed</Link>
                   </span>
                 </a>
               </li>
@@ -1052,7 +1052,7 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2"
                   />
-                  <span className="fw-bold">Đang theo dõi</span>
+                  <span className="fw-bold">Following</span>
                 </a>
               </li>
 
@@ -1064,7 +1064,7 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2"
                   />
-                  <span className="fw-bold">Bài viết đã thích</span>
+                  <span className="fw-bold">Liked posts</span>
                 </Link>
               </li>
               <li className="left mb-4">
@@ -1075,7 +1075,7 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2"
                   />
-                  <span className="fw-bold">Albums đã thích</span>
+                  <span className="fw-bold">Like albums</span>
                 </Link>
               </li>
               <li className="left mb-4">
@@ -1089,7 +1089,7 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2 "
                   />
-                  <span className="fw-bold">Playlist đã thích</span>
+                  <span className="fw-bold">Like playlists</span>
                 </Link>
               </li>
               <li className="left mb-4">
@@ -1097,7 +1097,7 @@ const HomeFeed = () => {
                   to={"/FriendRequests"}
                   className="d-flex align-items-center"
                 >
-                  <span className="fw-bold">Danh sách lời mời kết bạn</span>
+                  <span className="fw-bold">List of friend requests</span>
                 </Link>
               </li>
             </ul>
