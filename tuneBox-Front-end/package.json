@@ -44,6 +44,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-loader-spinner": "^6.1.6",
+    "react-mentions": "^4.4.10",
     "react-owl-carousel": "^2.3.3",
     "react-router-dom": "^6.26.2",
     "react-slick": "^0.30.2",
