@@ -9,6 +9,7 @@ import {
   DeniedRPTrack,
   ApproveRPTrack
 } from "../../../service/SocialMediaAdminService";
+import { height } from "@mui/system";
 const Track = () => {
   const [AllUser, setAllUser] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,7 +88,7 @@ const Track = () => {
     <div className="container mt-4">
       <div className="row">
         {/* New Users */}
-        <div className="col-md-6">
+        <div className="col-md-6" style={{width : '100%'}}>
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
               <h5 className="text-light">New Track</h5>
@@ -131,7 +132,7 @@ const Track = () => {
         </div>
 
         {/* Featured Users */}
-        <div className="col-md-6">
+        <div className="col-md-6" style={{width : '100%'}}>
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
               <h5 className="text-light">All Track</h5>
@@ -213,7 +214,7 @@ const Track = () => {
 
         {/* Report */}
         {console.log(Report)}
-        <div className="col-md-6">
+        <div className="col-md-6" style={{width : '100%'}}>
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
               <h5 className="text-light">Report</h5>

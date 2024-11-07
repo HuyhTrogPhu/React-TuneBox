@@ -51,7 +51,6 @@ import FollowingPage from "./pages/SocialMedia/FollowingPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { getUserRole, isUserRole } from './service/auth';
 import Chat from "./pages/SocialMedia/chat/chat";
-import SocialMediaAdmin from "./pages/SocialMediaAdmin";
 // Layout có Header
 
 //socialadmin

@@ -181,7 +181,7 @@ if (activeHandler) {
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
-          setStartDate(onDate);
+          
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             const registrationCounts = [];
@@ -332,7 +332,7 @@ if (activeHandler) {
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
-          setStartDate(onDate);
+        
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             setEndDate(onDate);
@@ -426,11 +426,11 @@ if (activeHandler) {
           return;
         }
         try {
-          setForm("New Track Regesting");
+          setForm("New album Regesting");
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
-          setStartDate(onDate);
+        
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             setEndDate(onDate);
@@ -528,7 +528,7 @@ if (activeHandler) {
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
-          setStartDate(onDate);
+          
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             setEndDate(onDate);

@@ -30,7 +30,7 @@ const PlaylistDetail = () => {
   console.log(PlayList);
   const filteredUsers = PlayList.tracks
     ? PlayList.tracks.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.name
       )
     : [];
 
