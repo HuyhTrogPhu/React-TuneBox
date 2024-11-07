@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../MenuShop/MenuShop.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { listBrands, listCategories } from '../../service/EcommerceHome';
 
 const MenuShop = () => {
     const [brands, setBrands] = useState([]);
+    const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const [dropdownVisible, setDropdownVisible] = useState(false);
     const dropdownRef = useRef(null);
@@ -53,7 +54,12 @@ const MenuShop = () => {
     // Function to get 16 random brand names
     const getRandomBrandNames = (brandsArray) => {
         const shuffled = brandsArray.sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, 16).map(brand => brand.name);
+        return shuffled.slice(0, 16);
+    };
+
+    // Navigate to brand-detail page
+    const handleBrandClick = (brand) => {
+        navigate('/brand-detail', { state: { brand } });
     };
 
     const randomBrands = getRandomBrands(brands);
@@ -63,8 +69,8 @@ const MenuShop = () => {
         <div>
             <div className='row d-flex'>
                 {/* Menu brand */}
-                <div className='brand col-3' ref={dropdownRef} onMouseEnter={() => setDropdownVisible(true)} onMouseLeave={() => setDropdownVisible(false)}>
-                    <Link to={'/BrandPage'}>Brand</Link>
+                <div className='brand col-3 mt-3' ref={dropdownRef} onMouseEnter={() => setDropdownVisible(true)} onMouseLeave={() => setDropdownVisible(false)}>
+                    <Link className='fw-bold fs-5' to={'/BrandPage'}>Brand</Link>
                     {dropdownVisible && (
                         <div className='brand-dropdown row'>
                             <div className='top-brand col-5'>
@@ -73,21 +79,21 @@ const MenuShop = () => {
                                         <h6 style={{ fontSize: '16px' }}>Nhãn hiệu hàng đầu</h6>
                                         <div className='row'>
                                             {randomBrands.map((brand) => (
-                                                <Link to={`/brand-detail/${brand.id}`} key={brand.id} className='col-5 m-2'>
+                                                <span key={brand.id} onClick={() => handleBrandClick(brand)} className='col-5 m-2'>
                                                     <img src={brand.brandImage} alt={brand.name} style={{ width: '100px' }} />
-                                                </Link>
+                                                </span>
                                             ))}
                                         </div>
                                     </div>
                                     <div className='col-6'>
-                                        <h6 className='pe-0 ps-0' style={{ fontSize: '16px'}}>Thương hiệu thịnh hành</h6>
+                                        <h6 className='pe-0 ps-0' style={{ fontSize: '16px' }}>Thương hiệu thịnh hành</h6>
                                         <Link to={'/BrandPage'} className='ms-5'>Xem từ (A-Z)</Link>
-                                        {randomBrandNames.map((name, index) => (
-                                            <Link to={'/brand-detail'}>
-                                                <div className='brand-name' key={name.id}>
-                                                    <h6>{name}</h6>
+                                        {randomBrandNames.map((brand) => (
+                                            <span key={brand.id} onClick={() => handleBrandClick(brand)}>
+                                                <div className='brand-name'>
+                                                    <h6>{brand.name}</h6>
                                                 </div>
-                                            </Link>
+                                            </span>
                                         ))}
                                     </div>
                                 </div>

@@ -152,9 +152,9 @@ const ManagerOrder = () => {
   return (
     <div>
       <div className='container-fluid'>
-        <div className='row'>
+        <div className='row mt-5 gap-2'>
           {/* Search by day */}
-          <div className='col-3'>
+          <div className='col-3 border rounded p-2'>
             <form onSubmit={(e) => { e.preventDefault(); searchOrdersByDate(searchDate); }}>
               <div className='mt-3'>
                 <label className='form-label'>Search by day:</label>
@@ -165,12 +165,14 @@ const ManagerOrder = () => {
                   value={searchDate}
                   onChange={(e) => setSearchDate(e.target.value)}
                 />
-                <button type="submit" className="btn btn-outline-primary mt-2">Search</button>
+                <div className='mt-3'>
+                  <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
+                </div>
               </div>
             </form>
           </div>
           {/* Search from day to day */}
-          <div className='col-3'>
+          <div className='col-3 border rounded p-2'>
             <form onSubmit={(e) => { e.preventDefault(); searchOrdersByRange(fromDate, toDate); }}>
               <div className='mt-3'>
                 <label className='form-label'>From day:</label>
@@ -188,14 +190,16 @@ const ManagerOrder = () => {
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                 />
-                <button type="submit" className="btn btn-outline-primary mt-2">Search</button>
+                <div className='mt-3'>
+                  <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
+                </div>
               </div>
             </form>
           </div>
 
 
           {/* Search by status */}
-          <div className='col-3'>
+          <div className='col-3 border rounded p-2'>
             {/* Dropdown tìm kiếm trạng thái đơn hàng */}
             <div className='mt-3'>
               <label className='form-label'>Search by status:</label>
@@ -218,8 +222,8 @@ const ManagerOrder = () => {
           </div>
 
           {/* Daily revenue */}
-          <div className='col-3'>
-            <h6>Daily revenue: {dailyRevenue ? `${(dailyRevenue).toLocaleString('vi')} VND` : 'No data'}</h6>
+          <div className='col-3 border rounded p-2'>
+            <h6 className='fs-5'>Daily revenue: <span className='text-danger fs-4'>{dailyRevenue ? `${(dailyRevenue).toLocaleString('vi')} VND` : 'No data'}</span></h6>
           </div>
 
 
@@ -228,7 +232,7 @@ const ManagerOrder = () => {
         {/* Table */}
         <div className='row mt-5'>
 
-          <table id="orderTable" className='table'>
+          <table id="orderTable" className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: "center" }} scope='col'>#</th>
@@ -245,20 +249,20 @@ const ManagerOrder = () => {
                 <th style={{ textAlign: "center" }} scope='col'>Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {currentPaginatedOrders.length > 0 ? (
                 currentPaginatedOrders.map((order, index) => (
                   <tr key={order.id}>
-                    <th>{(currentPage - 1) * rowsPerPage + index + 1}</th>
-                    <td>{order.orderDate}</td>
-                    <td>{order.deliveryDate}</td>
+                    <th style={{ textAlign: "center" }}>{(currentPage - 1) * rowsPerPage + index + 1}</th>
+                    <td style={{ textAlign: "center" }}>{order.orderDate}</td>
+                    <td style={{ textAlign: "center" }}>{order.deliveryDate}</td>
 
-                    <td>{(order.totalPrice).toLocaleString('vi')} VND</td>
-                    <td>{order.totalItems}</td>
-                    <td>{order.paymentMethod}</td>
-                    <td>{order.shippingMethod}</td>
-                    <td>{order.paymentStatus}</td>
-                    <td>
+                    <td style={{ textAlign: "center" }}>{(order.totalPrice).toLocaleString('vi')} VND</td>
+                    <td style={{ textAlign: "center" }}>{order.totalItems}</td>
+                    <td style={{ textAlign: "center" }}>{order.paymentMethod}</td>
+                    <td style={{ textAlign: "center" }}>{order.shippingMethod}</td>
+                    <td style={{ textAlign: "center" }}>{order.paymentStatus}</td>
+                    <td style={{ textAlign: "center" }}>
                       <select
                         value={order.status}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
@@ -272,8 +276,8 @@ const ManagerOrder = () => {
                         <option value="Canceled">Canceled</option>
                       </select>
                     </td>
-                    <td>
-                      <Link to={`/ecomadmin/order/detail/${order.id}`}>View</Link>
+                    <td style={{ textAlign: "center" }}>
+                      <Link className='btn text-white' style={{backgroundColor: '#e94f37'}} to={`/ecomadmin/order/detail/${order.id}`}>View</Link>
                     </td>
                   </tr>
                 ))

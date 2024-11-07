@@ -13,4 +13,15 @@
 
 .brand-name {
     padding: 5px 10px;
+    
+}
+
+.brand-name h6 {
+    padding: 10px 0 0 0;
+    font-size: 20px;
+    margin-left: 40px;
+}
+
+.brand a:hover {
+    color: #E94F37;
 }

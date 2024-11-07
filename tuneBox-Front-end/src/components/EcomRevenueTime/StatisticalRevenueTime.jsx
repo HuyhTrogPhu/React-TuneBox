@@ -12,7 +12,7 @@ const StatisticalRevenueTime = () => {
 
     const [revenueData, setRevenueData] = useState(null);
     const [chartData, setChartData] = useState({});
-    const [userChartData, setUserChartData] = useState({}); 
+    const [userChartData, setUserChartData] = useState({});
     const [instrumentChartData, setInstrumentChartData] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -43,14 +43,17 @@ const StatisticalRevenueTime = () => {
 
                 if (response) {
                     setRevenueData(response.data);
+
                     if (response.data?.revenueOverTime) {
-                        const labels = response.data.revenueOverTime.map(item => item.date);
+                        const labels = ['Revenue']
+
                         const data = response.data.revenueOverTime.map(item => item.revenue);
+
                         setChartData({
                             labels,
                             datasets: [
                                 {
-                                    label: 'Revenue',
+                                    labels: 'Revenue',
                                     data,
                                     fill: false,
                                     borderColor: 'rgba(75, 192, 192, 1)',
@@ -78,6 +81,7 @@ const StatisticalRevenueTime = () => {
         yearOfMonth, month, startMonthYear, endMonthYear,
         year, startYear, endYear
     ]);
+
 
     useEffect(() => {
         if (revenueData?.userSells) {
@@ -122,14 +126,14 @@ const StatisticalRevenueTime = () => {
             <div className='container'>
                 <div className='row'>
                     <h6 className='text-center'>
-                        Statistical:
-                        {date ? `Date: ${date}` :
-                            selectedWeek ? `Week: ${selectedWeek}` :
-                                yearOfMonth && month ? `Month: ${month} Year: ${yearOfMonth}` :
-                                    startDate && endDate ? `From ${startDate} to ${endDate}` :
-                                        startDateWeek && endDateWeek ? `From Week starting ${startDateWeek} to ${endDateWeek}` :
-                                            startMonthYear && endMonthYear ? `From ${startMonthYear} to ${endMonthYear} in Year: ${yearOfMonth}` :
-                                                startYear && endYear ? `From Year: ${startYear} to ${endYear}` :
+                        Statistical
+                        {date ? ` Date: ${date}` :
+                            selectedWeek ? ` Week: ${selectedWeek}` :
+                                yearOfMonth && month ? ` Month: ${month} Year: ${yearOfMonth}` :
+                                    startDate && endDate ? ` From ${startDate} to ${endDate}` :
+                                        startDateWeek && endDateWeek ? ` From Week starting ${startDateWeek} to ${endDateWeek}` :
+                                            startMonthYear && endMonthYear ? ` From ${startMonthYear} to ${endMonthYear} in Year: ${yearOfMonth}` :
+                                                startYear && endYear ? ` From Year: ${startYear} to ${endYear}` :
                                                     'No specific date range selected.'}
                     </h6>
                     <div className='col-12'>
@@ -140,9 +144,15 @@ const StatisticalRevenueTime = () => {
                         ) : (
                             <>
                                 <h6>
-                                    Total revenue: {(revenueData?.revenueByDay || revenueData?.revenueByWeek ||
-                                        revenueData?.revenueByMonth || revenueData?.revenueByYear || 'No data available').toLocaleString('vi')} VND
+                                    Total revenue: {(
+                                        revenueData?.revenueByDay ? revenueData.revenueByDay :
+                                            revenueData?.revenueByWeek ? revenueData.revenueByWeek :
+                                                revenueData?.revenueByMonth ? revenueData.revenueByMonth :
+                                                    revenueData?.revenueByYear ? revenueData.revenueByYear :
+                                                        'No data available'
+                                    ).toLocaleString('vi')} VND
                                 </h6>
+                                {/* Line chart */}
                                 {chartData.labels ? (
                                     <Line data={chartData} />
                                 ) : (
@@ -157,7 +167,7 @@ const StatisticalRevenueTime = () => {
                 <div className='row'>
                     <h6>List user</h6>
                     <div className='col-12'>
-                        <table className='table border'>
+                        <table className='table table-bordered'>
                             <thead>
                                 <tr>
                                     <th scope='col' style={{ textAlign: 'center' }}>#</th>
@@ -171,7 +181,7 @@ const StatisticalRevenueTime = () => {
                                     <th scope='col' style={{ textAlign: 'center' }}>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className='table-group-divider'>
                                 {revenueData?.userSells?.map((user, index) => (
                                     <tr key={user.userId}>
                                         <th style={{ textAlign: 'center' }}>{index + 1}</th>
@@ -183,7 +193,7 @@ const StatisticalRevenueTime = () => {
                                         <td style={{ textAlign: 'center' }}>{user.totalOrder} order</td>
                                         <td style={{ textAlign: 'center' }}>{user.sumTotalPrice.toLocaleString('vi')} VND</td>
                                         <td>
-                                            <Link className='btn btn-primary' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
+                                            <Link className='btn text-white' style={{ backgroundColor: '#e94f37', color: '#fff' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
                                         </td>
                                     </tr>
                                 ))}
@@ -198,7 +208,7 @@ const StatisticalRevenueTime = () => {
                 <div className='row'>
                     <h6>List instrument</h6>
                     <div className='col-12'>
-                        <table className='table border'>
+                        <table className='table table-bordered'>
                             <thead>
                                 <tr>
                                     <th scope='col' style={{ textAlign: 'center' }}>#</th>
@@ -207,7 +217,7 @@ const StatisticalRevenueTime = () => {
                                     <th scope='col' style={{ textAlign: 'center' }}>Total Sold</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className='table-group-divider'>
                                 {revenueData?.listInstrument?.map((instrument, index) => (
                                     <tr key={instrument.instrumentId}>
                                         <th style={{ textAlign: 'center' }}>{index + 1}</th>

@@ -138,7 +138,7 @@ const ManagerCategories = () => {
           data-bs-toggle="modal"
           data-bs-target="#addCategoryModal"
           className="btn btn-primary mb-5 mt-3"
-          style={{ marginLeft: 17 }}
+          style={{ marginLeft: 17, backgroundColor: '#e94f37' }}
         >
           Add Category
         </button>
@@ -187,7 +187,7 @@ const ManagerCategories = () => {
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" className="btn btn-primary" onClick={handleSave}>{loading ? (
+                <button type="button"  style={{ backgroundColor: '#e94f37' }} className="btn text-white" onClick={handleSave}>{loading ? (
                   <span>
                     <i className="fa fa-spinner fa-spin" /> Saving...
                   </span>

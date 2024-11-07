@@ -10,9 +10,9 @@
   }
   
   .inspired-by-button.selected {
-    background-color: #E94F37; /* Màu nền khi được chọn */
-    color: white;
-    border-color: #000; /* Màu viền khi được chọn */
+    background-color: #E94F37 !important; 
+    color: white !important;
+    border-color: #000 !important; 
   }
   
   .search-bar {

@@ -1,0 +1,48 @@
+.statistical-customer-card {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #ccdbfd;
+    border: 1px solid #ccc;
+}
+
+.statistical-customer-card:hover {
+    transform: scale(1.05);
+    background-color: #b0c4de;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.statistical-currently {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #008000;
+    border: 1px solid #ccc;
+}
+
+.statistical-currently:hover {
+    transform: scale(1.05);
+    background-color: #38b000; /* Màu nền khi hover */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Tạo hiệu ứng box-shadow */
+}
+
+
+.statistical-product {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #eeba0b;
+    border: 1px solid #ccc;
+}
+
+.statistical-product:hover {
+    transform: scale(1.05);
+    background-color: #f4e409; /* Màu nền khi hover */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Tạo hiệu ứng box-shadow */
+}
+
+.statistical-bill {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #9d4edd;
+    border: 1px solid #ccc;
+}
+
+.statistical-bill:hover {
+    transform: scale(1.05);
+    background-color: #c77dff; /* Màu nền khi hover */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Tạo hiệu ứng box-shadow */
+}

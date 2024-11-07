@@ -159,7 +159,7 @@ const DetailProduct = () => {
       addToLocalCart(instrument, quantity);
       setIsAddingToCart(false); // Kết thúc loading
 
-      // Hiển thị thông báo thành công
+      // Sử dụng SweetAlert2 để hiển thị thông báo
       Swal.fire({
         title: 'Success!',
         text: 'The product has been added to the cart.',
@@ -173,6 +173,10 @@ const DetailProduct = () => {
     }, 1000); // Giả lập thời gian xử lý
   };
 
+  // sản phẩm tương tự 
+  const handleBrandClick = (brand) => {
+    navigate('/brand-detail', { state: { brand } });
+  };
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p>{error}</p>;
@@ -202,7 +206,12 @@ const DetailProduct = () => {
                 <div className="gioiThieu mt-4 p-3">
                   <p>{instrument.description}</p>
                 </div>
+                <h3>About the product</h3>
+                <div className="gioiThieu mt-4 p-3">
+                  <p>{instrument.description}</p>
+                </div>
               </div>
+
 
             </div>
             <div className="col-5">
@@ -230,7 +239,9 @@ const DetailProduct = () => {
                     <div className="col-lg-5 col-md-5 col-sm 12">
                       <div className="instrument-brand">
                         <img src={instrument.brand.brandImage} alt={instrument.brand.name} />
-                        <Link to={'/CategoryPage'}>List brand <i className="fa-solid fa-arrow-right"></i></Link>
+                        <span onClick={() => handleBrandClick(instrument.brand.id)}>
+                          <a href="">Similar products <i className="fa-solid fa-arrow-right"></i></a>
+                        </span>
                       </div>
                     </div>
                   </div>
