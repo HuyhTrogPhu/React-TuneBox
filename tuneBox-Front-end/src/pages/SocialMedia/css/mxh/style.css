@@ -4,8 +4,24 @@ body {
   }
   
   .sidebar {
-    background-color: #f8f9fa;
-    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #f8f9fa; /* Màu nền của sidebar */
+    padding: 20px;
+    z-index: 1000; /* Đảm bảo sidebar luôn trên cùng */
+  }
+  .sidebar2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #225c97; /* Màu nền của sidebar */
+    padding: 20px;
+    z-index: 1000; /* Đảm bảo sidebar luôn trên cùng */
   }
   
   .sidebar ul {
@@ -110,9 +126,7 @@ body {
     color: #000;
   }
   
-  .content {
-   
-  }
+
   
   .post {
     background-color: #f1f1f1;
