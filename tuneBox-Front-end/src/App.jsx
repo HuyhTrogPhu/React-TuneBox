@@ -1,9 +1,13 @@
 import React from "react";
 import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
 import HomeFeed from "./pages/SocialMedia/Feed";
+import Chat from "./pages/SocialMedia/chat/chat";
+
 import ProfileUser from "./pages/SocialMedia/Profile/ProfileUser";
 import ProfileSetting from "./pages/SocialMedia/Profile/ProfileSetting";
 import Talent from "./pages/GioiThieu/Talent";
@@ -16,7 +20,7 @@ import CartDetail from "./pages/Ecommerce/Cart/Cart_detail";
 import DetailProduct from "./pages/Ecommerce/ShopDetail/DetailProduct";
 import InspiredBy from "./pages/GioiThieu/InspiredBy";
 import Genre from "./pages/GioiThieu/Genre";
-import EcommerceAdmin from "./pages/EcommerceAdmin";
+import EcommerceAdmin from './pages/EcommerceAdmin'
 import BrandPage from "./pages/Ecommerce/BrandPage/BrandPage";
 import CategoryPage from "./pages/Ecommerce/CategoryPage/CategoryPage";
 import BrandDetail from "./pages/Ecommerce/BrandPage/BrandDetail";
@@ -43,6 +47,7 @@ import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
 import ThanhCong from "./pages/Ecommerce/order/doneOr";
 //import UserDetail from "./components/UserDetail/UserDetail";
 import Post from "./pages/SocialMedia/Post";
+
 import FriendRequests from "./pages/SocialMedia/FriendRequests";
 import FriendList from "./pages/SocialMedia/FriendList";
 import FollowersPage from "./pages/SocialMedia/FollowersPage";
@@ -94,6 +99,7 @@ function App() {
               <Route path="/BrandPage" element={<BrandPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
+              <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/chat" element={<Chat />} />
               <Route
                 path="/albums/album-Edit/:albumId"
@@ -104,13 +110,14 @@ function App() {
                 path="/InstrumentBelongCategory"
                 element={<CategoryPageDetail />}
               />
+            {/* <Route path="/InstrumentBelongCategory" element={<CategoryPageDetail />} /> */}
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
-              <Route path="/checkOut" element={<CheckOut />} />
-              <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
-              <Route path="/doneorder" element={<ThanhCong />} />
-              <Route path="/post/:postIdurl" element={<Post />} />
-              <Route path="/FriendRequests" element={<FriendRequests />} />
+            <Route path="/checkOut" element={<CheckOut/>}/>
+            <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
+            <Route path="/doneorder" element={<ThanhCong/>}/>
+            <Route path="/post/:postIdurl" element={<Post />}  />
+            <Route path="/FriendRequests" element={<FriendRequests />} />
               <Route path="/FriendList/:userId" element={<FriendList />} />
               <Route path="/Follower/:userId" element={<FollowersPage />} />
               <Route path="/Following/:userId" element={<FollowingPage />} />
@@ -133,16 +140,19 @@ function App() {
               <Route path="/inspiredBy" element={<InspiredBy />} />
               <Route path="/genre" element={<Genre />} />
               <Route path="/welcome" element={<WelcomeUser />} />
+              <Route path="reset-password2" element={<ResetPassword2 />} />
+              <Route path="forgot-password2" element={<ForgotPassword2 />} />
+
               {/* admin start */}
-              {/* Route bảo vệ với quyền 'EcomAdmin' */}
-              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
+              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
               {/* admin end */}
-            </Route>
-          </Routes>
-        </div>
+            <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
+          </Route>
+        </Routes>
       </div>
+    </div>
     </FollowProvider>
   );
 }

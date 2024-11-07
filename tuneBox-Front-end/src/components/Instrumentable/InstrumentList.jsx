@@ -474,3 +474,4 @@ const InstrumentList = ({ instruments, onUpdate }) => {
 };
 
 export default InstrumentList;
+

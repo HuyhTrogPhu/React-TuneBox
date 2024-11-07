@@ -19,7 +19,7 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const clientRef = useRef(null);
   const [attachment, setAttachment] = useState(null);
-  const jwtToken = localStorage.getItem('jwtToken'); // Get JWT token
+  const jwtToken = localStorage.getItem("jwtToken"); // Get JWT token
   const reconnectOptions = {
     maxAttempts: 5,
     interval: 1000,
@@ -29,17 +29,17 @@ const Chat = () => {
     try {
       const response = await axios.get("http://localhost:8080/user", {
         headers: {
-          'Authorization': `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${jwtToken}`,
         },
-        withCredentials: true  
+        withCredentials: true,
       });
       const users = Array.isArray(response.data) ? response.data : [];
-      const filteredUsers = users.filter(user => user.id !== currentUserId);
+      const filteredUsers = users.filter((user) => user.id !== currentUserId);
       setUsers(filteredUsers);
     } catch (error) {
       console.error("Error fetching users:", error.response?.data || error);
     }
-  }, [currentUserId,jwtToken]);
+  }, [currentUserId, jwtToken]);
 
   const fetchMessages = useCallback(async () => {
     if (!activeUser) return;
@@ -57,9 +57,9 @@ const Chat = () => {
         `http://localhost:8080/api/messages/between?userId1=${currentUserId}&userId2=${activeUser.id}`,
         {
           headers: {
-            'Authorization': `Bearer ${jwtToken}`,
+            Authorization: `Bearer ${jwtToken}`,
           },
-          withCredentials: true
+          withCredentials: true,
         }
       );
 
@@ -135,9 +135,9 @@ const Chat = () => {
         socket.onclose = () => console.log("SockJS connection closed");
         socket.onerror = (error) => console.log("SockJS error:", error);
         return socket;
-      },      
+      },
       connectHeaders: {
-        'Authorization': `Bearer ${jwtToken}`,
+        Authorization: `Bearer ${jwtToken}`,
       },
       reconnectDelay: reconnectOptions.reconnectDelay,
       maxReconnectAttempts: reconnectOptions.maxReconnectAttempts,
@@ -158,7 +158,7 @@ const Chat = () => {
         `/user/${currentUserId}/queue/messages`,
         onMessageReceived,
         {
-          'Authorization': `Bearer ${jwtToken}` // Thêm header cho subscription
+          Authorization: `Bearer ${jwtToken}`, // Thêm header cho subscription
         }
       );
     };
@@ -220,7 +220,7 @@ const Chat = () => {
           formData,
           {
             headers: {
-              'Authorization': `Bearer ${jwtToken}`,
+              Authorization: `Bearer ${jwtToken}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -253,8 +253,8 @@ const Chat = () => {
           destination: "/app/chat.sendMessage",
           body: JSON.stringify(messageData),
           headers: {
-            'Authorization': `Bearer ${jwtToken}`
-          }
+            Authorization: `Bearer ${jwtToken}`,
+          },
         });
 
         // Tạo bản sao của messageData để tránh tham chiếu
@@ -328,23 +328,27 @@ const Chat = () => {
 
   const handleRevokeMessage = async (messageId) => {
     if (!currentUserId) return;
-    
+
     try {
       const response = await axios.delete(
         `http://localhost:8080/api/messages/${messageId}?userId=${currentUserId}`,
         {
           headers: {
-            'Authorization': `Bearer ${jwtToken}`,
+            Authorization: `Bearer ${jwtToken}`,
           },
         }
       );
-  
+
       if (response.status === 200) {
         // Cập nhật state messages
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
             msg.id === messageId
-              ? { ...msg, content: "Tin nhắn đã được thu hồi", status: "REVOKED" }
+              ? {
+                  ...msg,
+                  content: "Tin nhắn đã được thu hồi",
+                  status: "REVOKED",
+                }
               : msg
           )
         );
@@ -373,7 +377,9 @@ const Chat = () => {
             <>
               <div className="messenger-chat-header">
                 <div className="user-avatar">
-                  {activeUser.username.charAt(0).toUpperCase()}
+                  {activeUser?.username
+                    ? activeUser.username.charAt(0).toUpperCase()
+                    : "?"}
                 </div>
                 <div className="user-info">
                   <span className="user-name">{activeUser.username}</span>
@@ -394,7 +400,9 @@ const Chat = () => {
                   >
                     <div className="message-bubble">
                       {msg.status === "REVOKED" ? (
-                        <em className="revoked-message">Tin nhắn đã được thu hồi</em>
+                        <em className="revoked-message">
+                          Tin nhắn đã được thu hồi
+                        </em>
                       ) : (
                         <>
                           {renderMessageContent(msg.content)}
@@ -404,16 +412,29 @@ const Chat = () => {
                                 <img
                                   src={attachment.fileUrl}
                                   alt={attachment.fileName}
-                                  style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                  style={{
+                                    maxWidth: "200px",
+                                    maxHeight: "200px",
+                                  }}
                                   onError={(e) => {
-                                    console.error("Image loading error for:", attachment.fileUrl);
+                                    console.error(
+                                      "Image loading error for:",
+                                      attachment.fileUrl
+                                    );
                                     e.target.style.display = "none";
-                                    const errorElement = document.createElement("div");
-                                    errorElement.textContent = "Không thể tải hình ảnh";
-                                    e.target.parentNode.appendChild(errorElement);
+                                    const errorElement =
+                                      document.createElement("div");
+                                    errorElement.textContent =
+                                      "Không thể tải hình ảnh";
+                                    e.target.parentNode.appendChild(
+                                      errorElement
+                                    );
                                   }}
                                   onLoad={() => {
-                                    console.log("Image loaded successfully:", attachment.fileUrl);
+                                    console.log(
+                                      "Image loaded successfully:",
+                                      attachment.fileUrl
+                                    );
                                   }}
                                 />
                               ) : (
@@ -427,21 +448,26 @@ const Chat = () => {
                               )}
                             </div>
                           ))}
-                          
+
                           {/* Add revoke button for sender's messages within 5 minutes */}
-                          {(typeof msg.senderId === "object" ? msg.senderId.id : msg.senderId) === currentUserId && 
-                           Date.now() - new Date(msg.creationDate).getTime() <= 5 * 60 * 1000 && (
-                            <button
-                              className="revoke-button"
-                              onClick={() => handleRevokeMessage(msg.id)}
-                            >
-                              Thu hồi
-                            </button>
-                          )}
+                          {(typeof msg.senderId === "object"
+                            ? msg.senderId.id
+                            : msg.senderId) === currentUserId &&
+                            Date.now() - new Date(msg.creationDate).getTime() <=
+                              5 * 60 * 1000 && (
+                              <button
+                                className="revoke-button"
+                                onClick={() => handleRevokeMessage(msg.id)}
+                              >
+                                Thu hồi
+                              </button>
+                            )}
                         </>
                       )}
                     </div>
-                    <div className="message-time">{formatTimestamp(msg.creationDate)}</div>
+                    <div className="message-time">
+                      {formatTimestamp(msg.creationDate)}
+                    </div>
                   </div>
                 ))}
               </div>
