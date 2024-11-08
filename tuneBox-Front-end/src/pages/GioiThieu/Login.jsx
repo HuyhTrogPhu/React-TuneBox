@@ -60,7 +60,7 @@ const Login = () => {
         setTimeout(() => {
           setLoading(false); // Dừng loading
           navigate('/'); // Chuyển hướng về trang chính
-        }, 3000);
+        }, 1000);
       } else {
         setLoading(false); // Dừng loading nếu userId không hợp lệ
         setError('User ID không hợp lệ.');
@@ -147,7 +147,7 @@ const Login = () => {
                     </span>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
-                    <Link to="/forgot-password2" className="text-primary">
+                    <Link to="/forgot-password" className="text-primary">
                       <b>Quên mật khẩu?</b>
                     </Link>
                   </div>

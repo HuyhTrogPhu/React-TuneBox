@@ -17,7 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import CSS cho Toastify
 import { images } from "../../../../assets/images/images";
 import { useNavigate } from "react-router-dom";
-
+import { Audio } from 'react-loader-spinner'
 const AlbumNew = () => {
   const navigate = useNavigate();
   const userId = Cookies.get("userId");
@@ -39,7 +39,7 @@ const AlbumNew = () => {
   const [selectedType, setSelectedType] = useState(""); // lưu ID của album style được chọn
 
   const [tracks, setTracks] = useState([]); //List track của user
-
+  const [isLoading, setIsLoading] = useState(false);
   const [addedTracks, setAddedTracks] = useState([]); // List track đã thêm vào album
 
   // const [loading, setLoading] = useState(true);  //  trạng thái chờ
@@ -117,6 +117,7 @@ const AlbumNew = () => {
     // e.preventDefault();
 
     if (validateForm()) {
+      setIsLoading(true);
       const formData = new FormData();
 
       // Append basic information
@@ -168,6 +169,8 @@ const AlbumNew = () => {
           error.response?.data?.message ||
           "Failed to create album. Please try again.";
         toast.error(errorMessage);
+      } finally {
+        setIsLoading(false); // Tắt loading sau khi hoàn thành
       }
     }
   };
@@ -311,15 +314,19 @@ const AlbumNew = () => {
                   <Box sx={{ flex: "1 1 auto" }} />
                   <Button
                     onClick={
-                      activeStep === steps.length - 1
-                        ? handleAddAlbum
-                        : handleNext
+                      activeStep === steps.length - 1 ? handleAddAlbum : handleNext
                     }
+                    disabled={isLoading} // Vô hiệu hóa nút khi đang loading
                   >
-                    {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                    {isLoading ? (
+                      <Audio height="20" width="20" color="white" ariaLabel="loading" />
+                    ) : (
+                      activeStep === steps.length - 1 ? "Finish" : "Next"
+                    )}
                   </Button>
                 </Box>
               </React.Fragment>
+
             )}
           </Box>
         </div>

@@ -236,5 +236,3 @@ export const updateBackground = async (userId, formData) => {
   return response.data; // Hoặc xử lý phản hồi theo cách bạn cần
 };
 
-// get order by user id
-export const getOrdersByUserId = async (userId) => axios.get(`${REST_API_BASE_URL}/${userId}/orders`);

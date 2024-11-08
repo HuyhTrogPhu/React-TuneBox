@@ -69,7 +69,7 @@ const UserSellTheLeast = () => {
         </div>
         {/* Bảng người dùng bán ít nhất */}
         <section className='row mt-5'>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -83,7 +83,7 @@ const UserSellTheLeast = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {userSellList.length > 0 ? (
                 userSellList.map((user, index) => (
                   <tr key={user.userId}>

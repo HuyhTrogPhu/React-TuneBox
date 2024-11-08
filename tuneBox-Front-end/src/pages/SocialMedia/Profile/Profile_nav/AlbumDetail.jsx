@@ -369,7 +369,7 @@ const AlbumDetail = () => {
                 <div className="album-info-actions">
                   <div>
                     <button
-                      className="btn text-muted"
+                      className="btn text-mutedA"
                       onClick={() => handleLikeALbum(album.id)}
                     >
                       {likesCount}
@@ -419,7 +419,7 @@ const AlbumDetail = () => {
               <div className="album-track">
                 <div className="list-track">
                   {/* Hiển thị danh sách track đã thêm */}
-                  <table className="table">
+                  <table className="tableA">
                     <thead>
                       <tr>
                         <th>#</th>
@@ -476,7 +476,7 @@ const AlbumDetail = () => {
                   {listAlbums.slice(0, 4).map(
                     (playlist, index) =>
                       !playlist.status && (
-                        <div key={index} className="card text-bg-dark">
+                        <div key={index} className="cardA text-bg-dark">
                           <img
                             src={
                               playlist.imagePlaylist ||

@@ -321,13 +321,14 @@ const ManagerInstrument = () => {
           </div>
 
         </div>
-        <button className="btn btn-secondary" onClick={handleSort}>
+        <button className="btn text-white" style={{ backgroundColor: '#e94f37' }} onClick={handleSort}>
           Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
         </button>
         <button
-          className="btn m-3 btn-primary"
+          className="btn m-3 text-white"
           data-bs-toggle="modal"
           data-bs-target="#ViewsModal"
+          style={{ backgroundColor: '#e94f37' }}
         >
           Add instrument
         </button>

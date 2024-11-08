@@ -10,9 +10,9 @@
   }
   
   .talent-by-button.selected {
-    background-color: #E94F37; /* Màu nền khi được chọn */
+    background-color: #E94F37; 
     color: white;
-    border-color: #000; /* Màu viền khi được chọn */
+    border-color: #000; 
   }
   
   .search-bar {
