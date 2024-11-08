@@ -1139,11 +1139,11 @@ const HomeFeed = () => {
               <ul className="d-flex justify-content-center">
                 <li className="col-6 text-center feed-link">
                   <i className="fa-solid fa-music me-1"></i>
-                  <Link to="/feed/track"> Track</Link> {/* Đường dẫn con */}
+                  <Link to="feed/track"> Track</Link> {/* Đường dẫn con */}
                 </li>
                 <li className="col-6 text-center feed-link">
                   <i className="fa-solid fa-newspaper me-1"></i>
-                  <Link to="/feed/post"> Post</Link> {/* Đường dẫn con */}
+                  <Link to="feed/post"> Post</Link> {/* Đường dẫn con */}
                 </li>
               </ul>
             </div>
@@ -1177,8 +1177,8 @@ const HomeFeed = () => {
             <div className="container">
               <Routes>
                 <Route index element={<FeedTrack />} />
-                <Route path="track" element={<FeedTrack />} /> {/* Route cho FeedTrack */}
-                <Route path="post" element={<FeedPost />} />   {/* Route cho FeedPost */}
+                <Route path="feed/track" element={<FeedTrack />} /> {/* Route cho FeedTrack */}
+                <Route path="feed/post" element={<FeedPost />} />   {/* Route cho FeedPost */}
               </Routes>
             </div>
           </div>

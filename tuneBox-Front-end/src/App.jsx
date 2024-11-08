@@ -88,14 +88,11 @@ function App() {
           <Routes>
             {/* Các route có Header */}
             <Route element={<LayoutWithHeader />}>
-              <Route path="/" element={<HomeFeed />} />
+              <Route path="/*" element={<HomeFeed />} />
               <Route path="/HomeEcommerce" element={<Home />} />
               {/* Route cho Main Content */}
-              <Route path="/feed/track" element={<FeedTrack />} />
-              <Route path="/feed/post" element={<FeedPost />} />
               <Route path="/Shop" element={<Shop />} />
               <Route path="/profileUser/*" element={<ProfileUser />} />
-              <Route path="/profileUser" element={<ProfileUser />} />
               <Route path="/profileSetting" element={<ProfileSetting />} />
               <Route path="/CartDetail" element={<CartDetail />} />
               <Route path="/cart" element={<Cart />} />
