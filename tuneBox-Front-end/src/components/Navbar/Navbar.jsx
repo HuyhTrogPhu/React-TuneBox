@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getAvatarUser, search } from "../../service/UserService";
 import {
@@ -38,6 +38,7 @@ const Navbar = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const userId = Cookies.get("userId");
 
@@ -116,6 +117,8 @@ const Navbar = () => {
     try {
       const response = await listGenre();
       setGenre(response.data);
+
+
     } catch (error) {
       console.error("Error fetching Genre", error);
     }
@@ -277,33 +280,53 @@ const Navbar = () => {
     }
   };
 
+  // open the modal 
+  const handleOpenModal = () => {
+    if (!userId) {
+      navigate("/login");
+      return;
+    } else {
+      getAllGenre(); // gọi getAllGenre trước khi mở modal
+      const modal = new window.bootstrap.Modal(document.getElementById("addTrackModal"));
+      modal.show();
+    }
+  };
 
 
   return (
     <header className="navbar-container ">
       {/* Navbar Left */}
       <div className="col-3 d-flex align-items-center">
-        <button className="navbar-button" onClick={() => navigate("/")}>
+        <button
+          className={`navbar-icon ${
+            location.pathname === "/" ? "active" : ""
+          }`}
+          onClick={() => navigate("/")}
+        >
           <img alt="tunebox" src={images.logoTuneBox} width="150" />
         </button>
-        <button className="navbar-button" onClick={() => navigate("/")}>
+
+        <button
+          className={`navbar-button ${
+            location.pathname === "/" ? "active" : ""
+          }`}
+          onClick={() => navigate("/")}
+        >
           <span className="text-decoration-none">
             <img alt="icon-home" src={images.home} className="icon" />
-            <b>Feed</b>
+            <b> Feed</b>
           </span>
         </button>
+
         <button
-          className="navbar-button"
+          className={`navbar-button ${
+            location.pathname === "/HomeEcommerce" ? "active" : ""
+          }`}
           onClick={() => navigate("/HomeEcommerce")}
         >
           <span>
-            <img
-              alt="icon-loa"
-              src={images.speaker}
-              width="35"
-              className="icon"
-            />
-            <b>Shops</b>
+            <img alt="icon-loa" src={images.speaker} width="35" className="icon" />
+            <b> Shop</b>
           </span>
         </button>
       </div>
@@ -380,18 +403,18 @@ const Navbar = () => {
                         </div>
                         {/* Thêm nút xóa ở đây */}
                         <button onClick={() => deleteNotification(notification.id)} className="delete-notification-button">
-                          Xóa
+                          Delete
                         </button>
                       </div>
                     </SwipeableListItem>
                   ))
                 ) : (
-                  <li className="no-notification">Không có thông báo nào.</li>
+                  <li className="no-notification">There are no announcements.</li>
                 )}
               </SwipeableList>
 
               <button onClick={handleDeleteAllReadNotifications(userId)} className="delete-all-read">
-                Xóa tất cả thông báo đã xem
+                Delete all viewed notifications
               </button>
             </div>
           )}
@@ -447,9 +470,16 @@ const Navbar = () => {
           className="add-track"
           data-bs-toggle="modal"
           data-bs-target="#addTrackModal"
-          onClick={getAllGenre}
+          onClick={handleOpenModal}
         >
           Create
+        </button>
+
+        {/* Track AI */}
+        <button
+          className="track-ai ms-4"
+        >
+          Track AI
         </button>
       </div>
 
