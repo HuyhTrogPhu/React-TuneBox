@@ -46,7 +46,7 @@ const SocialMediaAdmin = () => {
                   </Link>
                 </li>
                 <li className="p-3">
-                  <i className="fa-solid fa-user" />
+                  <i className="fa-brands  fa-itunes-note" />
                   <Link to={"/socialadmin/Track"} className="text-white">
                     Track
                   </Link>
