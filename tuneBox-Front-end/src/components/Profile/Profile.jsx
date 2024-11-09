@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { images } from "../../assets/images/images";
 import './Profile.css';
 import Cookies from 'js-cookie';
@@ -6,6 +6,7 @@ import { getUserProfileSetting, listGenres, updateUserInfo } from "../../service
 import { listTalents, listInspiredBys } from "../../service/LoginService";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Webcam from 'react-webcam';
 import axios from "axios";
 
 
@@ -14,7 +15,7 @@ const Profile = () => {
     const [listGenre, setListGenre] = useState([]);
     const [listInspiredBy, setListInspiredBy] = useState([]);
     const [searchInspiredBy, setSearchInspiredBy] = useState('');
-
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [avatar, setAvatar] = useState(images.logoTuneBox);
     const [name, setName] = useState('');
     const [userName, setUserName] = useState('');
@@ -27,6 +28,8 @@ const Profile = () => {
     const [selectedGenres, setSelectedGenres] = useState([]);
     const [selectedInspiredBy, setSelectedInspiredBy] = useState([]);
     const userId = Cookies.get("userId");
+    const webcamRef = useRef(null);
+    const [selectedFilter, setSelectedFilter] = useState('none');
     // Quản lý modal
     const [showModal, setShowModal] = useState(false);
     const [filteredInspiredBy, setFilteredInspiredBy] = useState([]);
@@ -48,20 +51,20 @@ const Profile = () => {
     const handleImageChange = (event) => {
         const selectedFile = event.target.files[0];
         if (selectedFile) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            setAvatar(e.target.result); // Cập nhật ảnh avatar hiển thị
-            setFile(selectedFile); // Lưu file để upload sau
-          };
-          reader.readAsDataURL(selectedFile);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setAvatar(e.target.result); // Cập nhật ảnh avatar hiển thị
+                setFile(selectedFile); // Lưu file để upload sau
+            };
+            reader.readAsDataURL(selectedFile);
         }
-      };
-      const handleSubmit = async (event) => {
+    };
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData();
         formData.append("image", file);
         const token = localStorage.getItem('jwtToken');
-    
+
         try {
             await axios.put(`http://localhost:8080/user/${userId}/avatar`, formData, {
                 headers: {
@@ -73,7 +76,78 @@ const Profile = () => {
             console.error("Error updating avatar:", error);
         }
     };
+    const openFileSelector = () => {
+        document.getElementById('logoInput').click();
+    };
+
+    const openCamera = () => {
+        setIsCameraOpen(true); // Mở camera
+    };
+
+    const handleCapture = (webcamRef) => {
+        const screenshot = webcamRef.current.getScreenshot();
+        if (screenshot) {
+            // Tạo canvas để áp dụng bộ lọc
+            const canvas = document.createElement('canvas');
+            const img = new Image();
+            
+            img.onload = () => {
+                // Cài đặt kích thước cho canvas giống với ảnh chụp
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                // Áp dụng bộ lọc cho canvas
+                ctx.filter = selectedFilter;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // Chuyển canvas thành data URL và cập nhật avatar
+                const filteredScreenshot = canvas.toDataURL('image/png');
+                setAvatar(filteredScreenshot); // Cập nhật ảnh avatar hiển thị
+                
+                // Chuyển ảnh có bộ lọc thành file và lưu
+                setFile(dataURItoFile(filteredScreenshot, "avatar.png"));
+            };
+            
+            img.src = screenshot; // Gán src để trigger sự kiện onload
+        }
+        setIsCameraOpen(false); // Đóng camera sau khi chụp
+    };
     
+
+    const dataURItoFile = (dataURI, filename) => {
+        const arr = dataURI.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], filename, { type: mime });
+    };
+    // Danh sách bộ lọc để người dùng chọn
+    const filters = [
+        { name: 'None', value: 'none' },
+        { name: 'Blur', value: 'blur(5px)' },
+        { name: 'Brightness', value: 'brightness(1.5)' },
+        { name: 'Contrast', value: 'contrast(2)' },
+        { name: 'Grayscale', value: 'grayscale(100%)' },
+        { name: 'Invert', value: 'invert(1)' },
+        { name: 'Sepia', value: 'sepia(1)' },
+        { name: 'Saturate', value: 'saturate(2)' },
+        { name: 'Hue Rotate', value: 'hue-rotate(90deg)' },
+        { name: 'Custom Combination', value: 'brightness(1.2) contrast(1.4) saturate(1.3)' },
+        { name: 'Soft Glow', value: 'brightness(1.1) contrast(1.2) saturate(1.3) blur(1px)' },
+        { name: 'Clarity', value: 'contrast(1.4) brightness(1.2) saturate(1.1)' },
+        { name: 'Vintage', value: 'sepia(0.4) contrast(1.1) brightness(1.1)' },
+        { name: 'Smooth Skin', value: 'blur(0.5px) brightness(1.1) saturate(1.2)' },
+        { name: 'Warm Tone', value: 'brightness(1.15) contrast(1.05) saturate(1.4) sepia(0.1)' },
+        { name: 'Cool Tone', value: 'brightness(0.9) contrast(1.2) hue-rotate(-15deg) saturate(1.3)' },
+        { name: 'B&W High Contrast', value: 'grayscale(1) contrast(1.5) brightness(1.1)' },
+        { name: 'Golden Hour', value: 'brightness(1.1) contrast(1.2) saturate(1.3) sepia(0.2) hue-rotate(10deg)' },
+    ];
+
     useEffect(() => {
         const fetchGenres = async () => {
             try {
@@ -152,14 +226,14 @@ const Profile = () => {
         setShowModal(false);
     };
     // Cập Nhật Thông Tin Người Dùng
-    const handleUpdateUserInfo = async () => {  
+    const handleUpdateUserInfo = async () => {
         const userIdCookie = Cookies.get('userId');
         if (userIdCookie) {
             // Convert selected names to IDs
             const inspiredByIds = getIdsFromNames(selectedInspiredBy, listInspiredBy);
             const talentIds = getIdsFromNames(selectedTalents, listTalent);
             const genreIds = getIdsFromNames(selectedGenres, listGenre);
-    
+
             const updatedUserInfo = {
                 userName,
                 userInformation: { name, location, about },
@@ -167,7 +241,7 @@ const Profile = () => {
                 talent: talentIds,
                 genre: genreIds,
             };
-    
+
             console.log("Selected InspiredBy IDs:", inspiredByIds);
             console.log("Selected Talents IDs:", talentIds);
             console.log("Selected Genres IDs:", genreIds);
@@ -186,14 +260,14 @@ const Profile = () => {
     };
     const getIdsFromNames = (selectedNames, options) => {
         return options
-          .filter(option => selectedNames.includes(option.name))
-          .map(option => option.id);
+            .filter(option => selectedNames.includes(option.name))
+            .map(option => option.id);
     };
 
     const handleUpdate = (event) => {
         handleUpdateUserInfo(event); // Gọi hàm cập nhật thông tin người dùng
         handleSubmit(event); // Gọi hàm cập nhật avatar
-      };
+    };
 
     return (
         <div>
@@ -206,16 +280,56 @@ const Profile = () => {
             <div className="profile-container">
                 <div className="row d-flex">
                     {/* Avatar */}
-                    <div className="profile-avatar col-3" onClick={() => document.getElementById('logoInput').click()}>
-        <img src={avatar || "/path/to/default/avatar.png"} className="avatar-setting border" alt="Avatar" />
-      </div>
-      <input
-        type="file"
-        id="logoInput"
-        style={{ display: "none" }}
-        accept="image/*"
-        onChange={handleImageChange}
-      />
+                    <div className="profile-avatar col-3" onClick={() => openFileSelector()}>
+                        <img src={avatar || "/path/to/default/avatar.png"} className="avatar-setting border" alt="Avatar" />
+                    </div>
+                    {/* Input file để chọn file từ máy tính */}
+                    <input
+                        type="file"
+                        id="logoInput"
+                        style={{ display: "none" }}
+                        accept="image/*"
+                        onChange={handleImageChange}
+                    />
+                    {/* Menu popup để chọn phương thức thay đổi avatar */}
+                    <label htmlFor="name" style={{ marginLeft: -40 }}>
+                        <h6><b>Change avatar</b></h6>
+                    </label>
+                    <div className="menu-popup " >
+                        <button className="btn" onClick={openFileSelector}><i class="fa-solid fa-file"></i>  Select photo from device</button> <br />
+                        <button className="btn" onClick={openCamera}><i class="fa-solid fa-camera"></i> Open the camera</button>
+                    </div>
+
+                    {/* Camera popup */}
+                    {isCameraOpen && (
+                        <div className="camera-popup ">
+                            <Webcam
+                                audio={false}
+                                ref={webcamRef}
+                                screenshotFormat="image/jpeg"
+                                style={{ filter: selectedFilter }}
+                            />
+                            <div className="filter-select mt-3" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <label style={{ marginBottom: '0' }}>Chọn bộ lọc: </label>
+                                <select
+                                    className="form-select"
+                                    style={{ width: '150px' }}  // Điều chỉnh độ rộng
+                                    onChange={(e) => setSelectedFilter(e.target.value)}
+                                    value={selectedFilter}
+                                >
+                                    {filters.map((filter) => (
+                                        <option key={filter.value} value={filter.value}>{filter.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mt-3" style={{ marginLeft: '250px' }}>
+                                <button className="btn" onClick={() => handleCapture(webcamRef)}>Chụp ảnh</button>
+                                <button className="btn" onClick={() => setIsCameraOpen(false)}>Đóng</button>
+                            </div>
+
+                        </div>
+                    )}
                     <div className="profile-container col-9">
                         {/* Form */}
                         <form className="g-3">
@@ -411,7 +525,7 @@ const Profile = () => {
             </div>
 
             <div className="update mt-5">
-            <button className="btn text-white" onClick={handleUpdate}>Update</button>
+                <button className="btn text-white" onClick={handleUpdate}>Update</button>
             </div>
         </div >
     );

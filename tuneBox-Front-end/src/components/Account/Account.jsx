@@ -245,25 +245,9 @@ const handleUpdateGender = async (e) => {
           </div>
           {/* Set password */}
           <div className='changePassword mt-3'>
-            <h5>Set Password</h5>
-            <p>As you have connected through social media, you will need to set a password.</p>
-            <form>
-              <div className='mt-3'>
-                <label className="form-label">New password</label>
-                <input
-                  type="password"
-                  className='form-control'
-                  placeholder='Enter at least 4 characters'
-                />
-              </div>
-              <div className='mt-3'>
-                <label className="form-label">Confirm password</label>
-                <input type="password" className='form-control' placeholder='Confirm password' />
-              </div>
-              <div className="update mt-5">
-                <button className='btn'>Update Password</button>
-              </div>
-            </form>
+            <h5>Change Password</h5>
+            <p>You will be asked to connect your email to this account to be able to change your password..</p>
+            <a href='/forgot-password'>Continue to change password</a>
           </div>
         </div>
       </div>

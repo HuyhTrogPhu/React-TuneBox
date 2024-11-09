@@ -95,10 +95,10 @@ const ForgotPassword = () => {
           <div className="row">
             <div className="col-lg-6 col-10 mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleForgotPassword}>
-                <h2 className="text-center mb-4">Forgot Password</h2>
+                <h2 className="text-center mb-4">Change Password</h2>
                 <div className="ticket-form-body">
                   <div className="row">
-                    <h6>Enter your email</h6>
+                    <h6>Enter email to continue</h6>
                     <div className="col-lg-12" style={{ marginTop: -30 }}>
                       <input
                         type="email"
