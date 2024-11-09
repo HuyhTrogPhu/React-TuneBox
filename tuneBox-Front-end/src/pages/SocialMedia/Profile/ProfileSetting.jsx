@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../../assets/images/images";
 import "../../../pages/SocialMedia/Profile/css/setting.css";
+// import { fetchDataUser } from "./js/ProfileJS";
+// import Cookies from 'js-cookie';
 import Profile from "../../../components/Profile/Profile";
-import Account from "../../../components/Account/Account";
-import CustomerOrder from "../../../components/CustomerOrder/CustomerOrder";
+import Account from "../../../components/Account/Account"
+import CustomerOrder from "../../../components/CustomerOrder/CustomerOrder"
 
 const ProfileSetting = () => {
   // State để quản lý component đang được hiển thị

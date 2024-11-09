@@ -19,6 +19,7 @@ import {
 } from "../../../../service/likeTrackServiceCus";
 import Cookies from "js-cookie";
 import { getUserInfo } from "../../../../service/UserService";
+import ShareAlbumModal from "./ShareAlbumModal";
 
 const AlbumDetail = () => {
   const { id } = useParams();
@@ -43,6 +44,8 @@ const AlbumDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [listAlbums, setListAlbums] = useState([]);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     fetchListAlbum();
@@ -377,13 +380,20 @@ const AlbumDetail = () => {
                         style={{ cursor: "pointer", fontSize: "20px" }}
                       ></i>
                     </button>
-                    <button className="btn">
+                    <button className="btn"
+                      onClick={() => setIsShareModalOpen(true)}
+                    >
                       <i
                         type="button"
                         style={{ fontSize: "20px", color: "white" }}
                         className="fa-solid fa-share"
                       ></i>
                     </button>
+                    <ShareAlbumModal
+                      albumId={album.id}
+                      isOpen={isShareModalOpen}
+                      onClose={() => setIsShareModalOpen(false)}
+                    />
                   </div>
                   <div className="default">
                     <div className="btn-group" style={{ marginLeft: 25 }}>

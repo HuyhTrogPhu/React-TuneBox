@@ -1,5 +1,6 @@
-import React from "react";
-import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Route, Routes, Outlet,useParams } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -49,7 +50,12 @@ import FollowersPage from "./pages/SocialMedia/FollowersPage";
 import FollowingPage from "./pages/SocialMedia/FollowingPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { getUserRole, isUserRole } from './service/auth';
+import Chat from "./pages/SocialMedia/chat/chat";
 // Layout có Header
+
+//socialadmin
+import SocialMediaAdmin from "./pages/SocialMediaAdmin";
+import LoginS_ADMIN from "./pages/SocialMediaAdmin/pageContent/Login";
 
 function LayoutWithHeader() {
   return (
@@ -84,7 +90,6 @@ function App() {
               <Route path="/HomeEcommerce" element={<Home />} />
               <Route path="/Shop" element={<Shop />} />
               <Route path="/profileUser/*" element={<ProfileUser />} />
-              <Route path="/shop" element={<Shop />} />
               <Route path="/profileUser" element={<ProfileUser />} />
               <Route path="/profileSetting" element={<ProfileSetting />} />
               <Route path="/CartDetail" element={<CartDetail />} />
@@ -95,6 +100,7 @@ function App() {
               <Route path="/brand-detail" element={<BrandDetail />} />
               <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
+              <Route path="/chat" element={<Chat />} />
               <Route
                 path="/albums/album-Edit/:albumId"
                 element={<AlbumEdit />}
@@ -139,6 +145,8 @@ function App() {
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
               {/* admin end */}
+              <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
+
             </Route>
           </Routes>
         </div>

@@ -111,7 +111,6 @@ const CategoryPageDetail = () => {
   };
 
 
-
   const getCurrentInstruments = () => {
     const filteredInstruments = filterInstruments();
     const sortedInstruments = sortInstruments(filteredInstruments);

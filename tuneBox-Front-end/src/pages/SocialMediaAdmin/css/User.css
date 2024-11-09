@@ -1,0 +1,48 @@
+.track-container, .album-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .track-item, .album-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .album-thumbnail img, .track-info img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+      object-fit: cover;
+  }
+  
+  .album-thumbnail {
+    position: relative;
+    display: inline-block;
+    margin-right: 15px;
+  }
+
+  
+  .play-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .btn-danger {
+    padding: 5px 15px;
+  }
+  

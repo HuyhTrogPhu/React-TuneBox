@@ -27,6 +27,7 @@ import Cookies from "js-cookie";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { format } from "date-fns"; // Nhập format từ date-fns
+import ShareTrackModal from "../Profile_nav/ShareTrackModal"; // Adjust the import path as needed
 
 function Trackdetail() {
   const { id } = useParams();
@@ -55,6 +56,7 @@ function Trackdetail() {
 
   const [relatedTracks, setRelatedTracks] = useState([]); // State lưu danh sách các track cùng thể loại
 
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const userId = Cookies.get("userId"); // Lấy userId từ cookies
 
   // get track genreid
@@ -475,6 +477,18 @@ function Trackdetail() {
                   />
                   Comment
                 </button>
+                <button
+                  className="btn"
+                  onClick={() => setIsShareModalOpen(true)}
+                >
+                  <img src={images.share} className="btn-icon" alt="share" />
+                  Share
+                </button>
+                <ShareTrackModal
+                  trackId={track.id}
+                  isOpen={isShareModalOpen}
+                  onClose={() => setIsShareModalOpen(false)}
+                />
               </div>
               <div className="track-player-actions-column">
                 <div className="btn-group" style={{ marginLeft: 25 }}>
