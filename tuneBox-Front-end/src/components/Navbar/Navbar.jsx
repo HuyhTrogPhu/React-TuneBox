@@ -205,6 +205,16 @@ const Navbar = () => {
     }
   };
 
+  //track ai
+  const handleTrackAiClick = () => {
+    if (userId) {
+      navigate("/track-ai");
+    } else {
+      navigate("/login");
+
+    }
+  }
+
   const markAsRead = async (notificationId) => {
     try {
       await fetch(
@@ -298,18 +308,16 @@ const Navbar = () => {
       {/* Navbar Left */}
       <div className="col-3 d-flex align-items-center">
         <button
-          className={`navbar-icon ${
-            location.pathname === "/" ? "active" : ""
-          }`}
+          className={`navbar-icon ${location.pathname === "/" ? "active" : ""
+            }`}
           onClick={() => navigate("/")}
         >
           <img alt="tunebox" src={images.logoTuneBox} width="150" />
         </button>
 
         <button
-          className={`navbar-button ${
-            location.pathname === "/" ? "active" : ""
-          }`}
+          className={`navbar-button ${location.pathname === "/" ? "active" : ""
+            }`}
           onClick={() => navigate("/")}
         >
           <span className="text-decoration-none">
@@ -319,9 +327,8 @@ const Navbar = () => {
         </button>
 
         <button
-          className={`navbar-button ${
-            location.pathname === "/HomeEcommerce" ? "active" : ""
-          }`}
+          className={`navbar-button ${location.pathname === "/HomeEcommerce" ? "active" : ""
+            }`}
           onClick={() => navigate("/HomeEcommerce")}
         >
           <span>
@@ -478,6 +485,7 @@ const Navbar = () => {
         {/* Track AI */}
         <button
           className="track-ai ms-4"
+          onClick={handleTrackAiClick}
         >
           Track AI
         </button>
