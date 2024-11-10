@@ -1,81 +1,52 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
-  getAlbumById,
-  getAlbumsByUserId,
-} from "../../../../service/AlbumsServiceCus";
+  getPlaylistById,
+  removeTrackFromPlaylist,
+  getPlaylistByUserId,
+} from "../../../../service/PlaylistServiceCus";
 import { getTrackById } from "../../../../service/TrackServiceCus"; // Nhập khẩu hàm này
 import "./css/albumDetail.css";
+import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Lottie from "lottie-react";
 import {
-  getLikesCountByAlbumsId,
-  checkUserLikeAlbums,
-  removeLikeAlbums,
-  addLikeAlbums,
+  getLikesCountByPlaylistId,
+  checkUserLikePlaylist,
+  removeLikePlaylist,
+  addLikePlaylist,
 } from "../../../../service/likeTrackServiceCus";
-import Cookies from "js-cookie";
 import { getUserInfo } from "../../../../service/UserService";
+import Lottie from "lottie-react";
 
-const AlbumDetail = () => {
+const PlayListDetail = () => {
   const { id } = useParams();
   const userId = Cookies.get("userId");
-  const [album, setAlbum] = useState(null);
+  const [allplaylists, setAllPlaylists] = useState([]);
+  const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [trackDetails, setTrackDetails] = useState([]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const audioRef = useRef(null);
   const [trackDurations, setTrackDurations] = useState([]);
-
-  const [playingTrackIndex, setPlayingTrackIndex] = useState(null);
   const [currentTrackName, setCurrentTrackName] = useState("");
   const [currentImageTrack, setCurrentImageTrack] = useState("");
+  const [userNamePlaylist, setUserName] = useState("");
+  const [userImg, setUserImg] = useState("");
 
   const [likesCount, setLikesCount] = useState(0);
   const [statusliked, setStatusLiked] = useState(false);
 
-  const [userNamePlaylist, setUserName] = useState("");
-  const [userImg, setUserImg] = useState("");
+  const [playingTrackIndex, setPlayingTrackIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const [listAlbums, setListAlbums] = useState([]);
-
-  useEffect(() => {
-    fetchListAlbum();
-  }, [userId]);
-
-  // fetch list album
-  const fetchListAlbum = async () => {
-    setIsLoading(true);
-    try {
-      const albumsResponse = await getAlbumsByUserId(userId);
-
-      setListAlbums(albumsResponse || []);
-
-      // Đếm số lượng album có status là false
-      const inactiveAlbumsCount = albumsResponse.filter(
-        (album) => album.status === false
-      ).length;
-      console.log(
-        "Number of inactive albums (status = false):",
-        inactiveAlbumsCount
-      );
-    } catch (error) {
-      console.error("Error fetching Albums:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // animation Lottie
   const [animationData, setAnimationData] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(
-        // "https://lottie.host/00751c51-bae6-402d-b996-f93783213501/yYktBnFt38.json"
         "https://lottie.host/4e8622cb-39bc-4ebe-99f7-1859864b347d/0ax8kjT4X0.json"
       );
       const data = await response.json();
@@ -87,15 +58,14 @@ const AlbumDetail = () => {
   // animation Lottie
 
   useEffect(() => {
-    fetchAlbum();
+    fetchPlaylist();
   }, [id]);
 
-  const fetchAlbum = async () => {
+  const fetchPlaylist = async () => {
     try {
-      console.log(id); // Kiểm tra ID album
-      const response = await getAlbumById(id);
-      setAlbum(response.data);
-      console.log("album: ", response.data);
+      console.log(id); // Kiểm tra ID playlist
+      const response = await getPlaylistById(id);
+      setPlaylist(response.data);
 
       const user = await getUserInfo(response.data.creatorId);
       setUserName(user.userName);
@@ -103,22 +73,40 @@ const AlbumDetail = () => {
       console.log("username cua playlist: ", user);
 
       await fetchTrackDetails(response.data.tracks); // Gọi hàm fetchTrackDetails
-      console.log(response.data); // Xem dữ liệu album
+      console.log(response.data); // Xem dữ liệu playlist
 
       //ktra luot like
-      const likeCount = await getLikesCountByAlbumsId(id);
+      const likeCount = await getLikesCountByPlaylistId(id);
       setLikesCount(likeCount.data);
       console.log("likecount: ", likeCount.data);
 
       // kiem tra trạng thái like cua user với playlist
-      const liked = await checkUserLikeAlbums(id, userId);
+      const liked = await checkUserLikePlaylist(id, userId);
       setStatusLiked(liked.data);
       console.log("trạng thái like: ", liked.data);
     } catch (err) {
-      setError(err.message || "Error fetching album data");
-      toast.error("Failed to load album data");
+      setError(err.message || "Error fetching playlist data");
+      toast.error("Failed to load playlist data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Lấy danh sách playlist ban đầu
+  useEffect(() => {
+    fetchListPlaylist();
+  }, [userId]);
+
+  const fetchListPlaylist = async () => {
+    setIsLoading(true);
+    try {
+      const playlistResponse = await getPlaylistByUserId(userId);
+      setAllPlaylists(playlistResponse || []);
+      console.log("fetchListPlaylist: ", playlistResponse);
+    } catch (error) {
+      console.error("Error fetching playlist:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -130,7 +118,7 @@ const AlbumDetail = () => {
       const trackResults = await Promise.all(trackPromises);
       console.log("Track Results: ", trackResults);
       setTrackDetails(trackResults.map((result) => result.data));
-      console.log("Track detail: ", trackResults[0].data.name);
+
       // Tính toán thời gian cho từng track
       const durations = await Promise.all(
         trackResults.map(async (result) => {
@@ -145,19 +133,19 @@ const AlbumDetail = () => {
     }
   };
 
-  const handleLikeALbum = async (id) => {
+  const handleLikePlaylist = async (id) => {
     console.log("statusliked: ", statusliked);
     try {
       if (statusliked) {
         // nếu đã thích, gọi hàm xóa like
-        await removeLikeAlbums(userId, id);
+        await removeLikePlaylist(userId, id);
         setStatusLiked(false);
 
         setLikesCount((prevCount) => prevCount - 1);
-        console.log("Đã xóa like id album:", id);
+        console.log("Đã xóa like idplaylist:", id);
       } else {
         // nếu chưa thích, gọi hàm thêm like
-        await addLikeAlbums(userId, id);
+        await addLikePlaylist(userId, id);
         setStatusLiked(true);
         setLikesCount((prevCount) => prevCount + 1);
       }
@@ -166,6 +154,20 @@ const AlbumDetail = () => {
         "Lỗi khi xử lý like:",
         error.response?.data || error.message
       );
+    }
+  };
+
+  const handleRemoveTrack = async (playlistId, trackId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to remove this track from your playlist??"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await removeTrackFromPlaylist(playlistId, trackId);
+      alert(response);
+    } catch (error) {
+      alert("Failed! Please try again");
     }
   };
 
@@ -189,7 +191,6 @@ const AlbumDetail = () => {
     )}`;
   };
 
-  // Hàm phát nhạc
   const [isPlaying, setIsPlaying] = useState(false);
   const handleTrackChange = async (index) => {
     if (index < 0 || index >= trackDetails.length) return;
@@ -226,6 +227,7 @@ const AlbumDetail = () => {
       );
     }
   };
+
   const togglePlayPause = async () => {
     // Nếu không có bài hát nào đang phát
     if (playingTrackIndex === null) {
@@ -291,14 +293,19 @@ const AlbumDetail = () => {
     });
   };
 
+  const handleRandomTrack = () => {
+    const randomIndex = Math.floor(Math.random() * trackDetails.length);
+    handleTrackChange(randomIndex); // Gọi hàm phát bài theo chỉ số ngẫu nhiên
+  };
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
-  if (!album) return <div className="p-4">No album data found</div>;
+  if (!playlist) return <div className="p-4">No album data found</div>;
 
   return (
     <div className="content-audio">
       <div className="music-background">
-        <div className="title-detail">{/* <p>Playlist</p> */}</div>
+        <div className="title-detail">My Playlist</div>
         <div className="note">&#9835;</div>
         <div className="note">&#9833;</div>
         <div className="note">&#9839;</div>
@@ -317,7 +324,7 @@ const AlbumDetail = () => {
                 <div className="album-info-cover">
                   <div className="album-info-img">
                     <img
-                      src={album.albumImage || ""}
+                      src={playlist.imagePlaylist || ""}
                       className="album-avatar"
                       alt="Album Cover"
                     />
@@ -335,17 +342,20 @@ const AlbumDetail = () => {
                     </button>
                   </div>
                   <div className="album-info-description">
-                    <div className="album-name">{album.title}</div>
+                    <div className="album-name">{playlist.title}</div>
                     <div className="author">
                       <img src={userImg} className="user-ava"></img>
                       {userNamePlaylist || "Gia Nhu"}
                     </div>
                     <div className="album-description">
-                      {album.description || "No description available."}
+                      {playlist.description || "No description available."}
                     </div>
                     <div className="album-information">
                       <div className="info-date">
-                        {album.createDate || "Date not available"}
+                        {playlist.createDate || "Date not available"}
+                      </div>
+                      <div className="info-type">
+                        .{playlist.type || "Type not available"}
                       </div>
                     </div>
                   </div>
@@ -358,8 +368,8 @@ const AlbumDetail = () => {
                 <div className="album-info-actions">
                   <div>
                     <button
-                      className="btn text-muted"
-                      onClick={() => handleLikeALbum(album.id)}
+                      className="btn"
+                      onClick={() => handleLikePlaylist(id)}
                     >
                       {likesCount}
                       <i
@@ -373,7 +383,7 @@ const AlbumDetail = () => {
                       <i
                         type="button"
                         style={{ fontSize: "20px", color: "white" }}
-                        className="fa-solid fa-share"
+                        className="fa-solid fa-share mt-1"
                       ></i>
                     </button>
                   </div>
@@ -398,6 +408,7 @@ const AlbumDetail = () => {
                 </div>
               </div>
 
+              {/* List nhạc  */}
               <div className="album-track">
                 <div className="list-track">
                   {/* Hiển thị danh sách track đã thêm */}
@@ -409,6 +420,7 @@ const AlbumDetail = () => {
                         <th>Description</th>
                         <th>Duration</th>
                         <th>Actions</th> {/* Thêm cột cho hành động phát */}
+                        <th>remove</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -427,6 +439,7 @@ const AlbumDetail = () => {
                               ? formatDuration(trackDurations[index])
                               : "Loading..."}
                           </td>
+                          {/* Hiển thị thời gian */}
                           <td>
                             <button
                               className="player-track-button custom-button"
@@ -441,6 +454,17 @@ const AlbumDetail = () => {
                               ></i>
                             </button>
                           </td>
+                          <td>
+                            {" "}
+                            <a
+                              href=""
+                              onClick={() =>
+                                handleRemoveTrack(playlist.id, track.id)
+                              }
+                            >
+                              X
+                            </a>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -453,7 +477,7 @@ const AlbumDetail = () => {
               <div>
                 {isLoading && <p>Loading...</p>}
                 <div className="playlist-container">
-                  {listAlbums.slice(0, 4).map(
+                  {allplaylists.slice(0, 4).map(
                     (playlist, index) =>
                       !playlist.status && (
                         <div key={index} className="card text-bg-dark">
@@ -477,13 +501,13 @@ const AlbumDetail = () => {
           </div>
         </div>
 
-        {/* audio  */}
+        {/* audio */}
         <div className="audio-player">
           <div className="row">
             <div className="col-3">
               <p className="title-audio">
                 <img
-                  src={currentImageTrack || album.albumImage}
+                  src={currentImageTrack || playlist.imagePlaylist}
                   className={`ImageTrack-audio ${
                     isPlaying ? "rotating-image" : ""
                   }`}
@@ -512,7 +536,7 @@ const AlbumDetail = () => {
                     fontSize: "20px",
                     margin: "0 15px",
                   }}
-                  // onClick={handleRandomTrack}
+                  onClick={handleRandomTrack}
                 ></button>
                 <button
                   className="fa-solid fa-arrow-right custom-button"
@@ -552,12 +576,13 @@ const AlbumDetail = () => {
               <div className="ms-5 mt-1">
                 <button className="btn">
                   <i
-                    className={`fa-solid fa-heart`}
+                    className={`fa-solid fa-heart ${
+                      statusliked ? "text-danger" : "text-muted"
+                    }`}
                     style={{
                       cursor: "pointer",
                       fontSize: "20px",
                       padding: "10px",
-                      color: "white",
                     }}
                   ></i>
                 </button>
@@ -577,4 +602,4 @@ const AlbumDetail = () => {
   );
 };
 
-export default AlbumDetail;
+export default PlayListDetail;

@@ -13,6 +13,7 @@ const ManagerOrder = () => {
   const [searchDate, setSearchDate] = useState('');  // Tìm kiếm theo ngày
   const [fromDate, setFromDate] = useState('');  // Tìm kiếm từ ngày
   const [toDate, setToDate] = useState('');      // Tìm kiếm đến ngày
+  const [searchStatus, setSearchStatus] = useState(''); // Tìm kiếm theo trạng thái hóa đơn 
   const [dailyRevenue, setDailyRevenue] = useState(0); // Tổng doanh thu hôm nay
 
   // Fetch orders data khi component render
@@ -97,6 +98,16 @@ const ManagerOrder = () => {
     setCurrentOrders(filteredOrders);
   };
 
+  // Hàm tìm kiếm đơn hàng theo trạng thái
+  const searchOrdersByStatus = (status) => {
+    if (!status || status === "All") {
+      setCurrentOrders(orders);
+    } else {
+      const filteredOrders = orders.filter(order => order.status === status);
+      setCurrentOrders(filteredOrders);
+    }
+  };
+
   // Tính toán số lượng trang dựa trên tổng số đơn hàng và số hàng mỗi trang
   const totalPages = Math.ceil(currentOrders.length / rowsPerPage);
 
@@ -129,8 +140,8 @@ const ManagerOrder = () => {
   };
 
 
-  
-  
+
+
   // Chuyển trang
   const paginate = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -181,8 +192,32 @@ const ManagerOrder = () => {
               </div>
             </form>
           </div>
-          {/* Daily revenue */}
 
+
+          {/* Search by status */}
+          <div className='col-3'>
+            {/* Dropdown tìm kiếm trạng thái đơn hàng */}
+            <div className='mt-3'>
+              <label className='form-label'>Search by status:</label>
+              <select
+                className='form-select'
+                value={searchStatus}
+                onChange={(e) => {
+                  setSearchStatus(e.target.value);
+                  searchOrdersByStatus(e.target.value);
+                }}
+              >
+                <option value="All">All</option>
+                <option value="Wait for confirmation">Wait for confirmation</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Delivering">Delivering</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Canceled">Canceled</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Daily revenue */}
           <div className='col-3'>
             <h6>Daily revenue: {dailyRevenue ? `${(dailyRevenue).toLocaleString('vi')} VND` : 'No data'}</h6>
           </div>
@@ -224,7 +259,6 @@ const ManagerOrder = () => {
                     <td>{order.shippingMethod}</td>
                     <td>{order.paymentStatus}</td>
                     <td>
-
                       <select
                         value={order.status}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
@@ -254,9 +288,9 @@ const ManagerOrder = () => {
             <button onClick={exportToExcel} className="btn btn-outline-success">
               Export Excel
             </button>
-           
+
           </div>
-        
+
 
           {/* Pagination */}
           <div className="">

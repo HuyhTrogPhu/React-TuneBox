@@ -78,7 +78,7 @@ function UsersToFollow({ userId }) {
                             <div className="name">{user.name}</div>
                             <div className="title">@{user.userName}</div>
                         </div>
-                        <div className="col text-start">
+                        <div className="col text-end">
                             <button 
                                 className="btn btn-primary" 
                                 id="followButton" 
@@ -93,7 +93,7 @@ function UsersToFollow({ userId }) {
                     </div>
                 ))
             ) : (
-                <p>Không còn user nào để follow :3</p>
+                <p>Ayyyyo ông bạn thật sự đã follow tất cả mọi người trên cái nền tảng này </p>
             )}
         </div>
     );

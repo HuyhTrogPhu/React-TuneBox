@@ -35,6 +35,7 @@ import AlbumDetail from "./pages/SocialMedia/Profile/Profile_nav/AlbumDetail";
 import LikePost from "./pages/SocialMedia/Profile/Profile_nav/LikePost";
 import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
 import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
+import PlayListDetail from "./pages/SocialMedia/Profile/Profile_nav/PlaylistDetail";
 
 import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
 
@@ -116,6 +117,7 @@ function App() {
               <Route path="/likepost" element={<LikePost />} />
               <Route path="/likeAlbums" element={<LikeAlbums />} />
               <Route path="/likePlaylist" element={<LikePlaylists />} />
+              <Route path="/playlist/:id" element={<PlayListDetail />} />
               <Route path="/search" element={<SearchForm />} />
             </Route>
 
@@ -132,6 +134,7 @@ function App() {
               <Route path="/genre" element={<Genre />} />
               <Route path="/welcome" element={<WelcomeUser />} />
               {/* admin start */}
+<<<<<<< HEAD
               <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               <Route
               path="/socialadmin/*"
@@ -139,6 +142,12 @@ function App() {
             />
             <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
 
+=======
+              {/* Route bảo vệ với quyền 'EcomAdmin' */}
+              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
+                <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+              </Route>
+>>>>>>> Quoc-Trung
               {/* admin end */}
             </Route>
           </Routes>

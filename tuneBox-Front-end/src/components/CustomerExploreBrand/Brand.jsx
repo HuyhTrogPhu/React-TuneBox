@@ -48,14 +48,14 @@ function getAllBrand() {
       {randomBrands.map((brand, index) => (
         <div className='col-lg-2 col-md-2 col-sm-4 text-center mb-3' key={brand.id}>
           <div onClick={() => handleBrandClick(brand)}  >
-            <a href="">
+            <Link to={''}>
             <img
               key={index}
               src={brand.brandImage ? brand.brandImage : 'default-image-path.jpg'}
               alt={brand.name}
             />
             <p>{brand.name}</p>
-            </a>
+            </Link>
             
           </div>
         </div>
