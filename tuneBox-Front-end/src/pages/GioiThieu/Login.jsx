@@ -83,7 +83,7 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="colcol-10-lg-6  mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '100px', marginRight: '100px'}}>
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '500px', marginRight: '500px'}}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
@@ -113,7 +113,7 @@ const Login = () => {
                   )}
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
-                    <div className="col-12">
+                    <div className="col-lg-12" style={{ marginTop: -30 }}>
                       <input
                         type="text"
                         name="userNameOrEmail"

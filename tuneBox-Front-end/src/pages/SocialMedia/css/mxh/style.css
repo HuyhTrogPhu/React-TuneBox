@@ -160,30 +160,56 @@ h6 {
 }
 
 
+  
+  .post {
+    background-color: #f1f1f1;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .user-info h6 {
+    margin-bottom: 0;
+  }
+  
+  .user-info p {
+    margin-bottom: 5px;
+  }
+  
+  .audio-player audio {
+    width: 100%;
+  }
+  
+  .post-stats span {
+    margin-right: 10px;
+  }
+  
+  input.form-control {
+    width: 100%;
+    margin-top: 10px;
+  }
 
-.post {
-  background-color: #f1f1f1;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.user-info h6 {
-  margin-bottom: 0;
-}
-
-.user-info p {
-  margin-bottom: 5px;
-}
-
-.audio-player audio {
-  width: 100%;
-}
-
-.post-stats span {
-  margin-right: 10px;
-}
-
-input.form-control {
-  width: 100%;
-  margin-top: 10px;
-}
+  .language-switcher {
+    display: flex;
+    justify-content: center; /* Canh giữa */
+    margin: 60px 0; /* Tăng khoảng cách trên và dưới nếu cần */
+  }
+  
+  .language-btn {
+    background-color: transparent; /* Nền trong suốt */
+    border: 1px solid #007bff; /* Đường viền màu xanh */
+    border-radius: 5px; /* Bo tròn góc */
+    padding: 10px; /* Khoảng cách bên trong */
+    margin: 0 5px; /* Khoảng cách giữa các nút */
+    cursor: pointer; /* Hiệu ứng con trỏ khi hover */
+    transition: background-color 0.3s, color 0.3s; /* Hiệu ứng chuyển tiếp */
+  }
+  
+  .language-btn:hover {
+    background-color: #007bff; /* Nền xanh khi hover */
+    color: white; /* Chữ trắng khi hover */
+  }
+  
+  .language-btn:focus {
+    outline: none; /* Xóa outline khi focus */
+  }
+  

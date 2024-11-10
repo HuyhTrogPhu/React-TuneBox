@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+
 import "./css/bootstrap.min.css";
 import "./css/bootstrap-icons.css";
 import "./css/style.css";
@@ -151,3 +152,4 @@ const Talent = () => {
 };
 
 export default Talent;
+

@@ -18,7 +18,6 @@ import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
-
   addLike,
   checkUserLikeTrack,
   removeLike,
@@ -455,17 +454,18 @@ const HomeFeed = () => {
         userId: currentUserId,
         postId: postId,
       };
-
-      if (likes[postId]) {
+  
+      if (likes[postId]?.data) {
         // Nếu đã like, thực hiện unlike
-        await fetch(
-          `http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`,
-          {
-            method: "DELETE",
-          }
-        );
-        setLikes((prevLikes) => ({ ...prevLikes, [postId]: false })); // Cập nhật trạng thái like
-
+        await fetch(`http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`, {
+          method: "DELETE",
+        });
+  
+        setLikes((prevLikes) => ({
+          ...prevLikes,
+          [postId]: { ...prevLikes[postId], data: false },
+        })); // Cập nhật trạng thái like
+  
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -481,15 +481,18 @@ const HomeFeed = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(likeDto),
+          body: JSON.stringify(likeDto), // Gửi dữ liệu likeDto
         });
-
+  
         if (!response.ok) {
           throw new Error("Failed to like the post");
         }
-
-        setLikes((prevLikes) => ({ ...prevLikes, [postId]: true })); // Cập nhật trạng thái like
-
+  
+        setLikes((prevLikes) => ({
+          ...prevLikes,
+          [postId]: { ...prevLikes[postId], data: true },
+        })); // Cập nhật trạng thái like
+  
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -503,7 +506,8 @@ const HomeFeed = () => {
       console.error("Error liking post:", error);
     }
   };
-
+  
+      
   // reply comment
   const handleToggleReplies = (commentId) => {
     setShowAllReplies((prev) => ({
@@ -1135,11 +1139,11 @@ const HomeFeed = () => {
               <ul className="d-flex justify-content-center">
                 <li className="col-6 text-center feed-link">
                   <i className="fa-solid fa-music me-1"></i>
-                  <Link to="/feed/track"> Track</Link> {/* Đường dẫn con */}
+                  <Link to="feed/track"> Track</Link> {/* Đường dẫn con */}
                 </li>
                 <li className="col-6 text-center feed-link">
                   <i className="fa-solid fa-newspaper me-1"></i>
-                  <Link to="/feed/post"> Post</Link> {/* Đường dẫn con */}
+                  <Link to="feed/post"> Post</Link> {/* Đường dẫn con */}
                 </li>
               </ul>
             </div>
@@ -1173,8 +1177,8 @@ const HomeFeed = () => {
             <div className="container">
               <Routes>
                 <Route index element={<FeedTrack />} />
-                <Route path="track" element={<FeedTrack />} /> {/* Route cho FeedTrack */}
-                <Route path="post" element={<FeedPost />} />   {/* Route cho FeedPost */}
+                <Route path="feed/track" element={<FeedTrack />} /> {/* Route cho FeedTrack */}
+                <Route path="feed/post" element={<FeedPost />} />   {/* Route cho FeedPost */}
               </Routes>
             </div>
           </div>
@@ -1339,229 +1343,6 @@ const HomeFeed = () => {
         </div>
       </div>
 
-      {/* Modal for editing track */}
-      <div
-        className="modal fade"
-        id="editModal"
-        tabIndex="-1"
-        aria-labelledby="editTrackModalLabel"
-        aria-hidden="true"
-        data-bs-backdrop="false"
-      >
-        <div className="modal-dialog modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5" id="editTrackModalLabel">
-                Edit Track
-              </h1>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => handleSave()}
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <form className="row">
-                {/* Track Name */}
-                <div className="mb-3">
-                  <label className="form-label">Track Name: </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={selectedTrack ? selectedTrack.name : ""}
-                    onChange={(e) =>
-                      setSelectedTrack({
-                        ...selectedTrack,
-                        name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                {/* Image Track */}
-                <div className="mt-3">
-                  <label className="form-label">Image Track: </label>
-                  {selectedTrack && (
-                    <div>
-                      <img
-                        src={selectedTrack.imageTrack}
-                        alt="Current Track"
-                        style={{ width: "100px", marginTop: "10px" }}
-                      />
-                      <div className="custom-file mt-2">
-                        <input
-                          type="file"
-                          id="fileInput"
-                          className="custom-file-input"
-                          onChange={(e) => {
-                            if (e.target.files[0]) {
-                              setSelectedTrack({
-                                ...selectedTrack,
-                                trackImage: e.target.files[0],
-                              });
-                            }
-                          }}
-                          style={{ display: "none" }}
-                        />
-                        <label
-                          className="custom-file-label"
-                          htmlFor="fileInput"
-                        >
-                          Choose new file
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* File Track */}
-                <div className="mt-3">
-                  <label className="form-label">Current File Track: </label>
-                  <label className="custom-file-label" htmlFor="fileInput">
-                    Choose file
-                  </label>
-                  {selectedTrack && (
-                    <div>
-                      <p>
-                        Current file:{" "}
-                        {selectedTrack.trackFileName || selectedTrack.name}
-                      </p>
-                      <div className="custom-file mt-2">
-                        <input
-                          type="file"
-                          id="fileInput"
-                          className="custom-file-input"
-                          onChange={(e) => {
-                            if (e.target.files[0]) {
-                              setSelectedTrack({
-                                ...selectedTrack,
-                                trackFile: e.target.files[0],
-                              });
-                            }
-                          }}
-                          style={{ display: "none" }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Select Genre */}
-                <div className="mt-3">
-                  <label className="form-label">Genre</label>
-                  <select
-                    className="form-select"
-                    value={selectedGenre}
-                    onChange={(e) => setSelectedGenre(e.target.value)}
-                  >
-                    {genres.map((genre) => (
-                      <option
-                        key={genre.id}
-                        value={genre.id}
-                        // Set selected cho genre hiện tại
-                        selected={selectedTrack?.genre?.id === genre.id}
-                      >
-                        {genre.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Description */}
-                <div className="mt-3">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    cols="50"
-                    rows="5"
-                    className="form-control"
-                    value={selectedTrack ? selectedTrack.description : ""}
-                    onChange={(e) =>
-                      setSelectedTrack({
-                        ...selectedTrack,
-                        description: e.target.value,
-                      })
-                    }
-                  ></textarea>
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  const editModal = document.getElementById("editModal");
-                  editModal.classList.remove("show");
-                  editModal.style.display = "none";
-                  document.body.classList.remove("modal-open");
-                }}
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleSave}
-              >
-                Save Track
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* end modal edit */}
-
-      {/* Modal để chọn playlist */}
-      <div
-        className={`modal fade ${showModal ? "show" : ""}`}
-        tabIndex="-1"
-        style={{ display: showModal ? "block" : "none" }}
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Chọn Playlist</h5>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={handleCloseModal}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <ul className="list-group">
-                {playlists.map(
-                  (playlist) =>
-                    !playlist.status && (
-                      <div key={playlist.id} className="post-header-track m-5">
-                        <img
-                          src={playlist.imagePlaylist}
-                          className="avatar_small"
-                          alt="playlist"
-                        />
-                        <div className="info">
-                          <div className="name">{playlist.title}</div>
-                        </div>
-                        <div className="btn-group" style={{ marginLeft: 25 }}>
-                          <button
-                            type="button"
-                            className="btn-new rounded-5"
-                            onClick={() =>
-                              handleAddTrackToPlaylist(playlist.id)
-                            }
-                          >
-                            add
-                          </button>
-                        </div>
-                      </div>
-                    )
-                )}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Modal để chọn playlist */}
     </div>
   );
 };

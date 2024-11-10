@@ -1381,6 +1381,149 @@ const FeedPost = () => {
           );
         })}
       </div>
+            {/* Modal báo cáo */}
+            {showReportModal && (
+        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    // Reset dữ liệu khi đóng modal
+                    setShowReportModal(false);
+                    setReportReason(""); // Reset lý do báo cáo
+                    setReportMessage(""); // Reset thông báo
+                  }}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                <h6>Chọn lý do báo cáo:</h6>
+                <div className="mb-3">
+                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                    <label className="d-block" key={reason}>
+                      <input
+                        type="radio"
+                        name="reportReason"
+                        value={reason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                      /> {reason}
+                    </label>
+                  ))}
+                </div>
+                <textarea
+                  className="form-control mt-2"
+                  placeholder="Nhập lý do báo cáo"
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  style={{ resize: 'none' }}
+                />
+              </div>
+              <div className="modal-footer">
+                <button
+                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  className="btn btn-primary"
+                >
+                  Báo cáo
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowReportModal(false);
+                    setReportReason(""); // Reset lý do báo cáo
+                    setReportMessage(""); // Reset thông báo
+                  }}
+                >
+                  Đóng
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal để tạo bài viết */}
+      <div
+        id="post-modal"
+        className="modal-overlay"
+        style={{ display: "none" }}
+      >
+        <div className="modal-content">
+          <div>
+            <div className="post-header">
+              <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"} />
+              <div>
+                <div className="name">{userData.name}</div>
+                <div className="time">Posting to Feed</div>
+              </div>
+              <button
+                id="close-modal"
+                type="button"
+                className="btn btn-close"
+              ></button>
+            </div>
+            <div className="col">
+              <textarea
+                id="post-textarea"
+                className="form-control"
+                rows={3}
+                placeholder="Write your post here..."
+                value={postContent}
+                onChange={(e) => setPostContent(e.target.value)}
+              />
+              <div className="row mt-3">
+                <div className="col text-start">
+                  <input
+                    type="file"
+                    id="file-input" // Thêm id này
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files);
+                      setPostImages(files);
+                      setPostImageUrls(
+                        files.map((file) => URL.createObjectURL(file))
+                      );
+                    }}
+                  />
+                </div>
+                <div className="col text-end">
+                  <button
+                    id="submit-post"
+                    type="button"
+                    style={{ backgroundColor: "#E94F37" }}
+                    className="btn btn-secondary"
+                    onClick={handleSubmitPost}
+                  >
+                    Post
+                  </button>
+                </div>
+                {/* Hiển thị ảnh đã chọn */}
+                {postImageUrls.length > 0 && (
+                  <div className="selected-images mt-3">
+                    {postImageUrls.map((url, index) => (
+                      <img
+                        key={index}
+                        src={url}
+                        alt={`Selected ${index}`}
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                          marginRight: "5px",
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

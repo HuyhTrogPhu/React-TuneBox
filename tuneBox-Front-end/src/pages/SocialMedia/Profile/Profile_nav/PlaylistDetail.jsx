@@ -19,6 +19,7 @@ import {
 } from "../../../../service/likeTrackServiceCus";
 import { getUserInfo } from "../../../../service/UserService";
 import Lottie from "lottie-react";
+import SharePlaylistModal from "./SharePlaylistModal";
 
 const PlayListDetail = () => {
   const { id } = useParams();
@@ -41,6 +42,8 @@ const PlayListDetail = () => {
 
   const [playingTrackIndex, setPlayingTrackIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // animation Lottie
   const [animationData, setAnimationData] = useState(null);
@@ -379,13 +382,20 @@ const PlayListDetail = () => {
                         style={{ cursor: "pointer", fontSize: "20px" }}
                       ></i>
                     </button>
-                    <button className="btn">
+                    <button className="btn"
+                      onClick={() => setIsShareModalOpen(true)}
+                    >
                       <i
                         type="button"
                         style={{ fontSize: "20px", color: "white" }}
                         className="fa-solid fa-share mt-1"
                       ></i>
                     </button>
+                    <SharePlaylistModal
+                      playlistId={playlist.id}
+                      isOpen={isShareModalOpen}
+                      onClose={() => setIsShareModalOpen(false)}
+                    />
                   </div>
                   <div className="default">
                     <div className="btn-group" style={{ marginLeft: 25 }}>

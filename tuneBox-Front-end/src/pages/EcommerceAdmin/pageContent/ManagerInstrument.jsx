@@ -9,7 +9,9 @@ const ManagerInstrument = () => {
   const [newInsPrice, setInsPrice] = useState("");
   const [newInsQuantity, setInsQuantity] = useState("");
   const [newInsColor, setInsColor] = useState("");
-  const [newInsImage, setInsImage] = useState(null);
+
+  const [newInsImage, setInsImage] = useState([]);
+
   const [newInsCategory, setInsCategory] = useState("");
   const [newInsBrand, setInsBrand] = useState("");
   const [newInsDes, setInsDes] = useState("");

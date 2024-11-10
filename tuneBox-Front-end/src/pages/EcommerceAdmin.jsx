@@ -23,7 +23,7 @@ ChartJS.register(
 
 import Header from '../components/Header/Header';
 import { Link, Route, Routes } from 'react-router-dom';
-import ManagerBrand from './EcommerceAdmin/pageContent/MangerBrand';
+import ManagerBrand from './EcommerceAdmin/pageContent/ManagerBrand';
 import ManagerCategories from './EcommerceAdmin/pageContent/ManagerCategories';
 import ManagerInstrument from './EcommerceAdmin/pageContent/ManagerInstrument';
 import ManagerCustomer from './EcommerceAdmin/pageContent/ManagerCustomer';
