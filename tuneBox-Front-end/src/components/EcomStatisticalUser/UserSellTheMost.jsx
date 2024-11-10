@@ -65,11 +65,11 @@ const UserSellTheMost = () => {
     <div>
       <div className='container'>
         <div className='row text-center'>
-          <h6>Statistical revenue user</h6>
+          <h6>Statistics on the list of users who have purchased the most to date</h6>
         </div>
         {/* Bảng người dùng bán nhiều nhất */}
         <section className='row mt-5'>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -83,7 +83,7 @@ const UserSellTheMost = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {userSellList.length > 0 ? (
                 userSellList.map((user, index) => (
                   <tr key={user.userId}>

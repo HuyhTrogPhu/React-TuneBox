@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Footer2 from "../../../components/Footer/Footer2";
 import Benefits from "../../../components/Benefits/Benefits";
 import { useEffect, useState } from "react";
 import { removeFromLocalCart } from "../../../service/CartService";
-
+import Swal from "sweetalert2";
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
-
+  const navigate = useNavigate();
   const fetchCartItems = () => {
     const items = JSON.parse(localStorage.getItem('cart')) || []; // Lấy dữ liệu từ localStorage
 
@@ -33,7 +33,12 @@ const Cart = () => {
     removeFromLocalCart(instrumentId); // Gọi hàm xóa từ dịch vụ
     fetchCartItems(); // Tải lại danh sách giỏ hàng
   };
-  const updateQuantity = (instrumentId, newQuantity) => {
+const updateQuantity = (instrumentId, newQuantity) => {
+  if (newQuantity === 0) {
+    // Nếu số lượng là 0, xóa sản phẩm khỏi giỏ hàng
+    removeItem(instrumentId);
+  } else {
+    // Nếu số lượng lớn hơn 0, cập nhật số lượng trong giỏ hàng
     const updatedItems = cartItems.map(item => {
       if (item.instrumentId === instrumentId) {
         return { ...item, quantity: newQuantity };
@@ -42,6 +47,19 @@ const Cart = () => {
     });
     setCartItems(updatedItems);
     localStorage.setItem('cart', JSON.stringify(updatedItems)); // Cập nhật localStorage
+  }
+};
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Please add products to cart!',
+        confirmButtonText: 'OK'
+      });
+    } else {
+      navigate("/checkOut");
+    }
   };
 
   return (
@@ -135,9 +153,7 @@ const Cart = () => {
                                 <h5 style={{fontSize: '20px'}}>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h5>
                               </div>
 
-                              <Link to={"/checkOut"}>
-                                <button type="button" className="btn btn-dark btn-block btn-lg">Check out</button>
-                              </Link>
+                              <button type="button" className="btn btn-dark btn-block btn-lg" onClick={handleCheckout}>Check out</button>
                             </div>
                           </div>
                         </div>

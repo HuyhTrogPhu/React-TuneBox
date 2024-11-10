@@ -1,17 +1,27 @@
 .brand-dropdown {
-    display: none !important;
+    display: none;
     position: absolute;
     background-color: white;
-    width: 100%;
-    z-index: 1;
-    padding: 10px;
+    border: 1px solid #ccc;
+    width: 81%;
+    z-index: 1000;
 }
 
 .brand:hover .brand-dropdown {
-    display: block !important;
+    display: block;
 }
 
+.brand-name {
+    padding: 5px 10px;
+    
+}
 
-.brand-dropdown {
-    width: 80%; 
+.brand-name h6 {
+    padding: 10px 0 0 0;
+    font-size: 20px;
+    margin-left: 40px;
+}
+
+.brand a:hover {
+    color: #E94F37;
 }

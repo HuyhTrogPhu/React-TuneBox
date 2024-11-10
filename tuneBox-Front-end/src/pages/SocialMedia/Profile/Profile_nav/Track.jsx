@@ -5,17 +5,16 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { listGenre } from "../../../../service/TrackServiceCus";
+import { useParams } from "react-router-dom"; // Import useParams để lấy userId từ URL
 
 const Track = () => {
   const [tracks, setTracks] = useState([]); // State luu track
-  const [userName, setUserName] = useState(""); // State cho username
   const [selectedTrack, setSelectedTrack] = useState(null); // State cho track duoc chon
   const userId = Cookies.get("userId"); // Lay userId tu cookies
+  const { id } = useParams(); // Lấy ID từ URL
 
   const [genres, setGenres] = useState([]); // Store the list of genres
   const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
-
-  const [image, setImage] = useState(null);
 
   useEffect(() => {
     fetchGenre(); // Fetch genres when the component mounts
@@ -33,10 +32,12 @@ const Track = () => {
 
   // Ham lay danh sach track
   const fetchTrack = async () => {
+    const targetUserId = id ? id : userId;
+    console.log("Target User ID:", targetUserId);
     try {
       if (!userId) throw new Error("User ID not found."); // Kiem tra userId
       const response = await axios.get(
-        `http://localhost:8080/customer/tracks/user/${userId}`,
+        `http://localhost:8080/customer/tracks/user/${targetUserId}`,
         {
           withCredentials: true,
         }
@@ -93,27 +94,36 @@ const Track = () => {
   };
 
   // Goi fetchUserName khi component duoc mount
-  useEffect(() => {
-    const getUserName = async () => {
-      try {
-        const name = await fetchUserName(); // Lay ten nguoi dung
-        setUserName(name); // Luu ten vao state
-      } catch (error) {
-        console.error("Error fetching track name:", error); // Log loi neu co
-      }
-    };
-    getUserName();
-  }, []);
+  // useEffect(() => {
+  //   const getUserName = async () => {
+  //     try {
+  //       const name = await fetchUserName(); // Lay ten nguoi dung
+  //       setUserName(name); // Luu ten vao state
+  //     } catch (error) {
+  //       console.error("Error fetching track name:", error); // Log loi neu co
+  //     }
+  //   };
+  //   getUserName();
+  // }, []);
 
-  // Handle clicking the Edit button
   const handleEditClick = (track) => {
-    setSelectedTrack({
+    // Tạo một đối tượng track mới với đầy đủ thông tin
+    const updatedTrack = {
       ...track,
-      trackImage: track.trackImage || null, // Set image if available
-    });
+      // Giữ nguyên URL của ảnh hiện tại thay vì tạo Blob mới
+      imageTrack: track.imageTrack,
+      // Giữ nguyên thông tin file nhạc hiện tại
+      trackFile: {
+        name: track.trackFileName || "Current track file", // Thêm tên file nếu có
+      },
+    };
 
-    // Set the selected genre for the track being edited
-    setSelectedGenre(track.genre ? track.genre.id : "");
+    setSelectedTrack(updatedTrack);
+
+    // Set genre ID từ track hiện tại
+    if (track.genre) {
+      setSelectedGenre(track.genre.id.toString());
+    }
 
     const editModal = document.getElementById("editModal");
     editModal.classList.add("show");
@@ -125,21 +135,22 @@ const Track = () => {
   const handleSave = async () => {
     if (!selectedTrack) return;
 
-    const formData = new FormData(); // Create formData for the track
+    const formData = new FormData();
     formData.append("name", selectedTrack.name);
     formData.append("description", selectedTrack.description);
     formData.append("status", selectedTrack.status);
     formData.append("report", selectedTrack.report);
     formData.append("userId", userId);
-    formData.append("genre", selectedGenre); // Append selected genre
+    formData.append("genre", selectedGenre);
 
-    if (selectedTrack.trackFile) {
-      formData.append("trackFile", selectedTrack.trackFile); // Append track file
+    // Chỉ gửi file mới nếu người dùng đã chọn file mới
+    if (selectedTrack.trackFile instanceof File) {
+      formData.append("trackFile", selectedTrack.trackFile);
     }
 
-    // Check if the track image is a file before appending
-    if (selectedTrack.trackImage && selectedTrack.trackImage instanceof File) {
-      formData.append("trackImage", selectedTrack.trackImage); // Append track image if it's a new file
+    // Chỉ gửi ảnh mới nếu người dùng đã chọn ảnh mới
+    if (selectedTrack.trackImage instanceof File) {
+      formData.append("trackImage", selectedTrack.trackImage);
     }
 
     try {
@@ -153,8 +164,8 @@ const Track = () => {
           withCredentials: true,
         }
       );
-      fetchTrack(); // Fetch updated track list
-      setSelectedTrack(null); // Reset selected track
+      fetchTrack();
+      setSelectedTrack(null);
 
       const editModal = document.getElementById("editModal");
       editModal.classList.remove("show");
@@ -167,6 +178,7 @@ const Track = () => {
       );
     }
   };
+
   return (
     <div>
       {/* get all track */}
@@ -189,7 +201,9 @@ const Track = () => {
                 >
                   <div className="name">{track.name || "Unknown Track"}</div>
                 </Link>
-                <div className="author">{userName || "Unknown userName"}</div>
+                <div className="author">
+                  {track.userName || "Unknown userName"}
+                </div>
               </div>
 
               <div className="btn-group" style={{ marginLeft: 25 }}>
@@ -248,8 +262,7 @@ const Track = () => {
               <form className="row">
                 {/* Track Name */}
                 <div className="mb-3">
-                  <label className="form-label">Track Name
-                  </label>
+                  <label className="form-label">Track Name: </label>
                   <input
                     type="text"
                     className="form-control"
@@ -265,53 +278,70 @@ const Track = () => {
 
                 {/* Image Track */}
                 <div className="mt-3">
-                  <label className="form-label">Image Track</label>
-                  <input
-                    type="file"
-                    className="form-control"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setSelectedTrack({
-                        ...selectedTrack,
-                        trackImage: e.target.files[0],
-                      })
-                    }
-                  />
-                  {/* Image preview logic */}
-                  {selectedTrack && selectedTrack.trackImage ? (
-                    typeof selectedTrack.trackImage === "object" &&
-                    selectedTrack.trackImage instanceof File ? (
+                  <label className="form-label">Image Track: </label>
+                  {selectedTrack && (
+                    <div>
                       <img
-                        src={URL.createObjectURL(selectedTrack.trackImage)}
+                        src={selectedTrack.imageTrack}
                         alt="Current Track"
                         style={{ width: "100px", marginTop: "10px" }}
                       />
-                    ) : (
-                      <img
-                        src={selectedTrack.trackImage}
-                        alt="Current Track"
-                        style={{ width: "100px", marginTop: "10px" }}
-                      />
-                    )
-                  ) : (
-                    <p>No image available</p>
+                      <div className="custom-file mt-2">
+                        <input
+                          type="file"
+                          id="fileInput"
+                          className="custom-file-input"
+                          onChange={(e) => {
+                            if (e.target.files[0]) {
+                              setSelectedTrack({
+                                ...selectedTrack,
+                                trackImage: e.target.files[0],
+                              });
+                            }
+                          }}
+                          style={{ display: "none" }}
+                        />
+                        <label
+                          className="custom-file-label"
+                          htmlFor="fileInput"
+                        >
+                          Choose new file
+                        </label>
+                      </div>
+                    </div>
                   )}
                 </div>
 
                 {/* File Track */}
                 <div className="mt-3">
-                  <label className="form-label">File Track</label>
-                  <input
-                    type="file"
-                    className="form-control"
-                    accept=".mp3"
-                    onChange={(e) =>
-                      setSelectedTrack({
-                        ...selectedTrack,
-                        trackFile: e.target.files[0],
-                      })
-                    }
-                  />
+                  <label className="form-label">Current File Track: </label>
+                  <label className="custom-file-label" htmlFor="fileInput">
+                    Choose file
+                  </label>
+                  {selectedTrack && (
+                    <div>
+                      <p>
+                        Current file:{" "}
+                        {selectedTrack.trackFileName || selectedTrack.name}
+                      </p>
+                      <div className="custom-file mt-2">
+                        <input
+                          type="file"
+                          id="fileInput"
+                          className="custom-file-input"
+                          onChange={(e) => {
+                            if (e.target.files[0]) {
+                              setSelectedTrack({
+                                ...selectedTrack,
+                                trackFile: e.target.files[0],
+                              });
+                            }
+                          }}
+                          style={{ display: "none" }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Select Genre */}
@@ -322,18 +352,16 @@ const Track = () => {
                     value={selectedGenre}
                     onChange={(e) => setSelectedGenre(e.target.value)}
                   >
-                    <option value="" disabled>
-                      Select genre
-                    </option>
-                    {genres && genres.length > 0 ? (
-                      genres.map((genre) => (
-                        <option key={genre.id} value={genre.id}>
-                          {genre.name}
-                        </option>
-                      ))
-                    ) : (
-                      <option disabled>No genres available</option>
-                    )}
+                    {genres.map((genre) => (
+                      <option
+                        key={genre.id}
+                        value={genre.id}
+                        // Set selected cho genre hiện tại
+                        selected={selectedTrack?.genre?.id === genre.id}
+                      >
+                        {genre.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
