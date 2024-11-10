@@ -10,7 +10,7 @@
     background-color: #fff;
     padding-bottom: 20px;
     border-radius: 10px;
-    box-shadow: rgba(233, 79, 55, 0.25) 0px 13px 27px -5px, rgba(233, 79, 55, 0.25)  0px 8px 16px -8px;
+    box-shadow: rgba(233, 79, 55, 0.25) 0px 13px 27px -5px, rgba(233, 79, 55, 0.25) 0px 8px 16px -8px;
 }
 
 .feed-avatar {
@@ -76,15 +76,16 @@
     background-color: #fff;
     padding: 20px !important;
     border-radius: 10px;
-    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5)  0px 8px 16px -8px;
+    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
 }
+
 .list-unstyled a {
     padding: 0 0 0 20px !important;
 }
 
 .list-unstyled li:hover {
     background-color: #E94F37;
-   
+
 }
 
 .list-new-follow {
@@ -92,7 +93,7 @@
     background-color: #fff;
     padding: 20px !important;
     border-radius: 10px;
-    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5)  0px 8px 16px -8px;
+    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
 
 }
 
@@ -100,7 +101,7 @@
     background-color: #fff;
     margin-top: 0;
     border-radius: 10px;
-    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5)  0px 8px 16px -8px;
+    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
 }
 
 .nav-link-feed {
@@ -117,4 +118,17 @@
     font-size: 20px;
     font-weight: 600;
     color: #ffffff !important;
+}
+
+/* Thêm vào file CSS của bạn */
+
+.feed-link {
+    cursor: pointer;
+    color: #fff;
+    transition: color 0.2s;
+}
+
+.feed-link.active {
+    color: #E94F37 !important;
+    font-weight: bold;
 }

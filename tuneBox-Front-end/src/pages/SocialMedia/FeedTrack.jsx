@@ -364,7 +364,7 @@ const FeedTrack = () => {
   return (
     <div>
       {/* Phần hiển thị track */}
-      <div className="container mt-2 mb-5">
+      <div className="container p-0">
         {tracks.map((track) => {
           const createdAt = track.createDate ? new Date(track.createDate) : null;
           return (

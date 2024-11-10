@@ -80,6 +80,7 @@ const HomeFeed = () => {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   const tokenjwt = localStorage.getItem('jwtToken');
+  const [activeComponent, setActiveComponent] = useState('track'); // State để quản lý component hiển thị track or post
 
   //get avatar
   const [userData, setUserData] = useState({});
@@ -454,18 +455,18 @@ const HomeFeed = () => {
         userId: currentUserId,
         postId: postId,
       };
-  
+
       if (likes[postId]?.data) {
         // Nếu đã like, thực hiện unlike
         await fetch(`http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`, {
           method: "DELETE",
         });
-  
+
         setLikes((prevLikes) => ({
           ...prevLikes,
           [postId]: { ...prevLikes[postId], data: false },
         })); // Cập nhật trạng thái like
-  
+
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -483,16 +484,16 @@ const HomeFeed = () => {
           },
           body: JSON.stringify(likeDto), // Gửi dữ liệu likeDto
         });
-  
+
         if (!response.ok) {
           throw new Error("Failed to like the post");
         }
-  
+
         setLikes((prevLikes) => ({
           ...prevLikes,
           [postId]: { ...prevLikes[postId], data: true },
         })); // Cập nhật trạng thái like
-  
+
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -506,8 +507,8 @@ const HomeFeed = () => {
       console.error("Error liking post:", error);
     }
   };
-  
-      
+
+
   // reply comment
   const handleToggleReplies = (commentId) => {
     setShowAllReplies((prev) => ({
@@ -1026,6 +1027,9 @@ const HomeFeed = () => {
       toast.error("Failed to toggle post visibility. Please try again."); // Notify user of error
     }
   };
+
+  // get user information in feed
+
   return (
     <div>
       <div className="container-fluid feed-container">
@@ -1050,7 +1054,7 @@ const HomeFeed = () => {
               </div>
               {/* View profile */}
               <div className="view-profile text-center">
-                <Link style={{ color: '#E94F37' }} to={''}>View profile</Link>
+                <Link style={{ color: '#E94F37' }} to={'/profileUser'}>View profile</Link>
               </div>
             </div>
             <ul className="list-unstyled">
@@ -1132,24 +1136,29 @@ const HomeFeed = () => {
 
 
           {/* Main content */}
-          <div className="col-6 content p-4">
-
+          <div className="col-6 content">
             {/* Nav tab link */}
-            <div className="row nav-link-feed">
+            <div className="row nav-link-feed mt-4">
               <ul className="d-flex justify-content-center">
-                <li className="col-6 text-center feed-link">
+                <li
+                  className={`col-6 text-center feed-link ${activeComponent === 'track' ? 'active' : ''}`}
+                  onClick={() => setActiveComponent('track')}
+                >
                   <i className="fa-solid fa-music me-1"></i>
-                  <Link to="feed/track"> Track</Link> {/* Đường dẫn con */}
+                  <span>Track</span>
                 </li>
-                <li className="col-6 text-center feed-link">
+                <li
+                  className={`col-6 text-center feed-link ${activeComponent === 'post' ? 'active' : ''}`}
+                  onClick={() => setActiveComponent('post')}
+                >
                   <i className="fa-solid fa-newspaper me-1"></i>
-                  <Link to="feed/post"> Post</Link> {/* Đường dẫn con */}
+                  <span>Post</span>
                 </li>
               </ul>
             </div>
 
             {/* Nút tạo bài */}
-            <div className="create-post container mt-2 mb-5">
+            <div className="create-post container">
               <div className="row align-items-center">
                 <div className="col-auto post-header">
                   <img
@@ -1174,14 +1183,12 @@ const HomeFeed = () => {
               </div>
             </div>
 
+            {/* Nội dung theo lựa chọn Track hoặc Post */}
             <div className="container">
-              <Routes>
-                <Route index element={<FeedTrack />} />
-                <Route path="feed/track" element={<FeedTrack />} /> {/* Route cho FeedTrack */}
-                <Route path="feed/post" element={<FeedPost />} />   {/* Route cho FeedPost */}
-              </Routes>
+              {activeComponent === 'track' ? <FeedTrack /> : <FeedPost />}
             </div>
           </div>
+
 
 
           {/* Right Sidebar */}
@@ -1246,7 +1253,7 @@ const HomeFeed = () => {
                   onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
                   className="btn btn-primary"
                 >
-                  Báo cáo
+                  Report
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -1256,7 +1263,7 @@ const HomeFeed = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  Đóng
+                  Close
                 </button>
               </div>
 

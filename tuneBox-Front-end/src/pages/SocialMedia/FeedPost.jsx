@@ -752,7 +752,7 @@ const FeedPost = () => {
   return (
     <div>
       {/* Phần hiển thị post */}
-      <div className="container mt-2 mb-5">
+      <div className="container p-0">
         {posts.map((post) => {
           const createdAt = post.createdAt
             ? new Date(post.createdAt)
