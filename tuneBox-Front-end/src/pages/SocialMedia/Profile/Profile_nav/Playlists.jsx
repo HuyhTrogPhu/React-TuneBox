@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   getPlaylistByUserId,
   createPlaylist,
@@ -14,6 +14,7 @@ import "../Profile_nav/css/playlist.css";
 
 const Playlists = () => {
   const userId = Cookies.get("userId");
+  const { id } = useParams(); // Lấy ID từ URL
   const [errors, setErrors] = useState({});
   const [playlists, setPlaylists] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,11 +42,20 @@ const Playlists = () => {
   }, [userId]);
 
   const fetchListPlaylist = async () => {
+    const targetUserId = id || userId;
+    console.log("Target User ID:", targetUserId);
+
     setIsLoading(true);
     try {
-      const playlistResponse = await getPlaylistByUserId(userId);
-      setPlaylists(playlistResponse || []);
-      console.log("fetchListPlaylist: ", playlistResponse);
+      const playlistResponse = await getPlaylistByUserId(targetUserId);
+
+      // Lọc playlist theo điều kiện type
+      const filteredPlaylists = playlistResponse.filter(
+        (playlist) => targetUserId === userId || playlist.type === "Public"
+      );
+
+      setPlaylists(filteredPlaylists || []);
+      console.log("fetchListPlaylist: ", filteredPlaylists);
 
       const likesCountsMap = {};
 
@@ -275,36 +285,42 @@ const Playlists = () => {
                       </span>
                     </div>
                   </div>
-
-                  <div className="btn-group" style={{ marginLeft: 25 }}>
-                    <button
-                      className="btn dropdown-toggle no-border"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    />
-                    <ul className="dropdown-menu dropdown-menu-lg-end">
-                      <li>
-                        <a
-                          className="dropdown-item"
-                          type="button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#editPlaylist"
-                          onClick={() => handleEditClick(list)}
-                        >
-                          Edit
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          className="dropdown-item"
-                          onClick={() => handDeletePlaylist(list.id)}
-                        >
-                          Delete
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
+                  {String(list.creatorId) === String(userId) ? (
+                    <div className="btn-group" style={{ marginLeft: 25 }}>
+                      <button
+                        className="btn dropdown-toggle no-border"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      />
+                      <ul className="dropdown-menu dropdown-menu-lg-end">
+                        <li>
+                          <a
+                            className="dropdown-item"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editPlaylist"
+                            onClick={() => handleEditClick(list)}
+                          >
+                            Edit
+                          </a>
+                        </li>
+                        <li>
+                          <a
+                            className="dropdown-item"
+                            onClick={() => handDeletePlaylist(list.id)}
+                          >
+                            Delete
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  ) : (
+                  <button
+                    className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
+                    onClick={() => handleReport(album.id, "album")}
+                  ></button>
+                )}
                 </div>
               )
           )

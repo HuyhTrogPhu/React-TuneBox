@@ -464,19 +464,18 @@ const AlbumDetail = () => {
                 {isLoading && <p>Loading...</p>}
                 <div className="playlist-container">
                   {listAlbums.slice(0, 4).map(
-                    (playlist, index) =>
-                      !playlist.status && (
+                    (album, index) =>
+                      !album.status && (
                         <div key={index} className="card text-bg-dark">
                           <img
                             src={
-                              playlist.imagePlaylist ||
-                              "/src/assets/images/nai.jpg"
+                              album.albumImage || "/src/assets/images/nai.jpg"
                             }
                             className="card-img"
-                            alt={playlist.title || "Playlist image"}
+                            alt={album.title || "Playlist image"}
                           />
                           <div className="card-img-overlay">
-                            <p className="card-text">{playlist.title}</p>
+                            <p className="card-text">{album.title}</p>
                           </div>
                         </div>
                       )

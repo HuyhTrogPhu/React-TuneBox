@@ -17,23 +17,20 @@ import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
-  
   addLike,
   checkUserLikeTrack,
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import UsersToFollow from './Profile/UsersToFollow';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import UsersToFollow from "./Profile/UsersToFollow";
 import {
   getPlaylistByUserId,
   getPlaylistById,
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
-
-
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -63,7 +60,7 @@ const HomeFeed = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [ReportId, setReportId] = useState(null);
-  const [reportType, setReportType] = useState('');
+  const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
   const [postHiddenStates, setPostHiddenStates] = useState({});
 
@@ -76,7 +73,7 @@ const HomeFeed = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
-  const tokenjwt = localStorage.getItem('jwtToken');
+  const tokenjwt = localStorage.getItem("jwtToken");
 
   //get avatar
   const [userData, setUserData] = useState({});
@@ -95,7 +92,6 @@ const HomeFeed = () => {
 
     fetchUser();
   }, [currentUserId]);
-
 
   // track
   const [tracks, setTracks] = useState([]);
@@ -287,11 +283,8 @@ const HomeFeed = () => {
   const [showModal, setShowModal] = useState(false);
   const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
 
-
-
   const fetchListPlaylist = async () => {
     try {
-      
       const playlistResponse = await getPlaylistByUserId(currentUserId);
       setPlaylists(playlistResponse);
       console.log("playlist  ", playlistResponse);
@@ -303,7 +296,7 @@ const HomeFeed = () => {
     setShowModal(true); // Mở modal
     setTrackToAddPlayList(trackId);
   };
-  
+
   useEffect(() => {
     fetchListPlaylist();
   }, [currentUserId]);
@@ -883,16 +876,16 @@ const HomeFeed = () => {
       );
     }
   };
-  // report post 
+  // report post
   const handleReport = (id, type) => {
-    console.log('ID to report:', id); // Kiểm tra giá trị ID
-    console.log('Type to report:', type); // Kiểm tra giá trị type
+    console.log("ID to report:", id); // Kiểm tra giá trị ID
+    console.log("Type to report:", type); // Kiểm tra giá trị type
     setReportId(id);
     setReportType(type);
     setShowReportModal(true);
   };
   const handleSubmit = () => {
-    console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
+    console.log("Report Type before submit:", reportType); // Kiểm tra giá trị type
 
     if (!ReportId || !reportType) {
       setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
@@ -904,12 +897,12 @@ const HomeFeed = () => {
   };
   const submitReport = async (userId, reportId, reportType, reason) => {
     try {
-      const response = await fetch('http://localhost:8080/api/reports', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8080/api/reports", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include', // Đảm bảo gửi cookie cùng với request
+        credentials: "include", // Đảm bảo gửi cookie cùng với request
         body: JSON.stringify({
           postId: reportPostId,
           reason: reportReason,
@@ -917,34 +910,37 @@ const HomeFeed = () => {
       });
 
       if (response.ok) {
-        console.log('thành công');
+        console.log("thành công");
         setShowReportModal(false);
       }
     } catch (error) {
       console.error("Lỗi khi tạo báo cáo:", error);
       if (error.response && error.response.status === 401) {
-        navigate('/login?error=true');
+        navigate("/login?error=true");
       } else {
-        console.error('Có lỗi xảy ra khi gửi báo cáo.');
+        console.error("Có lỗi xảy ra khi gửi báo cáo.");
       }
     }
   };
   const checkReportExists = async (userId, reportId, reportType) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/reports/check`, {
-        params: {
-          userId: userId,
-          postId: reportType === 'post' ? reportId : null,
-          trackId: reportType === 'track' ? reportId : null,
-          albumId: reportType === 'album' ? reportId : null,
-          type: reportType,
-        },
-        withCredentials: true,
-      });
-      console.log('Check report response:', response.data);
+      const response = await axios.get(
+        `http://localhost:8080/api/reports/check`,
+        {
+          params: {
+            userId: userId,
+            postId: reportType === "post" ? reportId : null,
+            trackId: reportType === "track" ? reportId : null,
+            albumId: reportType === "album" ? reportId : null,
+            type: reportType,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("Check report response:", response.data);
       return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
     } catch (error) {
-      console.error('Lỗi mạng:', error);
+      console.error("Lỗi mạng:", error);
     }
   };
 
@@ -979,35 +975,39 @@ const HomeFeed = () => {
 
   // ẩn hiện post
   const toggleHiddenState = async (postId) => {
-    const token = localStorage.getItem('jwtToken');
-    
+    const token = localStorage.getItem("jwtToken");
+
     if (!token) {
-        console.error("No JWT token found");
-        toast.error("You need to be logged in to toggle post visibility.");
-        return; // No token, do not call API
+      console.error("No JWT token found");
+      toast.error("You need to be logged in to toggle post visibility.");
+      return; // No token, do not call API
     }
 
     try {
-        await axios.put(`http://localhost:8080/api/posts/${postId}/toggle-visibility`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        });
+      await axios.put(
+        `http://localhost:8080/api/posts/${postId}/toggle-visibility`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-        // Update the visibility state of the post
-        setPostHiddenStates(prevStates => ({
-            ...prevStates,
-            [postId]: !prevStates[postId] // Toggle the visibility state
-        }));
-        fetchPosts();
+      // Update the visibility state of the post
+      setPostHiddenStates((prevStates) => ({
+        ...prevStates,
+        [postId]: !prevStates[postId], // Toggle the visibility state
+      }));
+      fetchPosts();
     } catch (error) {
-        console.error("Error toggling post visibility:", error);
-        toast.error("Failed to toggle post visibility. Please try again."); // Notify user of error
+      console.error("Error toggling post visibility:", error);
+      toast.error("Failed to toggle post visibility. Please try again."); // Notify user of error
     }
-};
-    return (
+  };
+  return (
     <div>
-            <ToastContainer />
+      <ToastContainer />
       <div className="container-fluid">
         <ToastContainer />
         <div className="row">
@@ -1095,7 +1095,11 @@ const HomeFeed = () => {
             <div className="container mt-2 mb-5">
               <div className="row align-items-center">
                 <div className="col-auto post-header">
-                  <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                  <img
+                    src={
+                      userData.avatar ||
+                      "/src/UserImages/Avatar/default-avt.jpg"
+                    }
                   />
                 </div>
                 <div className="col">
@@ -1118,134 +1122,153 @@ const HomeFeed = () => {
             {/* Phần hiển thị track */}
             <div className="container mt-2 mb-5">
               {tracks.map((track) => {
-                const createdAt = track.createDate ? new Date(track.createDate) : null;
+                const createdAt = track.createDate
+                  ? new Date(track.createDate)
+                  : null;
                 return (
-                  <div className="post border" key={track.id}>
-                    {/* Tiêu đề */}
-                    <div className="post-header position-relative">
-                      <button
-                        type="button"
-                        className="btn"
-                        onClick={() => handleAvatarClick(track)}
-                        aria-label="Avatar"
-                      >
-                        <img
-                          src={track.avatar}
-                          className="avatar_small"
-                          alt="Avatar"
+                  !track.status && (
+                    <div className="post border" key={track.id}>
+                      {/* Tiêu đề */}
+                      <div className="post-header position-relative">
+                        <button
+                          type="button"
+                          className="btn"
+                          onClick={() => handleAvatarClick(track)}
+                          aria-label="Avatar"
+                        >
+                          <img
+                            src={track.avatar}
+                            className="avatar_small"
+                            alt="Avatar"
+                          />
+                        </button>
+                        <div>
+                          <div className="name">
+                            {track.userNickname || "Unknown User"}
+                          </div>
+                          <div className="time">
+                            {createdAt && !isNaN(createdAt.getTime())
+                              ? format(createdAt, "hh:mm a, dd MMM yyyy")
+                              : "Invalid date"}
+                          </div>
+                        </div>
+                        {/* Dropdown cho bài viết */}
+                        {String(track.userId) === String(currentUserId) ? (
+                          <div className="dropdown position-absolute top-0 end-0">
+                            <button
+                              className="btn btn-options dropdown-toggle"
+                              type="button"
+                              id={`dropdownMenuButton-${track.id}`}
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              ...
+                            </button>
+                            <ul
+                              className="dropdown-menu"
+                              aria-labelledby={`dropdownMenuButton-${track.id}`}
+                            >
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => addToPlaylist(track.id)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                  Add to playlist
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => handleEditClick(track)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>
+                                  Edit
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => deleteTrack(track.id)}
+                                >
+                                  <i className="fa-solid fa-trash "></i>Delete
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        ) : (
+                          <div className="dropdown position-absolute top-0 end-0">
+                            <ul>
+                              <li>
+                                <button
+                                  className="fa-regular fa-flag btn-report border border-0"
+                                  onClick={() =>
+                                    handleReport(track.id, "track")
+                                  }
+                                ></button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => addToPlaylist(track.id)}
+                                >
+                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                  Add to playlist
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="post-content description">
+                        {track.description || "Unknown description"}
+                      </div>
+                      {/* Nội dung */}
+                      <div className="track-content audio">
+                        <WaveFormFeed
+                          audioUrl={track.trackFile}
+                          track={track}
+                          className="track-waveform "
                         />
-                      </button>
-                      <div>
-                        <div className="name">
-                          {track.userNickname || "Unknown User"}
-                        </div>
-                        <div className="time">
-                          {createdAt && !isNaN(createdAt.getTime())
-                            ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                            : "Invalid date"}
-                        </div>
                       </div>
-                      {/* Dropdown cho bài viết */}
-                      {String(track.userId) === String(currentUserId) ? (
-                        <div className="dropdown position-absolute top-0 end-0">
-                          <button
-                            className="btn btn-options dropdown-toggle"
-                            type="button"
-                            id={`dropdownMenuButton-${track.id}`}
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            ...
-                          </button>
-                          <ul className="dropdown-menu"
-                            aria-labelledby={`dropdownMenuButton-${track.id}`}>
-                              <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => addToPlaylist(track.id)}
-                                >
-                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
-                                  Add to playlist
-                                </button>
-                              </li>
-                              <li>
-                              <button className="dropdown-item" onClick={() => handleEditClick(track)}>
-                                <i className='fa-solid fa-pen-to-square'></i>Edit
-                              </button>
-                              </li>
-                              <li>
-                              <button className="dropdown-item" onClick={() => deleteTrack(track.id)}>
-                                <i className='fa-solid fa-trash '></i>Delete
-                              </button>
-                              </li>
-                          </ul>
-                        </div>
-                      ) : (
-                        <div className="dropdown position-absolute top-0 end-0">
-                          <ul>
-                            <li>
-                            <button className="fa-regular fa-flag btn-report border border-0" onClick={() => handleReport(track.id, 'track')}></button>
-                            </li>
-                            <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => addToPlaylist(track.id)}
-                                >
-                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
-                                  Add to playlist
-                                </button>
-                              </li>
-                          </ul>
-                        </div>
 
-                      )}
-                    </div>
-
-                    <div className="post-content description">
-                      {track.description || "Unknown description"}
-                    </div>
-                    {/* Nội dung */}
-                    <div className="track-content audio">
-                      <WaveFormFeed
-                        audioUrl={track.trackFile}
-                        track={track}
-                        className="track-waveform "
-                      />
-                    </div>
-
-                    {/* Like/Comment */}
-                    <div className="row d-flex justify-content-start align-items-center">
-                      {/* Like track*/}
-                      <div className="col-2 mt-2 text-center">
-                        <div className="like-count">
-                          {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
-                          <i
-                            className={`fa-solid fa-heart ${likedTracks[track.id]?.data
-                              ? "text-danger"
-                              : "text-muted"
+                      {/* Like/Comment */}
+                      <div className="row d-flex justify-content-start align-items-center">
+                        {/* Like track*/}
+                        <div className="col-2 mt-2 text-center">
+                          <div className="like-count">
+                            {countLikedTracks[track.id]?.data || 0}{" "}
+                            {/* Hiển thị số lượng like */}
+                            <i
+                              className={`fa-solid fa-heart ${
+                                likedTracks[track.id]?.data
+                                  ? "text-danger"
+                                  : "text-muted"
                               }`}
-                            onClick={() => handleLikeTrack(track.id)}
-                            style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                          ></i>
+                              onClick={() => handleLikeTrack(track.id)}
+                              style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
+                            ></i>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Comment track*/}
-                      <div className="col-2 mt-2 text-center">
-                        <div className="d-flex justify-content-center align-items-center">
-                          {track.commentCount || 0}
-                          <i
-                            type="button"
-                            style={{ fontSize: "25px" }}
-                            className="fa-regular fa-comment"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalComment"
-                          ></i>
+                        {/* Comment track*/}
+                        <div className="col-2 mt-2 text-center">
+                          <div className="d-flex justify-content-center align-items-center">
+                            {track.commentCount || 0}
+                            <i
+                              type="button"
+                              style={{ fontSize: "25px" }}
+                              className="fa-regular fa-comment"
+                              data-bs-toggle="modal"
+                              data-bs-target="#modalComment"
+                            ></i>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )
+                  )
+                );
               })}
             </div>
             {/* Phần hiển thị bài viết */}
@@ -1259,12 +1282,29 @@ const HomeFeed = () => {
                 return (
                   <div key={post.id} className="post border">
                     {/* Modal hiển thị comment  */}
-                    <div className="modal fade" id="modalComent" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
+                    <div
+                      className="modal fade"
+                      id="modalComent"
+                      tabIndex="-1"
+                      aria-labelledby="exampleModalLabel"
+                      aria-hidden="true"
+                      data-bs-backdrop="false"
+                    >
                       <div className="modal-dialog">
                         <div className="modal-content">
                           <div className="modal-header">
-                            <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h1
+                              className="modal-title fs-5"
+                              id="exampleModalLabel"
+                            >
+                              Comments
+                            </h1>
+                            <button
+                              type="button"
+                              className="btn-close"
+                              data-bs-dismiss="modal"
+                              aria-label="Close"
+                            ></button>
                           </div>
                           <div className="modal-body">
                             {/* Danh sách bình luận */}
@@ -1689,7 +1729,12 @@ const HomeFeed = () => {
                                 rows={1}
                                 placeholder="Write a comment..."
                                 value={commentContent[selectedPostId] || ""}
-                                onChange={(e) => handleCommentChange(selectedPost.id, e.target.value)}
+                                onChange={(e) =>
+                                  handleCommentChange(
+                                    selectedPost.id,
+                                    e.target.value
+                                  )
+                                }
                               />
                               <button
                                 onClick={() =>
@@ -1755,12 +1800,16 @@ const HomeFeed = () => {
                         />
                       </button>
                       <div>
-                        <div className="name">{post.userNickname || "Unknown User"}</div>
+                        <div className="name">
+                          {post.userNickname || "Unknown User"}
+                        </div>
                         <div className="time">
                           {createdAt && !isNaN(createdAt.getTime())
                             ? format(createdAt, "hh:mm a, dd MMM yyyy")
                             : "Invalid date"}
-                          {post.edited && <span className="edited-notice"> (Edited)</span>}
+                          {post.edited && (
+                            <span className="edited-notice"> (Edited)</span>
+                          )}
                         </div>
                       </div>
                       {/* Dropdown cho bài viết */}
@@ -1775,16 +1824,25 @@ const HomeFeed = () => {
                           >
                             ...
                           </button>
-                          <ul className="dropdown-menu"
-                            aria-labelledby={`dropdownMenuButton-${post.id}`}>
+                          <ul
+                            className="dropdown-menu"
+                            aria-labelledby={`dropdownMenuButton-${post.id}`}
+                          >
                             <li>
-                              <button className="dropdown-item" onClick={() => handleEditPost(post)}>
-                                <i className='fa-solid fa-pen-to-square'></i>Edit
+                              <button
+                                className="dropdown-item"
+                                onClick={() => handleEditPost(post)}
+                              >
+                                <i className="fa-solid fa-pen-to-square"></i>
+                                Edit
                               </button>
                             </li>
                             <li>
-                              <button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>
-                                <i className='fa-solid fa-trash '></i>Delete
+                              <button
+                                className="dropdown-item"
+                                onClick={() => handleDeletePost(post.id)}
+                              >
+                                <i className="fa-solid fa-trash "></i>Delete
                               </button>
                             </li>
                           </ul>
@@ -1792,8 +1850,8 @@ const HomeFeed = () => {
                       ) : (
                         <button
                           className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
-                          onClick={() => handleReport(post.id, 'post')}
-                          ></button>
+                          onClick={() => handleReport(post.id, "post")}
+                        ></button>
                       )}
                     </div>
                     {/* Nội dung bài viết */}
@@ -1889,7 +1947,16 @@ const HomeFeed = () => {
               </li>
             </ul>
             <div className="advertisement mt-5">
-              <a href>  <img src={images.bannerpre} alt="Banner quảng cáo" className="img-fluid" width="80%" style={{ marginLeft: 30 }} /></a>
+              <a href>
+                {" "}
+                <img
+                  src={images.bannerpre}
+                  alt="Banner quảng cáo"
+                  className="img-fluid"
+                  width="80%"
+                  style={{ marginLeft: 30 }}
+                />
+              </a>
             </div>
           </div>
         </div>
@@ -1921,17 +1988,26 @@ const HomeFeed = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                {reportMessage && (
+                  <div className="alert alert-danger">{reportMessage}</div>
+                )}{" "}
+                {/* Thông báo lỗi hoặc thành công */}
                 <h6>Chọn lý do báo cáo:</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                  {[
+                    "Nội dung phản cảm",
+                    "Vi phạm bản quyền",
+                    "Spam hoặc lừa đảo",
+                    "Khác",
+                  ].map((reason) => (
                     <label className="d-block" key={reason}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
-                      /> {reason}
+                      />{" "}
+                      {reason}
                     </label>
                   ))}
                 </div>
@@ -1940,12 +2016,19 @@ const HomeFeed = () => {
                   placeholder="Nhập lý do báo cáo"
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  style={{ resize: 'none' }}
+                  style={{ resize: "none" }}
                 />
               </div>
               <div className="modal-footer">
                 <button
-                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  onClick={() =>
+                    submitReport(
+                      currentUserId,
+                      ReportId,
+                      reportType,
+                      reportReason
+                    )
+                  }
                   className="btn btn-primary"
                 >
                   Báo cáo
@@ -1961,7 +2044,6 @@ const HomeFeed = () => {
                   Đóng
                 </button>
               </div>
-
             </div>
           </div>
         </div>
@@ -1975,7 +2057,11 @@ const HomeFeed = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-            <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}/>
+              <img
+                src={
+                  userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"
+                }
+              />
               <div>
                 <div className="name">{userData.name}</div>
                 <div className="time">Posting to Feed</div>
