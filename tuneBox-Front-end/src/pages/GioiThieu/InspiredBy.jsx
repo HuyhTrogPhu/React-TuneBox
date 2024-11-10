@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 const InspiredBy = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [error, setError] = useState("");
 
   const [inspiredBy, setInspiredBy] = useState([]);
   const [selectInspiredBy, setSelectInspiredBy] = useState([]);
@@ -33,10 +34,10 @@ const InspiredBy = () => {
     }
   };
 
-    // Xử lý tìm kiếm inspiredBy theo tên
-    const filteredInspiredBy = inspiredBy.filter((ins) =>
-      ins.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  // Xử lý tìm kiếm inspiredBy theo tên
+  const filteredInspiredBy = inspiredBy.filter((ins) =>
+    ins.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleInspiredByClick = (id) => {
     setSelectInspiredBy((prev) => {
@@ -54,6 +55,14 @@ const InspiredBy = () => {
 
   // Cập nhật formData khi selectInspiredBy thay đổi
   const handleNext = () => {
+
+    if (selectInspiredBy.length === 0) {
+      setError("Please select at least one inspireBy")
+      return;
+    }
+
+    setError("");
+
     formData.inspiredBys = selectInspiredBy; // Cập nhật inspiredBys
     navigate('/talent', { state: formData }); // Chuyển đến trang talent với formData
   };
@@ -88,28 +97,34 @@ const InspiredBy = () => {
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Nghệ sĩ mà bạn yêu thích là ai?</h3>
+                  <div className="text-center">
+                    {error && (
+                      <div style={{ marginTop: 10, color: 'red', textAlign: 'center' }}>
+                        {error}
+                      </div>
+                    )}
+                  </div>
+                  <h3>Who is your favorite artist?</h3>
                   <p>
-                    Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
-                    nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
-                    cải thiện trải nghiệm TuneBox của bạn.
+                    Whether you're a musician or a fan, we want it all
+                    hear your opinion. Introduce yourself and help us
+                    Improve your TuneBox experience.
                   </p>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm nghệ sĩ..."
+                    placeholder="Search..."
                     className="search-bar"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật từ khóa tìm kiếm
                   />
                   <div className="row text-center">
-                  {filteredInspiredBy.map((ins) => (
+                    {filteredInspiredBy.map((ins) => (
                       <div className="col-4" key={ins.id}>
                         <button
-                          className={`inspired-by-button ${
-                            selectInspiredBy.includes(ins.id)
-                              ? "selected" // Thêm class 'selected' nếu đã chọn
-                              : ""
-                          }`}
+                          className={`inspired-by-button ${selectInspiredBy.includes(ins.id)
+                            ? "selected"
+                            : ""
+                            }`}
                           onClick={() => handleInspiredByClick(ins.id)} // Chọn/bỏ chọn inspiredBy
                         >
                           {ins.name}
@@ -117,8 +132,10 @@ const InspiredBy = () => {
                       </div>
                     ))}
                   </div>
-                  <button className="btn" onClick={handleNext}>
-                    Tiếp tục
+                  <button className="btn"
+                    style={{ backgroundColor: '#E94F37' }}
+                    onClick={handleNext}>
+                    Continue
                   </button>
                 </div>
               </div>
@@ -132,3 +149,4 @@ const InspiredBy = () => {
 };
 
 export default InspiredBy;
+

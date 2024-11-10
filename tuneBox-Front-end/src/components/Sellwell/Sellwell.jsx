@@ -16,8 +16,10 @@ const Sellwell = () => {
     function getInstrumentList() {
         listInstruments()
             .then((response) => {
-                setInstrumentList(response.data);
-                console.log(response.data)
+                // Lọc các sản phẩm có status là false
+                const filteredInstruments = response.data.filter(ins => !ins.status);
+                setInstrumentList(filteredInstruments);
+                console.log(filteredInstruments);
             })
             .catch((error) => {
                 console.error("Error fetching instruments", error);
@@ -27,7 +29,7 @@ const Sellwell = () => {
         if (quantity === 0) return 'Out of stock';
         if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
         return 'In stock';
-      };
+    };
 
     // Hàm để phân trang và lấy danh sách sản phẩm cho trang hiện tại
     const paginate = (pageNumber) => {
@@ -55,15 +57,15 @@ const Sellwell = () => {
 
                 <div className='row d-flex justify-content-start'>
                     {Array.isArray(instrumentList) && instrumentList.length > 0 ? (
-                        currentItems.map((ins, index) => { // Sử dụng currentItems thay vì instrumentList
+                        currentItems.map((ins) => {
                             return (
-                                <div className='col-3 mb-4'>
-                                    <div className='card' key={index}>
+                                <div key={ins.id} className='col-3 mb-4'>  {/* Add the key here */}
+                                    <div className='card'>
                                         <Link to={{
                                             pathname: `/DetailProduct/${ins.id}`,
                                             state: { ins }
                                         }}>
-                                            <div className='' style={{ width: '100%', height: '100%', border: 'none', cursor: 'pointer' }}>
+                                            <div style={{ width: '100%', height: '100%', border: 'none', cursor: 'pointer' }}>
                                                 <div className='card-img-wrapper ' style={{ height: '250px' }}>
                                                     <img
                                                         src={ins.image ? ins.image : 'default-image-path.jpg'}
@@ -84,7 +86,6 @@ const Sellwell = () => {
                                         </Link>
                                     </div>
                                 </div>
-
                             );
                         })
                     ) : (

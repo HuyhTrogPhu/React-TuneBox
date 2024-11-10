@@ -13,7 +13,7 @@ import MenuShop from '../../../components/MenuShop/MenuShop'
 const Home = () => {
   return (
     <div>
-     
+
       <div className='app-container'>
         <MenuShop/>
         <Carousel />

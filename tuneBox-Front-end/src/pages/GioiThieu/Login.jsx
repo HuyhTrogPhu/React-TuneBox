@@ -60,7 +60,7 @@ const Login = () => {
         setTimeout(() => {
           setLoading(false); // Dừng loading
           navigate('/'); // Chuyển hướng về trang chính
-        }, 3000);
+        }, 1000);
       } else {
         setLoading(false); // Dừng loading nếu userId không hợp lệ
         setError('User ID không hợp lệ.');
@@ -83,7 +83,7 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="colcol-10-lg-6  mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '100px', marginRight: '100px'}}>
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '500px', marginRight: '500px'}}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
@@ -113,7 +113,7 @@ const Login = () => {
                   )}
                   <div className="row">
                     <h6>Tên đăng nhập hoặc email</h6>
-                    <div className="col-12">
+                    <div className="col-lg-12" style={{ marginTop: -30 }}>
                       <input
                         type="text"
                         name="userNameOrEmail"
@@ -147,7 +147,7 @@ const Login = () => {
                     </span>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
-                    <Link to="/forgot-password2" className="text-primary">
+                    <Link to="/forgot-password" className="text-primary">
                       <b>Quên mật khẩu?</b>
                     </Link>
                   </div>

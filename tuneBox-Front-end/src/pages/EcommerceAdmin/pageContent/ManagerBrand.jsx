@@ -162,21 +162,20 @@ const MangerBrand = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="input-group-text" id="basic-addon2">
-            <i className="fa-solid fa-magnifying-glass" />
-          </button>
+
         </div>
 
         {/* Nút sắp xếp */}
-        <button className="btn btn-secondary" onClick={handleSort}>
+        <button className="btn text-white" style={{ backgroundColor: '#e94f37' }} onClick={handleSort}>
           Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
         </button>
 
         <button
           data-bs-toggle="modal"
           data-bs-target="#ViewsModal"
-          className="btn btn-primary"
-          style={{ marginLeft: 17 }}
+          className="btn text-white"
+          style={{ marginLeft: 17, backgroundColor: '#e94f37' }}
+          
         >
           Add Brand
         </button>
@@ -247,7 +246,7 @@ const MangerBrand = () => {
                 >
                   Close
                 </button>
-                <button type="button" className="btn btn-primary" onClick={handleSave}>
+                <button type="button" style={{ backgroundColor: '#e94f37' }} className="btn text-white" onClick={handleSave}>
                   {loading ? (
                     <span>
                       <i className="fa fa-spinner fa-spin" /> Saving...

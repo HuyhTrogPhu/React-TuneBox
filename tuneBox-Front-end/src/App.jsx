@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
@@ -49,7 +49,16 @@ import FollowersPage from "./pages/SocialMedia/FollowersPage";
 import FollowingPage from "./pages/SocialMedia/FollowingPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { getUserRole, isUserRole } from './service/auth';
+import Chat from "./pages/SocialMedia/chat/chat";
+import FeedTrack from "./pages/SocialMedia/FeedTrack";
+import FeedPost from "./pages/SocialMedia/FeedPost";
+import TrackAI from "./components/TrackAI/TrackAI";
+
 // Layout có Header
+
+//socialadmin
+import SocialMediaAdmin from "./pages/SocialMediaAdmin";
+import LoginS_ADMIN from "./pages/SocialMediaAdmin/pageContent/Login";
 
 function LayoutWithHeader() {
   return (
@@ -80,19 +89,21 @@ function App() {
           <Routes>
             {/* Các route có Header */}
             <Route element={<LayoutWithHeader />}>
-              <Route path="/" element={<HomeFeed />} />
+              <Route path="/*" element={<HomeFeed />} />
               <Route path="/HomeEcommerce" element={<Home />} />
+              {/* Route cho Main Content */}
               <Route path="/Shop" element={<Shop />} />
               <Route path="/profileUser/*" element={<ProfileUser />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/profileUser" element={<ProfileUser />} />
               <Route path="/profileSetting" element={<ProfileSetting />} />
               <Route path="/CartDetail" element={<CartDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/DetailProduct/:id" element={<DetailProduct />} />
               <Route path="/BrandPage" element={<BrandPage />} />
+              <Route path="/categoryPage" element={<CategoryPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
+              <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
+              <Route path="/chat" element={<Chat />} />
               <Route
                 path="/albums/album-Edit/:albumId"
                 element={<AlbumEdit />}
@@ -117,6 +128,11 @@ function App() {
               <Route path="/likePlaylist" element={<LikePlaylists />} />
               <Route path="/playlist/:id" element={<PlayListDetail />} />
               <Route path="/search" element={<SearchForm />} />
+              {/* Route cho Main Content */}
+              <Route path="/feed/track" element={<FeedTrack />} />
+              <Route path="/feed/post" element={<FeedPost />} />
+              {/* Route track ai */}
+              <Route path="/track-ai" element={<TrackAI />} />
             </Route>
 
             {/* Các route không có Header */}
@@ -137,6 +153,8 @@ function App() {
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
               {/* admin end */}
+              <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
+
             </Route>
           </Routes>
         </div>
