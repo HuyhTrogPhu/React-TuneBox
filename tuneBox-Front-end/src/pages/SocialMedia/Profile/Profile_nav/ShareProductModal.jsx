@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Toast } from 'react-bootstrap'; // Import Toast để hiển thị thông báo
-import Cookies from "js-cookie";
+import { Toast } from 'react-bootstrap';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
-const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
+const ShareProductModal = ({ productId, isOpen, onClose }) => {
   const [receivers, setReceivers] = useState([]);
   const [selectedReceiver, setSelectedReceiver] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState(''); // Quản lý thông báo toast
-  const [showToast, setShowToast] = useState(false); // Quản lý trạng thái hiển thị toast
   const userId = Cookies.get("userId");
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false); 
 
   useEffect(() => {
     if (isOpen && userId) {
@@ -39,21 +39,21 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
     }
 
     try {
-      const response = await axios.post(`http://localhost:8080/api/share/playlist`, null, {
-        params: { senderId: userId, receiverId: selectedReceiver, playlistId },
+      const response = await axios.post(`http://localhost:8080/api/share/product`, null, {
+        params: { senderId: userId, receiverId: selectedReceiver, productId },
       });
 
       if (response.status === 200) {
-        setToastMessage('Playlist shared successfully!');
-        setShowToast(true); // Hiển thị toast
-        setTimeout(() => onClose(), 1000); // Đóng modal sau khi toast hiển thị
+        setToastMessage('Product shared successfully!');
+        setShowToast(true);
+        setTimeout(() => onClose(), 1000); // Close modal after toast
       } else {
-        setToastMessage('Failed to share playlist');
+        setToastMessage('Failed to share product');
         setShowToast(true);
       }
     } catch (error) {
-      console.error('Error sharing playlist:', error);
-      setToastMessage('Error sharing playlist');
+      console.error('Error sharing product:', error);
+      setToastMessage('Error sharing product');
       setShowToast(true);
     }
   };
@@ -65,7 +65,7 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Share Playlist</h5>
+            <h5 className="modal-title">Share Product</h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
@@ -95,7 +95,9 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
             )}
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Cancel
+            </button>
             <button
               type="button"
               className="btn btn-primary"
@@ -110,7 +112,7 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
       <Toast
         show={showToast}
         onClose={() => setShowToast(false)}
-        delay={3000}
+        delay={3000} 
         autohide
         style={{ position: 'fixed', top: 20, right: 20 }}
       >
@@ -120,4 +122,4 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
   );
 };
 
-export default SharePlaylistModal;
+export default ShareProductModal;
