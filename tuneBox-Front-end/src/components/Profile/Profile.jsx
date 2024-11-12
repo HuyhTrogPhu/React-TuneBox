@@ -133,24 +133,26 @@ const Profile = () => {
         const filtered = listInspiredBy.filter(item => item.name.toLowerCase().includes(e.target.value.toLowerCase()));
         setFilteredInspiredBy(filtered);
     };
-
     // Xử lý chọn InspiredBy từ danh sách
     const handleAddInspiredBy = (inspiredById) => {
-        const selectedInspiredBy = listInspiredBy.find(item => item.id === inspiredById);
-        if (selectedInspiredBy && !inspiredBy.includes(selectedInspiredBy.name)) {
-            setInspiredBy([...inspiredBy, selectedInspiredBy.name]);
+        const selectedInspiredByItem = listInspiredBy.find(item => item.id === inspiredById);
+        if (selectedInspiredByItem && !selectedInspiredBy.includes(selectedInspiredByItem.name)) {
+            setSelectedInspiredBy([...selectedInspiredBy, selectedInspiredByItem.name]);
+            console.log("Selected artist:", selectedInspiredByItem.name); // Kiểm tra xem nghệ sĩ đã được chọn chưa
         }
     };
 
     // Mở modal
     const openModal = () => {
+        setFilteredInspiredBy(listInspiredBy); // Hiển thị tất cả khi mở modal
         setShowModal(true);
     };
-
     // Đóng modal
     const closeModal = () => {
+        setUserInspiredBy(selectedInspiredBy);  // Cập nhật userInspiredBy với các lựa chọn trong selectedInspiredBy
         setShowModal(false);
     };
+    
     // Cập Nhật Thông Tin Người Dùng
     const handleUpdateUserInfo = async () => {  
         const userIdCookie = Cookies.get('userId');
@@ -302,87 +304,63 @@ const Profile = () => {
                 {/* Inspired By Section */}
                 <div className="inspired-by-section">
                     <h7><b>Inspired by</b></h7>
-                    <div className="inspired-by-list mt-3">
-                        {userInspiredBy.length > 0 ? (
-                            userInspiredBy.map((inspired, index) => (
-                                <div key={index} className="chip">
-                                    <span>{inspired}</span>
-                                    <i className="fa fa-times" aria-hidden="true"></i>
-                                </div>
-                            ))
-                        ) : (
-                            <p>No artists added yet.</p>
-                        )}
-                    </div>
+                    <div className="inspired-by-list">
+    {selectedInspiredBy.length > 0 ? (
+        selectedInspiredBy.map((inspired, index) => (
+            <div key={index} className="chip">
+                <span>{inspired}</span>
+                <i className="fa fa-times" aria-hidden="true" onClick={() => setSelectedInspiredBy(selectedInspiredBy.filter(item => item !== inspired))}></i>
+            </div>
+        ))
+    ) : (
+        <p>No artists added yet.</p>
+    )}
+</div>
+
                     <button className="add-inspired-by" onClick={openModal}>
                         <i className="fa fa-plus" aria-hidden="true"></i> Add Artist
                     </button>
                 </div>
+{/* Modal Inspired By */}
+{showModal && (
+    <div className="custom-modal-overlay">
+        <div className="custom-modal">
+            <div className="custom-modal-content">
+                <div className="custom-modal-header">
+                    <h5 className="custom-modal-title">Add Artists</h5>
+                    <button className="custom-close-button" onClick={closeModal}>&times;</button>
+                </div>
+                <div className="custom-modal-body">
+                    <input
+                        type="text"
+                        placeholder="Search Artists..."
+                        value={searchInspiredBy}
+                        onChange={handleSearch}
+                        className="form-control"
+                    />
 
-                {/* Modal Inspired By */}
-                {showModal && (
-                    <div className="modal fade d-block" role="dialog">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title">Add Artists</h5>
-                                    <button className="close btn-close" onClick={closeModal} data-bs-dismiss="modal" aria-label="Close" style={{ width: '10px', height: '10px' }}>
-                                    </button>
-                                </div>
-                                <div className="modal-body">
-                                    <input
-                                        type="text"
-                                        placeholder="Search Artists..."
-                                        value={searchInspiredBy}
-                                        onChange={handleSearch}
-                                        className="form-control"
-                                    />
-
-                                    {/* Chỉ hiển thị danh sách select nếu có từ khóa */}
-                                    {searchInspiredBy && filteredInspiredBy.length > 0 && (
-                                        <div className="artist-list mt-3">
-                                            <select
-                                                name="artist"
-                                                id="artist"
-                                                size="5"  // Hiển thị 5 dòng cùng lúc
-                                                className="form-control"
-                                                onChange={(e) => handleAddInspiredBy(e.target.value)}  // Bắt sự kiện khi chọn nghệ sĩ
-                                            >
-                                                {filteredInspiredBy.map((artist) => (
-                                                    <option key={artist.id} value={artist.id}>
-                                                        {artist.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    )}
-                                </div>
-                                {/* inspiredBy user */}
-                                <div className="mt-5">
-                                    <div className="inspired-by-list">
-                                        {userInspiredBy.length > 0 ? (
-                                            userInspiredBy.map((inspired, index) => (
-                                                <div key={index} className="chip">
-                                                    <span>{inspired}</span>
-                                                    <i className="fa fa-times" aria-hidden="true"></i>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p>No artists added yet.</p>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="modal-footer" onClick={closeModal}>
-                                    <button className="btn-update">
-                                        Done
-                                    </button>
-                                </div>
+                    {/* Hiển thị danh sách nghệ sĩ dưới dạng các mục có thể nhấn */}
+                    <div className="artist-list mt-3">
+                        {filteredInspiredBy.map((artist) => (
+                            <div
+                                key={artist.id}
+                                className="artist-item"
+                                onClick={() => handleAddInspiredBy(artist.id)}
+                                style={{ cursor: 'pointer', padding: '5px 0', borderBottom: '1px solid #ddd' }}
+                            >
+                                {artist.name}
                             </div>
-                        </div>
+                        ))}
                     </div>
-                )}
-
-                {/* Talents Section */}
+                </div>
+                <div className="custom-modal-footer">
+                    <button className="custom-modal-button" onClick={closeModal}>Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+)}
+         {/* Talents Section */}
                 <div className="talents-section">
                     <h7><b>Talents</b></h7>
                     <div className="talent-list mt-3">
