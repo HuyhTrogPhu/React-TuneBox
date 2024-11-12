@@ -8,7 +8,7 @@ export const LoadUserDetail = async (id) => {
       { withCredentials: true }
     );
     const data = response.data;
-    console.log("userDetail:", data);
+    console.log("API back detail user:", data);
     return data;
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -42,6 +42,20 @@ export const LoadUserAlbums = async (id) => {
   }
 };
 
+//load User PlayList
+export const LoadUserPlayList = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getUserPlayList/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
 //load user
 export const LoadUser = async (id) => {
   try {
@@ -57,20 +71,7 @@ export const LoadUser = async (id) => {
   }
 };
 
-//get all post API
-export const LoadAllPost = async () => {
-  try {
-    const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getAllpost`,
-      { withCredentials: true }
-    );
-    const data = response.data;
-    console.log("AllPost:", data);
-    return data;
-  } catch (error) {
-    console.error("Error fetching user posts:", error);
-  }
-};
+
 //load all user
 export const LoadAllUser = async () => {
   try {

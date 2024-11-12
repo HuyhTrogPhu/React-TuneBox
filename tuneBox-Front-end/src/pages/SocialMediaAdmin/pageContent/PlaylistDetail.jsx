@@ -30,7 +30,7 @@ const PlaylistDetail = () => {
   console.log(PlayList);
   const filteredUsers = PlayList.tracks
     ? PlayList.tracks.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.title.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
@@ -55,7 +55,7 @@ const PlaylistDetail = () => {
                 style={{ zIndex: 1 }}
               >
                 <img
-                  src={PlayList.imagePlaylist}
+                  src={PlayList.image}
                   alt="playlist Image"
                   className="img-thumbnail border border-3 border-white"
                   style={{ width: 200, height: 200, objectFit: "cover" }}
@@ -64,19 +64,7 @@ const PlaylistDetail = () => {
               {/* Card Body */}
               <div className="card-body pt-5 mt-5 text-center">
                 <h5>{PlayList.title}</h5>
-                <div className="d-flex align-items-center justify-content-center mt-3">
-                  {/* Image user*/}
-                  <img
-                    src={images.avt}
-                    alt="User Image"
-                    className="rounded-circle border border-3 border-white"
-                    style={{ width: 50, height: 50, objectFit: "cover" }}
-                  />
-                  {/* Username */}
-                  <a href="#" className="ms-3">
-                    User Name
-                  </a>
-                </div>
+
                 <a href="#" className="btn btn-danger mt-3">
                   Ban/Unban
                 </a>
@@ -85,7 +73,7 @@ const PlaylistDetail = () => {
           </div>
           {/* Tracks of playlist */}
           <div className="col-lg-8 col-md-8" style={{ marginTop: 100 }}>
-          <div className="card mb-4">
+            <div className="card mb-4">
               <div className="card-header bg-dark text-white">
                 <h5>All Tracks</h5>
               </div>
@@ -112,8 +100,7 @@ const PlaylistDetail = () => {
                         <th>Name</th>
                         <th>Create Date</th>
                         <th>Total Likes</th>
-                        <th>Total Comments</th>
-                        <th>Description</th>
+                        <th>userNickname</th>
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -124,11 +111,10 @@ const PlaylistDetail = () => {
                         PlayList.tracks && PlayList.tracks.length > 0 ? (
                           currentUsers.map((user) => (
                             <tr key={user.id}>
-                              <td>{user.name}</td>
+                              <td>{user.title}</td>
                               <td>{user.createDate}</td>
-                              <td>{user.likes.length}</td>
-                              <td>{user.comments.length}</td>
-                              <td>{user.description}</td>
+                              <td>{user.likeCount}</td> 
+                              <td>{user.userNickname}</td>
                               <td>
                                 <button
                                   className="btn btn-danger"
@@ -176,8 +162,7 @@ const PlaylistDetail = () => {
             </div>
           </div>
           {/* Playlist if user */}
-          <div className="col-lg-12 col-md-12" style={{ marginTop: 100 }}>
-          </div>
+          <div className="col-lg-12 col-md-12" style={{ marginTop: 100 }}></div>
         </div>
       </div>
     </div>

@@ -36,7 +36,7 @@ import LikePost from "./pages/SocialMedia/Profile/Profile_nav/LikePost";
 import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
 import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
 import PlayListDetail from "./pages/SocialMedia/Profile/Profile_nav/PlaylistDetail";
-
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
 
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
@@ -134,20 +134,17 @@ function App() {
               <Route path="/genre" element={<Genre />} />
               <Route path="/welcome" element={<WelcomeUser />} />
               {/* admin start */}
-<<<<<<< HEAD
-              <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
+             
               <Route
               path="/socialadmin/*"
               element={<SocialMediaAdmin />}
             />
             <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
 
-=======
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
               <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
->>>>>>> Quoc-Trung
               {/* admin end */}
             </Route>
           </Routes>

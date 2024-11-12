@@ -123,7 +123,7 @@ const Playlists = () => {
                   </tr>
                   </thead>
                   <tbody>
-                  {NewUser.map((user) => (
+                  {currentUsers.map((user) => (
                     <tr key={user.id}>
                       <td>{user.title}</td>
                       <td>{user.type}</td>

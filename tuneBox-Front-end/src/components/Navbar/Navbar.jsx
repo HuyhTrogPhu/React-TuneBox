@@ -15,15 +15,10 @@ import {
   SwipeableListItem,
   SwipeAction,
 } from "react-swipeable-list";
+import { useNavigate } from "react-router-dom";
 import "react-swipeable-list/dist/styles.css";
 import axios from "axios";
 
-<<<<<<< HEAD
-
-import { Link, useNavigate } from "react-router-dom";
-
-=======
->>>>>>> Quoc-Trung
 const Navbar = () => {
   const [newTrackName, setTrackName] = useState("");
   const [newTrackImage, setTrackImage] = useState(null);

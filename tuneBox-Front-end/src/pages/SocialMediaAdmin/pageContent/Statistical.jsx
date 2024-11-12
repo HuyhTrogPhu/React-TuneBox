@@ -43,6 +43,7 @@ function Statistical() {
   const [tableData, setTableData] = useState({ headers: [], rows: [] });
   const [timeType, setTimeType] = useState("day");
   const [activeHandler, setActiveHandler] = useState(null);
+  const [logger, setLogger] = useState("");
   const handleTimeTypeChange = (e) => {
     setTimeType(e.target.value);
     setDateLabels([]);
@@ -126,105 +127,115 @@ function Statistical() {
   });
 
   // bắt đầu gọi API, ép data
-  useEffect(() => { 
-    const fetchData = async (startDate,endDate) => {
+  useEffect(() => {
+    const fetchData = async (startDate, endDate) => {
       try {
         let headers = [];
         let rows = [];
-switch (activeHandler) {
-  case "newUser":
-    headers = ["ID", "User Name", "Registration Date", "Action"];
-          const dataTrack = await LoadUserForTable(startDate, endDate);
-          rows = dataTrack.map((user, index) => (
-            <tr key={index}>
-              <td>{user.id}</td>
-              <td>{user.userName}</td>
-              <td>{user.createDate}</td>
-              <td>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => navigate(`/socialadmin/detailUser/${user.id}`)}
-                >
-                  View
-                </button>
-              </td>
-            </tr>
-          ));
-    break;
-    case"newTrack":
-    headers = ["ID", "Track Name", "createDate", "Action"];
-    const data = await LoadTrackForTable(startDate, endDate);
-    rows = data.map((user, index) => (
-      <tr key={index}>
-        <td>{user.id}</td>
-        <td>{user.name}</td>
-        <td>{user.createDate}</td>
-        <td>
-          <button
-            className="btn btn-danger"
-            onClick={() => navigate(`/socialadmin/TrackDetail/${user.id}`)}
-          >
-            View
-          </button>
-        </td>
-      </tr>
-    ));
-    break;
+        switch (activeHandler) {
+          case "newUser":
+            headers = ["ID", "User Name", "Registration Date", "Action"];
+            const dataTrack = await LoadUserForTable(startDate, endDate);
+            setLogger(dataTrack);
+            rows = dataTrack.map((user, index) => (
+              <tr key={index}>
+                <td>{user.id}</td>
+                <td>{user.userName}</td>
+                <td>{user.createDate}</td>
+                <td>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() =>
+                      navigate(`/socialadmin/detailUser/${user.id}`)
+                    }
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            ));
+            break;
+          case "newTrack":
+            headers = ["ID", "Track Name", "createDate", "Action"];
+            const data = await LoadTrackForTable(startDate, endDate);
+            setLogger(data);
+            rows = data.map((user, index) => (
+            
+              <tr key={index}>
+                <td>{user.id}</td>
+                <td>{user.name}</td>
+                <td>{user.createDate}</td>
+                <td>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() =>
+                      navigate(`/socialadmin/TrackDetail/${user.id}`)
+                    }
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            ));
+            break;
 
-    case"newAlbum":
-    headers = ["ID", "Album Name", "createDate", "Action"];
-    const dataAlbum = await LoadAlbumForTable(startDate, endDate);
-    rows = dataAlbum.map((user, index) => (
-      <tr key={index}>
-        <td>{user.id}</td>
-        <td>{user.name}</td>
-        <td>{user.createDate}</td>
-        <td>
-          <button
-            className="btn btn-danger"
-            onClick={() => navigate(`/socialadmin/AlbumDetail/${user.id}`)}
-          >
-            View
-          </button>
-        </td>
-      </tr>
-    ));
-    break;
+          case "newAlbum":
+            headers = ["ID", "Album Name", "createDate", "Action"];
+            const dataAlbum = await LoadAlbumForTable(startDate, endDate);
+            setLogger(dataAlbum);
+            rows = dataAlbum.map((user, index) => (
+              <tr key={index}>
+                <td>{user.id}</td>
+                <td>{user.title}</td>
+                <td>{user.createDate}</td>
+                <td>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() =>
+                      navigate(`/socialadmin/AlbumDetail/${user.id}`)
+                    }
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            ));
+            break;
 
-    case"newPlayList":
-    headers = ["ID", "Album Name", "createDate", "Action"];
-    const dataPlayList = await LoadPlayListFortable(startDate, endDate);
-    rows = dataPlayList.map((user, index) => (
-      <tr key={index}>
-        <td>{user.id}</td>
-        <td>{user.name}</td>
-        <td>{user.createDate}</td>
-        <td>
-          <button
-            className="btn btn-danger"
-            onClick={() => navigate(`/socialadmin/PlaylistDetail/${user.id}`)}
-          >
-            View
-          </button>
-        </td>
-      </tr>
-    ));
+          case "newPlayList":
+            headers = ["ID", "PlayList Name", "createDate", "Action"];
+            const dataPlayList = await LoadPlayListFortable(startDate, endDate);
+            setLogger(dataPlayList);
+            rows = dataPlayList.map((user, index) => (
+              <tr key={index}>
+                <td>{user.id}</td>
+                <td>{user.title}</td>
+                <td>{user.createDate}</td>
+                <td>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() =>
+                      navigate(`/socialadmin/PlaylistDetail/${user.id}`)
+                    }
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            ));
 
-    break;
+            break;
+        } //close switch
+        setTableData({ headers, rows });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-
-          }//close switch
-          setTableData({ headers, rows });
-        } catch (error) {
-      console.error("Error fetching data:", error);
+    if (activeHandler) {
+      fetchData(startDate, endDate);
     }
-}
-    
-if (activeHandler) {
-  fetchData(startDate, endDate);
-}
   }, [activeHandler, navigate]);
-
 
   //newuser
   const handleNewUser = async (event) => {
@@ -329,51 +340,6 @@ if (activeHandler) {
         break;
     }
   };
-  const handleMostTrackUploader = async (event) => {
-    event.preventDefault();
-    try {
-      setForm("Most Track uploader");
-      setChartType("bar");
-
-      let response;
-      switch (timeType) {
-        case "day":
-          if (new Date(startDate) > new Date(endDate)) {
-            alert("Ngày bắt đầu không thể sau ngày kết thúc.");
-            return;
-          }
-          console.log("Fetching data for day:", startDate, endDate);
-          response = await LoadMostUploader(startDate, endDate);
-          break;
-
-        case "week":
-          console.log("Fetching data for week:", startWeek, endWeek);
-          response = await LoadMostUploader(startWeek, endWeek);
-          break;
-
-        case "month":
-          console.log("Fetching data for month:", startMonth, endMonth);
-          response = await LoadMostUploader(startMonth, endMonth);
-          break;
-
-        default:
-          console.error("Invalid time type:", timeType);
-          return;
-      }
-
-      const userData = response;
-      const userLabels = userData.map((item) => item.userId);
-      const trackCounts = userData.map((item) => item.trackCount);
-      // Cập nhật state
-      setGenreLabels(userLabels); // Thiết lập nhãn cho biểu đồ là `userId`
-      setTrackCounts(trackCounts); // Thiết lập dữ liệu cho biểu đồ là `trackCount`
-      console.log("User Labels:", userLabels);
-      console.log("Track Counts:", trackCounts);
-    } catch (error) {
-      console.error("Lỗi khi tải dữ liệu:", error);
-      setError("Đã có lỗi xảy ra khi tải dữ liệu.");
-    }
-  };
 
   //newTrack
   const handleNewTrack = async () => {
@@ -392,7 +358,7 @@ if (activeHandler) {
           const dates = getDatesInRange(startDate, endDate, "day");
           console.log("Date Labels:", dates);
           setDateLabels(dates);
- 
+
           if (dates.length === 1 || onDate) {
             setChartType("bar");
             setEndDate(onDate);
@@ -475,203 +441,251 @@ if (activeHandler) {
         break;
     }
   };
-  // //newAlbum
-  const handleNewAlbum = async () => {
-    event.preventDefault();
-    setActiveHandler("newAlbum");
-    console.log(activeHandler);
-    switch (timeType) {
-      case "day":
-        if (new Date(startDate) > new Date(endDate)) {
-          alert("Ngày bắt đầu không thể sau ngày kết thúc.");
-          return;
-        }
-        try {
-          setForm("New Track Regesting");
-          const dates = getDatesInRange(startDate, endDate, "day");
-          console.log("Date Labels:", dates);
-          setDateLabels(dates);
-        
-          if (dates.length === 1 || onDate) {
-            setChartType("bar");
-            setEndDate(onDate);
-            const response = await LoadAlbumCountBetweenDates(
-              startDate,
-              endDate
-            );
-            const genreData = response.data;
-            const newGenreLabels = Object.keys(genreData);
-            const newTrackCounts = Object.values(genreData);
-            setGenreLabels(newGenreLabels);
-            setTrackCounts(newTrackCounts);
-            dateLabels.forEach((date) => {
-              registrationCounts.push(dateData[date] || 0);
-            });
-            console.log(registrationCounts);
-            setRegistrationData(registrationCounts);
-          } else {
-            setChartType("line");
-            const response = await LoadAlbumCountBetweenDates(
-              startDate,
-              endDate
-            );
-            const registrationCounts = [];
-            const dateData = response.data;
-            dateLabels.forEach((date) => {
-              registrationCounts.push(dateData[date] || 0);
-            });
-            console.log(registrationCounts);
-            setRegistrationData(registrationCounts);
+
+    // //newAlbum
+    const handleNewAlbum = async () => {
+      event.preventDefault();
+      setActiveHandler("newAlbum");
+      console.log(activeHandler);
+      switch (timeType) {
+        case "day":
+          if (new Date(startDate) > new Date(endDate)) {
+            alert("Ngày bắt đầu không thể sau ngày kết thúc.");
+            return;
           }
-        } catch (error) {
-          console.error("Lỗi khi tải dữ liệu:", error);
-          setError("Đã có lỗi xảy ra khi tải dữ liệu.");
-        }
-        break;
+          try {
+            setForm("New Track Regesting");
+            const dates = getDatesInRange(startDate, endDate, "day");
+            console.log("Date Labels:", dates);
+            setDateLabels(dates);
+  
+            if (dates.length === 1 || onDate) {
+              setChartType("bar");
+              setEndDate(onDate);
+              const response = await LoadAlbumCountBetweenDates(
+                startDate,
+                endDate
+              );
+              const genreData = response.data;
+              const newGenreLabels = Object.keys(genreData);
+              const newTrackCounts = Object.values(genreData);
+              setGenreLabels(newGenreLabels);
+              setTrackCounts(newTrackCounts);
+              dateLabels.forEach((date) => {
+                registrationCounts.push(dateData[date] || 0);
+              });
+              console.log(registrationCounts);
+              setRegistrationData(registrationCounts);
+            } else {
+              setChartType("line");
+              const response = await LoadAlbumCountBetweenDates(
+                startDate,
+                endDate
+              );
+              const registrationCounts = [];
+              const dateData = response.data;
+              dateLabels.forEach((date) => {
+                registrationCounts.push(dateData[date] || 0);
+              });
+              console.log(registrationCounts);
+              setRegistrationData(registrationCounts);
+            }
+          } catch (error) {
+            console.error("Lỗi khi tải dữ liệu:", error);
+            setError("Đã có lỗi xảy ra khi tải dữ liệu.");
+          }
+          break;
+  
+        //case week
+        case "week":
+          try {
+            setForm("New Track Registering by Week");
+            const response = await LoadAlbumCountBetweenWeek(
+              startWeek,
+              endWeek,
+              "week"
+            );
+            const dateData = response.data;
+            const weekLabels = Object.keys(dateData);
+            const registrationCounts = Object.values(dateData);
+  
+            setDateLabels(weekLabels);
+            setRegistrationData(registrationCounts);
+            setChartType("line");
+            console.log("Weekly Registration Counts:", registrationCounts);
+          } catch (error) {
+            console.error("Lỗi khi tải dữ liệu tuần:", error);
+            setError("Đã có lỗi xảy ra khi tải dữ liệu tuần.");
+          }
+          break;
+        //casemonth
+        case "month":
+          try {
+            setForm("New Track Registering by Month");
+            const response = await LoadAlbumCountBetweenMonth(
+              startMonth,
+              endMonth
+            );
+            const dateData = response.data;
+            const monthLabels = Object.keys(dateData);
+            const registrationCounts = Object.values(dateData);
+  
+            setDateLabels(monthLabels);
+            setRegistrationData(registrationCounts);
+            setChartType("line");
+            console.log("Monthly Registration Counts:", registrationCounts);
+          } catch (error) {
+            console.error("Lỗi khi tải dữ liệu tháng:", error);
+            setError("Đã có lỗi xảy ra khi tải dữ liệu tháng.");
+          }
+          break;
+      }
+    };
+    // //newPlaylist
+    const handleNewPlayList = async () => {
+      event.preventDefault();
+      setActiveHandler("newPlayList");
+      console.log(activeHandler);
+      switch (timeType) {
+        case "day":
+          if (new Date(startDate) > new Date(endDate)) {
+            alert("Ngày bắt đầu không thể sau ngày kết thúc.");
+            return;
+          }
+          try {
+            setForm("New Track Regesting");
+            const dates = getDatesInRange(startDate, endDate, "day");
+            console.log("Date Labels:", dates);
+            setDateLabels(dates);
+  
+            if (dates.length === 1 || onDate) {
+              setChartType("bar");
+              setEndDate(onDate);
+              const response = await LoadPlayListCountBetweenDates(
+                startDate,
+                endDate
+              );
+              const genreData = response.data;
+              const newGenreLabels = Object.keys(genreData);
+              const newTrackCounts = Object.values(genreData);
+              setGenreLabels(newGenreLabels);
+              setTrackCounts(newTrackCounts);
+              dateLabels.forEach((date) => {
+                registrationCounts.push(dateData[date] || 0);
+              });
+              console.log(registrationCounts);
+              setRegistrationData(registrationCounts);
+            } else {
+              setChartType("line");
+              const response = await LoadPlayListCountBetweenDates(
+                startDate,
+                endDate
+              );
+              const registrationCounts = [];
+              const dateData = response.data;
+              dateLabels.forEach((date) => {
+                registrationCounts.push(dateData[date] || 0);
+              });
+              console.log(registrationCounts);
+              setRegistrationData(registrationCounts);
+            }
+          } catch (error) {
+            console.error("Lỗi khi tải dữ liệu:", error);
+            setError("Đã có lỗi xảy ra khi tải dữ liệu.");
+          }
+          break;
+  
+        //case week
+        case "week":
+          try {
+            setForm("New Track Registering by Week");
+            const response = await LoadPlayListountBetweenWeek(
+              startWeek,
+              endWeek
+            );
+            const dateData = response.data;
+            const weekLabels = Object.keys(dateData);
+            const registrationCounts = Object.values(dateData);
+  
+            setDateLabels(weekLabels);
+            setRegistrationData(registrationCounts);
+            setChartType("line");
+            console.log("Weekly Registration Counts:", registrationCounts);
+          } catch (error) {
+            console.error("Lỗi khi tải dữ liệu tuần:", error);
+            setError("Đã có lỗi xảy ra khi tải dữ liệu tuần.");
+          }
+          break;
+        //casemonth
+        case "month":
+          try {
+            setForm("New Track Registering by Month");
+            const response = await LoadPlayListCountBetweenMonth(
+              startMonth,
+              endMonth
+            );
+            const dateData = response.data;
+            const monthLabels = Object.keys(dateData);
+            const registrationCounts = Object.values(dateData);
+  
+            setDateLabels(monthLabels);
+            setRegistrationData(registrationCounts);
+            setChartType("line");
+            console.log("Monthly Registration Counts:", registrationCounts);
+          } catch (error) {
+            console.error("Lỗi khi tải dữ liệu tháng:", error);
+            setError("Đã có lỗi xảy ra khi tải dữ liệu tháng.");
+          }
+          break;
+      }
+    };
 
-      //case week
-      case "week":
-        try {
-          setForm("New Track Registering by Week");
-          const response = await LoadAlbumCountBetweenWeek(
-            startWeek,
-            endWeek,
-            "week"
-          );
-          const dateData = response.data;
-          const weekLabels = Object.keys(dateData);
-          const registrationCounts = Object.values(dateData);
+  const handleMostTrackUploader = async (event) => {
+    event.preventDefault();
+    try {
+      setForm("Most Track uploader");
+      setChartType("bar");
 
-          setDateLabels(weekLabels);
-          setRegistrationData(registrationCounts);
-          setChartType("line");
-          console.log("Weekly Registration Counts:", registrationCounts);
-        } catch (error) {
-          console.error("Lỗi khi tải dữ liệu tuần:", error);
-          setError("Đã có lỗi xảy ra khi tải dữ liệu tuần.");
-        }
-        break;
-      //casemonth
-      case "month":
-        try {
-          setForm("New Track Registering by Month");
-          const response = await LoadAlbumCountBetweenMonth(
-            startMonth,
-            endMonth
-          );
-          const dateData = response.data;
-          const monthLabels = Object.keys(dateData);
-          const registrationCounts = Object.values(dateData);
+      let response;
+      switch (timeType) {
+        case "day":
+          if (new Date(startDate) > new Date(endDate)) {
+            alert("Ngày bắt đầu không thể sau ngày kết thúc.");
+            return;
+          }
+          console.log("Fetching data for day:", startDate, endDate);
+          response = await LoadMostUploader(startDate, endDate);
+          break;
 
-          setDateLabels(monthLabels);
-          setRegistrationData(registrationCounts);
-          setChartType("line");
-          console.log("Monthly Registration Counts:", registrationCounts);
-        } catch (error) {
-          console.error("Lỗi khi tải dữ liệu tháng:", error);
-          setError("Đã có lỗi xảy ra khi tải dữ liệu tháng.");
-        }
-        break;
+        case "week":
+          console.log("Fetching data for week:", startWeek, endWeek);
+          response = await LoadMostUploader(startWeek, endWeek);
+          break;
+
+        case "month":
+          console.log("Fetching data for month:", startMonth, endMonth);
+          response = await LoadMostUploader(startMonth, endMonth);
+          break;
+
+        default:
+          console.error("Invalid time type:", timeType);
+          return;
+      }
+
+      const userData = response;
+      const userLabels = userData.map((item) => item.userId);
+      const trackCounts = userData.map((item) => item.trackCount);
+      // Cập nhật state
+      setGenreLabels(userLabels); // Thiết lập nhãn cho biểu đồ là `userId`
+      setTrackCounts(trackCounts); // Thiết lập dữ liệu cho biểu đồ là `trackCount`
+      console.log("User Labels:", userLabels);
+      console.log("Track Counts:", trackCounts);
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu:", error);
+      setError("Đã có lỗi xảy ra khi tải dữ liệu.");
     }
   };
-  // //newPlaylist
-  const handleNewPlayList = async () => {
-    event.preventDefault();
-    setActiveHandler("newPlayList");
-    console.log(activeHandler);
-    switch (timeType) {
-      case "day":
-        if (new Date(startDate) > new Date(endDate)) {
-          alert("Ngày bắt đầu không thể sau ngày kết thúc.");
-          return;
-        }
-        try {
-          setForm("New Track Regesting");
-          const dates = getDatesInRange(startDate, endDate, "day");
-          console.log("Date Labels:", dates);
-          setDateLabels(dates);
-         
-          if (dates.length === 1 || onDate) {
-            setChartType("bar");
-            setEndDate(onDate);
-            const response = await LoadPlayListCountBetweenDates(
-              startDate,
-              endDate
-            );
-            const genreData = response.data;
-            const newGenreLabels = Object.keys(genreData);
-            const newTrackCounts = Object.values(genreData);
-            setGenreLabels(newGenreLabels);
-            setTrackCounts(newTrackCounts);
-            dateLabels.forEach((date) => {
-              registrationCounts.push(dateData[date] || 0);
-            });
-            console.log(registrationCounts);
-            setRegistrationData(registrationCounts);
-          } else {
-            setChartType("line");
-            const response = await LoadPlayListCountBetweenDates(
-              startDate,
-              endDate
-            );
-            const registrationCounts = [];
-            const dateData = response.data;
-            dateLabels.forEach((date) => {
-              registrationCounts.push(dateData[date] || 0);
-            });
-            console.log(registrationCounts);
-            setRegistrationData(registrationCounts);
-          }
-        } catch (error) {
-          console.error("Lỗi khi tải dữ liệu:", error);
-          setError("Đã có lỗi xảy ra khi tải dữ liệu.");
-        }
-        break;
 
-      //case week
-      case "week":
-        try {
-          setForm("New Track Registering by Week");
-          const response = await LoadPlayListountBetweenWeek(
-            startWeek,
-            endWeek
-          );
-          const dateData = response.data;
-          const weekLabels = Object.keys(dateData);
-          const registrationCounts = Object.values(dateData);
-
-          setDateLabels(weekLabels);
-          setRegistrationData(registrationCounts);
-          setChartType("line");
-          console.log("Weekly Registration Counts:", registrationCounts);
-        } catch (error) {
-          console.error("Lỗi khi tải dữ liệu tuần:", error);
-          setError("Đã có lỗi xảy ra khi tải dữ liệu tuần.");
-        }
-        break;
-      //casemonth
-      case "month":
-        try {
-          setForm("New Track Registering by Month");
-          const response = await LoadPlayListCountBetweenMonth(
-            startMonth,
-            endMonth
-          );
-          const dateData = response.data;
-          const monthLabels = Object.keys(dateData);
-          const registrationCounts = Object.values(dateData);
-
-          setDateLabels(monthLabels);
-          setRegistrationData(registrationCounts);
-          setChartType("line");
-          console.log("Monthly Registration Counts:", registrationCounts);
-        } catch (error) {
-          console.error("Lỗi khi tải dữ liệu tháng:", error);
-          setError("Đã có lỗi xảy ra khi tải dữ liệu tháng.");
-        }
-        break;
-    }
-  };
   //newTrackbyGenre
   const handleTrackGenre = async () => {
     try {
@@ -896,7 +910,8 @@ if (activeHandler) {
           data={createChartData(genreLabels, trackCounts, form)}
         />
       )}
-      <table className="table">
+      {console.log(logger)}
+      <table className=" table">
         <thead>
           <tr>
             {tableData.headers.map((header, index) => (
