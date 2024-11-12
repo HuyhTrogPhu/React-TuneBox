@@ -4,12 +4,13 @@ import "./DetailProduct.css";
 import { images } from "../../../assets/images/images";
 import Footer2 from "../../../components/Footer/Footer2";
 import Benefits from "../../../components/Benefits/Benefits";
-import { getInstrumentById } from '../../../service/EcommerceHome';
+import { getInstrumentById } from "../../../service/EcommerceHome";
 import { Link } from "react-router-dom";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { addToLocalCart, getLocalCart } from "../../../service/CartService";
 import Swal from "sweetalert2";
-import { Audio } from 'react-loader-spinner'
+import { Audio } from "react-loader-spinner";
+
 const DetailProduct = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -19,23 +20,30 @@ const DetailProduct = () => {
 
   const [relatedInstrument, setRelatedInstrumet] = useState([]); // state related instrument by category id and brand id
 
-  const [quantity, setQuantity] = useState(1); // state lưa số lượng sản phẩm 
+  const [quantity, setQuantity] = useState(1); // state lưa số lượng sản phẩm
 
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState("");
   const navigate = useNavigate();
 
   const [cartItems, setCartItems] = useState({});
 
+  // share sanpham sang feed
+  const handleShareToFeed = () => {
+    navigate("/", {
+      state: { sharedData: instrument, activeComponent: "post" },
+    });
+    console.log("sharedData: ", instrument);
+  };
+
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   useEffect(() => {
     // Lấy userId từ cookie khi component mount
-    const storedUserId = Cookies.get('userId');
+    const storedUserId = Cookies.get("userId");
     console.log("userId:", storedUserId);
     if (storedUserId) {
       setUserId(storedUserId);
     }
   }, []);
-
 
   useEffect(() => {
     const fetchInstrument = async () => {
@@ -58,15 +66,13 @@ const DetailProduct = () => {
     }
   }, [id, location.state]);
 
-
-
-
   // Hiển thị loading hoặc lỗi nếu có
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p>{error}</p>;
 
   // Nếu không có sản phẩm, hiển thị thông báo 404
-  if (!instrument) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+  if (!instrument)
+    return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
 
   const handleDecrement = () => {
     if (quantity > 1) {
@@ -75,18 +81,19 @@ const DetailProduct = () => {
   };
 
   const handleIncrement = () => {
-    if (quantity < instrument.quantity) { // Kiểm tra xem số lượng có vượt quá số lượng hiện có không
+    if (quantity < instrument.quantity) {
+      // Kiểm tra xem số lượng có vượt quá số lượng hiện có không
       setQuantity(quantity + 1);
     } else {
       Swal.fire({
-        title: 'Error!',
+        title: "Error!",
         text: `You cannot increase the quantity beyond available stock (${instrument.quantity}).`,
-        icon: 'error',
-        confirmButtonText: 'OK',
+        icon: "error",
+        confirmButtonText: "OK",
         customClass: {
-          confirmButton: 'btn btn-primary',
+          confirmButton: "btn btn-primary",
         },
-        buttonsStyling: false
+        buttonsStyling: false,
       });
     }
   };
@@ -94,24 +101,24 @@ const DetailProduct = () => {
   // Cập nhật giá trị trong ô input
   const handleInputChange = (e) => {
     const value = Number(e.target.value);
-    if (value >= 1 && value <= instrument.quantity) { // Kiểm tra giới hạn
+    if (value >= 1 && value <= instrument.quantity) {
+      // Kiểm tra giới hạn
       setQuantity(value);
     } else if (value > instrument.quantity) {
       Swal.fire({
-        title: 'Error!',
+        title: "Error!",
         text: `You cannot enter more than ${instrument.quantity} items.`,
-        icon: 'error',
-        confirmButtonText: 'OK',
+        icon: "error",
+        confirmButtonText: "OK",
         customClass: {
-          confirmButton: 'btn btn-primary',
+          confirmButton: "btn btn-primary",
         },
-        buttonsStyling: false
+        buttonsStyling: false,
       });
     } else {
       setQuantity(1); // Đặt lại số lượng về 1 nếu nhập số âm hoặc 0
     }
   };
-
 
   // Trong phần render
   <input
@@ -120,17 +127,14 @@ const DetailProduct = () => {
     onChange={handleInputChange} // Sử dụng hàm mới này
     className="soluongSP rounded-2 m-0"
     min={1}
-  />
-
+  />;
 
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return 'Out of stock';
-    if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
-    return 'In stock';
+    if (quantity === 0) return "Out of stock";
+    if (quantity > 0 && quantity <= 5) return "Almost out of stock";
+    return "In stock";
   };
-
-
 
   const handleAddToCart = async () => {
     setIsAddingToCart(true); // Bắt đầu loading
@@ -141,14 +145,14 @@ const DetailProduct = () => {
 
       // Hiển thị thông báo không thể thêm sản phẩm vào giỏ hàng
       Swal.fire({
-        title: 'Error!',
-        text: 'This product is out of stock, please choose another product!',
-        icon: 'error',
-        confirmButtonText: 'OK',
+        title: "Error!",
+        text: "This product is out of stock, please choose another product!",
+        icon: "error",
+        confirmButtonText: "OK",
         customClass: {
-          confirmButton: 'btn btn-primary',
+          confirmButton: "btn btn-primary",
         },
-        buttonsStyling: false // Tùy chọn để sử dụng style tùy chỉnh
+        buttonsStyling: false, // Tùy chọn để sử dụng style tùy chỉnh
       });
 
       return; // Dừng thực hiện nếu không còn hàng
@@ -161,26 +165,27 @@ const DetailProduct = () => {
 
       // Sử dụng SweetAlert2 để hiển thị thông báo
       Swal.fire({
-        title: 'Success!',
-        text: 'The product has been added to the cart.',
-        icon: 'success',
-        confirmButtonText: 'OK',
+        title: "Success!",
+        text: "The product has been added to the cart.",
+        icon: "success",
+        confirmButtonText: "OK",
         customClass: {
-          confirmButton: 'btn btn-primary',
+          confirmButton: "btn btn-primary",
         },
-        buttonsStyling: false // Tùy chọn để sử dụng style tùy chỉnh
+        buttonsStyling: false, // Tùy chọn để sử dụng style tùy chỉnh
       });
     }, 1000); // Giả lập thời gian xử lý
   };
 
-  // sản phẩm tương tự 
+  // sản phẩm tương tự
   const handleBrandClick = (brand) => {
-    navigate('/brand-detail', { state: { brand } });
+    navigate("/brand-detail", { state: { brand } });
   };
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p>{error}</p>;
-  if (!instrument) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+  if (!instrument)
+    return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
 
   return (
     <div>
@@ -191,9 +196,13 @@ const DetailProduct = () => {
             <h3 className="text-uppercase">{instrument.name}</h3>
             <div className="col-md-12 d-flex justify-content-center">
               <div className="img">
-
                 <div className="text-center">
-                  <img id="main-image" src={instrument.image} width={450} alt="product" />
+                  <img
+                    id="main-image"
+                    src={instrument.image}
+                    width={450}
+                    alt="product"
+                  />
                 </div>
               </div>
             </div>
@@ -211,20 +220,27 @@ const DetailProduct = () => {
                   <p>{instrument.description}</p>
                 </div>
               </div>
-
-
             </div>
             <div className="col-5">
               <div className="mt-4 mb-3 noidungSP">
                 <div className="price d-flex flex-row align-items-center">
-                  <span className="price">{instrument.costPrice.toLocaleString()} VND</span>
+                  <span className="price">
+                    {instrument.costPrice.toLocaleString()} VND
+                  </span>
                 </div>
                 <div className="cart mt-4 align-items-center">
                   <div className="row">
                     {/* Quantity */}
                     <div className="col-lg-5 col-md-5 col-sm 12 d-flex mt-4">
-                      <div><strong>Qty:</strong></div>
-                      <button className="btn btn-prev" onClick={handleDecrement}><strong>-</strong></button>
+                      <div>
+                        <strong>Qty:</strong>
+                      </div>
+                      <button
+                        className="btn btn-prev"
+                        onClick={handleDecrement}
+                      >
+                        <strong>-</strong>
+                      </button>
                       <input
                         type="number"
                         value={quantity}
@@ -232,15 +248,28 @@ const DetailProduct = () => {
                         className="soluongSP rounded-2 m-0"
                         min={1}
                       />
-                      <button className="btn btn-next" onClick={handleIncrement}><strong>+</strong></button>
+                      <button
+                        className="btn btn-next"
+                        onClick={handleIncrement}
+                      >
+                        <strong>+</strong>
+                      </button>
                     </div>
 
                     {/* Brand */}
                     <div className="col-lg-5 col-md-5 col-sm 12">
                       <div className="instrument-brand">
-                        <img src={instrument.brand.brandImage} alt={instrument.brand.name} />
-                        <span onClick={() => handleBrandClick(instrument.brand)}>
-                          <a href="">Similar products <i className="fa-solid fa-arrow-right"></i></a>
+                        <img
+                          src={instrument.brand.brandImage}
+                          alt={instrument.brand.name}
+                        />
+                        <span
+                          onClick={() => handleBrandClick(instrument.brand)}
+                        >
+                          <a href="">
+                            Similar products{" "}
+                            <i className="fa-solid fa-arrow-right"></i>
+                          </a>
                         </span>
                       </div>
                     </div>
@@ -248,7 +277,11 @@ const DetailProduct = () => {
 
                   {/* Add to cart */}
                   <div className="btn-cart mt-4">
-                    <button className="add-to-cart" onClick={handleAddToCart} disabled={isAddingToCart}>
+                    <button
+                      className="add-to-cart"
+                      onClick={handleAddToCart}
+                      disabled={isAddingToCart}
+                    >
                       {!isAddingToCart ? "Add to cart" : null}
                     </button>
                     {isAddingToCart && (
@@ -265,7 +298,6 @@ const DetailProduct = () => {
                       </div>
                     )}
                   </div>
-
                 </div>
 
                 {/* Service */}
@@ -276,11 +308,21 @@ const DetailProduct = () => {
                   </div>
                   <div className="product-service">
                     <i className="fa-solid fa-box"></i>
-                    <span className="ms-2">{getStockStatus(instrument.quantity)}</span> {/* Trạng thái còn hàng và hết hàng  */}
+                    <span className="ms-2">
+                      {getStockStatus(instrument.quantity)}
+                    </span>{" "}
+                    {/* Trạng thái còn hàng và hết hàng  */}
                   </div>
                   <div className="ship-service">
                     <i className="fa-solid fa-truck-fast"></i>
                     <span className="ms-2">Free shipping on all orders</span>
+                  </div>
+                  <div className="ship-service">
+                    <i
+                      className="fa-solid fa-share"
+                      onClick={handleShareToFeed}
+                    ></i>
+                    <span className="ms-2">Share</span>
                   </div>
                 </div>
 
@@ -289,40 +331,61 @@ const DetailProduct = () => {
                   <h3>Related instruments</h3>
                   <div className="carousel-inner">
                     {/* Chia relatedInstrument thành các nhóm, mỗi nhóm có 2 sản phẩm */}
-                    {relatedInstrument.reduce((acc, _, index) => {
-                      if (index % 2 === 0) {
-                        acc.push(relatedInstrument.slice(index, index + 2));
-                      }
-                      return acc;
-                    }, []).map((group, groupIndex) => (
-                      <div className={`carousel-item ${groupIndex === 0 ? 'active' : ''}`} key={groupIndex}>
-                        <div className="row">
-                          {group.map((ins) => (
-                            <div className="col-md-6" key={ins.id}>
-                              <Link to={{
-                                pathname: `/DetailProduct/${ins.id}`,
-                                state: { ins }
-                              }} className="card-link">
-                                <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
-                                  <div className="card-img-wrapper">
-                                    <img
-                                      src={ins.image}
-                                      className="card-img-top"
-                                      alt={ins.name}
-                                    />
+                    {relatedInstrument
+                      .reduce((acc, _, index) => {
+                        if (index % 2 === 0) {
+                          acc.push(relatedInstrument.slice(index, index + 2));
+                        }
+                        return acc;
+                      }, [])
+                      .map((group, groupIndex) => (
+                        <div
+                          className={`carousel-item ${
+                            groupIndex === 0 ? "active" : ""
+                          }`}
+                          key={groupIndex}
+                        >
+                          <div className="row">
+                            {group.map((ins) => (
+                              <div className="col-md-6" key={ins.id}>
+                                <Link
+                                  to={{
+                                    pathname: `/DetailProduct/${ins.id}`,
+                                    state: { ins },
+                                  }}
+                                  className="card-link"
+                                >
+                                  <div
+                                    className="card"
+                                    style={{
+                                      width: "100%",
+                                      border: "none",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <div className="card-img-wrapper">
+                                      <img
+                                        src={ins.image}
+                                        className="card-img-top"
+                                        alt={ins.name}
+                                      />
+                                    </div>
+                                    <div className="card-body text-center">
+                                      <p className="card-title">{ins.name}</p>
+                                      <p className="card-price">
+                                        {ins.costPrice.toLocaleString()}đ
+                                      </p>
+                                      <p className="card-status">
+                                        {getStockStatus(ins.quantity)}
+                                      </p>
+                                    </div>
                                   </div>
-                                  <div className="card-body text-center">
-                                    <p className="card-title">{ins.name}</p>
-                                    <p className="card-price">{ins.costPrice.toLocaleString()}đ</p>
-                                    <p className="card-status">{getStockStatus(ins.quantity)}</p>
-                                  </div>
-                                </div>
-                              </Link>
-                            </div>
-                          ))}
+                                </Link>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
 
                   {/* Carousel controls */}
@@ -332,7 +395,10 @@ const DetailProduct = () => {
                     data-bs-target="#carouselExample"
                     type="button"
                   >
-                    <span aria-hidden="true" className="carousel-control-prev-icon" />
+                    <span
+                      aria-hidden="true"
+                      className="carousel-control-prev-icon"
+                    />
                     <span className="visually-hidden">Previous</span>
                   </button>
                   <button
@@ -341,11 +407,13 @@ const DetailProduct = () => {
                     data-bs-target="#carouselExample"
                     type="button"
                   >
-                    <span aria-hidden="true" className="carousel-control-next-icon" />
+                    <span
+                      aria-hidden="true"
+                      className="carousel-control-next-icon"
+                    />
                     <span className="visually-hidden">Next</span>
                   </button>
                 </div>
-
               </div>
             </div>
           </div>

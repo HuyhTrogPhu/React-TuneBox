@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './css/bootstrap.min.css';
-import './css/style.css';
-import Header2 from '../../components/Navbar/Header2.jsx';
-import Footer2 from '../../components/Footer/Footer2.jsx';
-import { login } from '../../service/LoginService.js';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./css/bootstrap.min.css";
+import "./css/style.css";
+import Header2 from "../../components/Navbar/Header2.jsx";
+import Footer2 from "../../components/Footer/Footer2.jsx";
+import { login } from "../../service/LoginService.js";
 import Swal from "sweetalert2";
-import { Audio } from 'react-loader-spinner'
+import { Audio } from "react-loader-spinner";
 
 const Login = () => {
-  const [userNameOrEmail, setUserNameOrEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [userNameOrEmail, setUserNameOrEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -29,24 +29,24 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     if (!userNameOrEmail) {
-      setError('Vui lòng nhập tên tài khoản hoặc email.');
+      setError("Vui lòng nhập tên tài khoản hoặc email.");
       return;
     }
-  
+
     if (!password) {
-      setError('Vui lòng nhập mật khẩu.');
+      setError("Vui lòng nhập mật khẩu.");
       return;
     }
-  
+
     const userDto = {
-      userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
-      email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
+      userName: userNameOrEmail.includes("@") ? null : userNameOrEmail,
+      email: userNameOrEmail.includes("@") ? userNameOrEmail : null,
       password: password,
     };
-  
+
     try {
       setLoading(true); // Bắt đầu loading
       const response = await login(userDto);
@@ -59,22 +59,22 @@ const Login = () => {
         // Hiện loading trong 3 giây
         setTimeout(() => {
           setLoading(false); // Dừng loading
-          navigate('/'); // Chuyển hướng về trang chính
+          navigate("/"); // Chuyển hướng về trang chính
         }, 1000);
       } else {
         setLoading(false); // Dừng loading nếu userId không hợp lệ
-        setError('User ID không hợp lệ.');
+        setError("User ID không hợp lệ.");
       }
     } catch (error) {
       setLoading(false); // Dừng loading trong trường hợp có lỗi
       if (error.response && error.response.status === 401) {
-        setError('Thông tin đăng nhập không chính xác.');
+        setError("Thông tin đăng nhập không chính xác.");
       } else {
-        setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+        setError("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
       }
     }
   };
-  
+
   return (
     <div>
       <Header2 />
@@ -83,23 +83,33 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="colcol-10-lg-6  mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '500px', marginRight: '500px'}}>
+              <form
+                className="custom-form ticket-form mb-5 mb-lg-0"
+                onSubmit={handleLogin}
+                style={{ marginLeft: "100px", marginRight: "100px" }}
+              >
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
-                  {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+                  {error && (
+                    <div style={{ color: "red", textAlign: "center" }}>
+                      {error}
+                    </div>
+                  )}
                   {loading && ( // Hiển thị loading full màn hình nếu đang loading
-                    <div style={{
-                      position: 'fixed',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)', // Nền mờ
-                      zIndex: 9999,
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center'
-                    }}>
+                    <div
+                      style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.8)", // Nền mờ
+                        zIndex: 9999,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
                       <Audio
                         height="80"
                         width="80"
@@ -139,14 +149,25 @@ const Login = () => {
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-10 col-8 mx-auto">
-                    <button type="submit" className="form-control">Đăng nhập</button>
+                    <button type="submit" className="form-control">
+                      Đăng nhập
+                    </button>
                   </div>
-                  <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 80 }}>
-                    <span className="text-center">Bạn chưa có tài khoản?
-                      <Link to={'/register'}><b>Đăng kí ngay.</b></Link>
+                  <div
+                    className="col-lg-8 text-center mx-auto"
+                    style={{ marginTop: 80 }}
+                  >
+                    <span className="text-center">
+                      Bạn chưa có tài khoản?
+                      <Link to={"/register"}>
+                        <b>Đăng kí ngay.</b>
+                      </Link>
                     </span>
                   </div>
-                  <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
+                  <div
+                    className="col-lg-8 text-center mx-auto"
+                    style={{ marginTop: 20 }}
+                  >
                     <Link to="/forgot-password" className="text-primary">
                       <b>Quên mật khẩu?</b>
                     </Link>

@@ -12,7 +12,14 @@ import "./css/profile.css";
 import "./css/mxh/comment.css";
 import "./css/mxh/button.css";
 import "./css/mxh/feedUpdate.css";
-import { useParams, useNavigate, Navigate, Router, useLocation, Outlet } from "react-router-dom";
+import {
+  useParams,
+  useNavigate,
+  Navigate,
+  Router,
+  useLocation,
+  Outlet,
+} from "react-router-dom";
 import { Link, Routes, Route } from "react-router-dom";
 import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
@@ -32,8 +39,8 @@ import {
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
-
-
+import FeedTrack from "./FeedTrack";
+import FeedPost from "./FeedPost";
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -77,10 +84,24 @@ const HomeFeed = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
-  const tokenjwt = localStorage.getItem('jwtToken');
+  const tokenjwt = localStorage.getItem("jwtToken");
+  const [activeComponent, setActiveComponent] = useState("track"); // State để quản lý component hiển thị track or post
 
   //get avatar
   const [userData, setUserData] = useState({});
+
+  // share
+  const [sharedData, setSharedData] = useState(null);
+  useEffect(() => {
+    if (location.state) {
+      setActiveComponent(location.state.activeComponent || "track");
+      setSharedData(location.state.sharedData || null);
+    }
+  }, [location.state]);
+
+  const clearSharedData = () => {
+    setSharedData(null);
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -289,7 +310,6 @@ const HomeFeed = () => {
 
   const fetchListPlaylist = async () => {
     try {
-      
       const playlistResponse = await getPlaylistByUserId(currentUserId);
       setPlaylists(playlistResponse);
       console.log("playlist  ", playlistResponse);
@@ -452,9 +472,12 @@ const HomeFeed = () => {
 
       if (likes[postId]?.data) {
         // Nếu đã like, thực hiện unlike
-        await fetch(`http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`, {
-          method: "DELETE",
-        });
+        await fetch(
+          `http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`,
+          {
+            method: "DELETE",
+          }
+        );
 
         setLikes((prevLikes) => ({
           ...prevLikes,
@@ -501,7 +524,6 @@ const HomeFeed = () => {
       console.error("Error liking post:", error);
     }
   };
-
 
   // reply comment
   const handleToggleReplies = (commentId) => {
@@ -909,28 +931,36 @@ const HomeFeed = () => {
     try {
       const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
 
-      const reportExists = await checkReportExists(userId, reportId, reportType);
+      const reportExists = await checkReportExists(
+        userId,
+        reportId,
+        reportType
+      );
       if (reportExists) {
         setReportMessage("Bạn đã báo cáo nội dung này rồi.");
         toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
       } else {
         const reportData = {
           userId: userId,
-          postId: reportType === 'post' ? reportId : null,
-          trackId: reportType === 'track' ? reportId : null,
-          albumId: reportType === 'album' ? reportId : null,
+          postId: reportType === "post" ? reportId : null,
+          trackId: reportType === "track" ? reportId : null,
+          albumId: reportType === "album" ? reportId : null,
           type: reportType,
-          reason: reason
+          reason: reason,
         };
 
-        const response = await axios.post('http://localhost:8080/api/reports', reportData, {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}` // Thêm JWT token vào header
+        const response = await axios.post(
+          "http://localhost:8080/api/reports",
+          reportData,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`, // Thêm JWT token vào header
+            },
           }
-        });
+        );
 
-        console.log('Report submitted successfully:', response.data);
+        console.log("Report submitted successfully:", response.data);
         setReportMessage("Báo cáo đã được gửi thành công.");
         toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
         setShowReportModal(false);
@@ -998,7 +1028,7 @@ const HomeFeed = () => {
 
   // ẩn hiện post
   const toggleHiddenState = async (postId) => {
-    const token = localStorage.getItem('jwtToken');
+    const token = localStorage.getItem("jwtToken");
 
     if (!token) {
       console.error("No JWT token found");
@@ -1007,16 +1037,20 @@ const HomeFeed = () => {
     }
 
     try {
-      await axios.put(`http://localhost:8080/api/posts/${postId}/toggle-visibility`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.put(
+        `http://localhost:8080/api/posts/${postId}/toggle-visibility`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       // Update the visibility state of the post
-      setPostHiddenStates(prevStates => ({
+      setPostHiddenStates((prevStates) => ({
         ...prevStates,
-        [postId]: !prevStates[postId] // Toggle the visibility state
+        [postId]: !prevStates[postId], // Toggle the visibility state
       }));
       fetchPosts();
     } catch (error) {
@@ -1051,7 +1085,9 @@ const HomeFeed = () => {
               </div>
               {/* View profile */}
               <div className="view-profile text-center">
-                <Link style={{ color: '#E94F37' }} to={'/profileUser'}>View profile</Link>
+                <Link style={{ color: "#E94F37" }} to={"/profileUser"}>
+                  View profile
+                </Link>
               </div>
             </div>
             <ul className="list-unstyled">
@@ -1131,22 +1167,25 @@ const HomeFeed = () => {
             </ul>
           </div>
 
-
           {/* Main content */}
           <div className="col-6 content">
             {/* Nav tab link */}
             <div className="row nav-link-feed mt-4">
               <ul className="d-flex justify-content-center">
                 <li
-                  className={`col-6 text-center feed-link ${activeComponent === 'track' ? 'active' : ''}`}
-                  onClick={() => setActiveComponent('track')}
+                  className={`col-6 text-center feed-link ${
+                    activeComponent === "track" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveComponent("track")}
                 >
                   <i className="fa-solid fa-music me-1"></i>
                   <span>Track</span>
                 </li>
                 <li
-                  className={`col-6 text-center feed-link ${activeComponent === 'post' ? 'active' : ''}`}
-                  onClick={() => setActiveComponent('post')}
+                  className={`col-6 text-center feed-link ${
+                    activeComponent === "post" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveComponent("post")}
                 >
                   <i className="fa-solid fa-newspaper me-1"></i>
                   <span>Post</span>
@@ -1159,7 +1198,10 @@ const HomeFeed = () => {
               <div className="row align-items-center">
                 <div className="col-auto post-header">
                   <img
-                    src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+                    src={
+                      userData.avatar ||
+                      "/src/UserImages/Avatar/default-avt.jpg"
+                    }
                     alt="User avatar"
                   />
                 </div>
@@ -1169,8 +1211,8 @@ const HomeFeed = () => {
                     type="button"
                     className="btn text-start"
                     style={{
-                      backgroundColor: 'rgba(64, 102, 128, 0.078)',
-                      width: '85%',
+                      backgroundColor: "rgba(64, 102, 128, 0.078)",
+                      width: "85%",
                       height: 50,
                     }}
                   >
@@ -1182,11 +1224,16 @@ const HomeFeed = () => {
 
             {/* Nội dung theo lựa chọn Track hoặc Post */}
             <div className="container">
-              {activeComponent === 'track' ? <FeedTrack /> : <FeedPost />}
+              {activeComponent === "track" ? (
+                <FeedTrack />
+              ) : (
+                <FeedPost
+                  sharedData={sharedData}
+                  clearSharedData={clearSharedData}
+                />
+              )}
             </div>
           </div>
-
-
 
           {/* Right Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
@@ -1195,9 +1242,7 @@ const HomeFeed = () => {
                 <UsersToFollow userId={currentUserId} token={tokenjwt} />
               </li>
             </ul>
-            <div className="advertisement mt-5">
-              <a href>  <img src={images.bannerpre} alt="Banner quảng cáo" className="img-fluid" width="80%" style={{ marginLeft: 30 }} /></a>
-            </div>
+            <div className="advertisement mt-5"></div>
           </div>
         </div>
       </div>
@@ -1205,7 +1250,11 @@ const HomeFeed = () => {
       {/* Các modal */}
       {/* Modal báo cáo */}
       {showReportModal && (
-        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+        <div
+          className="modal fade show"
+          style={{ display: "block" }}
+          role="dialog"
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
@@ -1292,7 +1341,11 @@ const HomeFeed = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-              <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"} />
+              <img
+                src={
+                  userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"
+                }
+              />
               <div>
                 <div className="name">{userData.name}</div>
                 <div className="time">Posting to Feed</div>
@@ -1361,7 +1414,6 @@ const HomeFeed = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };

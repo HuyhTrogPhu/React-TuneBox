@@ -191,70 +191,71 @@ const Albums = () => {
       {/* Albums List */}
       <div className="post-header-albums position-relative">
         {albums && albums.length > 0 ? (
-          albums.map(
-            (album) =>
-              !album.status && (
-                <div key={album.id} className="album-item">
-                  <img
-                    src={album.albumImage}
-                    className="avatar_small"
-                    alt="Avatar"
-                  />
-                  <div className="info">
-                    {/* link album detail */}
-                    <Link
-                      to={{
-                        pathname: `/album/${album.id}`,
-                        state: { album },
-                      }}
-                    >
-                      <div className="title">{album.title}</div>
-                    </Link>
+          albums.map((album) => {
+            console.log("albums.creator: ", album.creatorId);
 
-                    <div className="style">{album.description}</div>
+            return (
+              <div key={album.id} className="album-item">
+                <img
+                  src={album.albumImage}
+                  className="avatar_small"
+                  alt="Avatar"
+                />
+                <div className="info">
+                  {/* link album detail */}
+                  <Link
+                    to={{
+                      pathname: `/album/${album.id}`,
+                      state: { album },
+                    }}
+                  >
+                    <div className="title">{album.title}</div>
+                  </Link>
 
-                    <div className="album-details">
-                      <span className="tracks">Tracks: 0</span>
-                      <span className="likes">Likes: 0</span>
-                    </div>
+                  <div className="style">{album.description}</div>
+
+                  <div className="album-details">
+                    <span className="tracks">Tracks: 0</span>
+                    <span className="likes">Likes: 0</span>
                   </div>
-                  {String(album.creatorId) === String(userId) ? (
-                    <div className="dropdown position-absolute top-8 end-0 me-4 ">
-                      <button
-                        className="btn dropdown-toggle no-border"
-                        type="button"
-                        id={`dropdownMenuButton-${album.id}`}
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      />
-                      <ul
-                        className="dropdown-menu"
-                        aria-labelledby={`dropdownMenuButton-${album.id}`}
-                      >
-                        <li>
-                          <Link to={`/albums/album-Edit/${album.id}`}>
-                            <button className="dropdown-item">Edit</button>
-                          </Link>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handDeleteAlbum(album.id)}
-                          >
-                            Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  ) : (
-                    <button
-                      className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
-                      onClick={() => handleReport(album.id, "album")}
-                    ></button>
-                  )}
                 </div>
-              )
-          )
+                {String(album.creatorId) === String(userId) ? (
+                  <div className="dropdown position-absolute top-8 end-0 me-4 ">
+                    <button
+                      className="btn dropdown-toggle no-border"
+                      type="button"
+                      id={`dropdownMenuButton-${album.id}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    />
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby={`dropdownMenuButton-${album.id}`}
+                    >
+                      <li>
+                        <Link to={`/albums/album-Edit/${album.id}`}>
+                          <button className="dropdown-item">Edit</button>
+                        </Link>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handDeleteAlbum(album.id)}
+                        >
+                          Delete
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  <button
+                    className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
+                    onClick={() => handleReport(album.id, "album")}
+                  ></button>
+                )}
+              </div>
+            );
+          })
         ) : (
           <div className="no-albums">No albums found</div>
         )}

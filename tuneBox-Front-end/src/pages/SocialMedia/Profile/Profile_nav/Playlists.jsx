@@ -11,15 +11,13 @@ import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { ToastContainer, toast } from "react-toastify";
 import "../Profile_nav/css/playlist.css";
-import { Audio } from 'react-loader-spinner'
+
 const Playlists = () => {
   const userId = Cookies.get("userId");
   const { id } = useParams(); // Lấy ID từ URL
   const [errors, setErrors] = useState({});
   const [playlists, setPlaylists] = useState([]);
-  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false); // Loading cho danh sách playlist
-  const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false); // Loading khi tạo mới playlist
-  const [isEditingPlaylist, setIsEditingPlaylist] = useState(false); // Loading khi lưu chỉnh sửa playlist
+  const [isLoading, setIsLoading] = useState(true);
 
   const [playlistUrl, setPlaylistImageUrl] = useState(images.musicalNote); // ảnh mặc định
 
@@ -82,13 +80,13 @@ const Playlists = () => {
     } catch (error) {
       console.error("Error fetching playlist:", error);
     } finally {
-      setIsLoadingPlaylists(false); // Tắt loading
+      setIsLoading(false);
     }
   };
 
   const handleSave = async () => {
     if (!validateForm()) return;
-    setIsCreatingPlaylist(true);
+
     const newPlaylist = new FormData();
     newPlaylist.append("title", newPlayListName);
     newPlaylist.append("imagePlaylist", newPlaylistImage); // thêm trường này
@@ -123,8 +121,6 @@ const Playlists = () => {
         error.response?.data?.message ||
         "Failed to create playlist. Please try again.";
       toast.error(errorMessage);
-    } finally {
-      setIsCreatingPlaylist(false); // Tắt loading sau khi hoàn thành
     }
   };
 
@@ -161,8 +157,6 @@ const Playlists = () => {
 
   const SaveEdit = async (playlistId) => {
     if (!validateEditForm()) return; // Validate form before saving
-
-    setIsEditingPlaylist(true);
     try {
       const formData = new FormData();
 
@@ -188,8 +182,6 @@ const Playlists = () => {
       const errorMessage =
         error.response?.data?.message || "Failed. Please try again.";
       toast.error(errorMessage);
-    } finally {
-      setIsEditingPlaylist(false); // Tắt loading sau khi hoàn thành
     }
   };
 
@@ -257,10 +249,8 @@ const Playlists = () => {
 
       {/* Playlist List */}
       <div className="post-header-albums">
-        {isLoadingPlaylists ? (
-          <div>
-            <Audio height="50" width="50" color="blue" ariaLabel="loading" /> Loading playlists...
-          </div>
+        {isLoading ? (
+          <div>Loading albums...</div>
         ) : playlists && playlists.length > 0 ? (
           playlists.map(
             (list) =>
@@ -326,11 +316,11 @@ const Playlists = () => {
                       </ul>
                     </div>
                   ) : (
-                  <button
-                    className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
-                    onClick={() => handleReport(album.id, "album")}
-                  ></button>
-                )}
+                    <button
+                      className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
+                      onClick={() => handleReport(album.id, "album")}
+                    ></button>
+                  )}
                 </div>
               )
           )
@@ -380,8 +370,9 @@ const Playlists = () => {
               <div className="mb-3">
                 <label className="form-label">Description</label>
                 <textarea
-                  className={`form-control ${errors.description ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.description ? "is-invalid" : ""
+                  }`}
                   value={newPlaylistDescription}
                   onChange={(e) => setPlaylistDescription(e.target.value)}
                   placeholder="Enter playlist description"
@@ -408,8 +399,9 @@ const Playlists = () => {
                 <div className="position-relative">
                   <input
                     type="file"
-                    className={`form-control ${errors.image ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.image ? "is-invalid" : ""
+                    }`}
                     accept="image/*"
                     onChange={handleImageChange}
                     style={{ display: "none" }}
@@ -438,8 +430,12 @@ const Playlists = () => {
               >
                 Close
               </button>
-              <button type="button" className="btn btn-primary" onClick={handleSave} disabled={isCreatingPlaylist}>
-                {isCreatingPlaylist ? <Audio height="20" width="20" color="white" ariaLabel="loading" /> : "Create"}
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSave}
+              >
+                Create
               </button>
             </div>
           </div>
@@ -487,8 +483,9 @@ const Playlists = () => {
               <div className="mb-3">
                 <label className="form-label">Description</label>
                 <textarea
-                  className={`form-control ${errors.description ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.description ? "is-invalid" : ""
+                  }`}
                   value={editPlaylistDescription}
                   onChange={(e) => setEditPlaylistDescription(e.target.value)}
                   placeholder="Enter playlist description"
@@ -541,8 +538,12 @@ const Playlists = () => {
               >
                 Close
               </button>
-              <button type="button" className="btn btn-primary" onClick={() => SaveEdit(playlistId)} disabled={isEditingPlaylist}>
-                {isEditingPlaylist ? <Audio height="20" width="20" color="white" ariaLabel="loading" /> : "Save changes"}
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => SaveEdit(playlistId)}
+              >
+                Save changes
               </button>
             </div>
           </div>

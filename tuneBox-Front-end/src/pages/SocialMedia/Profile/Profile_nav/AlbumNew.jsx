@@ -17,7 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import CSS cho Toastify
 import { images } from "../../../../assets/images/images";
 import { useNavigate } from "react-router-dom";
-import { Audio } from 'react-loader-spinner'
+import { Audio } from "react-loader-spinner";
 const AlbumNew = () => {
   const navigate = useNavigate();
   const userId = Cookies.get("userId");
@@ -42,7 +42,6 @@ const AlbumNew = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [addedTracks, setAddedTracks] = useState([]); // List track đã thêm vào album
 
-  // const [loading, setLoading] = useState(true);  //  trạng thái chờ
   const [errors, setErrors] = useState({
     title: "",
     description: "",
@@ -270,6 +269,7 @@ const AlbumNew = () => {
   return (
     <div className="container">
       <ToastContainer />
+
       {/* Header */}
       <div className="header">
         <h2 className="header-title mb-4">New Album</h2>
@@ -311,22 +311,49 @@ const AlbumNew = () => {
                   >
                     Back
                   </Button>
+                  +
                   <Box sx={{ flex: "1 1 auto" }} />
                   <Button
                     onClick={
-                      activeStep === steps.length - 1 ? handleAddAlbum : handleNext
+                      activeStep === steps.length - 1
+                        ? handleAddAlbum
+                        : handleNext
                     }
                     disabled={isLoading} // Vô hiệu hóa nút khi đang loading
                   >
                     {isLoading ? (
-                      <Audio height="20" width="20" color="white" ariaLabel="loading" />
+                      <div
+                        style={{
+                          position: "fixed",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: "rgba(255, 255, 255, 0.8)", // Nền mờ
+                          zIndex: 9999,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Audio
+                          height="80"
+                          width="80"
+                          radius="9"
+                          color="#e94f37"
+                          ariaLabel="three-dots-loading"
+                          wrapperStyle
+                          wrapperClass
+                        />
+                      </div>
+                    ) : activeStep === steps.length - 1 ? (
+                      "Finish"
                     ) : (
-                      activeStep === steps.length - 1 ? "Finish" : "Next"
+                      "Next"
                     )}
                   </Button>
                 </Box>
               </React.Fragment>
-
             )}
           </Box>
         </div>
