@@ -146,6 +146,13 @@ const Activity = () => {
 
     // Lấy token từ localStorage hoặc nơi bạn lưu trữ
     const token = localStorage.getItem('jwtToken');
+    console.log("Token:", token); // In ra token để kiểm tra
+
+    if (!token) {
+        console.error("Token not found - redirecting to login");
+        // Xử lý chuyển hướng đến trang đăng nhập nếu cần
+        return;
+    }
 
     try {
         const response = await axios.get(
@@ -158,7 +165,7 @@ const Activity = () => {
             }
         );
 
-        console.log(response.data); // Kiểm tra dữ liệu nhận được
+        console.log("Response Data:", response.data); // Kiểm tra dữ liệu nhận được
 
         const sortedPosts = response.data.sort((a, b) => {
             const dateA = new Date(a.createdAt);
@@ -166,40 +173,45 @@ const Activity = () => {
             return dateB - dateA; // Sắp xếp từ mới đến cũ
         });
 
-        // Lấy comments và likes cho từng post
         const postsWithDetails = await Promise.all(
             sortedPosts.map(async (post) => {
                 const commentsResponse = await axios.get(
-                    `http://localhost:8080/api/comments/post/${post.id}`
+                    `http://localhost:8080/api/comments/post/${post.id}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
                 );
 
                 const commentsWithReplies = await Promise.all(
                     commentsResponse.data.map(async (comment) => {
                         const repliesResponse = await axios.get(
-                            `http://localhost:8080/api/replies/comment/${comment.id}`
+                            `http://localhost:8080/api/replies/comment/${comment.id}`, {
+                                headers: { Authorization: `Bearer ${token}` }
+                            }
                         );
-                        return { ...comment, replies: repliesResponse.data }; // Kết hợp replies vào comment
+                        return { ...comment, replies: repliesResponse.data };
                     })
                 );
 
-                // Lấy số lượng likes cho từng bài viết
                 const likeCountResponse = await axios.get(
-                    `http://localhost:8080/api/likes/post/${post.id}/count`
+                    `http://localhost:8080/api/likes/post/${post.id}/count`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
                 );
 
-                // Kiểm tra xem user đã like bài viết này chưa
                 const userLikeResponse = await axios.get(
-                    `http://localhost:8080/api/likes/post/${post.id}/user/${userId}`
+                    `http://localhost:8080/api/likes/post/${post.id}/user/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
                 );
 
-                const liked = userLikeResponse.data; // true nếu user đã like, false nếu chưa
+                const liked = userLikeResponse.data;
 
                 return {
                     ...post,
                     comments: commentsWithReplies,
-                    likeCount: likeCountResponse.data, // Thêm số lượng likes vào bài viết
-                    liked: liked, // Thêm trạng thái like
-                    is_hidden: post.hidden, // Đảm bảo sử dụng đúng thuộc tính hidden
+                    likeCount: likeCountResponse.data,
+                    liked: liked,
+                    is_hidden: post.hidden,
                 };
             })
         );
@@ -214,9 +226,11 @@ const Activity = () => {
         }
     }
 };
- useEffect(() => {
+
+useEffect(() => {
     fetchPosts();
-  }, [userId, id]);
+}, [userId, id]);
+
   const handleSubmitPost = async () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
