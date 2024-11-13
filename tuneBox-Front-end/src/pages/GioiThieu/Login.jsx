@@ -83,7 +83,7 @@ const Login = () => {
         <div className="container">
           <div className="row">
             <div className="colcol-10-lg-6  mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '500px', marginRight: '500px'}}>
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '100px', marginRight: '100px'}}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}

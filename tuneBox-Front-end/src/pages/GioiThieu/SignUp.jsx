@@ -55,7 +55,7 @@ const SignUp = () => {
     }
   };
 
-  const responseGoogle = async (response) => {
+  const responseGoogle = async (response) => {q
     try {
       const { credential } = response;
       const res = await axios.get('http://localhost:8080/user/oauth2/authorization/google', {

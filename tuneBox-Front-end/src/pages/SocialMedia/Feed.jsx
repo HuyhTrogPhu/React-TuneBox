@@ -84,6 +84,10 @@ const HomeFeed = () => {
 
   //get avatar
   const [userData, setUserData] = useState({});
+  // tag name user
+  const [showPostModal, setShowPostModal] = useState(false); // Modal tạo bài viết
+  const [showTagModal, setShowTagModal] = useState(false); // Modal tag người dùng
+  const [userSuggestions, setUserSuggestions] = useState([]); // Danh sách gợi ý tên người dùng
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -1030,9 +1034,64 @@ const HomeFeed = () => {
 
   // get user information in feed
 
+
+  // Lấy danh sách tên người dùng có thể tag
+  useEffect(() => {
+    const fetchUserTags = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/posts/tagName", {
+          withCredentials: true,
+        });
+        console.log("User tags fetched:", response.data);
+        setUserSuggestions(response.data);
+      } catch (error) {
+        console.error("Error fetching user tags:", error);
+      }
+    };
+    fetchUserTags();
+  }, []);
+
+  // Hiển thị modal khi nhấn nút "What are you thinking about?"
+  const handleCreatePostClick = () => {
+    setShowPostModal(true);
+  };
+
+  // Đóng modal tạo bài viết
+  const closePostModal = () => {
+    setShowPostModal(false);
+    setPostContent("");
+    setPostImages([]);
+    setPostImageUrls([]);
+  };
+
+  // Xử lý khi có thay đổi trong textarea
+  const handleTextareaChange = (e) => {
+    const value = e.target.value;
+    setPostContent(value);
+
+    // Kiểm tra nếu ký tự cuối là "@"
+    if (value.slice(-1) === "@") {
+      setShowTagModal(true);
+    } else {
+      setShowTagModal(false); // Đóng modal nếu không phải là "@"
+    }
+  };
+
+  // Thêm tên người dùng vào postContent khi chọn
+  const handleTagUser = (username) => {
+    setPostContent((prevContent) => prevContent + username + " ");
+    setShowTagModal(false); // Đóng modal sau khi chọn
+  };
+
   return (
     <div>
-      <div className="container-fluid feed-container">
+      <div className="container-fluid feed-container"
+        style={{
+          backgroundImage: `url(${images.backg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
@@ -1062,7 +1121,7 @@ const HomeFeed = () => {
                 <a
                   href="/#"
                   className="d-flex align-items-center "
-                  style={{ textAlign: "center" }}
+                  style={{ textAlign: "center", marginTop: '0px' }}
                 >
                   <img
                     src={images.web_content}
@@ -1124,11 +1183,13 @@ const HomeFeed = () => {
                 </Link>
               </li>
               <li className="left mb-4">
+
                 <Link
                   to={"/FriendRequests"}
-                  className="d-flex align-items-center"
+                  className="d-flex align-items-center justify-content-center"
                 >
-                  <span className="fw-bold">Danh sách lời mời kết bạn</span>
+                  <i className="fa-solid fa-user-group me-1"></i>
+                  <span className="fw-bold">Lời mời kết bạn</span>
                 </Link>
               </li>
             </ul>
@@ -1176,6 +1237,7 @@ const HomeFeed = () => {
                       width: '85%',
                       height: 50,
                     }}
+                    onClick={handleCreatePostClick}
                   >
                     What are you thinking about?
                   </button>
@@ -1271,84 +1333,104 @@ const HomeFeed = () => {
           </div>
         </div>
       )}
+
       {/* Modal để tạo bài viết */}
-      <div
-        id="post-modal"
-        className="modal-overlay"
-        style={{ display: "none" }}
-      >
-        <div className="modal-content">
-          <div>
-            <div className="post-header">
-              <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"} />
-              <div>
-                <div className="name">{userData.name}</div>
-                <div className="time">Posting to Feed</div>
+      {showPostModal && (
+        <div
+          id="post-modal"
+          className="modal-overlay"
+          style={{ display: "block" }}
+        >
+          <div className="modal-content">
+            <div>
+              <div className="post-header">
+                <img
+                  src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                />
+                <div>
+                  <div className="name">{userData.name}</div>
+                  <div className="time">Posting to Feed</div>
+                </div>
+                <button
+                  id="close-modal"
+                  type="button"
+                  className="btn btn-close"
+                  onClick={closePostModal} // Đóng modal tạo bài viết
+                ></button>
               </div>
-              <button
-                id="close-modal"
-                type="button"
-                className="btn btn-close"
-              ></button>
-            </div>
-            <div className="col">
-              <textarea
-                id="post-textarea"
-                className="form-control"
-                rows={3}
-                placeholder="Write your post here..."
-                value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
-              />
-              <div className="row mt-3">
-                <div className="col text-start">
-                  <input
-                    type="file"
-                    id="file-input" // Thêm id này
-                    multiple
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files);
-                      setPostImages(files);
-                      setPostImageUrls(
-                        files.map((file) => URL.createObjectURL(file))
-                      );
-                    }}
-                  />
-                </div>
-                <div className="col text-end">
-                  <button
-                    id="submit-post"
-                    type="button"
-                    style={{ backgroundColor: "#E94F37" }}
-                    className="btn btn-secondary"
-                    onClick={handleSubmitPost}
-                  >
-                    Post
-                  </button>
-                </div>
-                {/* Hiển thị ảnh đã chọn */}
-                {postImageUrls.length > 0 && (
-                  <div className="selected-images mt-3">
-                    {postImageUrls.map((url, index) => (
-                      <img
-                        key={index}
-                        src={url}
-                        alt={`Selected ${index}`}
-                        style={{
-                          width: "100px",
-                          height: "100px",
-                          objectFit: "cover",
-                          marginRight: "5px",
-                        }}
-                      />
-                    ))}
+              <div className="col">
+                <textarea
+                  id="post-textarea"
+                  className="form-control"
+                  rows={3}
+                  placeholder="Write your post here..."
+                  value={postContent}
+                  onChange={handleTextareaChange}
+                />
+                {/* Hiển thị modal tag user khi gõ @ */}
+                {showTagModal && (
+                  <div className="tag-modal">
+                    <ul>
+                      {userSuggestions.map((user, index) => (
+                        <li key={index} onClick={() => handleTagUser(user.tagName)}>
+                          <Link to={`/profile/${user.id}`} className="tag-link">
+                            {user.tagName}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
+                <div className="row mt-3">
+                  <div className="col text-start">
+                    <input
+                      type="file"
+                      id="file-input"
+                      multiple
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files);
+                        setPostImages(files);
+                        setPostImageUrls(
+                          files.map((file) => URL.createObjectURL(file))
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="col text-end">
+                    <button
+                      id="submit-post"
+                      type="button"
+                      style={{ backgroundColor: "#E94F37" }}
+                      className="btn btn-secondary"
+                      onClick={handleSubmitPost} // Đóng modal tạo bài viết sau khi đăng bài
+                    >
+                      Post
+                    </button>
+                  </div>
+                  {/* Hiển thị ảnh đã chọn */}
+                  {postImageUrls.length > 0 && (
+                    <div className="selected-images mt-3">
+                      {postImageUrls.map((url, index) => (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`Selected ${index}`}
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            objectFit: "cover",
+                            marginRight: "5px",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
     </div>
   );

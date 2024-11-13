@@ -3,7 +3,7 @@ import { images } from "../../assets/images/images";
 import axios from "axios";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Link, Routes, Route } from "react-router-dom";
 import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";

@@ -3,10 +3,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: hsl(210, 17%, 98%);
+    background-color: #f8f9fa;
     height: 70px;
     box-shadow: 0 4px 6px rgba(233, 79, 55, 0.1);
-
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
 /* Logo */
@@ -117,7 +120,7 @@
 
 /* Dropdown thông báo */
 .notification-dropdown {
-    top: 20%;
+    top: 70px;
     position: absolute;
     background-color: white;
     border: 1px solid #ccc;
@@ -248,7 +251,7 @@
 }
 
 .dropdown-menu {
-    top: 18%;
+    top: 70px;
     right: 15%;
 }
 
