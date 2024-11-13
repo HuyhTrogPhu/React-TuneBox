@@ -1,36 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './css/bootstrap.min.css';
 import './css/style.css';
 import Header2 from '../../components/Navbar/Header2.jsx';
 import Footer2 from '../../components/Footer/Footer2.jsx';
 import { login } from '../../service/LoginService.js';
-import Swal from "sweetalert2";
-import { Audio } from 'react-loader-spinner'
+import { Audio } from 'react-loader-spinner';
+import { GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
   const [userNameOrEmail, setUserNameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
-  // Hàm validate email bằng regex
-  const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email);
-  };
-
-  const isEmail = (input) => {
-    return validateEmail(input);
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
+
     if (!userNameOrEmail) {
       setError('Vui lòng nhập tên tài khoản hoặc email.');
       return;
@@ -44,29 +35,28 @@ const Login = () => {
     const userDto = {
       userName: userNameOrEmail.includes('@') ? null : userNameOrEmail,
       email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
-      password: password,
+      password,
     };
-  
+
     try {
-      setLoading(true); // Bắt đầu loading
+      setLoading(true);
       const response = await login(userDto);
-      // Lấy userId từ phản hồi của server
       const userId = response.userId;
-      if (userId !== undefined && userId !== null) {
+
+      if (userId) {
         const expires = new Date();
-        expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // Cookie tồn tại trong 1 ngày
-        document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`; // Lưu userId vào cookie
-        // Hiện loading trong 3 giây
+        expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);
+        document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
         setTimeout(() => {
-          setLoading(false); // Dừng loading
-          navigate('/'); // Chuyển hướng về trang chính
+          setLoading(false);
+          navigate('/'); 
         }, 1000);
       } else {
-        setLoading(false); // Dừng loading nếu userId không hợp lệ
+        setLoading(false);
         setError('User ID không hợp lệ.');
       }
     } catch (error) {
-      setLoading(false); // Dừng loading trong trường hợp có lỗi
+      setLoading(false);
       if (error.response && error.response.status === 401) {
         setError('Thông tin đăng nhập không chính xác.');
       } else {
@@ -74,7 +64,76 @@ const Login = () => {
       }
     }
   };
-  
+
+  useEffect(() => {
+    /* Khởi tạo Google Sign-In */
+    window.google.accounts.id.initialize({
+      client_id: '28392767205-kjh3koov94lcf8d2dhh83o15siro23m7.apps.googleusercontent.com', // Client ID từ Google API Console
+      callback: handleGoogleLogin,
+    });
+
+    /* Render button */
+    window.google.accounts.id.renderButton(
+      document.getElementById("googleSignInButton"),
+      { theme: "outline", size: "large" }  // Tùy chỉnh giao diện nút
+    );
+  }, []);
+
+  /* Hàm xử lý sau khi nhận token từ Google */
+const handleGoogleLogin = async (response) => {
+    const { credential } = response;  // Lấy token Google
+    const user = jwtDecode(credential);  // Giải mã token để lấy thông tin người dùng
+
+    const userName = user.email.split('@')[0];  // Tạo userName từ phần đầu của email
+
+    try {
+        const res = await axios.post('http://localhost:8080/api/auth/google', { idToken: credential });
+        const token = res.data.token;  // Lấy token từ backend
+        const userId = res.data.userId;  // Lấy userId từ backend
+        const userExists = res.data.userExists;  // Kiểm tra xem người dùng đã tồn tại trong hệ thống chưa
+
+        console.log("JWT from backend:", token);
+        
+        if (token && userId) {
+            localStorage.setItem('jwt_token', token);  // Lưu token vào localStorage
+
+            // Thiết lập cookie userId với thời gian hết hạn là 24 giờ
+            const expires = new Date();
+            expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);  // 24 giờ
+            document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
+
+            // Nếu người dùng đã có tài khoản, chuyển hướng đến trang chủ '/'
+            if (userExists) {
+                navigate('/');  // Điều hướng về trang chủ
+            } else {
+                // Nếu tài khoản chưa có, chuyển đến trang đăng ký /userInfor
+                navigate('/userInfor', {
+                    state: { 
+                        userName,
+                        email: user.email,
+                        password: null,
+                        name: user.name,
+                        avatar: user.picture || null,
+                        inspiredBys: [],
+                        talents: [],
+                        genres: []
+                    }
+                });
+            }
+        } else {
+            setError('User ID không hợp lệ.');  // Nếu không có userId hoặc token, hiển thị thông báo lỗi
+        }
+    } catch (error) {
+        console.error('Login failed', error);
+        setError('Đăng nhập thất bại. Vui lòng thử lại.');
+    }
+};
+
+
+const handleGoogleFailure = () => {
+  setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+};
+
   return (
     <div>
       <Header2 />
@@ -82,33 +141,25 @@ const Login = () => {
         <div className="section-overlay" />
         <div className="container">
           <div className="row">
-            <div className="colcol-10-lg-6  mx-auto">
-              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin} style={{marginLeft: '100px', marginRight: '100px'}}>
+            <div className="col-lg-6 mx-auto">
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
-                  {loading && ( // Hiển thị loading full màn hình nếu đang loading
+                  {loading && (
                     <div style={{
                       position: 'fixed',
                       top: 0,
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)', // Nền mờ
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)', 
                       zIndex: 9999,
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center'
                     }}>
-                      <Audio
-                        height="80"
-                        width="80"
-                        radius="9"
-                        color="#e94f37"
-                        ariaLabel="three-dots-loading"
-                        wrapperStyle
-                        wrapperClass
-                      />
+                      <Audio height="80" width="80" radius="9" color="#e94f37" ariaLabel="three-dots-loading" />
                     </div>
                   )}
                   <div className="row">
@@ -116,8 +167,6 @@ const Login = () => {
                     <div className="col-lg-12" style={{ marginTop: -30 }}>
                       <input
                         type="text"
-                        name="userNameOrEmail"
-                        id="userNameOrEmail"
                         className="form-control"
                         placeholder="Nhập tên đăng nhập hoặc email"
                         value={userNameOrEmail}
@@ -131,7 +180,6 @@ const Login = () => {
                       <input
                         type="password"
                         className="form-control"
-                        name="password"
                         placeholder="Nhập mật khẩu"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -150,6 +198,13 @@ const Login = () => {
                     <Link to="/forgot-password" className="text-primary">
                       <b>Quên mật khẩu?</b>
                     </Link>
+                  </div>
+                  <div className="col-lg-6 d-flex justify-content-center" style={{ marginTop: 20 }}>
+                  <GoogleLogin
+                      onSuccess={handleGoogleLogin}
+                      onFailure={handleGoogleFailure}
+                      style={{ width: '100%' }}
+                    />
                   </div>
                 </div>
               </form>

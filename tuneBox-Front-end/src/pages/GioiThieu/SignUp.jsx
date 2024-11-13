@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
 import Header2 from "../../components/Navbar/Header2.jsx";
 import Footer2 from "../../components/Footer/Footer2.jsx";
-import { images } from "../../assets/images/images.js";
-import axios from 'axios'; 
 import Swal from "sweetalert2";
-import { Audio } from 'react-loader-spinner'
 import { GoogleLogin } from '@react-oauth/google';
-
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 const SignUp = () => {
   const [userName, setUserName] = useState('');
@@ -37,35 +34,77 @@ const SignUp = () => {
     }
 
     try {
-      //kiểm tra đăng ký
-      const response = await axios.get('http://localhost:8080/user/check-signUp', {
-        params: { userName, email, password }
-      });
+      const formData = { userName, email, password };
+      const response = await axios.post('http://localhost:8080/user/register', formData);
 
       if (response.status === 200) {
-        const formData = { userName, email, password, name: null, avatar: null, inspiredBys: [], talents: [], genres: [] };
-        navigate('/userInfor', { state: formData });
+        Swal.fire("Success", "Registration successful", "success");
+        navigate('/userInfor');
       }
     } catch (err) {
       if (err.response && err.response.data) {
-        setError(err.response.data);  // Hiển thị lỗi từ server
+        setError(err.response.data);
       } else {
         setError("An error occurred while registering. Please try again later.");
       }
     }
   };
 
-  const responseGoogle = async (response) => {q
+  
+  useEffect(() => {
+    /* Khởi tạo Google Sign-In */
+    window.google.accounts.id.initialize({
+      client_id: '28392767205-kjh3koov94lcf8d2dhh83o15siro23m7.apps.googleusercontent.com', // Client ID từ Google API Console
+      callback: handleGoogleLogin,
+    });
+
+    /* Render button */
+    window.google.accounts.id.renderButton(
+      document.getElementById("googleSignInButton"),
+      { theme: "outline", size: "large" }  // Tùy chỉnh giao diện nút
+    );
+  }, []);
+
+  /* Hàm xử lý sau khi nhận token từ Google */
+  const handleGoogleLogin = async (response) => {
+    const { credential } = response;
+    console.log("Credential from Google: ", credential);
+
+    const user = jwtDecode(credential);
+    const userName = user.email.split('@')[0];
+
     try {
-      const { credential } = response;
-      const res = await axios.get('http://localhost:8080/user/oauth2/authorization/google', {
-        headers: { Authorization: `Bearer ${credential}` }
-      });
-      navigate('/login');
+        const res = await axios.post('http://localhost:8080/api/auth/google', { idToken: credential });
+        const { token, userExists } = res.data;
+
+        localStorage.setItem('jwtToken', token);
+
+        if (res.status === 200) {
+            const formData = { 
+                userName, 
+                email: user.email, 
+                password: null,
+                name: user.name, 
+                avatar: user.picture || null, 
+                inspiredBys: [], 
+                talents: [], 
+                genres: [] 
+            };
+
+            if (userExists) {
+                navigate('/');  // Điều hướng người dùng hiện có tới trang chính
+            } else {
+                navigate('/userInfor', { state: formData });  // Điều hướng người dùng mới tới trang cập nhật thông tin
+            }
+        }
     } catch (error) {
-      setError("Đăng nhập bằng Google không thành công!");
+        console.error('Login failed', error);
     }
+};
+  const handleGoogleFailure = () => {
+    setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
   };
+
 
   return (
     <div>
@@ -107,14 +146,18 @@ const SignUp = () => {
                   </div>
 
                   <div className="col-lg-4 col-md-10 col-8 mx-auto">
-                    <button type="submit" className="form-control">Resrister</button>
+                    <button type="submit" className="form-control">Register</button>
                   </div>
                   <div className="col-lg-4 col-md-10 col-8 mx-auto" style={{ marginTop: 20, paddingLeft: 20 }}>
                     <span className="text-center">Or continue with</span>
                   </div>
                   <div className="row d-flex justify-content-center" style={{ marginTop: 20 }}>
                     <div className="col-lg-6 d-flex justify-content-center">
-                      <GoogleLogin onSuccess={responseGoogle} onFailure={responseGoogle} cookiePolicy={'single_host_origin'} />
+                    <GoogleLogin
+                      onSuccess={handleGoogleLogin}
+                      onFailure={handleGoogleFailure}
+                      style={{ width: '100%' }}
+                    />
                     </div>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>

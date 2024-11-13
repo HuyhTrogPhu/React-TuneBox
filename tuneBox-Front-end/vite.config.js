@@ -17,7 +17,7 @@ export default defineConfig({
         secure: false,
       },
       "/api": {
-        target: "https://thongtindoanhnghiep.co",
+        target: "https://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
