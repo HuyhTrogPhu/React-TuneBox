@@ -8,6 +8,7 @@ body {
   }
   
   .messenger-container {
+    margin-top: 75px;
     display: flex;
     height: 100vh;
     overflow: hidden;
@@ -25,7 +26,7 @@ body {
   
   .messenger-header {
     padding: 20px;
-    background: linear-gradient(135deg, #0084ff 0%, #0099ff 100%);
+    background: #E94F37;
     color: white;
     font-size: 24px;
     font-weight: 600;

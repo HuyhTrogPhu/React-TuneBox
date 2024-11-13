@@ -29,7 +29,7 @@ const PlaylistDetail = () => {
   //loc danh sach all user
   console.log(PlayList);
   const filteredUsers = PlayList.tracks
-    ? PlayList.tracks.filter((user) =>
+    ? PlayList.track.filter((user) =>
         user.name
       )
     : [];

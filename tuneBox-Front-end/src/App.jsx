@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Route, Routes, Outlet,useParams } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -51,6 +50,10 @@ import FollowingPage from "./pages/SocialMedia/FollowingPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { getUserRole, isUserRole } from './service/auth';
 import Chat from "./pages/SocialMedia/chat/chat";
+import FeedTrack from "./pages/SocialMedia/FeedTrack";
+import FeedPost from "./pages/SocialMedia/FeedPost";
+import TrackAI from "./components/TrackAI/TrackAI";
+
 // Layout có Header
 
 //socialadmin
@@ -86,11 +89,11 @@ function App() {
           <Routes>
             {/* Các route có Header */}
             <Route element={<LayoutWithHeader />}>
-              <Route path="/" element={<HomeFeed />} />
+              <Route path="/*" element={<HomeFeed />} />
               <Route path="/HomeEcommerce" element={<Home />} />
+              {/* Route cho Main Content */}
               <Route path="/Shop" element={<Shop />} />
               <Route path="/profileUser/*" element={<ProfileUser />} />
-              <Route path="/profileUser" element={<ProfileUser />} />
               <Route path="/profileSetting" element={<ProfileSetting />} />
               <Route path="/CartDetail" element={<CartDetail />} />
               <Route path="/cart" element={<Cart />} />
@@ -125,6 +128,11 @@ function App() {
               <Route path="/likePlaylist" element={<LikePlaylists />} />
               <Route path="/playlist/:id" element={<PlayListDetail />} />
               <Route path="/search" element={<SearchForm />} />
+              {/* Route cho Main Content */}
+              <Route path="/feed/track" element={<FeedTrack />} />
+              <Route path="/feed/post" element={<FeedPost />} />
+              {/* Route track ai */}
+              <Route path="/track-ai" element={<TrackAI />} />
             </Route>
 
             {/* Các route không có Header */}
