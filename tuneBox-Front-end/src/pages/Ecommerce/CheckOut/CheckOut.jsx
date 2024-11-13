@@ -491,8 +491,8 @@ title: 'Success',
                                 id="fast"
                                 name="shipping"
                                 value="fast"  // Cập nhật giá trị 'value' cho đúng
-                                checked={shippingMethod === 'Fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
-                                onChange={() => handleShippingChange('Fast')}
+                                checked={shippingMethod === 'fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
+                                onChange={() => handleShippingChange('fast')}
                                 className="me-2"
                             />
                             <label htmlFor="fast">Fast Delivery</label>
