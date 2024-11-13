@@ -352,19 +352,6 @@ const HomeFeed = () => {
   };
   // end playlist
 
-  const handleAvatarClick = (post) => {
-    console.log("Current User ID:", currentUserId);
-    console.log("Post User ID:", post.userId);
-
-    if (String(post.userId) === String(currentUserId)) {
-      console.log("Navigating to ProfileUser");
-      navigate("/profileUser");
-    } else {
-      console.log("Navigating to OtherUserProfile");
-      navigate(`/profile/${post.userId}`);
-    }
-  };
-
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
     try {
