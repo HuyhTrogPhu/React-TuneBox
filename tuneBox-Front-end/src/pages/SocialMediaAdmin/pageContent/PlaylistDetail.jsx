@@ -64,10 +64,15 @@ const PlaylistDetail = () => {
               {/* Card Body */}
               <div className="card-body pt-5 mt-5 text-center">
                 <h5>{PlayList.title}</h5>
+                <h3 className="text-start">Creator</h3>
+                <h5 className="text-start">{PlayList.creator}</h5>
+                <h3 className="text-start">Description</h3>
+                <h5 className="text-start">{PlayList.description}</h5>
+                <h3 className="text-start">Total Like</h3>
+                <h5 className="text-start">{PlayList.likeCount}</h5>
+                
 
-                <a href="#" className="btn btn-danger mt-3">
-                  Ban/Unban
-                </a>
+            
               </div>
             </div>
           </div>
@@ -75,7 +80,7 @@ const PlaylistDetail = () => {
           <div className="col-lg-8 col-md-8" style={{ marginTop: 100 }}>
             <div className="card mb-4">
               <div className="card-header bg-dark text-white">
-                <h5>All Tracks</h5>
+                <h5 className="text-light">All Tracks</h5>
               </div>
               <div className="card-body">
                 <div className="input-group mb-3">

@@ -80,9 +80,7 @@ const PostDetail = () => {
                     <p className="card-text">About: ???</p>
                   </div>
                 </div>
-                <a href="#" className="btn btn-danger mt-3">
-                  Ban/Unban
-                </a>
+
               </div>
             </div>
           </div>

@@ -109,7 +109,7 @@ const UserDetail = () => {
             <label class="d-block mb-2">{userDetail.createDate}</label>
           </div>
 
-          <button className="btn btn-danger w-75 my-2">Ban/UnBan</button>
+      
         </div>
 
         {/* Right Side (Tracks, Albums, Playlists) */}

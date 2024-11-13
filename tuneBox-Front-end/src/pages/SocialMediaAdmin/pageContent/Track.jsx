@@ -49,7 +49,7 @@ const Track = () => {
   
     const today = new Date().toISOString().split('T')[0]; 
     console.log(today);
-    const filtered = users.filter(user => user.createDate === today);
+    const filtered = users.filter(user => user.createDate.split('T')[0] === today);
     
     setFilteredUsers(filtered);
     setTotalPages(Math.ceil(filtered.length / rowsPerPage));
@@ -111,7 +111,7 @@ const Track = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search by username "
+                  placeholder="Search by Track name"
                   value={keyword}
                   onChange={handleKeywordChange}
                 />
@@ -148,7 +148,7 @@ const Track = () => {
           <div className="col-3">
             <form>
               <div className="mt-3">
-                <label className="form-label">New User on</label>
+                <label className="form-label">New Track on</label>
                 <div className="d-flex">
                   <button className="btn btn-primary"  onClick={(e) => handlTodayUser(e)}>
                     Today
@@ -184,10 +184,10 @@ const Track = () => {
                     Likes
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
-                    Register Day
+                  Create Day
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
-                    Create Day
+                 Description
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
                     Action

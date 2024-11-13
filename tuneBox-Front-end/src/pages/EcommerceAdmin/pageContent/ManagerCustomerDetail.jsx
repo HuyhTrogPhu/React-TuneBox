@@ -72,8 +72,7 @@ const ManagerCustomerDetail = () => {
             style={{ width: "150px", height: "150px" }}
           />
           <h4>User information</h4>
-          <button className="btn btn-danger w-75 my-2">Ban/UnBan</button>
-          <button className="btn btn-dark w-75 my-2">Update</button>
+         
         </div>
 
         {/* Right Side (Tracks, Albums, Playlists) */}

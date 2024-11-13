@@ -45,11 +45,9 @@ const Users = () => {
 
   const handlTodayUser = (event) => {
     event.preventDefault();
-  
     const today = new Date().toISOString().split('T')[0]; 
     console.log(today);
     const filtered = users.filter(user => user.createDate === today);
-    
     setFilteredUsers(filtered);
     setTotalPages(Math.ceil(filtered.length / rowsPerPage));
   };

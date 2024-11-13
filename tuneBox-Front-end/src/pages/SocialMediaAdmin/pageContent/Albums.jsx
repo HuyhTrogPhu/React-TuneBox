@@ -1,317 +1,285 @@
 import React, { useEffect, useState } from "react";
-import { images } from "../../../assets/images/images";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+import { Link } from "react-router-dom";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
-  LoadAlbum,
-  LoadAlbumReport,
-  DeniedRPTrack,
-  ApproveRPTrack,
-  LoadTrackReportDetail
+  LoadAlbum
 } from "../../../service/SocialMediaAdminService";
-const Albums = () => {
-  const [AllUser, setAllUser] = useState([]);
+
+const Albums = () => {  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [onDate, setOnDate] = useState();
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
   const [currentPage, setCurrentPage] = useState(1);
-  const [NewUser, setNewUser] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [postCount, setPostCount] = useState(0);
-  const [Report, setReport] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [modalData, setModalData] = useState(null);
-  const usersPerPage = 5;
-  const navigate = useNavigate();
-  const fetchData = async () => {
-    // Gọi API load all playlist
-    const responseLoadAllUser = await LoadAlbum();
-    console.log("All album:", responseLoadAllUser);
-    if (responseLoadAllUser.status) {
-      setAllUser(responseLoadAllUser.data);
-      console.log(AllUser);
-    }
-
-    // Gọi API load all Album RP
-    const responseLoadAllReport = await LoadAlbumReport();
-    console.log("All Report:", responseLoadAllReport);
-    if (responseLoadAllReport.status) {
-      setReport(responseLoadAllReport.data);
-    }
-  };
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 7;
 
   useEffect(() => {
-    fetchData();
+    fetchUsers();
   }, []);
-  useEffect(() => {
-    const lastFiveUsers = AllUser.slice(-5);
-    setNewUser(lastFiveUsers);
-  }, [AllUser]);
 
-  //count cho table all user
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  //loc danh sach all user
-  // Lọc danh sách all user
-  const filteredUsers = AllUser.filter(
-    (user) =>
-      user.title && user.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  //lay ra user da tim kiem
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
-
-  
-  const handleShowModal = async (id) => {
+  const fetchUsers = async () => {
     try {
-      // Lấy dữ liệu từ API theo id
-      const response = await LoadTrackReportDetail(id);
-      setModalData(response.data); // Lưu dữ liệu vào state
-      setShowModal(true); // Hiển thị modal
+      const response = await LoadAlbum();
+      setUsers(response.data);
+      setFilteredUsers(response.data);
+      setTotalPages(Math.ceil(response.data.length / rowsPerPage));
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu:", error);
+      console.error("Failed to fetch users:", error);
     }
   };
 
-  const handleCloseModal = () => setShowModal(false);
-  const handleDenied =(id) =>{
-    const Denied = DeniedRPTrack(id);
-    if (Denied.status){
-      setShowModal(false);
-      fetchData(); 
-    }
-  }
-  const handleApprove =(id) =>{
-    const Approve = ApproveRPTrack(id);
-    if (Approve.status){
-      setShowModal(false);
-      fetchData(); 
-    }
-  }
-  return (
-    <div className="container mt-4">
-      <div className="row">
-        {/* New Users */}
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header bg-dark text-white">
-              <h5 className="text-light">New Album</h5>
-            </div>
-            <div className="card-body">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Title </th>
-                    <th>Create Date</th>
-                    <th>Total tracks</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {NewUser.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.title}</td>
-                      <td>{user.createDate}</td>
-                      <td>{user.tracks.length}</td>
-                      <td>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() =>
-                            navigate(`/socialadmin/AlbumDetail/${user.id}`)
-                          }
-                        >
-                          Views
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+  const handleKeywordChange = (e) => {
+    setKeyword(e.target.value);
+    filterUsers(e.target.value, startDate, endDate, endDate);
+  };
+  const handleDayChange = (from, to) => {
+    setStartDate(from);
+    setEndDate(to);
+    filterUsers(keyword, from, to);
+  };
 
-        {/* Featured Users */}
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header bg-dark text-white">
-              <h5 className="text-light">All Album</h5>
-            </div>
-            <div className="card-body">
-              <div className="input-group mb-3">
+  const handlTodayUser = (event) => {
+    event.preventDefault();
+  
+    const today = new Date().toISOString().split('T')[0]; 
+    console.log(today);
+    const filtered = users.filter(user => user.createDate.split('T')[0] === today);
+    
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+  };
+  
+
+  const filterUsers = async (searchKeyword, fromDate, toDate) => {
+    let filtered = users;
+    if (searchKeyword) {
+      filtered = filtered.filter(
+        (user) =>
+          user.name.includes(searchKeyword)
+        
+      );
+    }
+    if (fromDate && toDate) {
+      filtered = filtered.filter(user => user.createDate >= fromDate && user.createDate <= toDate);
+    }
+
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage)); // Recalculate total pages after filtering
+  };
+
+  const paginateUsers = () => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return filteredUsers.slice(startIndex, endIndex);
+  };
+
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+  // Hàm xuất Excel
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filteredUsers);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Customers");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: EXCEL_TYPE });
+    saveAs(data, "customers.xlsx");
+  };
+
+  const EXCEL_TYPE =
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+  const EXCEL_EXTENSION = ".xlsx";
+
+  return (
+    <div>
+      {/* Main content */}
+      <div className="container-fluid">
+        <div className="row">
+          {/* Search by keyword */}
+          <div className="col-4">
+            <form action="">
+              <div className="mt-3">
+                <label className="form-label">Search by keyword:</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by Track name"
+                  value={keyword}
+                  onChange={handleKeywordChange}
                 />
-                <button className="btn btn-secondary" style={{ marginTop: 10 }}>
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                </button>
               </div>
-              <div>
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Title </th>
+            </form>
+          </div>
 
-                      <th>Create Date</th>
-                      <th>Total tracks</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {NewUser.map((user) => (
-                      <tr key={user.id}>
-                        <td>{user.title}</td>
-
-                        <td>{user.createDate}</td>
-                        <td>{user.tracks.length}</td>
-                        <td>
-                          <button
-                            className="btn btn-danger"
-                            onClick={() =>
-                              navigate(`/socialadmin/AlbumDetail/${user.id}`)
-                            }
-                          >
-                            Views
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <nav>
-                  <ul className="pagination">
-                    {pageNumbers.map((page) => (
-                      <li
-                        key={page}
-                        className={`page-item ${
-                          page === currentPage ? "active" : ""
-                        }`}
-                      >
-                        <button
-                          onClick={() => setCurrentPage(page)}
-                          className="page-link"
-                        >
-                          {page}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
+          {/* Total day filter */}
+          <div className="col-4">
+            <form>
+              <div className="mt-3">
+                <label className="form-label">Chose Day</label>
+                <div className="d-flex">
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="From"
+                    value={startDate}
+                    onChange={(e) => handleDayChange(e.target.value, startDate)}
+                  />
+                  -
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="To"
+                    value={endDate}
+                    onChange={(e) => handleDayChange(startDate, e.target.value)}
+                  />
+                </div>
               </div>
-            </div>
+            </form>
+          </div>
+          {/* Total order count filter */}
+          <div className="col-3">
+            <form>
+              <div className="mt-3">
+                <label className="form-label">New Album on</label>
+                <div className="d-flex">
+                  <button className="btn btn-primary"  onClick={(e) => handlTodayUser(e)}>
+                    Today
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header bg-dark text-white">
-              <h5 className="text-light">Report</h5>
-            </div>
-            <div className="card-body">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Report Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Report.map((rp) => (
-                    <tr key={rp.id}>
-                      <td>{rp.name}</td>
-                      <td>{rp.createDate}</td>
-                      <td>{rp.status}</td>
-                      <td>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() => handleShowModal(rp.id)}
-                        >
-                          Views
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
 
+        {/* Table */}
+        <div className="row mt-5">
+          <div className="col-12">
+          <table className="table">
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    #
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Album Name
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Tracks
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                   Status
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    User Name
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Likes
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                  Create Day
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                  Description
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Action
+                  </th>
+                  
+                </tr>
+              </thead>
+              <tbody>
+                {paginateUsers().map((user, index) => (
+                  <tr key={user.id}>
+                    <th style={{ textAlign: "center" }} scope="row">
+                      {index + 1 + (currentPage - 1) * rowsPerPage}
+                    </th>
+                    <td>{user.title}</td>
+                    <td>{user.tracks.length}</td>
+                    <td>{user.status ? "Active" : "Unactive"}</td>
+                    <td>{user.creator}</td>
+                    <td>{user.likeCount ? user.likeCount :"0" }</td>
+                    <td>{user.createDate.split('T')[0]}</td>
+                    <td>{user.description}</td>
+                    <td>
+                      <Link
+                        className="btn btn-primary"
+                        style={{ color: "#000" }}
+                        to={`/socialadmin/AlbumDetail/${user.id}`}
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-3">
+              <button className="btn btn-success" onClick={exportToExcel}>
+                Excel export
+              </button>
+            </div>
+
+            {/* Pagination */}
+            <div className="">
+              <nav aria-label="Page navigation example">
+                <ul className="pagination justify-content-center text-center">
+                  <li
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => paginate(currentPage - 1)}
+                      aria-label="Previous"
+                    >
+                      <span aria-hidden="true">«</span>
+                    </button>
+                  </li>
+                  {[...Array(totalPages).keys()].map((number) => (
+                    <li
+                      key={number + 1}
+                      className={`page-item ${
+                        currentPage === number + 1 ? "active" : ""
+                      }`}
+                    >
+                      <button
+                        onClick={() => paginate(number + 1)}
+                        className="page-link"
+                      >
+                        {number + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => paginate(currentPage + 1)}
+                      aria-label="Next"
+                    >
+                      <span aria-hidden="true">»</span>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
       </div>
-      {showModal && (
-                <div
-                  className="modal fade show"
-                  style={{ display: "block" }}
-                  tabIndex="-1"
-                  aria-labelledby="exampleModalLabel"
-                  aria-hidden="true"
-                >
-                  <div className="modal-dialog">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">
-                          Chi tiết Report
-                        </h5>
-                        <button
-                          type="button"
-                          className="btn-close"
-                          onClick={handleCloseModal}
-                          aria-label="Close"
-                        ></button>
-                      </div>
-                      <div className="modal-body">
-                      {modalData ? (
-                          <>
-                            <p>Track Name: {modalData.track.name}</p>
-                            <p>Status: {modalData.status}</p>
-                            <p>Report created day: {modalData.createDate}</p>
-                            <p>Reson: {modalData.reason}</p>
-                            
-                          </>
-                        ) : (
-                          <p>In loading process...</p>
-                        )}
-                      </div>
-                      <div className="modal-footer">
-                      <button
-                            className="btn btn-info"
-                            onClick={() =>
-                              navigate(`/socialadmin/TrackDetail/${modalData.track.id}`)
-                            }
-                          >
-                            Views Track Detail
-                          </button>
-                      <button
-                          type="button"
-                          className="btn btn-danger"
-                          onClick={() =>handleApprove(modalData.id)}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={() =>handleDenied(modalData.id)}
-                        >
-                          Denied
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={handleCloseModal}
-                        >
-                          Closing
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
     </div>
   );
 };
+
 
 export default Albums;

@@ -219,7 +219,7 @@ export const LoadAlbumReport = async () => {
   }
 };
 //load Report
-export const LoadTrackReportDetail = async (id) => {
+export const LoadReportDetail = async (id) => {
   try {
     const response = await axios.get(
       `http://localhost:8082/SocialAdmin/static/getReport/${id}`,
@@ -233,7 +233,7 @@ export const LoadTrackReportDetail = async (id) => {
 };
 
 //load Track<Report>
-export const DeniedRPTrack = async (id) => {
+export const DeniedRP = async (id) => {
   try {
     const response = await axios.put(
       `http://localhost:8082/SocialAdmin/static/DeniedRPTrack/${id}`,
@@ -247,7 +247,7 @@ export const DeniedRPTrack = async (id) => {
 };
 
 //load Track<Report>
-export const ApproveRPTrack = async (id) => {
+export const ApproveRP = async (id) => {
   try {
     const response = await axios.put(
       `http://localhost:8082/SocialAdmin/static/ApproveRPTrack/${id}`,
