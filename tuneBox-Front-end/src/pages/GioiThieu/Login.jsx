@@ -95,7 +95,7 @@ const handleGoogleLogin = async (response) => {
         console.log("JWT from backend:", token);
         
         if (token && userId) {
-            localStorage.setItem('jwt_token', token);  // Lưu token vào localStorage
+            localStorage.setItem('jwtToken', token);  // Lưu token vào localStorage
 
             // Thiết lập cookie userId với thời gian hết hạn là 24 giờ
             const expires = new Date();
