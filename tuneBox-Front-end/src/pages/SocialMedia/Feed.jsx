@@ -80,9 +80,14 @@ const HomeFeed = () => {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   const tokenjwt = localStorage.getItem('jwtToken');
+  const [activeComponent, setActiveComponent] = useState('track'); // State để quản lý component hiển thị track or post
 
   //get avatar
   const [userData, setUserData] = useState({});
+  // tag name user
+  const [showPostModal, setShowPostModal] = useState(false); // Modal tạo bài viết
+  const [showTagModal, setShowTagModal] = useState(false); // Modal tag người dùng
+  const [userSuggestions, setUserSuggestions] = useState([]); // Danh sách gợi ý tên người dùng
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -454,18 +459,18 @@ const HomeFeed = () => {
         userId: currentUserId,
         postId: postId,
       };
-  
+
       if (likes[postId]?.data) {
         // Nếu đã like, thực hiện unlike
         await fetch(`http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`, {
           method: "DELETE",
         });
-  
+
         setLikes((prevLikes) => ({
           ...prevLikes,
           [postId]: { ...prevLikes[postId], data: false },
         })); // Cập nhật trạng thái like
-  
+
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -483,16 +488,16 @@ const HomeFeed = () => {
           },
           body: JSON.stringify(likeDto), // Gửi dữ liệu likeDto
         });
-  
+
         if (!response.ok) {
           throw new Error("Failed to like the post");
         }
-  
+
         setLikes((prevLikes) => ({
           ...prevLikes,
           [postId]: { ...prevLikes[postId], data: true },
         })); // Cập nhật trạng thái like
-  
+
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -506,8 +511,8 @@ const HomeFeed = () => {
       console.error("Error liking post:", error);
     }
   };
-  
-      
+
+
   // reply comment
   const handleToggleReplies = (commentId) => {
     setShowAllReplies((prev) => ({
@@ -1026,9 +1031,67 @@ const HomeFeed = () => {
       toast.error("Failed to toggle post visibility. Please try again."); // Notify user of error
     }
   };
+
+  // get user information in feed
+
+
+  // Lấy danh sách tên người dùng có thể tag
+  useEffect(() => {
+    const fetchUserTags = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/posts/tagName", {
+          withCredentials: true,
+        });
+        console.log("User tags fetched:", response.data);
+        setUserSuggestions(response.data);
+      } catch (error) {
+        console.error("Error fetching user tags:", error);
+      }
+    };
+    fetchUserTags();
+  }, []);
+
+  // Hiển thị modal khi nhấn nút "What are you thinking about?"
+  const handleCreatePostClick = () => {
+    setShowPostModal(true);
+  };
+
+  // Đóng modal tạo bài viết
+  const closePostModal = () => {
+    setShowPostModal(false);
+    setPostContent("");
+    setPostImages([]);
+    setPostImageUrls([]);
+  };
+
+  // Xử lý khi có thay đổi trong textarea
+  const handleTextareaChange = (e) => {
+    const value = e.target.value;
+    setPostContent(value);
+
+    // Kiểm tra nếu ký tự cuối là "@"
+    if (value.slice(-1) === "@") {
+      setShowTagModal(true);
+    } else {
+      setShowTagModal(false); // Đóng modal nếu không phải là "@"
+    }
+  };
+
+  // Thêm tên người dùng vào postContent khi chọn
+  const handleTagUser = (username) => {
+    setPostContent((prevContent) => prevContent + username + " ");
+    setShowTagModal(false); // Đóng modal sau khi chọn
+  };
+
   return (
     <div>
-      <div className="container-fluid feed-container">
+      <div className="container-fluid feed-container"
+        style={{
+          backgroundImage: `url(${images.backg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
@@ -1050,7 +1113,7 @@ const HomeFeed = () => {
               </div>
               {/* View profile */}
               <div className="view-profile text-center">
-                <Link style={{ color: '#E94F37' }} to={''}>View profile</Link>
+                <Link style={{ color: '#E94F37' }} to={'/profileUser'}>View profile</Link>
               </div>
             </div>
             <ul className="list-unstyled">
@@ -1058,7 +1121,7 @@ const HomeFeed = () => {
                 <a
                   href="/#"
                   className="d-flex align-items-center "
-                  style={{ textAlign: "center" }}
+                  style={{ textAlign: "center", marginTop: '0px' }}
                 >
                   <img
                     src={images.web_content}
@@ -1120,11 +1183,13 @@ const HomeFeed = () => {
                 </Link>
               </li>
               <li className="left mb-4">
+
                 <Link
                   to={"/FriendRequests"}
-                  className="d-flex align-items-center"
+                  className="d-flex align-items-center justify-content-center"
                 >
-                  <span className="fw-bold">Danh sách lời mời kết bạn</span>
+                  <i className="fa-solid fa-user-group me-1"></i>
+                  <span className="fw-bold">Lời mời kết bạn</span>
                 </Link>
               </li>
             </ul>
@@ -1132,24 +1197,29 @@ const HomeFeed = () => {
 
 
           {/* Main content */}
-          <div className="col-6 content p-4">
-
+          <div className="col-6 content">
             {/* Nav tab link */}
-            <div className="row nav-link-feed">
+            <div className="row nav-link-feed mt-4">
               <ul className="d-flex justify-content-center">
-                <li className="col-6 text-center feed-link">
+                <li
+                  className={`col-6 text-center feed-link ${activeComponent === 'track' ? 'active' : ''}`}
+                  onClick={() => setActiveComponent('track')}
+                >
                   <i className="fa-solid fa-music me-1"></i>
-                  <Link to="feed/track"> Track</Link> {/* Đường dẫn con */}
+                  <span>Track</span>
                 </li>
-                <li className="col-6 text-center feed-link">
+                <li
+                  className={`col-6 text-center feed-link ${activeComponent === 'post' ? 'active' : ''}`}
+                  onClick={() => setActiveComponent('post')}
+                >
                   <i className="fa-solid fa-newspaper me-1"></i>
-                  <Link to="feed/post"> Post</Link> {/* Đường dẫn con */}
+                  <span>Post</span>
                 </li>
               </ul>
             </div>
 
             {/* Nút tạo bài */}
-            <div className="create-post container mt-2 mb-5">
+            <div className="create-post container">
               <div className="row align-items-center">
                 <div className="col-auto post-header">
                   <img
@@ -1167,6 +1237,7 @@ const HomeFeed = () => {
                       width: '85%',
                       height: 50,
                     }}
+                    onClick={handleCreatePostClick}
                   >
                     What are you thinking about?
                   </button>
@@ -1174,14 +1245,12 @@ const HomeFeed = () => {
               </div>
             </div>
 
+            {/* Nội dung theo lựa chọn Track hoặc Post */}
             <div className="container">
-              <Routes>
-                <Route index element={<FeedTrack />} />
-                <Route path="feed/track" element={<FeedTrack />} /> {/* Route cho FeedTrack */}
-                <Route path="feed/post" element={<FeedPost />} />   {/* Route cho FeedPost */}
-              </Routes>
+              {activeComponent === 'track' ? <FeedTrack /> : <FeedPost />}
             </div>
           </div>
+
 
 
           {/* Right Sidebar */}
@@ -1246,7 +1315,7 @@ const HomeFeed = () => {
                   onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
                   className="btn btn-primary"
                 >
-                  Báo cáo
+                  Report
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -1256,7 +1325,7 @@ const HomeFeed = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  Đóng
+                  Close
                 </button>
               </div>
 
@@ -1264,84 +1333,104 @@ const HomeFeed = () => {
           </div>
         </div>
       )}
+
       {/* Modal để tạo bài viết */}
-      <div
-        id="post-modal"
-        className="modal-overlay"
-        style={{ display: "none" }}
-      >
-        <div className="modal-content">
-          <div>
-            <div className="post-header">
-              <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"} />
-              <div>
-                <div className="name">{userData.name}</div>
-                <div className="time">Posting to Feed</div>
+      {showPostModal && (
+        <div
+          id="post-modal"
+          className="modal-overlay"
+          style={{ display: "block" }}
+        >
+          <div className="modal-content">
+            <div>
+              <div className="post-header">
+                <img
+                  src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                />
+                <div>
+                  <div className="name">{userData.name}</div>
+                  <div className="time">Posting to Feed</div>
+                </div>
+                <button
+                  id="close-modal"
+                  type="button"
+                  className="btn btn-close"
+                  onClick={closePostModal} // Đóng modal tạo bài viết
+                ></button>
               </div>
-              <button
-                id="close-modal"
-                type="button"
-                className="btn btn-close"
-              ></button>
-            </div>
-            <div className="col">
-              <textarea
-                id="post-textarea"
-                className="form-control"
-                rows={3}
-                placeholder="Write your post here..."
-                value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
-              />
-              <div className="row mt-3">
-                <div className="col text-start">
-                  <input
-                    type="file"
-                    id="file-input" // Thêm id này
-                    multiple
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files);
-                      setPostImages(files);
-                      setPostImageUrls(
-                        files.map((file) => URL.createObjectURL(file))
-                      );
-                    }}
-                  />
-                </div>
-                <div className="col text-end">
-                  <button
-                    id="submit-post"
-                    type="button"
-                    style={{ backgroundColor: "#E94F37" }}
-                    className="btn btn-secondary"
-                    onClick={handleSubmitPost}
-                  >
-                    Post
-                  </button>
-                </div>
-                {/* Hiển thị ảnh đã chọn */}
-                {postImageUrls.length > 0 && (
-                  <div className="selected-images mt-3">
-                    {postImageUrls.map((url, index) => (
-                      <img
-                        key={index}
-                        src={url}
-                        alt={`Selected ${index}`}
-                        style={{
-                          width: "100px",
-                          height: "100px",
-                          objectFit: "cover",
-                          marginRight: "5px",
-                        }}
-                      />
-                    ))}
+              <div className="col">
+                <textarea
+                  id="post-textarea"
+                  className="form-control"
+                  rows={3}
+                  placeholder="Write your post here..."
+                  value={postContent}
+                  onChange={handleTextareaChange}
+                />
+                {/* Hiển thị modal tag user khi gõ @ */}
+                {showTagModal && (
+                  <div className="tag-modal">
+                    <ul>
+                      {userSuggestions.map((user, index) => (
+                        <li key={index} onClick={() => handleTagUser(user.tagName)}>
+                          <Link to={`/profile/${user.id}`} className="tag-link">
+                            {user.tagName}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
+                <div className="row mt-3">
+                  <div className="col text-start">
+                    <input
+                      type="file"
+                      id="file-input"
+                      multiple
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files);
+                        setPostImages(files);
+                        setPostImageUrls(
+                          files.map((file) => URL.createObjectURL(file))
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="col text-end">
+                    <button
+                      id="submit-post"
+                      type="button"
+                      style={{ backgroundColor: "#E94F37" }}
+                      className="btn btn-secondary"
+                      onClick={handleSubmitPost} // Đóng modal tạo bài viết sau khi đăng bài
+                    >
+                      Post
+                    </button>
+                  </div>
+                  {/* Hiển thị ảnh đã chọn */}
+                  {postImageUrls.length > 0 && (
+                    <div className="selected-images mt-3">
+                      {postImageUrls.map((url, index) => (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`Selected ${index}`}
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            objectFit: "cover",
+                            marginRight: "5px",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
     </div>
   );

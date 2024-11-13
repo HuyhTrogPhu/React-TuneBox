@@ -3,7 +3,7 @@ import { images } from "../../assets/images/images";
 import axios from "axios";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Link, Routes, Route } from "react-router-dom";
 import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
@@ -364,7 +364,7 @@ const FeedTrack = () => {
   return (
     <div>
       {/* Phần hiển thị track */}
-      <div className="container mt-2 mb-5">
+      <div className="container p-0">
         {tracks.map((track) => {
           const createdAt = track.createDate ? new Date(track.createDate) : null;
           return (

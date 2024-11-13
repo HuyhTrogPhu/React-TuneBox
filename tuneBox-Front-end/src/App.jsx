@@ -52,6 +52,7 @@ import { getUserRole, isUserRole } from './service/auth';
 import Chat from "./pages/SocialMedia/chat/chat";
 import FeedTrack from "./pages/SocialMedia/FeedTrack";
 import FeedPost from "./pages/SocialMedia/FeedPost";
+import TrackAI from "./components/TrackAI/TrackAI";
 
 // Layout có Header
 
@@ -127,6 +128,11 @@ function App() {
               <Route path="/likePlaylist" element={<LikePlaylists />} />
               <Route path="/playlist/:id" element={<PlayListDetail />} />
               <Route path="/search" element={<SearchForm />} />
+              {/* Route cho Main Content */}
+              <Route path="/feed/track" element={<FeedTrack />} />
+              <Route path="/feed/post" element={<FeedPost />} />
+              {/* Route track ai */}
+              <Route path="/track-ai" element={<TrackAI />} />
             </Route>
 
             {/* Các route không có Header */}
