@@ -10,7 +10,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Link, useParams } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-
+import { useTranslation } from "react-i18next";
+import '../../../../i18n/i18n'
+import Swal from 'sweetalert2';
 
 const Albums = () => {
   const userId = Cookies.get("userId");
@@ -25,6 +27,7 @@ const Albums = () => {
   const [ReportId, setReportId] = useState(null);
   const [reportType, setReportType] = useState('');
   const [reportMessage, setReportMessage] = useState("");
+  const { t } = useTranslation();
 
   // Fetch initial data
   useEffect(() => {
@@ -58,19 +61,37 @@ const Albums = () => {
 
   // delete album
   const handDeleteAlbum = async (albumId) => {
-    if (!window.confirm("Are you sure you want to delete this album?")) {
+
+    // Sử dụng Swal để hiển thị hộp thoại xác nhận
+    const confirmDelete = await Swal.fire({
+      title: t("confirmDeleteTitle"), // Lấy thông báo đa ngôn ngữ từ i18n
+      text: t("confirmDeleteText"),  // Lấy thông báo đa ngôn ngữ từ i18n
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: t("confirmButton"), // Lấy thông báo đa ngôn ngữ từ i18n
+      cancelButtonText: t("cancelButton") // Lấy thông báo đa ngôn ngữ từ i18n
+    });
+  
+    if (!confirmDelete.isConfirmed) {
       return;
     }
-
+  
     setIsLoading(true);
     try {
       const albumsResponse = await deleteAlbum(albumId);
       console.log("Album deleted successfully:", albumsResponse);
       fetchListAlbum();
-      alert("Album deleted successfully!");
+      Swal.fire({
+        icon: "success",
+        title: t("albumDeletedSuccess"), // Thông báo xóa thành công
+      });
     } catch (error) {
       console.error("Error deleting album:", error);
-      alert("Failed to delete album. Please try again.");
+      Swal.fire({
+        icon: "error",
+        title: t("albumDeletedError"), // Thông báo lỗi khi xóa không thành công
+        text: t("albumDeletedErrorText"), // Mô tả lỗi nếu có
+      });
     } finally {
       setIsLoading(false);
     }
@@ -154,8 +175,15 @@ const Albums = () => {
         return false;
       }
     };
-
-  return (
+    const reasons = [
+      t('offensiveContent'),
+      t('copyrightViolation'),
+      t('spamOrScam'),
+      t('other')
+    ];
+  
+  
+ return (
     <div className="albums">
       <div className="btn-container">
         {/* link album new */}
@@ -166,14 +194,14 @@ const Albums = () => {
           }}
         >
           <button type="button" className="btn-new">
-            New
+          {t('a28')}
           </button>
         </Link>
 
         <div className="search-container">
-          <input type="text" placeholder="Search..." className="search-input" />
+          <input type="text" placeholder= {t('a30')} className="search-input" />
           <button type="button" className="btn-search">
-            Search
+          {t('a29')}
           </button>
         </div>
       </div>
@@ -186,6 +214,7 @@ const Albums = () => {
               console.log("albums.creator: ",album.creatorId)
 
               return(
+              
                 <div key={album.id} className="album-item">
                   <img
                     src={album.albumImage}
@@ -222,14 +251,14 @@ const Albums = () => {
                     <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${album.id}`}>
                       <li>
                         <Link to={`/albums/album-Edit/${album.id}`} >
-                          <button className="dropdown-item">Edit</button>
+                          <button className="dropdown-item"> {t('a8')}</button>
                         </Link>
                       </li>
                       <li>
                         <button
                           className="dropdown-item"
                           onClick={() => handDeleteAlbum(album.id)} >
-                          Delete
+                           {t('a9')}
                         </button>
                       </li>
                     </ul>
@@ -244,7 +273,7 @@ const Albums = () => {
               )
             }
             )
-          ) : (<div className="no-albums">No albums found</div>)
+          ) : (<div className="no-albums"> {t('a32')}</div>)
         }
       </div>
             {/* Modal báo cáo */}
@@ -254,7 +283,7 @@ const Albums = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <h5 className="modal-title"> {t('a33')}</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -269,22 +298,23 @@ const Albums = () => {
               </div>
               <div className="modal-body">
                 {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
-                <h6>Chọn lý do báo cáo:</h6>
+                <h6> {t('a34')}</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
-                    <label className="d-block" key={reason}>
+                  {reasons.map((reason, index) => (
+                    <label className="d-block" key={index}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
+                        style={{ marginRight: '10px' }}
                       /> {reason}
                     </label>
                   ))}
                 </div>
                 <textarea
                   className="form-control mt-2"
-                  placeholder="Nhập lý do báo cáo"
+                  placeholder="Enter the reason for the report"
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                   style={{ resize: 'none' }}
@@ -295,7 +325,7 @@ const Albums = () => {
                   onClick={() => submitReport(userId, ReportId, reportType, reportReason)}
                   className="btn btn-primary"
                 >
-                  Báo cáo
+                   {t('a6')}
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -305,7 +335,7 @@ const Albums = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  Đóng
+                   {t('a16')}
                 </button>
               </div>
 

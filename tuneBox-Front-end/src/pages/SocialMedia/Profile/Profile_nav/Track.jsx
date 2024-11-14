@@ -6,16 +6,19 @@ import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { listGenre } from "../../../../service/TrackServiceCus";
 import { useParams } from "react-router-dom"; // Import useParams để lấy userId từ URL
-
+import { useTranslation } from "react-i18next";
+import '../../../../i18n/i18n'
+import Swal from 'sweetalert2';
+import { Audio } from 'react-loader-spinner'
 const Track = () => {
   const [tracks, setTracks] = useState([]); // State luu track
   const [selectedTrack, setSelectedTrack] = useState(null); // State cho track duoc chon
   const userId = Cookies.get("userId"); // Lay userId tu cookies
   const { id } = useParams(); // Lấy ID từ URL
-
+  const { t } = useTranslation();
   const [genres, setGenres] = useState([]); // Store the list of genres
   const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
-
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     fetchGenre(); // Fetch genres when the component mounts
   }, []);
@@ -56,21 +59,29 @@ const Track = () => {
   };
 
   // Ham xoa track
+
   const deleteTrack = async (trackId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this Track?"
-    ); // Xac nhan xoa
-    if (!confirmDelete) return; // Khong xoa neu nguoi dung khong dong y
+
+    const confirmDelete = await Swal.fire({
+      title: t('a20x'),
+      text: t('a21x'),
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: t('a22x'),
+      cancelButtonText: t('a23x'),
+    });
+
+    if (!confirmDelete.isConfirmed) return; // Không xóa nếu người dùng hủy
+
     try {
       await axios.delete(`http://localhost:8080/customer/tracks/${trackId}`, {
         withCredentials: true,
       });
-      fetchTrack(); // Cap nhat danh sach track sau khi xoa
+      fetchTrack(); // Cập nhật danh sách track sau khi xóa
+      Swal.fire(t('a24x'), t('a25x'), 'success'); // Hiển thị thông báo thành công
     } catch (error) {
-      console.error(
-        "Error deleting track:",
-        error.response?.data || error.message
-      ); // Log loi neu co
+      console.error("Error deleting track:", error.response?.data || error.message);
+      Swal.fire(t('a26x'), t('a27x'), 'error'); // Hiển thị thông báo lỗi
     }
   };
 
@@ -135,6 +146,17 @@ const Track = () => {
   const handleSave = async () => {
     if (!selectedTrack) return;
 
+    // Hiển thị thông báo xác nhận khi bắt đầu lưu
+    Swal.fire({
+      title: t('p1x'), // 'Saving track...'
+      text: t('p2x'), // 'Please wait while we save your track.',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading(); // Hiển thị loading spinner
+      },
+    });
+
     const formData = new FormData();
     formData.append("name", selectedTrack.name);
     formData.append("description", selectedTrack.description);
@@ -164,20 +186,36 @@ const Track = () => {
           withCredentials: true,
         }
       );
-      fetchTrack();
-      setSelectedTrack(null);
+      fetchTrack(); // Cập nhật danh sách track sau khi lưu
+      setSelectedTrack(null); // Xóa thông tin track đã chọn
 
+      // Đóng modal sau khi lưu thành công
       const editModal = document.getElementById("editModal");
       editModal.classList.remove("show");
       editModal.style.display = "none";
       document.body.classList.remove("modal-open");
+
+      // Hiển thị thông báo thành công
+      Swal.fire({
+        title: t('p3x'), // 'Success!',
+        text: t('p4x'), // 'Your track has been saved successfully.',
+        icon: 'success',
+        confirmButtonText: t('p5x'), // 'OK'
+      });
+
     } catch (error) {
-      console.error(
-        "Error updating track:",
-        error.response?.data || error.message
-      );
+      console.error("Error updating track:", error.response?.data || error.message);
+
+      // Hiển thị thông báo lỗi nếu có lỗi khi lưu
+      Swal.fire({
+        title: t('p6x'), // 'Error!',
+        text: t('p7x'), // 'There was an error saving your track. Please try again.',
+        icon: 'error',
+        confirmButtonText: t('p5x'), // 'OK'
+      });
     }
   };
+
 
   return (
     <div>
@@ -216,18 +254,20 @@ const Track = () => {
                 <ul className="dropdown-menu dropdown-menu-lg-end">
                   <li>
                     <a
+                      style={{ cursor: 'pointer' }}
                       className="dropdown-item"
                       onClick={() => handleEditClick(track)}
                     >
-                      Edit
+                      {t('a8')}
                     </a>
                   </li>
                   <li>
                     <a
+                      style={{ cursor: 'pointer' }}
                       className="dropdown-item"
                       onClick={() => deleteTrack(track.id)}
                     >
-                      Delete
+                      {t('a9')}
                     </a>
                   </li>
                 </ul>
@@ -249,7 +289,7 @@ const Track = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="editTrackModalLabel">
-                Edit Track
+                {t('a20')}
               </h1>
               <button
                 type="button"
@@ -262,7 +302,7 @@ const Track = () => {
               <form className="row">
                 {/* Track Name */}
                 <div className="mb-3">
-                  <label className="form-label">Track Name: </label>
+                  <label className="form-label">  {t('a21')} </label>
                   <input
                     type="text"
                     className="form-control"
@@ -278,7 +318,7 @@ const Track = () => {
 
                 {/* Image Track */}
                 <div className="mt-3">
-                  <label className="form-label">Image Track: </label>
+                  <label className="form-label">{t('a22')} </label>
                   {selectedTrack && (
                     <div>
                       <img
@@ -305,7 +345,7 @@ const Track = () => {
                           className="custom-file-label"
                           htmlFor="fileInput"
                         >
-                          Choose new file
+                          {t('a23')}
                         </label>
                       </div>
                     </div>
@@ -314,9 +354,9 @@ const Track = () => {
 
                 {/* File Track */}
                 <div className="mt-3">
-                  <label className="form-label">Current File Track: </label>
+                  <label className="form-label">{t('')} </label>
                   <label className="custom-file-label" htmlFor="fileInput">
-                    Choose file
+                    {t('a25')}
                   </label>
                   {selectedTrack && (
                     <div>
@@ -346,7 +386,7 @@ const Track = () => {
 
                 {/* Select Genre */}
                 <div className="mt-3">
-                  <label className="form-label">Genre</label>
+                  <label className="form-label">{t('a26')}</label>
                   <select
                     className="form-select"
                     value={selectedGenre}
@@ -367,7 +407,7 @@ const Track = () => {
 
                 {/* Description */}
                 <div className="mt-3">
-                  <label className="form-label">Description</label>
+                  <label className="form-label">{t('a27')}</label>
                   <textarea
                     cols="50"
                     rows="5"
@@ -394,14 +434,19 @@ const Track = () => {
                   document.body.classList.remove("modal-open");
                 }}
               >
-                Close
+                {t('c33')}
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={handleSave}
               >
-                Save Track
+                {/* Hiển thị loading spinner khi đang lưu */}
+                {isLoading ? (
+                   <Audio height="20" width="20" color="white" ariaLabel="loading" />
+                ) : (
+                  t('p16') // 'Save'
+                )}
               </button>
             </div>
           </div>
