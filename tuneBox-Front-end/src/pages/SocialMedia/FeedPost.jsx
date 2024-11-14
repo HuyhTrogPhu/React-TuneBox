@@ -749,6 +749,20 @@ const FeedPost = () => {
     }
   };
 
+  // get user other
+  const handleAvatarClick = (post) => {
+    console.log("Current User ID:", currentUserId);
+    console.log("Post User ID:", post.userId);
+
+    if (String(post.userId) === String(currentUserId)) {
+      console.log("Navigating to ProfileUser");
+      navigate("/profileUser");
+    } else {
+      console.log("Navigating to OtherUserProfile");
+      navigate(`/profile/${post.userId}`);
+    }
+  };
+
   return (
     <div>
       {/* Phần hiển thị post */}
@@ -1207,8 +1221,8 @@ const FeedPost = () => {
                           <div
                             style={{
                               position: "absolute",
-                              bottom: "100%",
-                              left: "0",
+                              bottom: "15px",
+                              right: "-380px",
                               zIndex: 10,
                             }}
                           >
@@ -1217,11 +1231,13 @@ const FeedPost = () => {
                                 addEmoji(selectedPost.id, emoji);
                                 // Không đóng bảng emoji ở đây
                               }}
+                              
                             />
                             {/* Nút để đóng bảng emoji */}
                             <button
                               onClick={() => setShowEmojiPicker(false)}
-                              className="btn btn-link"
+                              className="btn"
+                              style={{backgroundColor: '#E94F37'}}
                             >
                               Close
                             </button>

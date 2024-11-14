@@ -300,6 +300,15 @@ const Navbar = () => {
     }
   };
 
+  // handle dropdown profile 
+  const handleDropdownClick = () => {
+    if (userId) {
+      navigate("/profileUser");
+    } else {
+      navigate("/login");
+    }
+  };
+
 
   return (
     <header className="navbar-container ">
@@ -464,7 +473,7 @@ const Navbar = () => {
           >
             <button
               className="dropdown-item"
-              onClick={() => navigate("/profileUser")}
+              onClick={() => handleDropdownClick()}
             >
               Profile
             </button>

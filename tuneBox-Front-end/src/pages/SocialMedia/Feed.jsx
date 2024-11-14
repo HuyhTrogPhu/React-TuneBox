@@ -352,6 +352,7 @@ const HomeFeed = () => {
   };
   // end playlist
 
+  // get user other
   const handleAvatarClick = (post) => {
     console.log("Current User ID:", currentUserId);
     console.log("Post User ID:", post.userId);
@@ -1095,7 +1096,7 @@ const HomeFeed = () => {
         <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
-          <div className="col-3 sidebar bg-light p-4">
+          <div className="col-3 sidebar content-left bg-light p-4">
             {/* Profile */}
             <div className="feed-profile mb-5">
               {/* avatar */}
@@ -1254,7 +1255,7 @@ const HomeFeed = () => {
 
 
           {/* Right Sidebar */}
-          <div className="col-3 sidebar bg-light p-4">
+          <div className="col-3 sidebar content-right bg-light p-4">
             <ul className="list-new-follow">
               <li className=" mb-4">
                 <UsersToFollow userId={currentUserId} token={tokenjwt} />

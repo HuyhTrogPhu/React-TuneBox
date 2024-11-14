@@ -199,7 +199,7 @@ const handleGoogleFailure = () => {
                       <b>Quên mật khẩu?</b>
                     </Link>
                   </div>
-                  <div className="col-lg-6 d-flex justify-content-center" style={{ marginTop: 20 }}>
+                  <div className="col-lg-12 d-flex align-items-center justify-content-center" style={{ marginTop: 20 }}>
                   <GoogleLogin
                       onSuccess={handleGoogleLogin}
                       onFailure={handleGoogleFailure}

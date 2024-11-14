@@ -102,8 +102,8 @@ const ProfileUser = () => {
         }}
       >
         <div className="text-end" style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
-          <button className="btn btn-primary" onClick={handleBackgroundChange}>
-            Thay Hình Nền
+          <button className="btn" style={{backgroundColor: '#E94F37'}} onClick={handleBackgroundChange}>
+            Update background
           </button>
         </div>
       </div>

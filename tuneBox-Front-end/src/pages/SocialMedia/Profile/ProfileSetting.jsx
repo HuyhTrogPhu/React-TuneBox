@@ -18,7 +18,7 @@ const ProfileSetting = () => {
   
 
   return (
-    <div className="">
+    <div className="profile-setting" style={{marginTop: '100px'}}>
       <div className="row">
         <aside className="col-sm-3">
           <div className="d-flex flex-column flex-shrink-0 p-3">
