@@ -4,6 +4,8 @@ import { images } from '../../assets/images/images';
 import { Link } from 'react-router-dom';
 import { listInstruments } from '../../service/EcommerceHome';
 
+import { useTranslation } from "react-i18next";
+import '../../i18n/i18n'
 const Sellwell = () => {
     const [instrumentList, setInstrumentList] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -13,6 +15,7 @@ const Sellwell = () => {
         getInstrumentList();
     }, []);
 
+    const { t } = useTranslation();
     function getInstrumentList() {
         listInstruments()
             .then((response) => {
@@ -26,9 +29,9 @@ const Sellwell = () => {
             });
     }
     const getStockStatus = (quantity) => {
-        if (quantity === 0) return 'Out of stock';
-        if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
-        return 'In stock';
+        if (quantity === 0) return t('hethang');
+        if (quantity > 0 && quantity <= 5) return t('saphhet');
+        return  t('conhang');
     };
 
     // Hàm để phân trang và lấy danh sách sản phẩm cho trang hiện tại
@@ -49,8 +52,8 @@ const Sellwell = () => {
             <div className='mt-5'>
                 <div className='sellwell-title'>
                     <div className='d-flex justify-content-between align-items-center mb-4'>
-                        <h4 className='title'>Sell well</h4>
-                        <Link to={'/Shop'} className='view-all'>View all</Link>
+                        <h4 className='title'>{t('sell')}</h4>
+                        <Link to={'/Shop'} className='view-all'>{t('viewall')}</Link>
                     </div>
                 </div>
                 <hr className='hr-100' />
@@ -89,7 +92,7 @@ const Sellwell = () => {
                             );
                         })
                     ) : (
-                        <div className='alert alert-danger'>No instrument available</div>
+                        <div className='alert alert-danger'>{t('no')}</div>
                     )}
 
                     {/* Phân trang */}

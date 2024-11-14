@@ -17,7 +17,7 @@ import { FollowContext } from "./FollowContext";
 import { Modal, Button } from "react-bootstrap";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import Footer2 from "../../../components/Footer/Footer2";
 
 const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");
@@ -93,7 +93,8 @@ const ProfileUser = () => {
   };
   
   return (
-    <div className="container">
+<div>
+<div className="container mt-5">
         <ToastContainer />
       <div
         className="background border container"
@@ -251,6 +252,10 @@ const ProfileUser = () => {
       </Modal>
       {error && <div className="alert alert-danger">{error}</div>}
     </div>
+    <Footer2 />
+</div>
+
+
   );
 };
 

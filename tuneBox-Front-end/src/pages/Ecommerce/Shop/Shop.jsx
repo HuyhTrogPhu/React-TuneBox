@@ -6,8 +6,10 @@ import { images } from '../../../assets/images/images'
 import { listCategories, listInstruments, listBrands } from '../../../service/EcommerceHome'
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom'
+import { useTranslation } from "react-i18next";
+import '../../../i18n/i18n'
 const Shop = () => {
-
+  const { t } = useTranslation();
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [instruments, setInstruments] = useState([]);
@@ -100,9 +102,9 @@ const Shop = () => {
 
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return 'Out of stock';
-    if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
-    return 'In stock';
+    if (quantity === 0) return t('hethang');
+    if (quantity > 0 && quantity <= 5) return  t('saphhet');
+    return t('conhang');
   };
 
   
@@ -164,7 +166,7 @@ const Shop = () => {
 
   return (
     <div>
-      <div className='container'>
+      <div className='container mt-5'>
         <div className="content">
           <div className="row">
             <div className="col-3 phamloai">
@@ -179,7 +181,7 @@ const Shop = () => {
                         type="button"
                         onClick={toggleBrandAccordion}
                       >
-                        Brands
+                       {t('brandTitle')}
                       </button>
                     </h2>
                     <div className={`accordion-collapse collapse ${isBrandOpen ? 'show' : ''}`}>
@@ -197,7 +199,7 @@ const Shop = () => {
                             </div>
                           ))
                         ) : (
-                          <p>There are no brands available</p>
+                          <p>  {t('nob')}</p>
                         )}
                       </div>
                     </div>
@@ -210,7 +212,7 @@ const Shop = () => {
                         type="button"
                         onClick={togglePriceAccordion}
                       >
-                        Price level
+                       {t('priceLe')}
                       </button>
                     </h2>
                     <div className={`accordion-collapse collapse ${isPriceOpen ? 'show' : ''}`}>
@@ -234,7 +236,7 @@ const Shop = () => {
                         </div>
                         <div className="d-grid">
                           <button className="btn btn-warning" type="button" onClick={handlePriceFilter}>
-                          Apply
+                          {t('apply')}
                           </button>
                         </div>
                       </div>
@@ -248,7 +250,7 @@ const Shop = () => {
                         type="button"
                         onClick={toggleCategoryAccordion}
                       >
-                        Categories
+                          {t('cateTitle')}
                       </button>
                     </h2>
                     <div className={`accordion-collapse collapse ${isCategoryOpen ? 'show' : ''}`}>

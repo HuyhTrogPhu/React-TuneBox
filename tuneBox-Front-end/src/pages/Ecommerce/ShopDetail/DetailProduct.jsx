@@ -8,6 +8,10 @@ import { getInstrumentById } from '../../../service/EcommerceHome';
 import { Link } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { addToLocalCart, getLocalCart } from "../../../service/CartService";
+
+import { useTranslation } from "react-i18next";
+import '../../../i18n/i18n'
+
 import Swal from "sweetalert2";
 import { Audio } from 'react-loader-spinner'
 const DetailProduct = () => {
@@ -16,7 +20,7 @@ const DetailProduct = () => {
   const [instrument, setInstrument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const { t } = useTranslation();
   const [relatedInstrument, setRelatedInstrumet] = useState([]); // state related instrument by category id and brand id
 
   const [quantity, setQuantity] = useState(1); // state lưa số lượng sản phẩm 
@@ -62,11 +66,11 @@ const DetailProduct = () => {
 
 
   // Hiển thị loading hoặc lỗi nếu có
-  if (loading) return <p>Đang tải sản phẩm...</p>;
+  if (loading) return <p>{t('dnote3')}</p>;
   if (error) return <p>{error}</p>;
 
   // Nếu không có sản phẩm, hiển thị thông báo 404
-  if (!instrument) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+  if (!instrument) return <p>{t('dnote4')}.</p>;
 
   const handleDecrement = () => {
     if (quantity > 1) {
@@ -79,8 +83,8 @@ const DetailProduct = () => {
       setQuantity(quantity + 1);
     } else {
       Swal.fire({
-        title: 'Error!',
-        text: `You cannot increase the quantity beyond available stock (${instrument.quantity}).`,
+        title: t('error'),
+        text: t('dnote5') ,
         icon: 'error',
         confirmButtonText: 'OK',
         customClass: {
@@ -98,8 +102,8 @@ const DetailProduct = () => {
       setQuantity(value);
     } else if (value > instrument.quantity) {
       Swal.fire({
-        title: 'Error!',
-        text: `You cannot enter more than ${instrument.quantity} items.`,
+        title: t('error'),
+        text: t('dnote5') ,
         icon: 'error',
         confirmButtonText: 'OK',
         customClass: {
@@ -125,9 +129,9 @@ const DetailProduct = () => {
 
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return 'Out of stock';
-    if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
-    return 'In stock';
+    if (quantity === 0) return  t('hethang');
+    if (quantity > 0 && quantity <= 5) return t('saphhet');
+    return t('conhang');
   };
 
 
@@ -141,8 +145,8 @@ const DetailProduct = () => {
 
       // Hiển thị thông báo không thể thêm sản phẩm vào giỏ hàng
       Swal.fire({
-        title: 'Error!',
-        text: 'This product is out of stock, please choose another product!',
+        title: t('error'),
+        text: t('dnote6') ,
         icon: 'error',
         confirmButtonText: 'OK',
         customClass: {
@@ -161,8 +165,8 @@ const DetailProduct = () => {
 
       // Sử dụng SweetAlert2 để hiển thị thông báo
       Swal.fire({
-        title: 'Success!',
-        text: 'The product has been added to the cart.',
+        title: t('succes'),
+        text: t('dnote2') ,
         icon: 'success',
         confirmButtonText: 'OK',
         customClass: {
@@ -184,8 +188,8 @@ const DetailProduct = () => {
 
   return (
     <div>
-      <div className="container">
-        <div className="content">
+      <div className="container" style={{marginTop: '100px'}}>
+        <div className="content"> 
           {/* Instrument image */}
           <div className="row">
             <h3 className="text-uppercase">{instrument.name}</h3>
@@ -202,7 +206,7 @@ const DetailProduct = () => {
             {/* Instrument content */}
             <div className="col-6">
               <div className="mt-5">
-                <h3>About the product</h3>
+                <h3>{t('about')}</h3>
                 <div className="gioiThieu mt-4 p-3">
                   <p>{instrument.description}</p>
                 </div>
@@ -220,7 +224,7 @@ const DetailProduct = () => {
                   <div className="row">
                     {/* Quantity */}
                     <div className="col-lg-5 col-md-5 col-sm 12 d-flex mt-4">
-                      <div><strong>Qty:</strong></div>
+                      <div><strong>{t('qty')}</strong></div>
                       <button className="btn btn-prev" onClick={handleDecrement}><strong>-</strong></button>
                       <input
                         type="number"
@@ -237,7 +241,7 @@ const DetailProduct = () => {
                       <div className="instrument-brand">
                         <img src={instrument.brand.brandImage} alt={instrument.brand.name} />
                         <span onClick={() => handleBrandClick(instrument.brand)}>
-                          <a href="">Similar products <i className="fa-solid fa-arrow-right"></i></a>
+                          <a href="">{t('brandsame')}<i className="fa-solid fa-arrow-right"></i></a>
                         </span>
                       </div>
                     </div>
@@ -246,7 +250,7 @@ const DetailProduct = () => {
                   {/* Add to cart */}
                   <div className="btn-cart mt-4">
                     <button className="add-to-cart" onClick={handleAddToCart} disabled={isAddingToCart}>
-                      {!isAddingToCart ? "Add to cart" : null}
+                      {!isAddingToCart ? t('dnote7') : null}
                     </button>
                     {isAddingToCart && (
                       <div className="loader-overlay">
@@ -269,7 +273,7 @@ const DetailProduct = () => {
                 <div className="service">
                   <div className="buy-service">
                     <i className="fa-solid fa-cart-shopping"></i>
-                    <span className="ms-2">Buy now, pay later</span>
+                    <span className="ms-2">{t('but')}</span>
                   </div>
                   <div className="product-service">
                     <i className="fa-solid fa-box"></i>
@@ -277,71 +281,11 @@ const DetailProduct = () => {
                   </div>
                   <div className="ship-service">
                     <i className="fa-solid fa-truck-fast"></i>
-                    <span className="ms-2">Free shipping on all orders</span>
+                    <span className="ms-2">{t('ship')}</span>
                   </div>
                 </div>
 
-                {/* Related products */}
-                <div className="carousel slide" id="carouselExample">
-                  <h3>Related instruments</h3>
-                  <div className="carousel-inner">
-                    {/* Chia relatedInstrument thành các nhóm, mỗi nhóm có 2 sản phẩm */}
-                    {relatedInstrument.reduce((acc, _, index) => {
-                      if (index % 2 === 0) {
-                        acc.push(relatedInstrument.slice(index, index + 2));
-                      }
-                      return acc;
-                    }, []).map((group, groupIndex) => (
-                      <div className={`carousel-item ${groupIndex === 0 ? 'active' : ''}`} key={groupIndex}>
-                        <div className="row">
-                          {group.map((ins) => (
-                            <div className="col-md-6" key={ins.id}>
-                              <Link to={{
-                                pathname: `/DetailProduct/${ins.id}`,
-                                state: { ins }
-                              }} className="card-link">
-                                <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
-                                  <div className="card-img-wrapper">
-                                    <img
-                                      src={ins.image}
-                                      className="card-img-top"
-                                      alt={ins.name}
-                                    />
-                                  </div>
-                                  <div className="card-body text-center">
-                                    <p className="card-title">{ins.name}</p>
-                                    <p className="card-price">{ins.costPrice.toLocaleString()}đ</p>
-                                    <p className="card-status">{getStockStatus(ins.quantity)}</p>
-                                  </div>
-                                </div>
-                              </Link>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Carousel controls */}
-                  <button
-                    className="carousel-control-prev"
-                    data-bs-slide="prev"
-                    data-bs-target="#carouselExample"
-                    type="button"
-                  >
-                    <span aria-hidden="true" className="carousel-control-prev-icon" />
-                    <span className="visually-hidden">Previous</span>
-                  </button>
-                  <button
-                    className="carousel-control-next"
-                    data-bs-slide="next"
-                    data-bs-target="#carouselExample"
-                    type="button"
-                  >
-                    <span aria-hidden="true" className="carousel-control-next-icon" />
-                    <span className="visually-hidden">Next</span>
-                  </button>
-                </div>
+    
 
               </div>
             </div>

@@ -2,14 +2,15 @@ import React, { useEffect, useState, useRef } from 'react';
 import '../MenuShop/MenuShop.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { listBrands, listCategories } from '../../service/EcommerceHome';
-
+import { useTranslation } from "react-i18next";
+import '../.././i18n/i18n'
 const MenuShop = () => {
     const [brands, setBrands] = useState([]);
     const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const [dropdownVisible, setDropdownVisible] = useState(false);
     const dropdownRef = useRef(null);
-
+    const { t } = useTranslation();
     useEffect(() => {
         fetchBrands();
         fetchCategories();
@@ -70,7 +71,7 @@ const MenuShop = () => {
             <div className='row d-flex'>
                 {/* Menu brand */}
                 <div className='brand col-3 mt-3' ref={dropdownRef} onMouseEnter={() => setDropdownVisible(true)} onMouseLeave={() => setDropdownVisible(false)}>
-                    <Link className='fw-bold fs-5' to={'/BrandPage'}>Brand</Link>
+                    <Link className='fw-bold fs-5' to={'/BrandPage'}>{t('brandTitle')}</Link>
                     {dropdownVisible && (
                         <div className='brand-dropdown row'>
                             <div className='top-brand col-5'>
