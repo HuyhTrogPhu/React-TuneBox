@@ -1,12 +1,14 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import "../Profile/css/UsersToFollow.css";
+import { useTranslation } from "react-i18next";
+import '../../../i18n/i18n'
 
 function UsersToFollow({ userId }) {
     const [users, setUsers] = useState([]);
     const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
     const [showAll, setShowAll] = useState(false);
-
+    const { t } = useTranslation();
     useEffect(() => {
         const fetchUsersToFollow = async () => {
             try {
@@ -70,7 +72,7 @@ function UsersToFollow({ userId }) {
 
     return (
         <div className="users-to-follow-container">
-            <h2>Suggested follow-up</h2>
+            <h2>{t('f22')}</h2>
             {displayedUsers.length > 0 ? (
                 displayedUsers.map((user) => (
                     <div key={user.userName} className="user-card">
@@ -88,13 +90,13 @@ function UsersToFollow({ userId }) {
                                     handleFollowUser(user.userId);
                                 }}
                             >
-                                {user.isFollowing ? "Unfollow" : "Follow"}
+                               {user.isFollowing ? t("f23") : t("f24")}
                             </button>
                         </div>
                     </div>
                 ))
             ) : (
-                <p>Ayyyyo man you really followed everyone on this platform.</p>
+                <p>{t('f25')}</p>
             )}
 
             {/* Nút xem thêm */}

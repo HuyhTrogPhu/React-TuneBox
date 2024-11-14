@@ -25,13 +25,15 @@ import {
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
 
+import { useTranslation } from "react-i18next";
+import '../../i18n/i18n'
 
-
+import Swal from 'sweetalert2';
 const FeedTrack = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
-
+  const { t } = useTranslation();
   // track
   const [tracks, setTracks] = useState([]);
   const [likedTracks, setLikedTracks] = useState({});
@@ -374,6 +376,12 @@ const FeedTrack = () => {
       console.error('Lỗi mạng:', error);
     }
   };
+  const reasons = [
+    t('offensiveContent'),
+    t('copyrightViolation'),
+    t('spamOrScam'),
+    t('other')
+  ];
 
   return (
     <div>
@@ -427,17 +435,17 @@ const FeedTrack = () => {
                           onClick={() => addToPlaylist(track.id)}
                         >
                           <i className="fa-solid fa-pen-to-square"></i>{" "}
-                          Add to playlist
+                          {t('f12')}
                         </button>
                       </li>
                       <li>
                         <button className="dropdown-item" onClick={() => handleEditClick(track)}>
-                          <i className='fa-solid fa-pen-to-square'></i>Edit
+                          <i className='fa-solid fa-pen-to-square'></i> {t('a8')}
                         </button>
                       </li>
                       <li>
                         <button className="dropdown-item" onClick={() => deleteTrack(track.id)}>
-                          <i className='fa-solid fa-trash '></i>Delete
+                          <i className='fa-solid fa-trash '></i> {t('a9')}
                         </button>
                       </li>
                     </ul>
@@ -454,7 +462,7 @@ const FeedTrack = () => {
                           onClick={() => addToPlaylist(track.id)}
                         >
                           <i className="fa-solid fa-pen-to-square"></i>{" "}
-                          Add to playlist
+                          {t('f12')}
                         </button>
                       </li>
                     </ul>
@@ -521,7 +529,7 @@ const FeedTrack = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="editTrackModalLabel">
-                Edit Track
+              {t('f13')}
               </h1>
               <button
                 type="button"
@@ -534,7 +542,7 @@ const FeedTrack = () => {
               <form className="row">
                 {/* Track Name */}
                 <div className="mb-3">
-                  <label className="form-label">Track Name: </label>
+                  <label className="form-label">{t('a21')} </label>
                   <input
                     type="text"
                     className="form-control"
@@ -550,7 +558,7 @@ const FeedTrack = () => {
 
                 {/* Image Track */}
                 <div className="mt-3">
-                  <label className="form-label">Image Track: </label>
+                  <label className="form-label">{t('a22')} </label>
                   {selectedTrack && (
                     <div>
                       <img
@@ -577,7 +585,7 @@ const FeedTrack = () => {
                           className="custom-file-label"
                           htmlFor="fileInput"
                         >
-                          Choose new file
+                          {t('a23')}
                         </label>
                       </div>
                     </div>
@@ -586,9 +594,9 @@ const FeedTrack = () => {
 
                 {/* File Track */}
                 <div className="mt-3">
-                  <label className="form-label">Current File Track: </label>
+                  <label className="form-label">{t('a24')} </label>
                   <label className="custom-file-label" htmlFor="fileInput">
-                    Choose file
+                    {t('a25')}
                   </label>
                   {selectedTrack && (
                     <div>
@@ -618,7 +626,7 @@ const FeedTrack = () => {
 
                 {/* Select Genre */}
                 <div className="mt-3">
-                  <label className="form-label">Genre</label>
+                  <label className="form-label">{t('a26')}</label>
                   <select
                     className="form-select"
                     value={selectedGenre}
@@ -639,7 +647,7 @@ const FeedTrack = () => {
 
                 {/* Description */}
                 <div className="mt-3">
-                  <label className="form-label">Description</label>
+                  <label className="form-label">{t('a27')}</label>
                   <textarea
                     cols="50"
                     rows="5"
@@ -666,14 +674,14 @@ const FeedTrack = () => {
                   document.body.classList.remove("modal-open");
                 }}
               >
-                Close
+                {t('c33')}
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={handleSave}
               >
-                Save Track
+                {t('f16')}
               </button>
             </div>
           </div>
@@ -690,7 +698,7 @@ const FeedTrack = () => {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Chọn Playlist</h5>
+              <h5 className="modal-title">{t('f17')}</h5>
               <button
                 type="button"
                 className="btn-close"
@@ -719,7 +727,7 @@ const FeedTrack = () => {
                               handleAddTrackToPlaylist(playlist.id)
                             }
                           >
-                            add
+                            {t('f18')}
                           </button>
                         </div>
                       </div>
@@ -737,7 +745,7 @@ const FeedTrack = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <h5 className="modal-title">{t('a3')}</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -752,22 +760,23 @@ const FeedTrack = () => {
               </div>
               <div className="modal-body">
                 {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
-                <h6>Chọn lý do báo cáo:</h6>
+                <h6>{t('a5')}</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
-                    <label className="d-block" key={reason}>
+                  {reasons.map((reason, index) => (
+                    <label className="d-block" key={index}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
+                        style={{ marginRight: '10px' }}
                       /> {reason}
                     </label>
                   ))}
                 </div>
                 <textarea
                   className="form-control mt-2"
-                  placeholder="Nhập lý do báo cáo"
+                  placeholder={t('a5')}
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                   style={{ resize: 'none' }}
@@ -778,7 +787,7 @@ const FeedTrack = () => {
                   onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
                   className="btn btn-primary"
                 >
-                  Báo cáo
+                  {t('a6')}
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -788,7 +797,7 @@ const FeedTrack = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  Đóng
+                 {t('a16')}
                 </button>
               </div>
 

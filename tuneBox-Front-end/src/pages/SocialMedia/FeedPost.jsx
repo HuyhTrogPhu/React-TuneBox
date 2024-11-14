@@ -24,9 +24,12 @@ import {
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
+import { useTranslation } from "react-i18next";
+import '../../i18n/i18n'
+
 
 const FeedPost = () => {
-
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
@@ -716,6 +719,13 @@ const FeedPost = () => {
     }));
     setShowEmojiPicker(null); // Ẩn emoji picker sau khi chọn emoji
   };
+  const reasons = [
+    t('offensiveContent'),
+    t('copyrightViolation'),
+    t('spamOrScam'),
+    t('other')
+  ];
+
 
   const handleClickOutside = (event) => {
     if (
@@ -779,7 +789,7 @@ const FeedPost = () => {
                 <div className="modal-dialog">
                   <div className="modal-content">
                     <div className="modal-header">
-                      <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+                      <h1 className="modal-title fs-5" id="exampleModalLabel">{t('a7')}</h1>
                       <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
@@ -814,7 +824,7 @@ const FeedPost = () => {
                                         {comment.edited && (
                                           <span className="edited-notice">
                                             {" "}
-                                            (Edited)
+                                            {t('edited')}
                                           </span>
                                         )}
                                       </div>
@@ -839,7 +849,7 @@ const FeedPost = () => {
                                               )
                                             }
                                           >
-                                            Save
+                                            {t('p16')}
                                           </button>
                                           <button
                                             className="btn btn-secondary mt-2 ms-2"
@@ -850,7 +860,7 @@ const FeedPost = () => {
                                               );
                                             }}
                                           >
-                                            Cancel
+                                            {t('p15')}
                                           </button>
                                         </div>
                                       ) : (
@@ -887,7 +897,7 @@ const FeedPost = () => {
                                                   );
                                                 }}
                                               >
-                                                Edit
+                                                {t('a8')}
                                               </button>
                                             </li>
                                             {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
@@ -901,7 +911,7 @@ const FeedPost = () => {
                                                   )
                                                 }
                                               >
-                                                Delete
+                                                {t('a9')}
                                               </button>
                                             </li>
                                           </ul>
@@ -915,7 +925,7 @@ const FeedPost = () => {
                                         handleReplyClick(comment)
                                       }
                                     >
-                                      Reply
+                                      {t('a10')}
                                     </button>
 
                                     {/* Input trả lời cho bình luận bậc 2 */}
@@ -1017,7 +1027,7 @@ const FeedPost = () => {
                                                               )
                                                             }
                                                           >
-                                                            Save
+                                                            {t('p16')}
                                                           </button>
                                                           <button
                                                             className="btn btn-secondary mt-2 ms-2"
@@ -1030,7 +1040,7 @@ const FeedPost = () => {
                                                               );
                                                             }}
                                                           >
-                                                            Cancel
+                                                           {t('p15')}
                                                           </button>
                                                         </div>
                                                       ) : (
@@ -1054,7 +1064,7 @@ const FeedPost = () => {
                                                           )
                                                         }
                                                       >
-                                                        Reply
+                                                        {t('a10')}
                                                       </button>
                                                       {/* Dropdown cho reply bậc 2 */}
                                                       {String(
@@ -1089,7 +1099,7 @@ const FeedPost = () => {
                                                                     );
                                                                   }}
                                                                 >
-                                                                  Edit
+                                                                {t('a8')}
                                                                 </button>
                                                               </li>
                                                               <li>
@@ -1101,7 +1111,7 @@ const FeedPost = () => {
                                                                     )
                                                                   }
                                                                 >
-                                                                  Delete
+                                                               {t('a9')}
                                                                 </button>
                                                               </li>
                                                             </ul>
@@ -1158,7 +1168,7 @@ const FeedPost = () => {
                                                 )
                                               }
                                             >
-                                              Hide replies
+                                              {t('f19')}
                                             </button>
                                           </>
                                         ) : (
@@ -1170,7 +1180,7 @@ const FeedPost = () => {
                                               )
                                             }
                                           >
-                                            View all replies
+                                           {t('f20')}
                                           </button>
                                         )}
                                       </div>
@@ -1195,7 +1205,7 @@ const FeedPost = () => {
                           )}
                         </div>
                       ) : (
-                        <p>No comments available</p>
+                        <p>{t('f21')}</p>
                       )}
                       {/* Phần bình luận */}
                       <div className="comment-section d-flex mt-4">
@@ -1236,7 +1246,7 @@ const FeedPost = () => {
                               onClick={() => setShowEmojiPicker(false)}
                               className="btn btn-link"
                             >
-                              Close
+                              {t('c33')}
                             </button>
                           </div>
                         )}
@@ -1276,7 +1286,7 @@ const FeedPost = () => {
                     {createdAt && !isNaN(createdAt.getTime())
                       ? format(createdAt, "hh:mm a, dd MMM yyyy")
                       : "Invalid date"}
-                    {post.edited && <span className="edited-notice"> (Edited)</span>}
+                    {post.edited && <span className="edited-notice"> {t('edited')}</span>}
                   </div>
                 </div>
                 {/* Dropdown cho bài viết */}
@@ -1295,12 +1305,12 @@ const FeedPost = () => {
                       aria-labelledby={`dropdownMenuButton-${post.id}`}>
                       <li>
                         <button className="dropdown-item" onClick={() => handleEditPost(post)}>
-                          <i className='fa-solid fa-pen-to-square'></i>Edit
+                          <i className='fa-solid fa-pen-to-square'></i>{t('a8')}
                         </button>
                       </li>
                       <li>
                         <button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>
-                          <i className='fa-solid fa-trash '></i>Delete
+                          <i className='fa-solid fa-trash '></i>{t('a9')}
                         </button>
                       </li>
                     </ul>
@@ -1346,7 +1356,7 @@ const FeedPost = () => {
                       className="carousel-control-prev-icon"
                       aria-hidden="true"
                     ></span>
-                    <span className="visually-hidden">Previous</span>
+                    <span className="visually-hidden">{t('a17')}</span>
                   </button>
                   <button
                     className="carousel-control-next"
@@ -1358,7 +1368,7 @@ const FeedPost = () => {
                       className="carousel-control-next-icon"
                       aria-hidden="true"
                     ></span>
-                    <span className="visually-hidden">Next</span>
+                    <span className="visually-hidden">{t('a18')}</span>
                   </button>
                 </div>
               )}
@@ -1400,7 +1410,7 @@ const FeedPost = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <h5 className="modal-title">{t('a3')}</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -1415,15 +1425,16 @@ const FeedPost = () => {
               </div>
               <div className="modal-body">
                 {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
-                <h6>Chọn lý do báo cáo:</h6>
+                <h6>{t('a4')}</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
-                    <label className="d-block" key={reason}>
+                  {reasons.map((reason, index) => (
+                    <label className="d-block" key={index}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
+                        style={{ marginRight: '10px' }}
                       /> {reason}
                     </label>
                   ))}
@@ -1441,7 +1452,7 @@ const FeedPost = () => {
                   onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
                   className="btn btn-primary"
                 >
-                  Báo cáo
+                 {t('a6')}
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -1451,7 +1462,7 @@ const FeedPost = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  Đóng
+                {t('a16')}
                 </button>
               </div>
 
