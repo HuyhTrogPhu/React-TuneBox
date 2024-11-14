@@ -423,7 +423,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="z">
+    <div className="z pt-5 mt-5">
       <div className="messenger-container">
         <div className="messenger-sidebar">
           <div className="messenger-header">
