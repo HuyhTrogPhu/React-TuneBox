@@ -69,6 +69,19 @@ const FeedPost = () => {
 
   const tokenjwt = localStorage.getItem('jwtToken');
 
+  const handleAvatarClick = (post) => {
+    console.log("Current User ID:", currentUserId);
+    console.log("Post User ID:", post.userId);
+
+    if (String(post.userId) === String(currentUserId)) {
+      console.log("Navigating to ProfileUser");
+      navigate("/profileUser");
+    } else {
+      console.log("Navigating to OtherUserProfile");
+      navigate(`/profile/${post.userId}`);
+    }
+  };
+
   //get avatar
   const [userData, setUserData] = useState({});
 
