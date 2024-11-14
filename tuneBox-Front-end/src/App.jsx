@@ -53,7 +53,8 @@ import Chat from "./pages/SocialMedia/chat/chat";
 import FeedTrack from "./pages/SocialMedia/FeedTrack";
 import FeedPost from "./pages/SocialMedia/FeedPost";
 import TrackAI from "./components/TrackAI/TrackAI";
-
+import StatisticalUser from "./pages/SocialMediaAdmin/pageContent/StatisticalUser";
+import StatisticalPost from "./pages/SocialMediaAdmin/pageContent/StatisticalPost";
 // Layout có Header
 
 //socialadmin
@@ -147,6 +148,8 @@ function App() {
               <Route path="/inspiredBy" element={<InspiredBy />} />
               <Route path="/genre" element={<Genre />} />
               <Route path="/welcome" element={<WelcomeUser />} />
+              <Route path='/statistical/user' element={<StatisticalUser/>}/>
+              <Route path='/statistical/post' element={<StatisticalPost/>}/>
               {/* admin start */}
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
               <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>

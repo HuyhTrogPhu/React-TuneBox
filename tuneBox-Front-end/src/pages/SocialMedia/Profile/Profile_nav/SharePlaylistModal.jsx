@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { images } from "../../../../assets/images/images"; // Giữ nguyên import images
+import { Toast } from 'react-bootstrap'; // Import Toast để hiển thị thông báo
 import Cookies from "js-cookie";
 import axios from 'axios';
 
@@ -7,8 +7,9 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
   const [receivers, setReceivers] = useState([]);
   const [selectedReceiver, setSelectedReceiver] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState(''); // Quản lý thông báo toast
+  const [showToast, setShowToast] = useState(false); // Quản lý trạng thái hiển thị toast
   const userId = Cookies.get("userId");
-  console.log("User ID from Cookie:", userId);
 
   const token = localStorage.getItem('jwtToken');
   
@@ -23,7 +24,7 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:8080/api/share/users/receivers`, {
-        params: { senderId: userId },
+        params: { userId: userId },
       });
       setReceivers(response.data);
     } catch (error) {
@@ -35,7 +36,8 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
 
   const handleShare = async () => {
     if (!selectedReceiver) {
-      alert('Please select a user to share with');
+      setToastMessage('Please select a user to share with');
+      setShowToast(true);
       return;
     }
   
@@ -52,14 +54,17 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
       );
   
       if (response.status === 200) {
-        alert('Playlist shared successfully!');
-        onClose();
+        setToastMessage('Playlist shared successfully!');
+        setShowToast(true); // Hiển thị toast
+        setTimeout(() => onClose(), 1000); // Đóng modal sau khi toast hiển thị
       } else {
-        alert('Failed to share playlist');
+        setToastMessage('Failed to share playlist');
+        setShowToast(true);
       }
     } catch (error) {
       console.error('Error sharing playlist:', error);
-      alert('Error sharing playlist');
+      setToastMessage('Error sharing playlist');
+      setShowToast(true);
     }
   };
   
@@ -86,21 +91,22 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
                     onClick={() => setSelectedReceiver(receiver.id)}
                   >
                     <img
-                      src={images.avt}
+                      src={receiver.avatar}
                       alt="Avatar"
                       className="rounded-circle me-2"
                       style={{ width: '40px', height: '40px' }}
                     />
-                    <span>{receiver.nickname}</span>
+                    <div>
+                      <div>{receiver.nickName}</div>
+                      <div className="text-danger">@{receiver.username}</div>
+                    </div>
                   </button>
                 ))}
               </div>
             )}
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancel
-            </button>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
             <button
               type="button"
               className="btn btn-primary"
@@ -112,6 +118,15 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
           </div>
         </div>
       </div>
+      <Toast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        delay={3000}
+        autohide
+        style={{ position: 'fixed', top: 20, right: 20 }}
+      >
+        <Toast.Body>{toastMessage}</Toast.Body>
+      </Toast>
     </div>
   );
 };

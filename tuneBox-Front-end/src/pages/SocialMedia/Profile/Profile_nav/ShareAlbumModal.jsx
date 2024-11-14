@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { images } from "../../../../assets/images/images"; // Giữ nguyên import images
 import Cookies from "js-cookie";
 import axios from 'axios';
+import { Toast } from 'react-bootstrap'; // Đảm bảo bạn đã cài đặt Bootstrap hoặc Toast
 
 const ShareAlbumModal = ({ albumId, isOpen, onClose }) => {
   const [receivers, setReceivers] = useState([]);
   const [selectedReceiver, setSelectedReceiver] = useState(null);
   const [loading, setLoading] = useState(false);
   const userId = Cookies.get("userId");
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false); 
+
   console.log("User ID from Cookie:", userId);
 
   useEffect(() => {
@@ -20,7 +24,7 @@ const ShareAlbumModal = ({ albumId, isOpen, onClose }) => {
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:8080/api/share/users/receivers`, {
-        params: { senderId: userId },
+        params: { userId: userId },
       });
       setReceivers(response.data);
     } catch (error) {
@@ -32,7 +36,8 @@ const ShareAlbumModal = ({ albumId, isOpen, onClose }) => {
 
   const handleShare = async () => {
     if (!selectedReceiver) {
-      alert('Please select a user to share with');
+      setToastMessage('Please select a user to share with');
+      setShowToast(true);
       return;
     }
 
@@ -42,14 +47,18 @@ const ShareAlbumModal = ({ albumId, isOpen, onClose }) => {
       });
 
       if (response.status === 200) {
-        alert('Album shared successfully!');
-        onClose();
+        setToastMessage('Album shared successfully!');
+        setShowToast(true); // Hiển thị toast
+        // Thực hiện đóng modal sau khi thông báo đã được hiển thị
+        setTimeout(() => onClose(), 1000); // Đóng modal sau khi toast đã hiển thị
       } else {
-        alert('Failed to share album');
+        setToastMessage('Failed to share album');
+        setShowToast(true);
       }
     } catch (error) {
       console.error('Error sharing album:', error);
-      alert('Error sharing album');
+      setToastMessage('Error sharing album');
+      setShowToast(true);
     }
   };
 
@@ -75,12 +84,15 @@ const ShareAlbumModal = ({ albumId, isOpen, onClose }) => {
                     onClick={() => setSelectedReceiver(receiver.id)}
                   >
                     <img
-                      src={images.avt}
+                      src={receiver.avatar} // Hiển thị avatar từ dữ liệu API
                       alt="Avatar"
                       className="rounded-circle me-2"
                       style={{ width: '40px', height: '40px' }}
                     />
-                    <span>{receiver.nickname}</span>
+                    <div>
+                      <div>{receiver.nickName}</div> {/* Hiển thị nickname */}
+                      <div className="text-danger">@{receiver.username}</div> {/* Hiển thị username */}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -101,6 +113,15 @@ const ShareAlbumModal = ({ albumId, isOpen, onClose }) => {
           </div>
         </div>
       </div>
+      <Toast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        delay={3000} // Để toast tự đóng sau 3 giây
+        autohide
+        style={{ position: 'fixed', top: 20, right: 20 }}
+      >
+        <Toast.Body>{toastMessage}</Toast.Body>
+      </Toast>
     </div>
   );
 };
