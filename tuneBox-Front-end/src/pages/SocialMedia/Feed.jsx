@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { images } from "../../assets/images/images";
 import axios from "axios";
 import { format } from "date-fns";
@@ -34,7 +34,7 @@ import {
 import { getUserInfo } from "../../service/UserService";
 import FeedTrack from "./FeedTrack";
 import FeedPost from "./FeedPost";
-
+import { FollowContext } from "./Profile/FollowContext";
 
 
 const HomeFeed = () => {
@@ -1069,6 +1069,20 @@ const HomeFeed = () => {
     setPostContent((prevContent) => prevContent + username + " ");
     setShowTagModal(false); // Đóng modal sau khi chọn
   };
+  const { followCounts } = useContext(FollowContext);
+
+  const [followCount, setFollowCount] = useState({
+    followerCount: 0,
+    followingCount: 0,
+  });
+  useEffect(() => {
+    const counts = followCounts[currentUserId] || {
+      followerCount: 0,
+      followingCount: 0,
+    };
+    setFollowCount(counts);
+  }, [followCounts, currentUserId]);
+
 
   return (
     <div>
@@ -1087,16 +1101,19 @@ const HomeFeed = () => {
             <div className="feed-profile mb-5">
               {/* avatar */}
               <div className="feed-avatar d-flex align-item-center justify-content-center">
-                <img src={images.logoTuneBox} alt="" />
+              <img
+                    src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+                    alt="User avatar"
+                  />
               </div>
               {/* information */}
               <div className="feed-information text-center">
-                <h6 className="feed-username">User Name</h6>
-                <h6 className="feed-name">Name</h6>
-                <h6 className="feed-following">Following</h6>
-                <p>100</p>
-                <h6 className="feed-follower">Follower</h6>
-                <p>100</p>
+                <h6 className="feed-username">{userData.name}</h6>
+                <h6 className="feed-name">@<h7>{userData.userName}</h7></h6>
+                <h6 className="feed-following">Follower</h6>
+                <span>{followCount.followerCount}</span> 
+                <h6 className="feed-follower">Following</h6>
+                <span>{followCount.followingCount}</span>
               </div>
               {/* View profile */}
               <div className="view-profile text-center">
