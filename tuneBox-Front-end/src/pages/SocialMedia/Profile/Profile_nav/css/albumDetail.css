@@ -351,7 +351,7 @@ audio {
 }
 
 .cardA {
-  display: flex; 
+  display: flex;
   grid-template-columns: repeat(1, 1fr);
   margin: auto;
   /* width: 200px;

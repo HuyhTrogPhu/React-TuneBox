@@ -97,18 +97,7 @@ export const deleteAlbum = async (albumId) => {
   }
 };
 
-// Cập nhật album theo ID
-// export const updateAlbum = async (albumId, albumData) => {
-//   try {
-//     const response = await axios.put(`${API_URL}/${albumId}`, albumData, {
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error updating album:", error);
-//     throw error;
-//   }
-// };
-// AlbumsServiceCus.js
+
 export const updateAlbum = async (albumId, formData) => {
   try {
     // Log request data

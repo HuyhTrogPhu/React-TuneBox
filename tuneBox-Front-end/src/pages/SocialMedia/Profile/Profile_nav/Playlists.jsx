@@ -11,6 +11,7 @@ import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { ToastContainer, toast } from "react-toastify";
 import "../Profile_nav/css/playlist.css";
+import { Audio } from "react-loader-spinner";
 
 const Playlists = () => {
   const userId = Cookies.get("userId");
@@ -217,10 +218,10 @@ const Playlists = () => {
       const response = await deletePlaylist(playlistId);
       console.log("Album deleted successfully:", response);
       fetchListPlaylist();
-      alert("Playlist deleted successfully!");
+      toast.success("Playlist deleted successfully!");
     } catch (error) {
       console.error("Error deleting playlist:", error);
-      alert("Failed. Please try again.");
+      toast.error("Failed to delete Playlist. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -229,28 +230,34 @@ const Playlists = () => {
   return (
     <div className="albums">
       <ToastContainer />
-      <div className="btn-container">
-        <button
-          type="button"
-          className="btn-new"
-          data-bs-toggle="modal"
-          data-bs-target="#newPlaylist"
-        >
-          New
-        </button>
-
-        <div className="search-container">
-          <input type="text" placeholder="Search..." className="search-input" />
-          <button type="button" className="btn-search">
-            Search
+      {!id || String(id) === String(userId) ? (
+        <div className="btn-container">
+          <button
+            type="button"
+            className="btn-new"
+            data-bs-toggle="modal"
+            data-bs-target="#newPlaylist"
+          >
+            New
           </button>
+
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="search-input"
+            />
+            <button type="button" className="btn-search">
+              Search
+            </button>
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Playlist List */}
       <div className="post-header-albums">
         {isLoading ? (
-          <div>Loading albums...</div>
+          <div></div>
         ) : playlists && playlists.length > 0 ? (
           playlists.map(
             (list) =>
@@ -317,8 +324,8 @@ const Playlists = () => {
                     </div>
                   ) : (
                     <button
-                      className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
-                      onClick={() => handleReport(album.id, "album")}
+                      className="fa-regular fa-flag btn-report ms-3 top-8 border-0"
+                      onClick={() => handleReport(list.id, "album")}
                     ></button>
                   )}
                 </div>

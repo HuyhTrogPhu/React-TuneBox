@@ -3,18 +3,21 @@ import {
   getAlbumsByUserId,
   deleteAlbum,
 } from "../../../../service/AlbumsServiceCus";
+import { getLikesCountByAlbumsId } from "../../../../service/likeTrackServiceCus";
 import Cookies from "js-cookie";
 import "./css/albums.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { getTrackById } from "../../../../service/TrackServiceCus";
 import axios from "axios";
 
 const Albums = () => {
   const userId = Cookies.get("userId");
   const { id } = useParams(); // Lấy ID từ URL
   console.log("cookie: ", userId);
+  console.log("ID từ URL: ", id);
   const [albums, setAlbums] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -24,6 +27,9 @@ const Albums = () => {
   const [ReportId, setReportId] = useState(null);
   const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
+
+  const [likesCount, setLikesCount] = useState();
+  const [countTrack, setCountTrack] = useState({});
 
   // Fetch initial data
   useEffect(() => {
@@ -39,6 +45,7 @@ const Albums = () => {
       const albumsResponse = await getAlbumsByUserId(targetUserId);
 
       setAlbums(albumsResponse || []);
+      console.log("albumsResponse: ", albumsResponse);
 
       // Đếm số lượng album có status là false
       const inactiveAlbumsCount = albumsResponse.filter(
@@ -48,6 +55,41 @@ const Albums = () => {
         "Number of inactive albums (status = false):",
         inactiveAlbumsCount
       );
+
+      const likesCountsMap = {};
+      const tempInactiveTracksCountMap = {};
+
+      await Promise.all(
+        albumsResponse.map(async (item) => {
+          try {
+            const trackDetails = await fetchTrackDetails(item.tracks);
+
+            const countTrackFalse = trackDetails.filter(
+              (track) => !track.status
+            ).length;
+            tempInactiveTracksCountMap[item.id] = countTrackFalse;
+
+            console.log(
+              `Album ID: ${item.id} - count Track còn tồn tại:`,
+              countTrackFalse
+            );
+
+            if (item.id) {
+              const response = await getLikesCountByAlbumsId(item.id);
+              likesCountsMap[item.id] = response.data; // Store the like count for each listalbum
+            }
+          } catch (itemError) {
+            console.error(
+              `Error fetching likes count for album ${item.id}:`,
+              itemError
+            );
+          }
+        })
+      );
+
+      setLikesCount(likesCountsMap);
+      setCountTrack(tempInactiveTracksCountMap);
+      console.log("Likes count map: ", likesCountsMap);
     } catch (error) {
       console.error("Error fetching Albums:", error);
     } finally {
@@ -66,10 +108,10 @@ const Albums = () => {
       const albumsResponse = await deleteAlbum(albumId);
       console.log("Album deleted successfully:", albumsResponse);
       fetchListAlbum();
-      alert("Album deleted successfully!");
+      toast.success("Album deleted successfully!");
     } catch (error) {
       console.error("Error deleting album:", error);
-      alert("Failed to delete album. Please try again.");
+      toast.error("Failed to delete album. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -165,28 +207,44 @@ const Albums = () => {
     }
   };
 
+  const fetchTrackDetails = async (trackIds) => {
+    if (!trackIds || trackIds.length === 0) return [];
+    try {
+      const trackPromises = trackIds.map((id) => getTrackById(id));
+      const trackResults = await Promise.all(trackPromises);
+      return trackResults.map((result) => result.data);
+    } catch (error) {
+      console.error("Error fetching track details:", error);
+      toast.error("Failed to fetch track details");
+      return [];
+    }
+  };
+
   return (
     <div className="albums">
-      <div className="btn-container">
-        {/* link album new */}
-        <Link
-          to={{
-            pathname: `/albums/create-newAlbum`,
-            // state: { userId: userId },
-          }}
-        >
-          <button type="button" className="btn-new">
-            New
-          </button>
-        </Link>
+      <ToastContainer />
+      {!id || String(id) === String(userId) ? (
+        <div className="btn-container">
+          {/* Link to create a new album */}
+          <Link to="/albums/create-newAlbum">
+            <button type="button" className="btn-new">
+              New
+            </button>
+          </Link>
 
-        <div className="search-container">
-          <input type="text" placeholder="Search..." className="search-input" />
-          <button type="button" className="btn-search">
-            Search
-          </button>
+          {/* Search container */}
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="search-input"
+            />
+            <button type="button" className="btn-search">
+              Search
+            </button>
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Albums List */}
       <div className="post-header-albums position-relative">
@@ -194,67 +252,76 @@ const Albums = () => {
           albums.map((album) => {
             console.log("albums.creator: ", album.creatorId);
 
-            return (
-              <div key={album.id} className="album-item">
-                <img
-                  src={album.albumImage}
-                  className="avatar_small"
-                  alt="Avatar"
-                />
-                <div className="info">
-                  {/* link album detail */}
-                  <Link
-                    to={{
-                      pathname: `/album/${album.id}`,
-                      state: { album },
-                    }}
-                  >
-                    <div className="title">{album.title}</div>
-                  </Link>
-
-                  <div className="style">{album.description}</div>
-
-                  <div className="album-details">
-                    <span className="tracks">Tracks: 0</span>
-                    <span className="likes">Likes: 0</span>
-                  </div>
-                </div>
-                {String(album.creatorId) === String(userId) ? (
-                  <div className="dropdown position-absolute top-8 end-0 me-4 ">
-                    <button
-                      className="btn dropdown-toggle no-border"
-                      type="button"
-                      id={`dropdownMenuButton-${album.id}`}
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    />
-                    <ul
-                      className="dropdown-menu"
-                      aria-labelledby={`dropdownMenuButton-${album.id}`}
+            if (album.status === false) {
+              return (
+                <div key={album.id} className="album-item">
+                  <img
+                    src={album.albumImage}
+                    className="avatar_small"
+                    alt="Avatar"
+                  />
+                  <div className="info">
+                    {/* link album detail */}
+                    <Link
+                      to={{
+                        pathname: `/album/${album.id}`,
+                        state: { album },
+                      }}
                     >
-                      <li>
-                        <Link to={`/albums/album-Edit/${album.id}`}>
-                          <button className="dropdown-item">Edit</button>
-                        </Link>
-                      </li>
-                      <li>
-                        <button
-                          className="dropdown-item"
-                          onClick={() => handDeleteAlbum(album.id)}
-                        >
-                          Delete
-                        </button>
-                      </li>
-                    </ul>
+                      <div className="title">{album.title}</div>
+                    </Link>
+
+                    <div className="style">{album.description}</div>
+
+                    <div className="album-details">
+                      <span className="tracks">
+                        Tracks: {countTrack[album.id] || 0}
+                      </span>
+                      <span className="likes">
+                        Likes:{" "}
+                        {likesCount && likesCount[album.id]
+                          ? likesCount[album.id]
+                          : 0}
+                      </span>
+                    </div>
                   </div>
-                ) : (
-                  <button
-                    className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
-                    onClick={() => handleReport(album.id, "album")}
-                  ></button>
-                )}
-              </div>
-            );
+                  {String(album.creatorId) === String(userId) ? (
+                    <div className="dropdown position-absolute top-8 end-0 me-4 ">
+                      <button
+                        className="btn dropdown-toggle no-border"
+                        type="button"
+                        id={`dropdownMenuButton-${album.id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      />
+                      <ul
+                        className="dropdown-menu"
+                        aria-labelledby={`dropdownMenuButton-${album.id}`}
+                      >
+                        <li>
+                          <Link to={`/albums/album-Edit/${album.id}`}>
+                            <button className="dropdown-item">Edit</button>
+                          </Link>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handDeleteAlbum(album.id)}
+                          >
+                            Delete
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  ) : (
+                    <button
+                      className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
+                      onClick={() => handleReport(album.id, "album")}
+                    ></button>
+                  )}
+                </div>
+              );
+            }
           })
         ) : (
           <div className="no-albums">No albums found</div>
