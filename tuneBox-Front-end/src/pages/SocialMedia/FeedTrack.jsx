@@ -9,15 +9,14 @@ import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
-
   addLike,
   checkUserLikeTrack,
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import UsersToFollow from './Profile/UsersToFollow';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import UsersToFollow from "./Profile/UsersToFollow";
 import {
   getPlaylistByUserId,
   getPlaylistById,
@@ -45,7 +44,7 @@ const FeedTrack = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [ReportId, setReportId] = useState(null);
-  const [reportType, setReportType] = useState('');
+  const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
 
 
@@ -235,18 +234,14 @@ const FeedTrack = () => {
   };
   // end track
 
-
   // playlist
   // list
   const [playlists, setPlaylists] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
 
-
-
   const fetchListPlaylist = async () => {
     try {
-
       const playlistResponse = await getPlaylistByUserId(currentUserId);
       setPlaylists(playlistResponse);
       console.log("playlist  ", playlistResponse);
@@ -299,16 +294,16 @@ const FeedTrack = () => {
   };
   // end playlist
 
-  // report post 
+  // report post
   const handleReport = (id, type) => {
-    console.log('ID to report:', id); // Kiểm tra giá trị ID
-    console.log('Type to report:', type); // Kiểm tra giá trị type
+    console.log("ID to report:", id); // Kiểm tra giá trị ID
+    console.log("Type to report:", type); // Kiểm tra giá trị type
     setReportId(id);
     setReportType(type);
     setShowReportModal(true);
   };
   const handleSubmit = () => {
-    console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
+    console.log("Report Type before submit:", reportType); // Kiểm tra giá trị type
 
     if (!ReportId || !reportType) {
       setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
@@ -322,28 +317,36 @@ const FeedTrack = () => {
     try {
       const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
 
-      const reportExists = await checkReportExists(userId, reportId, reportType);
+      const reportExists = await checkReportExists(
+        userId,
+        reportId,
+        reportType
+      );
       if (reportExists) {
         setReportMessage("Bạn đã báo cáo nội dung này rồi.");
         toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
       } else {
         const reportData = {
           userId: userId,
-          postId: reportType === 'post' ? reportId : null,
-          trackId: reportType === 'track' ? reportId : null,
-          albumId: reportType === 'album' ? reportId : null,
+          postId: reportType === "post" ? reportId : null,
+          trackId: reportType === "track" ? reportId : null,
+          albumId: reportType === "album" ? reportId : null,
           type: reportType,
-          reason: reason
+          reason: reason,
         };
 
-        const response = await axios.post('http://localhost:8080/api/reports', reportData, {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}` // Thêm JWT token vào header
+        const response = await axios.post(
+          "http://localhost:8080/api/reports",
+          reportData,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`, // Thêm JWT token vào header
+            },
           }
-        });
+        );
 
-        console.log('Report submitted successfully:', response.data);
+        console.log("Report submitted successfully:", response.data);
         setReportMessage("Báo cáo đã được gửi thành công.");
         toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
         setShowReportModal(false);
@@ -351,7 +354,7 @@ const FeedTrack = () => {
     } catch (error) {
       console.error("Lỗi khi tạo báo cáo:", error);
       if (error.response && error.response.status === 401) {
-        navigate('/login?error=true');
+        navigate("/login?error=true");
       } else {
         setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
         toast.error("Đã có lỗi xảy ra khi gửi báo cáo."); // Hiển thị toast thông báo lỗi
@@ -360,20 +363,23 @@ const FeedTrack = () => {
   };
   const checkReportExists = async (userId, reportId, reportType) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/reports/check`, {
-        params: {
-          userId: userId,
-          postId: reportType === 'post' ? reportId : null,
-          trackId: reportType === 'track' ? reportId : null,
-          albumId: reportType === 'album' ? reportId : null,
-          type: reportType,
-        },
-        withCredentials: true,
-      });
-      console.log('Check report response:', response.data);
+      const response = await axios.get(
+        `http://localhost:8080/api/reports/check`,
+        {
+          params: {
+            userId: userId,
+            postId: reportType === "post" ? reportId : null,
+            trackId: reportType === "track" ? reportId : null,
+            albumId: reportType === "album" ? reportId : null,
+            type: reportType,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("Check report response:", response.data);
       return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
     } catch (error) {
-      console.error('Lỗi mạng:', error);
+      console.error("Lỗi mạng:", error);
     }
   };
   const reasons = [
@@ -435,17 +441,17 @@ const FeedTrack = () => {
                           onClick={() => addToPlaylist(track.id)}
                         >
                           <i className="fa-solid fa-pen-to-square"></i>{" "}
-                          {t('f12')}
+                          Add to playlist
                         </button>
                       </li>
                       <li>
                         <button className="dropdown-item" onClick={() => handleEditClick(track)}>
-                          <i className='fa-solid fa-pen-to-square'></i> {t('a8')}
+                          <i className='fa-solid fa-pen-to-square'></i>Edit
                         </button>
                       </li>
                       <li>
                         <button className="dropdown-item" onClick={() => deleteTrack(track.id)}>
-                          <i className='fa-solid fa-trash '></i> {t('a9')}
+                          <i className='fa-solid fa-trash '></i>Delete
                         </button>
                       </li>
                     </ul>
@@ -462,7 +468,7 @@ const FeedTrack = () => {
                           onClick={() => addToPlaylist(track.id)}
                         >
                           <i className="fa-solid fa-pen-to-square"></i>{" "}
-                          {t('f12')}
+                          Add to playlist
                         </button>
                       </li>
                     </ul>
@@ -471,48 +477,51 @@ const FeedTrack = () => {
                 )}
               </div>
 
-              <div className="post-content description">
-                {track.description || "Unknown description"}
-              </div>
-              {/* Nội dung */}
-              <div className="track-content audio">
-                <WaveFormFeed
-                  audioUrl={track.trackFile}
-                  track={track}
-                  className="track-waveform "
-                />
-              </div>
+                <div className="post-content description">
+                  {track.description || "Unknown description"}
+                </div>
+                {/* Nội dung */}
+                <div className="track-content audio">
+                  <WaveFormFeed
+                    audioUrl={track.trackFile}
+                    track={track}
+                    className="track-waveform "
+                  />
+                </div>
 
-              {/* Like/Comment */}
-              <div className="row d-flex justify-content-start align-items-center">
-                {/* Like track*/}
-                <div className="col-2 mt-2 text-center">
-                  <div className="like-count">
-                    {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
-                    <i
-                      className={`fa-solid fa-heart ${likedTracks[track.id]?.data
-                        ? "text-danger"
-                        : "text-muted"
+                {/* Like/Comment */}
+                <div className="row d-flex justify-content-start align-items-center">
+                  {/* Like track*/}
+                  <div className="col-2 mt-2 text-center">
+                    <div className="like-count">
+                      {countLikedTracks[track.id]?.data || 0}{" "}
+                      {/* Hiển thị số lượng like */}
+                      <i
+                        className={`fa-solid fa-heart ${
+                          likedTracks[track.id]?.data
+                            ? "text-danger"
+                            : "text-muted"
                         }`}
-                      onClick={() => handleLikeTrack(track.id)}
-                      style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                    ></i>
+                        onClick={() => handleLikeTrack(track.id)}
+                        style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
+                      ></i>
+                    </div>
                   </div>
-                </div>
 
-                {/* share track*/}
-                <div className="col-2 mt-2 text-center">
-                  <div className="d-flex justify-content-center align-items-center">
-                    <i
-                      type="button"
-                      style={{ fontSize: "20px", color: "black" }}
-                      className="fa-solid fa-share"
-                    ></i>
+                  {/* share track*/}
+                  <div className="col-2 mt-2 text-center">
+                    <div className="d-flex justify-content-center align-items-center">
+                      <i
+                        type="button"
+                        style={{ fontSize: "20px", color: "black" }}
+                        className="fa-solid fa-share"
+                      ></i>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )
+            );
+          }
         })}
       </div>
 
@@ -739,9 +748,13 @@ const FeedTrack = () => {
         </div>
       </div>
       {/* Modal để chọn playlist */}
-            {/* Modal báo cáo */}
-            {showReportModal && (
-        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+      {/* Modal báo cáo */}
+      {showReportModal && (
+        <div
+          className="modal fade show"
+          style={{ display: "block" }}
+          role="dialog"
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
@@ -762,14 +775,13 @@ const FeedTrack = () => {
                 {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
                 <h6>{t('a5')}</h6>
                 <div className="mb-3">
-                  {reasons.map((reason, index) => (
-                    <label className="d-block" key={index}>
+                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                    <label className="d-block" key={reason}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
-                        style={{ marginRight: '10px' }}
                       /> {reason}
                     </label>
                   ))}
@@ -779,12 +791,19 @@ const FeedTrack = () => {
                   placeholder={t('a5')}
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  style={{ resize: 'none' }}
+                  style={{ resize: "none" }}
                 />
               </div>
               <div className="modal-footer">
                 <button
-                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  onClick={() =>
+                    submitReport(
+                      currentUserId,
+                      ReportId,
+                      reportType,
+                      reportReason
+                    )
+                  }
                   className="btn btn-primary"
                 >
                   {t('a6')}
@@ -800,13 +819,12 @@ const FeedTrack = () => {
                  {t('a16')}
                 </button>
               </div>
-
             </div>
           </div>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default FeedTrack
+export default FeedTrack;

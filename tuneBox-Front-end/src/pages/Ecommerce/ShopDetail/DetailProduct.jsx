@@ -4,16 +4,17 @@ import "./DetailProduct.css";
 import { images } from "../../../assets/images/images";
 import Footer2 from "../../../components/Footer/Footer2";
 import Benefits from "../../../components/Benefits/Benefits";
-import { getInstrumentById } from '../../../service/EcommerceHome';
+import { getInstrumentById } from "../../../service/EcommerceHome";
 import { Link } from "react-router-dom";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { addToLocalCart, getLocalCart } from "../../../service/CartService";
 
 import { useTranslation } from "react-i18next";
 import '../../../i18n/i18n'
 
 import Swal from "sweetalert2";
-import { Audio } from 'react-loader-spinner'
+import { Audio } from "react-loader-spinner";
+
 const DetailProduct = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -23,23 +24,30 @@ const DetailProduct = () => {
   const { t } = useTranslation();
   const [relatedInstrument, setRelatedInstrumet] = useState([]); // state related instrument by category id and brand id
 
-  const [quantity, setQuantity] = useState(1); // state lưa số lượng sản phẩm 
+  const [quantity, setQuantity] = useState(1); // state lưa số lượng sản phẩm
 
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState("");
   const navigate = useNavigate();
 
   const [cartItems, setCartItems] = useState({});
 
+  // share sanpham sang feed
+  const handleShareToFeed = () => {
+    navigate("/", {
+      state: { sharedData: instrument, activeComponent: "post" },
+    });
+    console.log("sharedData: ", instrument);
+  };
+
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   useEffect(() => {
     // Lấy userId từ cookie khi component mount
-    const storedUserId = Cookies.get('userId');
+    const storedUserId = Cookies.get("userId");
     console.log("userId:", storedUserId);
     if (storedUserId) {
       setUserId(storedUserId);
     }
   }, []);
-
 
   useEffect(() => {
     const fetchInstrument = async () => {
@@ -62,9 +70,6 @@ const DetailProduct = () => {
     }
   }, [id, location.state]);
 
-
-
-
   // Hiển thị loading hoặc lỗi nếu có
   if (loading) return <p>{t('dnote3')}</p>;
   if (error) return <p>{error}</p>;
@@ -79,7 +84,8 @@ const DetailProduct = () => {
   };
 
   const handleIncrement = () => {
-    if (quantity < instrument.quantity) { // Kiểm tra xem số lượng có vượt quá số lượng hiện có không
+    if (quantity < instrument.quantity) {
+      // Kiểm tra xem số lượng có vượt quá số lượng hiện có không
       setQuantity(quantity + 1);
     } else {
       Swal.fire({
@@ -88,9 +94,9 @@ const DetailProduct = () => {
         icon: 'error',
         confirmButtonText: 'OK',
         customClass: {
-          confirmButton: 'btn btn-primary',
+          confirmButton: "btn btn-primary",
         },
-        buttonsStyling: false
+        buttonsStyling: false,
       });
     }
   };
@@ -98,7 +104,8 @@ const DetailProduct = () => {
   // Cập nhật giá trị trong ô input
   const handleInputChange = (e) => {
     const value = Number(e.target.value);
-    if (value >= 1 && value <= instrument.quantity) { // Kiểm tra giới hạn
+    if (value >= 1 && value <= instrument.quantity) {
+      // Kiểm tra giới hạn
       setQuantity(value);
     } else if (value > instrument.quantity) {
       Swal.fire({
@@ -107,15 +114,14 @@ const DetailProduct = () => {
         icon: 'error',
         confirmButtonText: 'OK',
         customClass: {
-          confirmButton: 'btn btn-primary',
+          confirmButton: "btn btn-primary",
         },
-        buttonsStyling: false
+        buttonsStyling: false,
       });
     } else {
       setQuantity(1); // Đặt lại số lượng về 1 nếu nhập số âm hoặc 0
     }
   };
-
 
   // Trong phần render
   <input
@@ -124,8 +130,7 @@ const DetailProduct = () => {
     onChange={handleInputChange} // Sử dụng hàm mới này
     className="soluongSP rounded-2 m-0"
     min={1}
-  />
-
+  />;
 
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
@@ -133,8 +138,6 @@ const DetailProduct = () => {
     if (quantity > 0 && quantity <= 5) return t('saphhet');
     return t('conhang');
   };
-
-
 
   const handleAddToCart = async () => {
     setIsAddingToCart(true); // Bắt đầu loading
@@ -150,9 +153,9 @@ const DetailProduct = () => {
         icon: 'error',
         confirmButtonText: 'OK',
         customClass: {
-          confirmButton: 'btn btn-primary',
+          confirmButton: "btn btn-primary",
         },
-        buttonsStyling: false // Tùy chọn để sử dụng style tùy chỉnh
+        buttonsStyling: false, // Tùy chọn để sử dụng style tùy chỉnh
       });
 
       return; // Dừng thực hiện nếu không còn hàng
@@ -170,21 +173,22 @@ const DetailProduct = () => {
         icon: 'success',
         confirmButtonText: 'OK',
         customClass: {
-          confirmButton: 'btn btn-primary',
+          confirmButton: "btn btn-primary",
         },
-        buttonsStyling: false // Tùy chọn để sử dụng style tùy chỉnh
+        buttonsStyling: false, // Tùy chọn để sử dụng style tùy chỉnh
       });
     }, 1000); // Giả lập thời gian xử lý
   };
 
-  // sản phẩm tương tự 
+  // sản phẩm tương tự
   const handleBrandClick = (brand) => {
-    navigate('/brand-detail', { state: { brand } });
+    navigate("/brand-detail", { state: { brand } });
   };
 
   if (loading) return <p>Đang tải sản phẩm...</p>;
   if (error) return <p>{error}</p>;
-  if (!instrument) return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+  if (!instrument)
+    return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
 
   return (
     <div>
@@ -195,9 +199,13 @@ const DetailProduct = () => {
             <h3 className="text-uppercase">{instrument.name}</h3>
             <div className="col-md-12 d-flex justify-content-center">
               <div className="img">
-
                 <div className="text-center">
-                  <img id="main-image" src={instrument.image} width={450} alt="product" />
+                  <img
+                    id="main-image"
+                    src={instrument.image}
+                    width={450}
+                    alt="product"
+                  />
                 </div>
               </div>
             </div>
@@ -212,13 +220,13 @@ const DetailProduct = () => {
                 </div>
                 
               </div>
-
-
             </div>
             <div className="col-5">
               <div className="mt-4 mb-3 noidungSP">
                 <div className="price d-flex flex-row align-items-center">
-                  <span className="price">{instrument.costPrice.toLocaleString()} VND</span>
+                  <span className="price">
+                    {instrument.costPrice.toLocaleString()} VND
+                  </span>
                 </div>
                 <div className="cart mt-4 align-items-center">
                   <div className="row">
@@ -233,7 +241,12 @@ const DetailProduct = () => {
                         className="soluongSP rounded-2 m-0"
                         min={1}
                       />
-                      <button className="btn btn-next" onClick={handleIncrement}><strong>+</strong></button>
+                      <button
+                        className="btn btn-next"
+                        onClick={handleIncrement}
+                      >
+                        <strong>+</strong>
+                      </button>
                     </div>
 
                     {/* Brand */}
@@ -266,7 +279,6 @@ const DetailProduct = () => {
                       </div>
                     )}
                   </div>
-
                 </div>
 
                 {/* Service */}
@@ -277,16 +289,119 @@ const DetailProduct = () => {
                   </div>
                   <div className="product-service">
                     <i className="fa-solid fa-box"></i>
-                    <span className="ms-2">{getStockStatus(instrument.quantity)}</span> {/* Trạng thái còn hàng và hết hàng  */}
+                    <span className="ms-2">
+                      {getStockStatus(instrument.quantity)}
+                    </span>{" "}
+                    {/* Trạng thái còn hàng và hết hàng  */}
                   </div>
                   <div className="ship-service">
                     <i className="fa-solid fa-truck-fast"></i>
                     <span className="ms-2">{t('ship')}</span>
                   </div>
+                  <div className="ship-service">
+                    <i
+                      className="fa-solid fa-share"
+                      onClick={handleShareToFeed}
+                    ></i>
+                    <span className="ms-2">Share</span>
+                  </div>
+                  <div className="ship-service">
+                    <i
+                      className="fa-solid fa-share"
+                      onClick={handleShareToFeed}
+                    ></i>
+                    <span className="ms-2">Share</span>
+                  </div>
                 </div>
 
-    
+                {/* Related products */}
+                <div className="carousel slide" id="carouselExample">
+                  <h3>Related instruments</h3>
+                  <div className="carousel-inner">
+                    {/* Chia relatedInstrument thành các nhóm, mỗi nhóm có 2 sản phẩm */}
+                    {relatedInstrument
+                      .reduce((acc, _, index) => {
+                        if (index % 2 === 0) {
+                          acc.push(relatedInstrument.slice(index, index + 2));
+                        }
+                        return acc;
+                      }, [])
+                      .map((group, groupIndex) => (
+                        <div
+                          className={`carousel-item ${
+                            groupIndex === 0 ? "active" : ""
+                          }`}
+                          key={groupIndex}
+                        >
+                          <div className="row">
+                            {group.map((ins) => (
+                              <div className="col-md-6" key={ins.id}>
+                                <Link
+                                  to={{
+                                    pathname: `/DetailProduct/${ins.id}`,
+                                    state: { ins },
+                                  }}
+                                  className="card-link"
+                                >
+                                  <div
+                                    className="card"
+                                    style={{
+                                      width: "100%",
+                                      border: "none",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <div className="card-img-wrapper">
+                                      <img
+                                        src={ins.image}
+                                        className="card-img-top"
+                                        alt={ins.name}
+                                      />
+                                    </div>
+                                    <div className="card-body text-center">
+                                      <p className="card-title">{ins.name}</p>
+                                      <p className="card-price">
+                                        {ins.costPrice.toLocaleString()}đ
+                                      </p>
+                                      <p className="card-status">
+                                        {getStockStatus(ins.quantity)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </Link>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
 
+                  {/* Carousel controls */}
+                  <button
+                    className="carousel-control-prev"
+                    data-bs-slide="prev"
+                    data-bs-target="#carouselExample"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="carousel-control-prev-icon"
+                    />
+                    <span className="visually-hidden">Previous</span>
+                  </button>
+                  <button
+                    className="carousel-control-next"
+                    data-bs-slide="next"
+                    data-bs-target="#carouselExample"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="carousel-control-next-icon"
+                    />
+                    <span className="visually-hidden">Next</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

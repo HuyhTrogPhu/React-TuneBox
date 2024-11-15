@@ -11,9 +11,8 @@ import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { ToastContainer, toast } from "react-toastify";
 import "../Profile_nav/css/playlist.css";
-import { useTranslation } from "react-i18next";
-import '../../../../i18n/i18n'
-import Swal from 'sweetalert2';
+import { Audio } from "react-loader-spinner";
+
 const Playlists = () => {
   const userId = Cookies.get("userId");
   const { id } = useParams(); // Lấy ID từ URL
@@ -27,7 +26,7 @@ const Playlists = () => {
   const [newPlaylistImage, setPlaylistImage] = useState(null);
   const [newPlaylistDescription, setPlaylistDescription] = useState("");
   const [selectedType, setSelectedType] = useState("Public");
-  const { t } = useTranslation();
+
   const [editPlayListName, setEditPlaylistName] = useState("");
   const [editPlaylistDescription, setEditPlaylistDescription] = useState("");
   const [editSelectedType, setEditSelectedType] = useState("Public");
@@ -85,8 +84,8 @@ const Playlists = () => {
       setIsLoading(false);
     }
   };
-  const handleSave = async () => {
 
+  const handleSave = async () => {
     if (!validateForm()) return;
 
     const newPlaylist = new FormData();
@@ -109,7 +108,7 @@ const Playlists = () => {
       const response = await createPlaylist(newPlaylist);
       console.log("Playlist created successfully ", response);
       document.getElementById("closeModaplaylist").click();
-      toast.success(t('playlistCreatedSuccess')); // Sử dụng thông báo đã dịch
+      toast.success("PlayList created successfully!");
       fetchListPlaylist();
       // Reset form
       setPlaylistName("");
@@ -121,19 +120,19 @@ const Playlists = () => {
       console.error("Failed to create playlist:", error);
       const errorMessage =
         error.response?.data?.message ||
-        t('playlistCreateError'); // Dịch thông báo lỗi
+        "Failed to create playlist. Please try again.";
       toast.error(errorMessage);
     }
   };
-  const validateForm = () => {
 
+  const validateForm = () => {
     const newErrors = {};
-    if (!newPlayListName) newErrors.name = t('playlistNameRequired'); // Sử dụng thông báo đã dịch
-    if (!newPlaylistImage) newErrors.image = t('playlistImageRequired'); // Sử dụng thông báo đã dịch
+    if (!newPlayListName) newErrors.name = "Playlist name is required.";
+    if (!newPlaylistImage) newErrors.image = "Playlist image is required.";
     if (!newPlaylistDescription) {
-      newErrors.description = t('playlistDescriptionRequired'); // Sử dụng thông báo đã dịch
+      newErrors.description = "Description is required.";
     } else if (newPlaylistDescription.length <= 10) {
-      newErrors.description = t('playlistDescriptionLength'); // Sử dụng thông báo đã dịch
+      newErrors.description = "Description must be more than 10 characters.";
     }
 
     setErrors(newErrors);
@@ -158,9 +157,7 @@ const Playlists = () => {
   };
 
   const SaveEdit = async (playlistId) => {
-
     if (!validateEditForm()) return; // Validate form before saving
-
     try {
       const formData = new FormData();
 
@@ -177,32 +174,25 @@ const Playlists = () => {
 
       await updatePlaylist(playlistId, formData);
 
-      toast.success(t("updatePlaylistSuccess")); // Sử dụng thông báo đã dịch
+      toast.success("Update Playlist successfully!");
       fetchListPlaylist();
       resetForm();
       document.getElementById("closeEditModelplaylist").click(); // Đóng modal sau khi lưu
     } catch (error) {
       console.error("Failed to update playlist:", error);
       const errorMessage =
-        error.response?.data?.message || t("updatePlaylistError"); // Sử dụng thông báo lỗi đã dịch
+        error.response?.data?.message || "Failed. Please try again.";
       toast.error(errorMessage);
     }
   };
 
   const validateEditForm = () => {
-
     const newErrors = {};
-
-    // Kiểm tra tên playlist
-    if (!editPlayListName) {
-      newErrors.name = t("playlistNameRequired"); // Thay thế thông báo lỗi bằng t()
-    }
-
-    // Kiểm tra mô tả playlist
+    if (!editPlayListName) newErrors.name = "Playlist name is required.";
     if (!editPlaylistDescription) {
-      newErrors.description = t("descriptionRequired"); // Thay thế thông báo lỗi bằng t()
+      newErrors.description = "Description is required.";
     } else if (editPlaylistDescription.length <= 10) {
-      newErrors.description = t("descriptionLengthError"); // Thay thế thông báo lỗi bằng t()
+      newErrors.description = "Description must be more than 10 characters.";
     }
 
     setErrors(newErrors);
@@ -219,43 +209,19 @@ const Playlists = () => {
 
   // delete album
   const handDeletePlaylist = async (playlistId) => {
-
-    // Hiển thị thông báo xác nhận với SweetAlert
-    const result = await Swal.fire({
-      title: t("confirmDelete"),
-      text: t("areYouSure"),
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: t("yesDelete"),
-      cancelButtonText: t("cancel"),
-    });
-  
-    if (!result.isConfirmed) {
-      return; // Nếu người dùng không xác nhận, dừng hàm
+    if (!window.confirm("Are you sure you want to delete this playlist?")) {
+      return;
     }
-  
+
     setIsLoading(true);
     try {
       const response = await deletePlaylist(playlistId);
-      console.log("Playlist deleted successfully:", response);
+      console.log("Album deleted successfully:", response);
       fetchListPlaylist();
-  
-      // Hiển thị thông báo thành công với SweetAlert
-      Swal.fire({
-        icon: 'success',
-        title: t("deleteSuccess"),
-        showConfirmButton: false,
-        timer: 1500
-      });
+      toast.success("Playlist deleted successfully!");
     } catch (error) {
       console.error("Error deleting playlist:", error);
-  
-      // Hiển thị thông báo thất bại với SweetAlert
-      Swal.fire({
-        icon: 'error',
-        title: t("deleteFail"),
-        showConfirmButton: true
-      });
+      toast.error("Failed to delete Playlist. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -264,28 +230,34 @@ const Playlists = () => {
   return (
     <div className="albums">
       <ToastContainer />
-      <div className="btn-container">
-        <button
-          type="button"
-          className="btn-new"
-          data-bs-toggle="modal"
-          data-bs-target="#newPlaylist"
-        >
-          {t('a28')}
-        </button>
-
-        <div className="search-container">
-          <input type="text" placeholder={t('a30')} className="search-input" />
-          <button type="button" className="btn-search">
-            {t('a29')}
+      {!id || String(id) === String(userId) ? (
+        <div className="btn-container">
+          <button
+            type="button"
+            className="btn-new"
+            data-bs-toggle="modal"
+            data-bs-target="#newPlaylist"
+          >
+            New
           </button>
+
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="search-input"
+            />
+            <button type="button" className="btn-search">
+              Search
+            </button>
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Playlist List */}
       <div className="post-header-albums">
         {isLoading ? (
-          <div>Loading albums...</div>
+          <div></div>
         ) : playlists && playlists.length > 0 ? (
           playlists.map(
             (list) =>
@@ -310,10 +282,10 @@ const Playlists = () => {
 
                     <div className="album-details">
                       <span className="tracks">
-                        {t('a30x')}: {list.tracks.length}
+                        Tracks: {list.tracks.length}
                       </span>
                       <span className="likes">
-                        {t('a31x')}:{" "}
+                        Likes:{" "}
                         {likesCount && likesCount[list.id]
                           ? likesCount[list.id]
                           : 0}
@@ -336,34 +308,31 @@ const Playlists = () => {
                             data-bs-toggle="modal"
                             data-bs-target="#editPlaylist"
                             onClick={() => handleEditClick(list)}
-
-                            style={{ cursor: 'pointer' }}
                           >
-                            {t('a8')}
+                            Edit
                           </a>
                         </li>
                         <li>
                           <a
-                             style={{ cursor: 'pointer' }}
                             className="dropdown-item"
                             onClick={() => handDeletePlaylist(list.id)}
                           >
-                            {t('a9')}
+                            Delete
                           </a>
                         </li>
                       </ul>
                     </div>
                   ) : (
                     <button
-                      className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
-                      onClick={() => handleReport(album.id, "album")}
+                      className="fa-regular fa-flag btn-report ms-3 top-8 border-0"
+                      onClick={() => handleReport(list.id, "album")}
                     ></button>
                   )}
                 </div>
               )
           )
         ) : (
-          <div className="no-albums">{t('a35')}</div>
+          <div className="no-albums">No playlist found</div>
         )}
       </div>
 
@@ -380,7 +349,7 @@ const Playlists = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="newPlaylistLabel">
-                {t('a36')}
+                New Playlist
               </h1>
               <button
                 type="button"
@@ -392,13 +361,13 @@ const Playlists = () => {
             </div>
             <div className="modal-body">
               <div className="mb-3">
-                <label className="form-label"> {t('a37')}</label>
+                <label className="form-label">Title</label>
                 <input
                   type="text"
                   className={`form-control ${errors.name ? "is-invalid" : ""}`}
                   value={newPlayListName}
                   onChange={(e) => setPlaylistName(e.target.value)}
-                  placeholder={t('a45')}
+                  placeholder="Enter playlist name"
                 />
                 {errors.name && (
                   <div className="invalid-feedback">{errors.name}</div>
@@ -406,13 +375,14 @@ const Playlists = () => {
               </div>
 
               <div className="mb-3">
-                <label className="form-label"> {t('a38')}</label>
+                <label className="form-label">Description</label>
                 <textarea
-                  className={`form-control ${errors.description ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.description ? "is-invalid" : ""
+                  }`}
                   value={newPlaylistDescription}
                   onChange={(e) => setPlaylistDescription(e.target.value)}
-                  placeholder={t('a46')}
+                  placeholder="Enter playlist description"
                 />
                 {errors.description && (
                   <div className="invalid-feedback">{errors.description}</div>
@@ -420,7 +390,7 @@ const Playlists = () => {
               </div>
 
               <div className="mb-3">
-                <label className="form-label"> {t('a39')}</label>
+                <label className="form-label">Type</label>
                 <select
                   className="form-select"
                   value={selectedType}
@@ -432,12 +402,13 @@ const Playlists = () => {
               </div>
 
               <div className="mb-3">
-                <label className="form-label"> {t('a42')}</label>
+                <label className="form-label">Playlist Image</label>
                 <div className="position-relative">
                   <input
                     type="file"
-                    className={`form-control ${errors.image ? "is-invalid" : ""
-                      }`}
+                    className={`form-control ${
+                      errors.image ? "is-invalid" : ""
+                    }`}
                     accept="image/*"
                     onChange={handleImageChange}
                     style={{ display: "none" }}
@@ -464,14 +435,14 @@ const Playlists = () => {
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
-                {t('c33')}
+                Close
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={handleSave}
               >
-                {t('a44')}
+                Create
               </button>
             </div>
           </div>
@@ -491,7 +462,7 @@ const Playlists = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="editPlaylistLabel">
-                {t('a43')}
+                Edit Playlist
               </h1>
               <button
                 type="button"
@@ -503,13 +474,13 @@ const Playlists = () => {
             </div>
             <div className="modal-body">
               <div className="mb-3">
-                <label className="form-label">{t('a37')}</label>
+                <label className="form-label">Title</label>
                 <input
                   type="text"
                   className={`form-control ${errors.name ? "is-invalid" : ""}`}
                   value={editPlayListName}
                   onChange={(e) => setEditPlaylistName(e.target.value)}
-                  placeholder={t('a45')}
+                  placeholder="Enter playlist name"
                 />
                 {errors.name && (
                   <div className="invalid-feedback">{errors.name}</div>
@@ -517,13 +488,14 @@ const Playlists = () => {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">{t('a38')}</label>
+                <label className="form-label">Description</label>
                 <textarea
-                  className={`form-control ${errors.description ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.description ? "is-invalid" : ""
+                  }`}
                   value={editPlaylistDescription}
                   onChange={(e) => setEditPlaylistDescription(e.target.value)}
-                  placeholder={t('a46')}
+                  placeholder="Enter playlist description"
                 />
                 {errors.description && (
                   <div className="invalid-feedback">{errors.description}</div>
@@ -531,19 +503,19 @@ const Playlists = () => {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">{t('a39')}</label>
+                <label className="form-label">Type</label>
                 <select
                   className="form-select"
                   value={editSelectedType}
                   onChange={(e) => setEditSelectedType(e.target.value)}
                 >
-                  <option value="Public">{t('a40')}</option>
-                  <option value="Private">{t('a41')}</option>
+                  <option value="Public">Public</option>
+                  <option value="Private">Private</option>
                 </select>
               </div>
 
               <div className="mb-3">
-                <label className="form-label">{t('a42')}</label>
+                <label className="form-label">Playlist Image</label>
                 <div className="position-relative">
                   <input
                     type="file"
@@ -571,14 +543,14 @@ const Playlists = () => {
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
               >
-                {t('c33')}
+                Close
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={() => SaveEdit(playlistId)}
               >
-                {t('p16')}
+                Save changes
               </button>
             </div>
           </div>
