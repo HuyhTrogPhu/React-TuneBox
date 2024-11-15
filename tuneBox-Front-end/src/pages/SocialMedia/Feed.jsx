@@ -35,7 +35,9 @@ import { getUserInfo } from "../../service/UserService";
 import FeedTrack from "./FeedTrack";
 import FeedPost from "./FeedPost";
 import { FollowContext } from "./Profile/FollowContext";
-
+import { useTranslation } from "react-i18next";
+import '../../i18n/i18n'
+import Swal from 'sweetalert2';
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -62,7 +64,7 @@ const HomeFeed = () => {
   const currentUserNickname = Cookies.get("userNickname");
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
-
+  const { t } = useTranslation();
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [ReportId, setReportId] = useState(null);
@@ -1083,6 +1085,12 @@ const HomeFeed = () => {
     setFollowCount(counts);
   }, [followCounts, currentUserId]);
 
+  const reasons = [
+    t('offensiveContent'),
+    t('copyrightViolation'),
+    t('spamOrScam'),
+    t('other')
+  ];
 
   return (
     <div>
@@ -1107,17 +1115,17 @@ const HomeFeed = () => {
                   />
               </div>
               {/* information */}
-              <div className="feed-information text-center">
+              <div className="feed-information text-center " style={{marginTop: '100px'}}>
                 <h6 className="feed-username">{userData.name}</h6>
                 <h6 className="feed-name">@<h7>{userData.userName}</h7></h6>
-                <h6 className="feed-following">Follower</h6>
+                <h6 className="feed-following">{t('p2')}</h6>
                 <span>{followCount.followerCount}</span> 
-                <h6 className="feed-follower">Following</h6>
+                <h6 className="feed-follower">{t('p3')}</h6>
                 <span>{followCount.followingCount}</span>
               </div>
               {/* View profile */}
               <div className="view-profile text-center">
-                <Link style={{ color: '#E94F37' }} to={'/profileUser'}>View profile</Link>
+                <Link style={{ color: '#E94F37' }} to={'/profileUser'}>{t('f1')}</Link>
               </div>
             </div>
             <ul className="list-unstyled">
@@ -1134,7 +1142,7 @@ const HomeFeed = () => {
                     className="me-2"
                   />
                   <span className="fw-bold">
-                    <Link to={"/"}>Bản tin</Link>
+                    <Link to={"/"}>{t('f2')}</Link>
                   </span>
                 </a>
               </li>
@@ -1146,7 +1154,7 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2"
                   />
-                  <span className="fw-bold">Đang theo dõi</span>
+                  <span className="fw-bold">{t('p3')}</span>
                 </Link>
               </li>
 
@@ -1158,7 +1166,7 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2"
                   />
-                  <span className="fw-bold">Bài viết đã thích</span>
+                  <span className="fw-bold">{t('f3')}</span>
                 </Link>
               </li>
               <li className="left mb-4">
@@ -1169,7 +1177,7 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2"
                   />
-                  <span className="fw-bold">Albums đã thích</span>
+                  <span className="fw-bold">{t('f4')}</span>
                 </Link>
               </li>
               <li className="left mb-4">
@@ -1183,7 +1191,7 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2 "
                   />
-                  <span className="fw-bold">Playlist đã thích</span>
+                  <span className="fw-bold">{t('f5')}</span>
                 </Link>
               </li>
               <li className="left mb-4">
@@ -1193,7 +1201,7 @@ const HomeFeed = () => {
                   className="d-flex align-items-center justify-content-center"
                 >
                   <i className="fa-solid fa-user-group me-1"></i>
-                  <span className="fw-bold">Lời mời kết bạn</span>
+                  <span className="fw-bold">{t('f6')}</span>
                 </Link>
               </li>
             </ul>
@@ -1210,14 +1218,14 @@ const HomeFeed = () => {
                   onClick={() => setActiveComponent('track')}
                 >
                   <i className="fa-solid fa-music me-1"></i>
-                  <span>Track</span>
+                  <span>{t('f7')}</span>
                 </li>
                 <li
                   className={`col-6 text-center feed-link ${activeComponent === 'post' ? 'active' : ''}`}
                   onClick={() => setActiveComponent('post')}
                 >
                   <i className="fa-solid fa-newspaper me-1"></i>
-                  <span>Post</span>
+                  <span>{t('f8')}</span>
                 </li>
               </ul>
             </div>
@@ -1243,7 +1251,7 @@ const HomeFeed = () => {
                     }}
                     onClick={handleCreatePostClick}
                   >
-                    What are you thinking about?
+                    {t('f9')}
                   </button>
                 </div>
               </div>
@@ -1278,7 +1286,7 @@ const HomeFeed = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <h5 className="modal-title">{t('a3')}</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -1293,15 +1301,16 @@ const HomeFeed = () => {
               </div>
               <div className="modal-body">
                 {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
-                <h6>Chọn lý do báo cáo:</h6>
+                <h6>{t('a4')}</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
-                    <label className="d-block" key={reason}>
+                  {reasons.map((reason, index) => (
+                    <label className="d-block" key={index}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
+                        style={{ marginRight: '10px' }}
                       /> {reason}
                     </label>
                   ))}
@@ -1319,7 +1328,7 @@ const HomeFeed = () => {
                   onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
                   className="btn btn-primary"
                 >
-                  Report
+                  {t('a6')}
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -1329,7 +1338,7 @@ const HomeFeed = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  Close
+                  {t('a16')}
                 </button>
               </div>
 
@@ -1353,7 +1362,7 @@ const HomeFeed = () => {
                 />
                 <div>
                   <div className="name">{userData.name}</div>
-                  <div className="time">Posting to Feed</div>
+                  <div className="time">{t('f10')}</div>
                 </div>
                 <button
                   id="close-modal"
@@ -1367,7 +1376,7 @@ const HomeFeed = () => {
                   id="post-textarea"
                   className="form-control"
                   rows={3}
-                  placeholder="Write your post here..."
+                  placeholder={t('f11')}
                   value={postContent}
                   onChange={handleTextareaChange}
                 />
@@ -1408,7 +1417,7 @@ const HomeFeed = () => {
                       className="btn btn-secondary"
                       onClick={handleSubmitPost} // Đóng modal tạo bài viết sau khi đăng bài
                     >
-                      Post
+                      {t('f8')}
                     </button>
                   </div>
                   {/* Hiển thị ảnh đã chọn */}
