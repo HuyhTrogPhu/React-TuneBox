@@ -10,10 +10,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { getTrackById } from "../../../../service/TrackServiceCus";
 import axios from "axios";
-import { useTranslation } from "react-i18next";
-import '../../../../i18n/i18n'
-import Swal from 'sweetalert2';
+
 const Albums = () => {
   const userId = Cookies.get("userId");
   const { id } = useParams(); // Lấy ID từ URL
@@ -22,7 +21,7 @@ const Albums = () => {
   const [albums, setAlbums] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
-  const { t } = useTranslation();
+
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [ReportId, setReportId] = useState(null);
@@ -30,6 +29,7 @@ const Albums = () => {
   const [reportMessage, setReportMessage] = useState("");
 
   const [likesCount, setLikesCount] = useState();
+  const [countTrack, setCountTrack] = useState({});
 
   // Fetch initial data
   useEffect(() => {
@@ -45,6 +45,7 @@ const Albums = () => {
       const albumsResponse = await getAlbumsByUserId(targetUserId);
 
       setAlbums(albumsResponse || []);
+      console.log("albumsResponse: ", albumsResponse);
 
       // Đếm số lượng album có status là false
       const inactiveAlbumsCount = albumsResponse.filter(
@@ -56,10 +57,23 @@ const Albums = () => {
       );
 
       const likesCountsMap = {};
+      const tempInactiveTracksCountMap = {};
 
       await Promise.all(
         albumsResponse.map(async (item) => {
           try {
+            const trackDetails = await fetchTrackDetails(item.tracks);
+
+            const countTrackFalse = trackDetails.filter(
+              (track) => !track.status
+            ).length;
+            tempInactiveTracksCountMap[item.id] = countTrackFalse;
+
+            console.log(
+              `Album ID: ${item.id} - count Track còn tồn tại:`,
+              countTrackFalse
+            );
+
             if (item.id) {
               const response = await getLikesCountByAlbumsId(item.id);
               likesCountsMap[item.id] = response.data; // Store the like count for each listalbum
@@ -73,7 +87,8 @@ const Albums = () => {
         })
       );
 
-      setLikesCount(likesCountsMap); // Update the state with the like counts
+      setLikesCount(likesCountsMap);
+      setCountTrack(tempInactiveTracksCountMap);
       console.log("Likes count map: ", likesCountsMap);
     } catch (error) {
       console.error("Error fetching Albums:", error);
@@ -84,49 +99,23 @@ const Albums = () => {
 
   // delete album
   const handDeleteAlbum = async (albumId) => {
-    // Hiển thị thông báo xác nhận xóa với SweetAlert
-    const result = await Swal.fire({
-      title: t("confirmDeleteText"), // Thông báo xác nhận xóa album
-      text: t("areYouSure"), // Thông báo mô tả thêm (xác nhận xóa)
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: t("yesDelete"), // Nút xác nhận xóa
-      cancelButtonText: t("cancel"), // Nút hủy
-    });
-  
-    if (!result.isConfirmed) {
-      return; // Nếu người dùng không xác nhận, dừng hàm
+    if (!window.confirm("Are you sure you want to delete this album?")) {
+      return;
     }
-  
+
     setIsLoading(true);
     try {
       const albumsResponse = await deleteAlbum(albumId);
       console.log("Album deleted successfully:", albumsResponse);
       fetchListAlbum();
-  
-      // Hiển thị thông báo thành công với SweetAlert
-      Swal.fire({
-        icon: 'success',
-        title: t("deleteSuccess"), // Thông báo xóa thành công
-        showConfirmButton: false,
-        timer: 1500
-      });
-  
+      toast.success("Album deleted successfully!");
     } catch (error) {
       console.error("Error deleting album:", error);
-  
-      // Hiển thị thông báo thất bại với SweetAlert
-      Swal.fire({
-        icon: 'error',
-        title: t("albumDeletedError"), // Thông báo thất bại khi xóa
-        showConfirmButton: true
-      });
-  
+      toast.error("Failed to delete album. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   // report post
   const handleReport = (id, type) => {
@@ -217,12 +206,19 @@ const Albums = () => {
       return false;
     }
   };
-  const reasons = [
-    t('offensiveContent'),
-    t('copyrightViolation'),
-    t('spamOrScam'),
-    t('other')
-  ];
+
+  const fetchTrackDetails = async (trackIds) => {
+    if (!trackIds || trackIds.length === 0) return [];
+    try {
+      const trackPromises = trackIds.map((id) => getTrackById(id));
+      const trackResults = await Promise.all(trackPromises);
+      return trackResults.map((result) => result.data);
+    } catch (error) {
+      console.error("Error fetching track details:", error);
+      toast.error("Failed to fetch track details");
+      return [];
+    }
+  };
 
   return (
     <div className="albums">
@@ -232,7 +228,7 @@ const Albums = () => {
           {/* Link to create a new album */}
           <Link to="/albums/create-newAlbum">
             <button type="button" className="btn-new">
-           {t('a28')} 
+              New
             </button>
           </Link>
 
@@ -240,11 +236,11 @@ const Albums = () => {
           <div className="search-container">
             <input
               type="text"
-              placeholder={t('a30')}
+              placeholder="Search..."
               className="search-input"
             />
             <button type="button" className="btn-search">
-            {t('a29')}
+              Search
             </button>
           </div>
         </div>
@@ -279,10 +275,10 @@ const Albums = () => {
 
                     <div className="album-details">
                       <span className="tracks">
-                      {t('a30x')}: {album.tracks.length}
+                        Tracks: {countTrack[album.id] || 0}
                       </span>
                       <span className="likes">
-                      {t('a31')}:{" "}
+                        Likes:{" "}
                         {likesCount && likesCount[album.id]
                           ? likesCount[album.id]
                           : 0}
@@ -304,7 +300,7 @@ const Albums = () => {
                       >
                         <li>
                           <Link to={`/albums/album-Edit/${album.id}`}>
-                            <button className="dropdown-item"> {t('a8')}</button>
+                            <button className="dropdown-item">Edit</button>
                           </Link>
                         </li>
                         <li>
@@ -312,7 +308,7 @@ const Albums = () => {
                             className="dropdown-item"
                             onClick={() => handDeleteAlbum(album.id)}
                           >
-                            {t('a9')}
+                            Delete
                           </button>
                         </li>
                       </ul>
@@ -328,7 +324,7 @@ const Albums = () => {
             }
           })
         ) : (
-          <div className="no-albums"> {t('a32')}</div>
+          <div className="no-albums">No albums found</div>
         )}
       </div>
       {/* Modal báo cáo */}
@@ -342,7 +338,7 @@ const Albums = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title"> {t('a33')}</h5>
+                <h5 className="modal-title">Báo cáo nội dung</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -360,17 +356,22 @@ const Albums = () => {
                   <div className="alert alert-danger">{reportMessage}</div>
                 )}{" "}
                 {/* Thông báo lỗi hoặc thành công */}
-                <h6> {t('a34')}</h6>
+                <h6>Chọn lý do báo cáo:</h6>
                 <div className="mb-3">
-                  {reasons.map((reason, index) => (
-                    <label className="d-block" key={index}>
+                  {[
+                    "Nội dung phản cảm",
+                    "Vi phạm bản quyền",
+                    "Spam hoặc lừa đảo",
+                    "Khác",
+                  ].map((reason) => (
+                    <label className="d-block" key={reason}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
-                        style={{ marginRight: '10px' }}
-                      /> {reason}
+                      />{" "}
+                      {reason}
                     </label>
                   ))}
                 </div>
@@ -389,7 +390,7 @@ const Albums = () => {
                   }
                   className="btn btn-primary"
                 >
-                 {t('a6')}
+                  Báo cáo
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -399,7 +400,7 @@ const Albums = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                {t('p15')}
+                  Đóng
                 </button>
               </div>
             </div>

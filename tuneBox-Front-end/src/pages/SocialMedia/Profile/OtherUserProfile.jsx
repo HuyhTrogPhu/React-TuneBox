@@ -191,19 +191,29 @@ const toggleBlock = async () => {
   }
 };
   // Toggle friend status
-  const toggleFriend = async () => {
-    try {
-      if (friendStatus === "ACCEPTED") {
-        await axios.delete(`http://localhost:8080/api/friends/${userId}/${id}`);
-        setFriendStatus("Add Friend");
-      } else {
-        await axios.post(`http://localhost:8080/api/friends/${userId}/${id}`);
-        setFriendStatus("PENDING_SENT");
-      }
-    } catch (error) {
-      console.error("Error toggling friend status:", error);
+// Toggle friend status
+const toggleFriend = async () => {
+  try {
+    if (friendStatus === "ACCEPTED") {
+      // Optimistically update UI to "Add Friend" right away
+      setFriendStatus("Add Friend");
+      
+      await axios.delete(`http://localhost:8080/api/friends/${userId}/${id}`);
+    } else {
+      // Optimistically update UI to "PENDING_SENT" right away
+      setFriendStatus("PENDING_SENT");
+      
+      const response = await axios.post(`http://localhost:8080/api/friends/${userId}/${id}`);
+      // Optional: Use response data to set requestId or other info
+      setRequestId(response.data.requestId); 
     }
-  };
+  } catch (error) {
+    console.error("Error toggling friend status:", error);
+    // Revert to previous state if there's an error
+    setFriendStatus(friendStatus === "ACCEPTED" ? "ACCEPTED" : "Add Friend");
+  }
+};
+
   
   
   const cancelFriendRequest = async () => {
@@ -251,7 +261,14 @@ const toggleBlock = async () => {
 
   return (
     <div className="row container">
-      <div className="background border container" style={{ backgroundImage: "url(/src/UserImages/Background/anime-girl.jpg)" }} />
+      {/* background */}
+      <div
+        className="background border container"
+        style={{
+          backgroundImage: `url(${userData.background || "/src/UserImages/Background/default-bg.jpg"})`,
+        }}
+      >
+      </div>
       <aside className="col-sm-3">
         <div>
           <img src={userData.avatar || "/src/UserImages/Avatar/avt.jpg"} className="avatar" alt="avatar" />
@@ -295,6 +312,7 @@ const toggleBlock = async () => {
           </Link>
           </div>
         </div>
+        {/* Friend add */}
         <div className="col text-center">
   {userId === id ? null : (
     (friendStatus === "PENDING_SENT" && requestId) ? (
@@ -320,7 +338,7 @@ const toggleBlock = async () => {
       </button>
     )
   )}
-</div>
+        </div>
 <div style={{ paddingTop: 30 }}>
             <label>InspiredBy</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (

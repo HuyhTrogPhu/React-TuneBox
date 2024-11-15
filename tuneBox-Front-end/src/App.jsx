@@ -35,7 +35,6 @@ import LikePost from "./pages/SocialMedia/Profile/Profile_nav/LikePost";
 import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
 import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
 import PlayListDetail from "./pages/SocialMedia/Profile/Profile_nav/PlaylistDetail";
-
 import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
 
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
@@ -151,10 +150,17 @@ function App() {
               <Route path='/statistical/user' element={<StatisticalUser/>}/>
               <Route path='/statistical/post' element={<StatisticalPost/>}/>
               {/* admin start */}
+              
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
               <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
+              <Route
+              path="/socialadmin/*"
+              element={<SocialMediaAdmin />}
+            />
+            <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
+
               {/* admin end */}
               <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
 

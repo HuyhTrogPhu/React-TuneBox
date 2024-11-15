@@ -8,7 +8,7 @@ export const LoadUserDetail = async (id) => {
       { withCredentials: true }
     );
     const data = response.data;
-    console.log("userDetail:", data);
+    console.log("API back detail user:", data);
     return data;
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -42,6 +42,20 @@ export const LoadUserAlbums = async (id) => {
   }
 };
 
+//load User PlayList
+export const LoadUserPlayList = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getUserPlayList/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
 //load user
 export const LoadUser = async (id) => {
   try {
@@ -57,20 +71,7 @@ export const LoadUser = async (id) => {
   }
 };
 
-//get all post API
-export const LoadAllPost = async () => {
-  try {
-    const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getAllpost`,
-      { withCredentials: true }
-    );
-    const data = response.data;
-    console.log("AllPost:", data);
-    return data;
-  } catch (error) {
-    console.error("Error fetching user posts:", error);
-  }
-};
+
 //load all user
 export const LoadAllUser = async () => {
   try {
@@ -218,7 +219,7 @@ export const LoadAlbumReport = async () => {
   }
 };
 //load Report
-export const LoadTrackReportDetail = async (id) => {
+export const LoadReportDetail = async (id) => {
   try {
     const response = await axios.get(
       `http://localhost:8082/SocialAdmin/static/getReport/${id}`,
@@ -232,7 +233,7 @@ export const LoadTrackReportDetail = async (id) => {
 };
 
 //load Track<Report>
-export const DeniedRPTrack = async (id) => {
+export const DeniedRP = async (id) => {
   try {
     const response = await axios.put(
       `http://localhost:8082/SocialAdmin/static/DeniedRPTrack/${id}`,
@@ -246,7 +247,7 @@ export const DeniedRPTrack = async (id) => {
 };
 
 //load Track<Report>
-export const ApproveRPTrack = async (id) => {
+export const ApproveRP = async (id) => {
   try {
     const response = await axios.put(
       `http://localhost:8082/SocialAdmin/static/ApproveRPTrack/${id}`,
@@ -530,7 +531,9 @@ export const LoadUserForTable = async (startDate, endDate) => {
       { withCredentials: true }
     );
     const data = response.data.data;
+    const mess = response.data.message;
     console.log("getUserToTable", data);
+    console.log("Log", mess );
     return data;
   } catch (error) {
     console.error("Error fetching user count:", error);

@@ -6,19 +6,16 @@ import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { listGenre } from "../../../../service/TrackServiceCus";
 import { useParams } from "react-router-dom"; // Import useParams để lấy userId từ URL
-import { useTranslation } from "react-i18next";
-import '../../../../i18n/i18n'
-import Swal from 'sweetalert2';
-import { Audio } from 'react-loader-spinner'
+
 const Track = () => {
   const [tracks, setTracks] = useState([]); // State luu track
   const [selectedTrack, setSelectedTrack] = useState(null); // State cho track duoc chon
   const userId = Cookies.get("userId"); // Lay userId tu cookies
   const { id } = useParams(); // Lấy ID từ URL
-  const { t } = useTranslation();
+
   const [genres, setGenres] = useState([]); // Store the list of genres
   const [selectedGenre, setSelectedGenre] = useState(""); // Store the selected genre
-  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     fetchGenre(); // Fetch genres when the component mounts
   }, []);
@@ -59,29 +56,21 @@ const Track = () => {
   };
 
   // Ham xoa track
-
   const deleteTrack = async (trackId) => {
-
-    const confirmDelete = await Swal.fire({
-      title: t('a20x'),
-      text: t('a21x'),
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: t('a22x'),
-      cancelButtonText: t('a23x'),
-    });
-
-    if (!confirmDelete.isConfirmed) return; // Không xóa nếu người dùng hủy
-
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this Track?"
+    ); // Xac nhan xoa
+    if (!confirmDelete) return; // Khong xoa neu nguoi dung khong dong y
     try {
       await axios.delete(`http://localhost:8080/customer/tracks/${trackId}`, {
         withCredentials: true,
       });
-      fetchTrack(); // Cập nhật danh sách track sau khi xóa
-      Swal.fire(t('a24x'), t('a25x'), 'success'); // Hiển thị thông báo thành công
+      fetchTrack(); // Cap nhat danh sach track sau khi xoa
     } catch (error) {
-      console.error("Error deleting track:", error.response?.data || error.message);
-      Swal.fire(t('a26x'), t('a27x'), 'error'); // Hiển thị thông báo lỗi
+      console.error(
+        "Error deleting track:",
+        error.response?.data || error.message
+      ); // Log loi neu co
     }
   };
 
@@ -146,17 +135,6 @@ const Track = () => {
   const handleSave = async () => {
     if (!selectedTrack) return;
 
-    // Hiển thị thông báo xác nhận khi bắt đầu lưu
-    Swal.fire({
-      title: t('p1x'), // 'Saving track...'
-      text: t('p2x'), // 'Please wait while we save your track.',
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading(); // Hiển thị loading spinner
-      },
-    });
-
     const formData = new FormData();
     formData.append("name", selectedTrack.name);
     formData.append("description", selectedTrack.description);
@@ -186,95 +164,86 @@ const Track = () => {
           withCredentials: true,
         }
       );
-      fetchTrack(); // Cập nhật danh sách track sau khi lưu
-      setSelectedTrack(null); // Xóa thông tin track đã chọn
+      fetchTrack();
+      setSelectedTrack(null);
 
-      // Đóng modal sau khi lưu thành công
       const editModal = document.getElementById("editModal");
       editModal.classList.remove("show");
       editModal.style.display = "none";
       document.body.classList.remove("modal-open");
-
-      // Hiển thị thông báo thành công
-      Swal.fire({
-        title: t('p3x'), // 'Success!',
-        text: t('p4x'), // 'Your track has been saved successfully.',
-        icon: 'success',
-        confirmButtonText: t('p5x'), // 'OK'
-      });
-
     } catch (error) {
-      console.error("Error updating track:", error.response?.data || error.message);
-
-      // Hiển thị thông báo lỗi nếu có lỗi khi lưu
-      Swal.fire({
-        title: t('p6x'), // 'Error!',
-        text: t('p7x'), // 'There was an error saving your track. Please try again.',
-        icon: 'error',
-        confirmButtonText: t('p5x'), // 'OK'
-      });
+      console.error(
+        "Error updating track:",
+        error.response?.data || error.message
+      );
     }
   };
-
 
   return (
     <div>
       {/* get all track */}
-      {tracks.map(
-        (track) =>
-          !track.status && (
-            <div key={track.id} className="post-header-track">
-              <img
-                src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}
-                className="avatar_small"
-                alt="Avatar"
-              />
+      <div className="post-header-Track position-relative m-5 mt-0">
+        {tracks.map(
+          (track) =>
+            !track.status && (
+              <div key={track.id} className="post-header-track">
+                <img
+                  src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}
+                  className="avatar_small"
+                  alt="Avatar"
+                />
 
-              <div className="info">
-                <Link
-                  to={{
-                    pathname: `/track/${track.id}`,
-                    state: { track },
-                  }}
-                >
-                  <div className="name">{track.name || "Unknown Track"}</div>
-                </Link>
-                <div className="author">
-                  {track.userName || "Unknown userName"}
+                <div className="info">
+                  <Link
+                    to={{
+                      pathname: `/track/${track.id}`,
+                      state: { track },
+                    }}
+                  >
+                    <div className="name">{track.name || "Unknown Track"}</div>
+                  </Link>
+                  <div className="author">
+                    {track.userName || "Unknown userName"}
+                  </div>
                 </div>
-              </div>
 
-              <div className="btn-group" style={{ marginLeft: 25 }}>
-                <button
-                  className="btn dropdown-toggle no-border"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                ></button>
-                <ul className="dropdown-menu dropdown-menu-lg-end">
-                  <li>
-                    <a
-                      style={{ cursor: 'pointer' }}
-                      className="dropdown-item"
-                      onClick={() => handleEditClick(track)}
-                    >
-                      {t('a8')}
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      style={{ cursor: 'pointer' }}
-                      className="dropdown-item"
-                      onClick={() => deleteTrack(track.id)}
-                    >
-                      {t('a9')}
-                    </a>
-                  </li>
-                </ul>
+                {String(track.userId) === String(userId) ? (
+                  <div className="btn-group" style={{ marginLeft: 25 }}>
+                    <button
+                      className="btn dropdown-toggle no-border"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    ></button>
+                    <ul className="dropdown-menu dropdown-menu-lg-end">
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          onClick={() => handleEditClick(track)}
+                        >
+                          Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          onClick={() => deleteTrack(track.id)}
+                        >
+                          Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  <button
+                    className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
+                    onClick={() => handleReport(album.id, "album")}
+                  ></button>
+                )}
               </div>
-            </div>
-          )
-      )}
+            )
+        )}
+      </div>
 
       {/* Modal for editing track */}
       <div
@@ -289,7 +258,7 @@ const Track = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="editTrackModalLabel">
-                {t('a20')}
+                Edit Track
               </h1>
               <button
                 type="button"
@@ -302,7 +271,7 @@ const Track = () => {
               <form className="row">
                 {/* Track Name */}
                 <div className="mb-3">
-                  <label className="form-label">  {t('a21')} </label>
+                  <label className="form-label">Track Name: </label>
                   <input
                     type="text"
                     className="form-control"
@@ -318,7 +287,7 @@ const Track = () => {
 
                 {/* Image Track */}
                 <div className="mt-3">
-                  <label className="form-label">{t('a22')} </label>
+                  <label className="form-label">Image Track: </label>
                   {selectedTrack && (
                     <div>
                       <img
@@ -345,7 +314,7 @@ const Track = () => {
                           className="custom-file-label"
                           htmlFor="fileInput"
                         >
-                          {t('a23')}
+                          Choose new file
                         </label>
                       </div>
                     </div>
@@ -354,9 +323,9 @@ const Track = () => {
 
                 {/* File Track */}
                 <div className="mt-3">
-                  <label className="form-label">{t('')} </label>
+                  <label className="form-label">Current File Track: </label>
                   <label className="custom-file-label" htmlFor="fileInput">
-                    {t('a25')}
+                    Choose file
                   </label>
                   {selectedTrack && (
                     <div>
@@ -386,7 +355,7 @@ const Track = () => {
 
                 {/* Select Genre */}
                 <div className="mt-3">
-                  <label className="form-label">{t('a26')}</label>
+                  <label className="form-label">Genre</label>
                   <select
                     className="form-select"
                     value={selectedGenre}
@@ -407,7 +376,7 @@ const Track = () => {
 
                 {/* Description */}
                 <div className="mt-3">
-                  <label className="form-label">{t('a27')}</label>
+                  <label className="form-label">Description</label>
                   <textarea
                     cols="50"
                     rows="5"
@@ -434,19 +403,14 @@ const Track = () => {
                   document.body.classList.remove("modal-open");
                 }}
               >
-                {t('c33')}
+                Close
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={handleSave}
               >
-                {/* Hiển thị loading spinner khi đang lưu */}
-                {isLoading ? (
-                   <Audio height="20" width="20" color="white" ariaLabel="loading" />
-                ) : (
-                  t('p16') // 'Save'
-                )}
+                Save Track
               </button>
             </div>
           </div>

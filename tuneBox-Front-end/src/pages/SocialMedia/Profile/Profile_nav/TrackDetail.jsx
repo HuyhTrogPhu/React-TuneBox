@@ -406,7 +406,7 @@ function Trackdetail() {
       <div className="row">
         {/* tìm kiếm track của người dùng */}
         <div className="col-3 pt-5 p-5">
-          <div className="orther">My tracks</div>
+          <div className="orther">{track.userName}`s tracks</div>
           <div className="search-container mb-5">
             <input
               type="text"
@@ -801,14 +801,6 @@ function Trackdetail() {
                             <div className="author">
                               {relatedTrack.userName || "Unknown userName"}
                             </div>
-                          </div>
-                          <div className="btn-group" style={{ marginLeft: 25 }}>
-                            <button
-                              className="btn dropdown-toggle no-border"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            ></button>
                           </div>
                         </div>
                       )

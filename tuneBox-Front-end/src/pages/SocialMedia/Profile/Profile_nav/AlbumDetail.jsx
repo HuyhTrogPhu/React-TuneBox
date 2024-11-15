@@ -15,11 +15,11 @@ import {
   checkUserLikeAlbums,
   removeLikeAlbums,
   addLikeAlbums,
-  checkUserLikeTrack,
 } from "../../../../service/likeTrackServiceCus";
 import Cookies from "js-cookie";
 import { getUserInfo } from "../../../../service/UserService";
 import ShareAlbumModal from "./ShareAlbumModal";
+import { Link } from "react-router-dom";
 
 const AlbumDetail = () => {
   const { id } = useParams();
@@ -42,6 +42,7 @@ const AlbumDetail = () => {
   const [userNamePlaylist, setUserName] = useState("");
   const [userImg, setUserImg] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [IDTrack, setIDTrack] = useState("");
 
   const [listAlbums, setListAlbums] = useState([]);
 
@@ -57,16 +58,8 @@ const AlbumDetail = () => {
     try {
       const albumsResponse = await getAlbumsByUserId(userId);
 
-      setListAlbums(albumsResponse || []);
-
-      // Đếm số lượng album có status là false
-      const inactiveAlbumsCount = albumsResponse.filter(
-        (album) => album.status === false
-      ).length;
-      console.log(
-        "Number of inactive albums (status = false):",
-        inactiveAlbumsCount
-      );
+      setListAlbums(albumsResponse);
+      console.log("fetchListAlbum: ", albumsResponse);
     } catch (error) {
       console.error("Error fetching Albums:", error);
     } finally {
@@ -127,14 +120,22 @@ const AlbumDetail = () => {
   };
 
   // Fetch Track Details
-  const [likedTrack, setLikedTrack] = useState(false);
   const fetchTrackDetails = async (trackIds) => {
     if (!trackIds || trackIds.length === 0) return; // Kiểm tra trackIds có tồn tại không
     try {
       const trackPromises = trackIds.map((id) => getTrackById(id));
       const trackResults = await Promise.all(trackPromises);
       console.log("Track Results: ", trackResults);
-      setTrackDetails(trackResults.map((result) => result.data));
+
+      // lọc các track có status là false
+      const inactiveTracks = trackResults
+        .map((result) => result.data)
+        .filter((track) => track.status === false);
+
+      console.log("Track false: ", inactiveTracks);
+
+      setTrackDetails(inactiveTracks);
+
       console.log("Track detail: ", trackResults[0].data.name);
       // Tính toán thời gian cho từng track
       const durations = await Promise.all(
@@ -209,6 +210,7 @@ const AlbumDetail = () => {
     }
 
     // Cập nhật thông tin bài hát mới
+    setIDTrack(trackDetails[index]?.id);
     setCurrentTrackIndex(index);
     setCurrentTrackName(trackDetails[index]?.name);
     setCurrentImageTrack(trackDetails[index].imageTrack);
@@ -321,9 +323,9 @@ const AlbumDetail = () => {
         <div className="note">&#9835;</div>
         <div className="note">&#9839;</div>
         <ToastContainer position="top-right" />
-        <div className="" style={{ marginLeft: "140px" }}>
+        <div className="" style={{ marginLeft: "140px", marginRight: "140px" }}>
           <div className="row">
-            <div className="col-9">
+            <div className="">
               <div className="album-info">
                 <div className="album-info-cover">
                   <div className="album-info-img">
@@ -369,7 +371,7 @@ const AlbumDetail = () => {
                 <div className="album-info-actions">
                   <div>
                     <button
-                      className="btn text-muted"
+                      className="btn text-mutedA"
                       onClick={() => handleLikeALbum(album.id)}
                     >
                       {likesCount}
@@ -380,7 +382,8 @@ const AlbumDetail = () => {
                         style={{ cursor: "pointer", fontSize: "20px" }}
                       ></i>
                     </button>
-                    <button className="btn"
+                    <button
+                      className="btn"
                       onClick={() => setIsShareModalOpen(true)}
                     >
                       <i
@@ -419,7 +422,7 @@ const AlbumDetail = () => {
               <div className="album-track">
                 <div className="list-track">
                   {/* Hiển thị danh sách track đã thêm */}
-                  <table className="table">
+                  <table className="tableA">
                     <thead>
                       <tr>
                         <th>#</th>
@@ -468,31 +471,6 @@ const AlbumDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="col-3">
-              <div className="orther">Orther</div>
-              <div>
-                {isLoading && <p>Loading...</p>}
-                <div className="playlist-container">
-                  {listAlbums.slice(0, 4).map(
-                    (album, index) =>
-                      !album.status && (
-                        <div key={index} className="card text-bg-dark">
-                          <img
-                            src={
-                              album.albumImage || "/src/assets/images/nai.jpg"
-                            }
-                            className="card-img"
-                            alt={album.title || "Playlist image"}
-                          />
-                          <div className="card-img-overlay">
-                            <p className="card-text">{album.title}</p>
-                          </div>
-                        </div>
-                      )
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -508,7 +486,23 @@ const AlbumDetail = () => {
                   }`}
                   alt="Track Image"
                 />
-                {currentTrackName || "No song selected"}
+                {trackDetails[currentTrackIndex]?.status ? (
+                  <span
+                    onClick={() => alert("Track no longer exists!.")}
+                    style={{ cursor: "not-allowed", color: "grey" }}
+                  >
+                    {currentTrackName || "No song selected"}
+                  </span>
+                ) : (
+                  <Link
+                    to={{
+                      pathname: `/track/${IDTrack}`,
+                      state: { IDTrack },
+                    }}
+                  >
+                    {currentTrackName || "No song selected"}
+                  </Link>
+                )}
               </p>
             </div>
             <div className="col-1">
@@ -567,28 +561,7 @@ const AlbumDetail = () => {
                 Your browser does not support the audio tag.
               </audio>
             </div>
-            <div className="col-2">
-              <div className="ms-5 mt-1">
-                <button className="btn">
-                  <i
-                    className={`fa-solid fa-heart`}
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "20px",
-                      padding: "10px",
-                      color: "white",
-                    }}
-                  ></i>
-                </button>
-                <button className="btn">
-                  <i
-                    type="button"
-                    style={{ fontSize: "20px", color: "white" }}
-                    className="fa-solid fa-share mt-1"
-                  ></i>
-                </button>
-              </div>
-            </div>
+            <div className="col-2"></div>
           </div>
         </div>
       </div>

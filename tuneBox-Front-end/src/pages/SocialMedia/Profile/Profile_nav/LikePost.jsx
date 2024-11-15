@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import Waveform from "../Profile_nav/Waveform";
+import { images } from "../../../../assets/images/images";
 import {
   addLike,
   removeLikePost,
@@ -12,7 +12,14 @@ import {
 } from "../../../../service/likeTrackServiceCus";
 import { getTrackById } from "../../../../service/TrackServiceCus";
 import UsersToFollow from "../UsersToFollow";
-import "./css/likePostStyle.css";
+import WaveFormFeed from "../../../SocialMedia/Profile/Profile_nav/WaveFormFeed";
+import { ToastContainer, toast } from "react-toastify";
+import {
+  getPlaylistByUserId,
+  getPlaylistById,
+  updatePlaylist,
+} from "../../../../service/PlaylistServiceCus";
+import { Link } from "react-router-dom";import "./css/likePostStyle.css";
 
 const LikePost = () => {
   const navigate = useNavigate();
@@ -26,8 +33,7 @@ const LikePost = () => {
   const [likedTracks, setLikedTracks] = useState({});
   const [likedPosts, setLikedPosts] = useState({});
 
-  const tokenjwt = localStorage.getItem('jwtToken');
-
+  const tokenjwt = localStorage.getItem("jwtToken");
 
   const fetchPostById = async (postId) => {
     try {
@@ -181,11 +187,85 @@ const LikePost = () => {
     }
   };
 
+  const handleAvatarClick = (post) => {
+    console.log("Current User ID:", currentUserId);
+    console.log("Post User ID:", post.userId);
+
+    if (String(post.userId) === String(currentUserId)) {
+      console.log("Navigating to ProfileUser");
+      navigate("/profileUser");
+    } else {
+      console.log("Navigating to OtherUserProfile");
+      navigate(`/profile/${post.userId}`);
+    }
+  };
+
+  // playlist
+  // list
+  const [playlists, setPlaylists] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
+
+  const fetchListPlaylist = async () => {
+    try {
+      const playlistResponse = await getPlaylistByUserId(currentUserId);
+      setPlaylists(playlistResponse);
+      console.log("playlist  ", playlistResponse);
+    } catch (error) {
+      console.error("Error fetching playlist:", error);
+    }
+  };
+  const addToPlaylist = (trackId) => {
+    setShowModal(true); // Mở modal
+    setTrackToAddPlayList(trackId);
+  };
+
+  useEffect(() => {
+    fetchListPlaylist();
+  }, [currentUserId]);
+
+  const handleCloseModal = () => {
+    setShowModal(false); // Đóng modal
+  };
+  const handleAddTrackToPlaylist = async (playlistId) => {
+    try {
+      // lấy thong tin htai cua lít
+      const currentPlaylist = await getPlaylistById(playlistId);
+      console.log("currentPlaylist: ", currentPlaylist.data);
+      const formData = new FormData();
+      // Kiểm tra xem track đã tồn tại trong playlist chưa
+      const existingTracks = currentPlaylist.data.tracks; // Danh sách track hiện có trong playlist
+      if (existingTracks.includes(trackToAddPlayList)) {
+        toast.error("Track đã tồn tại trong playlist!");
+        return; // Dừng thực hiện nếu track đã tồn tại
+      }
+      formData.append("trackIds", trackToAddPlayList);
+      formData.append("title", currentPlaylist.data.title);
+      formData.append("imagePlaylist", currentPlaylist.data.imagePlaylist); // thêm trường này
+      formData.append("description", currentPlaylist.data.description);
+      formData.append("status", false);
+      formData.append("report", false);
+      formData.append("type", currentPlaylist.data.type);
+      formData.append("user", currentUserId);
+      console.log("handleAddTrackToPlaylist: ", currentPlaylist.data.title);
+      await updatePlaylist(playlistId, formData);
+      toast.success(" Add Track to Playlist successfully!");
+      handleCloseModal();
+    } catch (error) {
+      console.error("Failed to create add track to playlist:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed. Please try again.";
+      toast.error(errorMessage);
+    }
+  };
+  // end playlist
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading liked items</div>;
 
   return (
     <div className="likePost mt-5">
+      <ToastContainer />
       <h1 className="search-results-title text-center mb-5">Liked Post</h1>
       <div className="row side-content">
         {/* side left */}
@@ -233,64 +313,92 @@ const LikePost = () => {
         {/* main content */}
         <div className="post-list col-6">
           {/* track */}
-          <div className="container mt-2">
-            {tracks.map((track) => (
-              <div className="post border" key={track.id}>
-                <div className="post-header position-relative">
-                  <button type="button" className="btn" aria-label="Avatar">
-                    <img
-                      src={track.userId?.avatar || "/default-avatar.png"}
-                      className="avatar_small"
-                      alt="Avatar"
-                    />
-                  </button>
-                  <div>
-                    <div className="name">
-                      {track.userName || "Unknown Track"}
+          <div className="container mt-2 ">
+            {tracks.map(
+              (track) =>
+                !track.status && (
+                  <div className="post border" key={track.id}>
+                    <div className="post-header position-relative">
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() => handleAvatarClick(track)}
+                        aria-label="Avatar"
+                      >
+                        <img
+                          src={track.avatar}
+                          className="avatar_small"
+                          alt="Avatar"
+                        />
+                      </button>
+                      <div>
+                        <div className="name">
+                          {track.userNickname || "Unknown Track"}
+                        </div>
+                        <div className="time">
+                          {new Date(track.createDate).toLocaleString()}
+                        </div>
+                      </div>
+
+                      {/* Dropdown cho bài viết */}
+                      {String(track.userId) === String(currentUserId) ? (
+                        <div className="dropdown position-absolute top-0 end-0">
+                          <button
+                            className="btn btn-options dropdown-toggle"
+                            type="button"
+                            id={`dropdownMenuButton-${track.id}`}
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          ></button>
+                          <ul
+                            className="dropdown-menu"
+                            aria-labelledby={`dropdownMenuButton-${track.id}`}
+                          >
+                            <li>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => addToPlaylist(track.id)}
+                              >
+                                <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                Add to playlist
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="dropdown position-absolute top-0 end-0">
+                          <ul>
+                            <li>
+                              <button
+                                className="fa-regular fa-flag btn-report border border-0"
+                                // onClick={() => handleReport(track.id, "track")}
+                              ></button>
+                            </li>
+                            <li>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => addToPlaylist(track.id)}
+                              >
+                                <i className="fa-solid fa-pen-to-square"></i>{" "}
+                                Add to playlist
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      )}
                     </div>
-                    <div className="time">
-                      {new Date(track.createDate).toLocaleString()}
+
+                    <div className="post-content description">
+                      {track.description || "No description"}
                     </div>
-                  </div>
 
-                  {/* Dropdown options nếu cần */}
-                  <div className="dropdown position-absolute top-0 end-0">
-                    <button
-                      className="btn btn-options dropdown-toggle"
-                      type="button"
-                      id={`dropdownMenuButton-${track.id}`}
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    ></button>
-                    <ul
-                      className="dropdown-menu"
-                      aria-labelledby={`dropdownMenuButton-${track.id}`}
-                    >
-                      <li>
-                        <button className="dropdown-item">
-                          <i className="fa-solid fa-pen-to-square"></i> Edit
-                        </button>
-                      </li>
-                      <li>
-                        <button className="dropdown-item">
-                          <i className="fa-solid fa-trash"></i> Delete
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="post-content description">
-                  {track.description || "No description"}
-                </div>
-
-                <div className="post-content audio">
-                  <Waveform
-                    audioUrl={track.trackFile}
-                    track={track}
-                    className="track-waveform"
-                  />
-                </div>
+                    <div className="post-content audio">
+                      <WaveFormFeed
+                        audioUrl={track.trackFile}
+                        track={track}
+                        className="track-waveform"
+                      />
+                    </div>
 
                 <div className="row d-flex justify-content-start align-items-center">
                   <div className="col-2 mt-2 text-center">
@@ -307,82 +415,113 @@ const LikePost = () => {
                     </div>
                   </div>
 
-                  <div className="col-2 mt-2 text-center">
-                    <div className="d-flex justify-content-center align-items-center">
-                      {track.commentCount || 0}
-                      <i
-                        type="button"
-                        style={{ fontSize: "25px" }}
-                        className="fa-regular fa-comment"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalComment"
-                      ></i>
+                      {/* comment track -> trackDetail*/}
+                      <div className="col-2 mt-2 text-center">
+                        <div className="d-flex justify-content-center align-items-center">
+                          <Link
+                            to={{
+                              pathname: `/track/${track.id}`,
+                              state: { track },
+                            }}
+                          >
+                            <i
+                              type="button"
+                              style={{ fontSize: "25px" }}
+                              className="fa-regular fa-comment"
+                              data-bs-toggle="modal"
+                              data-bs-target="#modalComment"
+                            ></i>
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                )
+            )}
           </div>
           {/* post */}
           <div className="container mb-5">
-            {posts.map((post) => (
-              <div className="post border" key={post.id}>
-                <div className="post-header position-relative">
-                  <button type="button" className="btn" aria-label="Avatar">
-                    <img
-                      src={post.userId?.avatar || "/default-avatar.png"}
-                      className="avatar_small"
-                      alt="Avatar"
-                    />
-                  </button>
-                  <div>
-                    <div className="name">
-                      {post.userNickname || "Unknown Track"}
+            {posts.map(
+              (post) =>
+                !post.status && (
+                  <div className="post border" key={post.id}>
+                    <div className="post-header position-relative">
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() => handleAvatarClick(post)}
+                        aria-label="Avatar"
+                      >
+                        <img
+                          src={post.avatar}
+                          className="avatar_small"
+                          alt="Avatar"
+                        />
+                      </button>
+                      <div>
+                        <div className="name">
+                          {post.userNickname || "Unknown Track"}
+                        </div>
+                        <div className="time">
+                          {new Date(post.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+
+                      {/* Dropdown cho bài viết */}
+                      {String(post.userId) === String(currentUserId) ? (
+                        <div className="dropdown position-absolute top-0 end-0">
+                          <button
+                            className="btn btn-options dropdown-toggle"
+                            type="button"
+                            id={`dropdownMenuButton-${post.id}`}
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            ...
+                          </button>
+                          <ul
+                            className="dropdown-menu"
+                            aria-labelledby={`dropdownMenuButton-${post.id}`}
+                          >
+                            <li>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => handleEditPost(post)}
+                              >
+                                <i className="fa-solid fa-pen-to-square"></i>
+                                Edit
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => handleDeletePost(post.id)}
+                              >
+                                <i className="fa-solid fa-trash "></i>Delete
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      ) : (
+                        <button
+                          className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
+                          onClick={() => handleReport(post.id, "post")}
+                        ></button>
+                      )}
                     </div>
-                    <div className="time">
-                      {new Date(post.createdAt).toLocaleString()}
+
+                    <div className="post-content ">
+                      {post.content || "No content"}
                     </div>
-                  </div>
 
-                  {/* Dropdown options nếu cần */}
-                  <div className="dropdown position-absolute top-0 end-0">
-                    <button
-                      className="btn btn-options dropdown-toggle"
-                      type="button"
-                      id={`dropdownMenuButton-${post.id}`}
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    ></button>
-                    <ul
-                      className="dropdown-menu"
-                      aria-labelledby={`dropdownMenuButton-${post.id}`}
-                    >
-                      <li>
-                        <button className="dropdown-item">
-                          <i className="fa-solid fa-pen-to-square"></i> Edit
-                        </button>
-                      </li>
-                      <li>
-                        <button className="dropdown-item">
-                          <i className="fa-solid fa-trash"></i> Delete
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="post-content ">
-                  {post.content || "No content"}
-                </div>
-
-                {/* Hiển thị hình ảnh */}
-                {post.images && post.images.length > 0 && (
-                  <div className="post-images">
-                    {post.images.map((image, index) => (
-                      <img key={index} src={image.postImage} alt="Post" />
-                    ))}
-                  </div>
-                )}
+                    {/* Hiển thị hình ảnh */}
+                    {post.images && post.images.length > 0 && (
+                      <div className="post-images">
+                        {post.images.map((image, index) => (
+                          <img key={index} src={image.postImage} alt="Post" />
+                        ))}
+                      </div>
+                    )}
 
                 <div className="row d-flex justify-content-start align-items-center">
                   <div className="col-2 mt-2 text-center">
@@ -399,21 +538,22 @@ const LikePost = () => {
                     </div>
                   </div>
 
-                  <div className="col-2 mt-2 text-center">
-                    <div className="d-flex justify-content-center align-items-center">
-                      {post.commentCount || 0}
-                      <i
-                        type="button"
-                        style={{ fontSize: "25px" }}
-                        className="fa-regular fa-comment"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalComment"
-                      ></i>
+                      <div className="col-2 mt-2 text-center">
+                        <div className="d-flex justify-content-center align-items-center">
+                          {post.commentCount || 0}
+                          <i
+                            type="button"
+                            style={{ fontSize: "25px" }}
+                            className="fa-regular fa-comment"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalComment"
+                          ></i>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                )
+            )}
           </div>
         </div>
 
@@ -426,6 +566,59 @@ const LikePost = () => {
           </ul>
         </div>
 
+        {/* Modal để chọn playlist */}
+        <div
+          className={`modal fade ${showModal ? "show" : ""}`}
+          tabIndex="-1"
+          style={{ display: showModal ? "block" : "none" }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Chọn Playlist</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCloseModal}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <ul className="list-group">
+                  {playlists.map(
+                    (playlist) =>
+                      !playlist.status && (
+                        <div
+                          key={playlist.id}
+                          className="post-header-track m-5"
+                        >
+                          <img
+                            src={playlist.imagePlaylist}
+                            className="avatar_small"
+                            alt="playlist"
+                          />
+                          <div className="info">
+                            <div className="name">{playlist.title}</div>
+                          </div>
+                          <div className="btn-group" style={{ marginLeft: 25 }}>
+                            <button
+                              type="button"
+                              className="btn-new rounded-5"
+                              onClick={() =>
+                                handleAddTrackToPlaylist(playlist.id)
+                              }
+                            >
+                              add
+                            </button>
+                          </div>
+                        </div>
+                      )
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Modal để chọn playlist */}
       </div>
     </div>
   );
