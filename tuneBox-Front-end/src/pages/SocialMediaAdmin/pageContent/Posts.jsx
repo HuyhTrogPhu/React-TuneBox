@@ -193,36 +193,41 @@ const Posts = () => {
   };
   const fetchReports = async () => {
     try {
-      const params = new URLSearchParams();
-
+      let url = "/reports/pending";
+      const params = {};
+  
       if (reportedSpecificDate) {
-        params.append("specificDate", reportedSpecificDate);
+        params.specificDate = formatDateForAPI(reportedSpecificDate);
       } else if (reportedStartDate && reportedEndDate) {
-        params.append("startDate", reportedStartDate);
-        params.append("endDate", reportedEndDate);
+        params.startDate = formatDateForAPI(reportedStartDate);
+        params.endDate = formatDateForAPI(reportedEndDate);
       }
-
-      const response = await api.get(`/reports/pending`, { params });
+  
+      const response = await api.get(url, { params });
       setReportedPosts(response.data);
     } catch (error) {
       console.error("Error fetching reports:", error);
-
+  
       let errorMessage = "Không thể tải danh sách báo cáo.";
-
-      if (error.response?.status === 400) {
-        errorMessage = "Ngày không hợp lệ. Vui lòng kiểm tra lại.";
-      } else if (error.response) {
-        errorMessage = error.response.data?.message || "Lỗi máy chủ.";
+  
+      if (error.response) {
+        // Lỗi phía server
+        if (error.response.status === 400) {
+          errorMessage = "Ngày không hợp lệ. Vui lòng kiểm tra lại.";
+        } else {
+          errorMessage = error.response.data?.message || "Lỗi máy chủ.";
+        }
       } else if (error.request) {
+        // Lỗi kết nối đến server
         errorMessage = "Không thể kết nối đến máy chủ.";
       }
-
+  
       toast.error(errorMessage, {
         position: "top-right",
         autoClose: 5000,
       });
-
-      setReportedPosts([]);
+  
+      setReportedPosts([]); // Clear reported posts on error
     }
   };
   // Xu ly thong bao
