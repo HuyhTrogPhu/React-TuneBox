@@ -15,7 +15,6 @@ import {
   checkUserLikeAlbums,
   removeLikeAlbums,
   addLikeAlbums,
-  checkUserLikeTrack,
 } from "../../../../service/likeTrackServiceCus";
 import Cookies from "js-cookie";
 import { getUserInfo } from "../../../../service/UserService";
@@ -57,16 +56,8 @@ const AlbumDetail = () => {
     try {
       const albumsResponse = await getAlbumsByUserId(userId);
 
-      setListAlbums(albumsResponse || []);
-
-      // Đếm số lượng album có status là false
-      const inactiveAlbumsCount = albumsResponse.filter(
-        (album) => album.status === false
-      ).length;
-      console.log(
-        "Number of inactive albums (status = false):",
-        inactiveAlbumsCount
-      );
+      setListAlbums(albumsResponse);
+      console.log("fetchListAlbum: ", albumsResponse);
     } catch (error) {
       console.error("Error fetching Albums:", error);
     } finally {
@@ -127,14 +118,22 @@ const AlbumDetail = () => {
   };
 
   // Fetch Track Details
-  const [likedTrack, setLikedTrack] = useState(false);
   const fetchTrackDetails = async (trackIds) => {
     if (!trackIds || trackIds.length === 0) return; // Kiểm tra trackIds có tồn tại không
     try {
       const trackPromises = trackIds.map((id) => getTrackById(id));
       const trackResults = await Promise.all(trackPromises);
       console.log("Track Results: ", trackResults);
-      setTrackDetails(trackResults.map((result) => result.data));
+
+      // lọc các track có status là false
+      const inactiveTracks = trackResults
+        .map((result) => result.data)
+        .filter((track) => track.status === false);
+
+      console.log("Track false: ", inactiveTracks);
+
+      setTrackDetails(inactiveTracks);
+
       console.log("Track detail: ", trackResults[0].data.name);
       // Tính toán thời gian cho từng track
       const durations = await Promise.all(
@@ -369,7 +368,7 @@ const AlbumDetail = () => {
                 <div className="album-info-actions">
                   <div>
                     <button
-                      className="btn text-muted"
+                      className="btn text-mutedA"
                       onClick={() => handleLikeALbum(album.id)}
                     >
                       {likesCount}
@@ -380,7 +379,8 @@ const AlbumDetail = () => {
                         style={{ cursor: "pointer", fontSize: "20px" }}
                       ></i>
                     </button>
-                    <button className="btn"
+                    <button
+                      className="btn"
                       onClick={() => setIsShareModalOpen(true)}
                     >
                       <i
@@ -419,7 +419,7 @@ const AlbumDetail = () => {
               <div className="album-track">
                 <div className="list-track">
                   {/* Hiển thị danh sách track đã thêm */}
-                  <table className="table">
+                  <table className="tableA">
                     <thead>
                       <tr>
                         <th>#</th>
@@ -474,19 +474,16 @@ const AlbumDetail = () => {
                 {isLoading && <p>Loading...</p>}
                 <div className="playlist-container">
                   {listAlbums.slice(0, 4).map(
-                    (playlist, index) =>
-                      !playlist.status && (
+                    (album, index) =>
+                      !album.status && (
                         <div key={index} className="card text-bg-dark">
                           <img
-                            src={
-                              playlist.imagePlaylist ||
-                              "/src/assets/images/nai.jpg"
-                            }
+                            src={album.albumImage}
                             className="card-img"
-                            alt={playlist.title || "Playlist image"}
+                            alt={album.title || "Playlist image"}
                           />
                           <div className="card-img-overlay">
-                            <p className="card-text">{playlist.title}</p>
+                            <p className="card-text">{album.title}</p>
                           </div>
                         </div>
                       )
@@ -509,6 +506,7 @@ const AlbumDetail = () => {
                   }`}
                   alt="Track Image"
                 />
+
                 {currentTrackName || "No song selected"}
               </p>
             </div>
@@ -568,28 +566,7 @@ const AlbumDetail = () => {
                 Your browser does not support the audio tag.
               </audio>
             </div>
-            <div className="col-2">
-              <div className="ms-5 mt-1">
-                <button className="btn">
-                  <i
-                    className={`fa-solid fa-heart`}
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "20px",
-                      padding: "10px",
-                      color: "white",
-                    }}
-                  ></i>
-                </button>
-                <button className="btn">
-                  <i
-                    type="button"
-                    style={{ fontSize: "20px", color: "white" }}
-                    className="fa-solid fa-share mt-1"
-                  ></i>
-                </button>
-              </div>
-            </div>
+            <div className="col-2"></div>
           </div>
         </div>
       </div>

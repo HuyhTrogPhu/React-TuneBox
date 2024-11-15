@@ -36,9 +36,9 @@ const RevenueCurrently = () => {
     }).catch((error) => console.error("Error fetching revenue data:", error));
   }, []);
 
-  // Configurations for each line chart
-  const createChartData = (label, data) => ({
-    labels: ['Start', 'Current'],
+  // Generate chart data with time-based labels
+  const createChartData = (label, data, labels) => ({
+    labels,
     datasets: [
       {
         label,
@@ -57,19 +57,19 @@ const RevenueCurrently = () => {
       <div className='row'>
         <section className='col-6'>
           <h6>Revenue of Day: {(revenueData.revenueOfDay || 'no data').toLocaleString('vi')} VND</h6>
-          <Line data={createChartData('Revenue of Day', [0, revenueData.revenueOfDay])} />
+          <Line data={createChartData('Revenue of Day', [0, revenueData.revenueOfDay], ['Start of Day', 'Now'])} />
         </section>
         <section className='col-6'>
           <h6>Revenue of Week: {(revenueData.revenueOfWeek || 'no data').toLocaleString('vi')} VND</h6>
-          <Line data={createChartData('Revenue of Week', [0, revenueData.revenueOfWeek])} />
+          <Line data={createChartData('Revenue of Week', [0, revenueData.revenueOfWeek / 2, revenueData.revenueOfWeek], ['Start of Week', 'Mid Week', 'Now'])} />
         </section>
         <section className='col-6'>
           <h6>Revenue of Month: {(revenueData.revenueOfMonth || 'no data').toLocaleString('vi')} VND</h6>
-          <Line data={createChartData('Revenue of Month', [0, revenueData.revenueOfMonth])} />
+          <Line data={createChartData('Revenue of Month', [0, revenueData.revenueOfMonth / 2, revenueData.revenueOfMonth], ['Start of Month', 'Mid Month', 'Now'])} />
         </section>
         <section className='col-6'>
           <h6>Revenue of Year: {(revenueData.revenueOfYear || 'no data').toLocaleString('vi')} VND</h6>
-          <Line data={createChartData('Revenue of Year', [0, revenueData.revenueOfYear])} />
+          <Line data={createChartData('Revenue of Year', [0, revenueData.revenueOfYear / 2, revenueData.revenueOfYear], ['Start of Year', 'Mid Year', 'Now'])} />
         </section>
       </div>
     </div>

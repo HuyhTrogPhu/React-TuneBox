@@ -33,7 +33,7 @@ const OrderDetail = () => {
         'Payment Method': orderDetail.paymentMethod,
         'Shipping Method': orderDetail.shippingMethod,
         'Status': orderDetail.status,
-        'Total Price': orderDetail.orderItems.reduce((sum, item) => sum + (item.costPrice * item.quantity), 0).toLocaleString('vi') + ' VND'
+        'Total Price': orderDetail.totalPrice.toLocaleString('vi') + 'VND'
       },
     ];
 
@@ -44,7 +44,7 @@ const OrderDetail = () => {
       'Brand Name': item.brandId,
       'Cost Price': item.costPrice.toLocaleString('vi') + ' VND',
       'Quantity': item.quantity,
-      'Total Price': (item.costPrice * item.quantity).toLocaleString('vi') + ' VND'
+
     }));
 
     // Tạo workbook và worksheet
@@ -115,6 +115,7 @@ const OrderDetail = () => {
           <p><strong>Email:</strong> {orderDetail.email}</p>
           <p><strong>Phone Number:</strong> {orderDetail.phone}</p>
           <p><strong>Location:</strong> {orderDetail.location}</p>
+      
         </div>
 
         {/* Order information */}
@@ -134,7 +135,6 @@ const OrderDetail = () => {
                 {orderDetail.status}
               </span>
             </p>
-            <p><strong>Order Date: </strong> <span style={{ color: 'blue' }}>{orderDetail.orderDate}</span></p>
             <p><strong>Delivery Date: </strong> <span style={{ color: 'blue' }}>{orderDetail.deliveryDate}</span></p>
           </div>
         </div>
@@ -144,7 +144,7 @@ const OrderDetail = () => {
       <div className='row'>
         <hr />
         <h6 className='text-center'>Items</h6>
-        <table className='table'>
+        <table className='table table-bordered'>
           <thead>
             <tr>
               <th style={{ textAlign: "center" }} scope='col'>#</th>
@@ -153,9 +153,10 @@ const OrderDetail = () => {
               <th style={{ textAlign: "center" }} scope='col'>Cost Price</th>
               <th style={{ textAlign: "center" }} scope='col'>Quantity</th>
               <th style={{ textAlign: "center" }} scope='col'>SubTotal</th>
+      
             </tr>
           </thead>
-          <tbody>
+          <tbody className='table-group-divider'>
             {orderDetail.orderItems.map((item, index) => (
               <tr key={item.orderDetailId}>
                 <td style={{ textAlign: "center" }}>{index + 1}</td>
@@ -166,25 +167,25 @@ const OrderDetail = () => {
                 <td style={{ textAlign: "center" }}>{(item.costPrice).toLocaleString('vi')} VND</td>
                 <td style={{ textAlign: "center" }}>x{item.quantity}</td>
                 <td style={{ textAlign: "center" }}>{(item.costPrice * item.quantity).toLocaleString('vi')} VND</td>
+             
               </tr>
             ))}
           </tbody>
         </table>
 
         {/* Total */}
-        <table className='table mt-5 mb-5'>
+        <table className='table mt-5 mb-5 table-bordered'>
           <thead>
             <tr>
               <th style={{textAlign: 'center'}} scope='col'>SUBTOTAL</th>
-              <th style={{textAlign: 'center'}} scope='col'>TAX(5%)</th>
-              <th style={{textAlign: 'center'}} scope='col'>TOTAL</th>
+              <th style={{textAlign: 'center'}} scope='col'>Total order value (including shipping fee)</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className='table-group-divider'>
             <tr>
               <td style={{textAlign: 'center'}}>{subtotal.toLocaleString('vi')} VND</td>
-              <td style={{textAlign: 'center'}}>{tax.toLocaleString('vi')} VND</td>
-              <td style={{textAlign: 'center'}}>{total.toLocaleString('vi')} VND</td>
+
+              <td style={{textAlign: 'center'}}>{(orderDetail.totalPrice).toLocaleString('vi')} VND</td>
             </tr>
           </tbody>
         </table>

@@ -151,7 +151,7 @@ const StatisticalOrder = () => {
                 <section className='row mt-5'>
                     <h6 style={{ textAlign: 'center' }}>List orders</h6>
                     <h6><strong>Total orders: </strong>{filteredOrders.length} order</h6>
-                    <table className='table border col-12'>
+                    <table className='table table-bordered col-12'>
                         <thead>
                             <tr>
                                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -170,7 +170,7 @@ const StatisticalOrder = () => {
                                 <th style={{ textAlign: 'center' }} scope='col'>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className='table-group-divider'>
                             {currentOrders.map((order, index) => (
                                 <tr key={order.oderId}>
                                     <td style={{ textAlign: 'center' }}>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
@@ -180,7 +180,7 @@ const StatisticalOrder = () => {
                                     <td style={{ textAlign: 'center' }}>{order.orderDate}</td>
                                     <td style={{ textAlign: 'center' }}>{order.deliveryDate}</td>
                                     <td style={{ textAlign: 'center' }}>{order.phone}</td>
-                                    <td style={{ textAlign: 'center' }}>{order.totalPrice}</td>
+                                    <td style={{ textAlign: 'center' }}>{order.totalPrice.toLocaleString('vi')} VND</td>
                                     <td style={{ textAlign: 'center' }}>{order.totalItems}</td>
                                     <td style={{ textAlign: 'center' }}>{order.paymentMethod}</td>
                                     <td style={{ textAlign: 'center' }}>{order.status}</td>

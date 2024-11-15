@@ -11,6 +11,9 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
   const [showToast, setShowToast] = useState(false); // Quản lý trạng thái hiển thị toast
   const userId = Cookies.get("userId");
 
+  const token = localStorage.getItem('jwtToken');
+  
+
   useEffect(() => {
     if (isOpen && userId) {
       fetchReceivers();
@@ -37,12 +40,19 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
       setShowToast(true);
       return;
     }
-
+  
     try {
-      const response = await axios.post(`http://localhost:8080/api/share/playlist`, null, {
-        params: { senderId: userId, receiverId: selectedReceiver, playlistId },
-      });
-
+      const response = await axios.post(
+        'http://localhost:8080/api/share/playlist',
+        null,
+        {
+          params: { senderId: userId, receiverId: selectedReceiver, playlistId },
+          headers: {
+            Authorization: `Bearer ${token}`, // Thêm token xác thực vào header
+          },
+        }
+      );
+  
       if (response.status === 200) {
         setToastMessage('Playlist shared successfully!');
         setShowToast(true); // Hiển thị toast
@@ -57,6 +67,7 @@ const SharePlaylistModal = ({ playlistId, isOpen, onClose }) => {
       setShowToast(true);
     }
   };
+  
 
   if (!isOpen) return null;
 

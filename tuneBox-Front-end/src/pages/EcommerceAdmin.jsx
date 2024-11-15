@@ -1,4 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
 import Header from '../components/Header/Header';
 import { Link, Route, Routes } from 'react-router-dom';
 import ManagerBrand from './EcommerceAdmin/pageContent/ManagerBrand';
@@ -17,8 +39,40 @@ import StatisticalInstrument from '../components/EcomStatisticalInstrument/Stati
 import { images } from '../assets/images/images';
 import StatisticalRevenueTime from '../components/EcomRevenueTime/StatisticalRevenueTime';
 import StatisticalOrder from '../components/EcomStatisticalOrder/StatisticalOrder';
+import StatisticalBrand from '../components/EcomStatisticalBrand/StatisticalBrand';
+import StatisticalCategory from '../components/EcomStatisticalCategory/StatisticalCategory';
+import { getRevenueCurrently } from '../service/EcommerceStatistical';
 
 const EcommerceAdmin = () => {
+
+  const [revenueData, setRevenueData] = useState({
+    revenueOfDay: 0,
+    revenueOfWeek: 0,
+    revenueOfMonth: 0,
+    revenueOfYear: 0,
+  });
+
+  useEffect(() => {
+    getRevenueCurrently().then((response) => {
+      setRevenueData(response.data);
+    }).catch((error) => console.error("Error fetching revenue data:", error));
+  }, []);
+
+  // Generate chart data with time-based labels
+  const createChartData = (label, data, labels) => ({
+    labels,
+    datasets: [
+      {
+        label,
+        data,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  });
+
   return (
     <div>
       <div className="row">
@@ -117,11 +171,15 @@ const EcommerceAdmin = () => {
             <Route path="Statistical/statistical-order/:type" element={<StatisticalOrder />} />
 
             <Route path='Statistical/statistical-instrument' element={<StatisticalInstrument />} />
+            <Route path='Statistical/statistical-brand' element={<StatisticalBrand />} />
+            <Route path='Statistical/statistical-category' element={<StatisticalCategory />} />
 
             <Route path='Brand' element={<ManagerBrand />} />
             <Route path='Categories' element={<ManagerCategories />} />
             <Route path='Instrument' element={<ManagerInstrument />} />
           </Routes>
+
+          
         </div>
       </div>
     </div>

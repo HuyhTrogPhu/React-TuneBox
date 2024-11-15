@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate,Link  } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getAvatarUser, search } from "../../service/UserService";
 import {
@@ -11,12 +11,19 @@ import {
 } from "../../service/TrackServiceCus";
 import { getNotifications } from "../../service/NotificationService.js";
 import { logout } from "../../service/LoginService";
-import { SwipeableList, SwipeableListItem, SwipeAction } from 'react-swipeable-list';
-import 'react-swipeable-list/dist/styles.css';
+import {
+  SwipeableList,
+  SwipeableListItem,
+  SwipeAction,
+} from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
+import { Audio } from 'react-loader-spinner'
+import { useTranslation } from "react-i18next";
+import '../../i18n/i18n'
 import axios from "axios";
 
-
 const Navbar = () => {
+  const { t } = useTranslation();
   const [newTrackName, setTrackName] = useState("");
   const [newTrackImage, setTrackImage] = useState(null);
   const [newTrackFile, setTrackFile] = useState(null);
@@ -31,7 +38,10 @@ const Navbar = () => {
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const userId = Cookies.get("userId");
 
@@ -110,6 +120,8 @@ const Navbar = () => {
     try {
       const response = await listGenre();
       setGenre(response.data);
+
+
     } catch (error) {
       console.error("Error fetching Genre", error);
     }
@@ -141,7 +153,7 @@ const Navbar = () => {
 
   const handleSave = async () => {
     if (!validateForm()) return;
-
+    setIsLoading(true);
     const newTrack = new FormData();
     newTrack.append("name", newTrackName);
     newTrack.append("trackImage", newTrackImage);
@@ -160,6 +172,8 @@ const Navbar = () => {
       getAllTrack();
     } catch (error) {
       console.error("Error creating track:", error);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -193,6 +207,16 @@ const Navbar = () => {
       navigate("/login");
     }
   };
+
+  //track ai
+  const handleTrackAiClick = () => {
+    if (userId) {
+      navigate("/track-ai");
+    } else {
+      navigate("/login");
+
+    }
+  }
 
   const markAsRead = async (notificationId) => {
     try {
@@ -267,33 +291,50 @@ const Navbar = () => {
     }
   };
 
+  // open the modal 
+  const handleOpenModal = () => {
+    if (!userId) {
+      navigate("/login");
+      return;
+    } else {
+      getAllGenre(); // gọi getAllGenre trước khi mở modal
+      const modal = new window.bootstrap.Modal(document.getElementById("addTrackModal"));
+      modal.show();
+    }
+  };
 
 
   return (
     <header className="navbar-container ">
       {/* Navbar Left */}
       <div className="col-3 d-flex align-items-center">
-        <button className="navbar-button" onClick={() => navigate("/")}>
+        <button
+          className={`navbar-icon ${location.pathname === "/" ? "active" : ""
+            }`}
+          onClick={() => navigate("/")}
+        >
           <img alt="tunebox" src={images.logoTuneBox} width="150" />
         </button>
-        <button className="navbar-button" onClick={() => navigate("/")}>
+
+        <button
+          className={`navbar-button ${location.pathname === "/" ? "active" : ""
+            }`}
+          onClick={() => navigate("/")}
+        >
           <span className="text-decoration-none">
             <img alt="icon-home" src={images.home} className="icon" />
-            <b>Feed</b>
+            <b> {t('feed')}</b>
           </span>
         </button>
+
         <button
-          className="navbar-button"
+          className={`navbar-button ${location.pathname === "/HomeEcommerce" ? "active" : ""
+            }`}
           onClick={() => navigate("/HomeEcommerce")}
         >
           <span>
-            <img
-              alt="icon-loa"
-              src={images.speaker}
-              width="35"
-              className="icon"
-            />
-            <b>Shops</b>
+            <img alt="icon-loa" src={images.speaker} width="35" className="icon" />
+            <b> {t('shop')}</b>
           </span>
         </button>
       </div>
@@ -303,7 +344,7 @@ const Navbar = () => {
         <div>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder={t('search')}
             className="search-input"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)} // Cập nhật state khi người dùng nhập
@@ -370,18 +411,18 @@ const Navbar = () => {
                         </div>
                         {/* Thêm nút xóa ở đây */}
                         <button onClick={() => deleteNotification(notification.id)} className="delete-notification-button">
-                          Xóa
+                          Delete
                         </button>
                       </div>
                     </SwipeableListItem>
                   ))
                 ) : (
-                  <li className="no-notification">Không có thông báo nào.</li>
+                  <li className="no-notification">{t('notification')}</li>
                 )}
               </SwipeableList>
 
               <button onClick={handleDeleteAllReadNotifications(userId)} className="delete-all-read">
-                Xóa tất cả thông báo đã xem
+              {t('delete')}
               </button>
             </div>
           )}
@@ -389,12 +430,14 @@ const Navbar = () => {
 
         {/* chat */}
         <span className="mx-3">
+          <Link to={'/chat'}>
           <img
             alt="icon-chat"
             style={{ width: "30px", height: "30px" }}
             src={images.conversstion}
             className="icon"
           />
+          </Link>
         </span>
 
         {/* cart */}
@@ -426,11 +469,11 @@ const Navbar = () => {
               className="dropdown-item"
               onClick={() => navigate("/profileUser")}
             >
-              Profile
+              {t('profile')}
             </button>
 
             <button className="dropdown-item" onClick={handleLogout}>
-              Log Out
+            {t('logout')}
             </button>
           </div>
         )}
@@ -440,9 +483,17 @@ const Navbar = () => {
           className="add-track"
           data-bs-toggle="modal"
           data-bs-target="#addTrackModal"
-          onClick={getAllGenre}
+          onClick={handleOpenModal}
         >
-          Create
+          {t('create')}
+        </button>
+
+        {/* Track AI */}
+        <button
+          className="track-ai ms-4"
+          onClick={handleTrackAiClick}
+        >
+          Track AI
         </button>
       </div>
 
@@ -476,9 +527,8 @@ const Navbar = () => {
                     <label className="form-label">Track Name</label>
                     <input
                       type="text"
-                      className={`form-control ${
-                        errors.name ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.name ? "is-invalid" : ""
+                        }`}
                       value={newTrackName}
                       onChange={(e) => setTrackName(e.target.value)}
                     />
@@ -491,9 +541,8 @@ const Navbar = () => {
                     <label className="form-label">Image Track</label>
                     <input
                       type="file"
-                      className={`form-control ${
-                        errors.image ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.image ? "is-invalid" : ""
+                        }`}
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -522,9 +571,8 @@ const Navbar = () => {
                     <label className="form-label">File Track</label>
                     <input
                       type="file"
-                      className={`form-control ${
-                        errors.file ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.file ? "is-invalid" : ""
+                        }`}
                       accept=".mp3"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -552,9 +600,8 @@ const Navbar = () => {
                   <div className="mt-3">
                     <label className="form-label">Genre</label>
                     <select
-                      className={`form-select ${
-                        errors.genre ? "is-invalid" : ""
-                      }`}
+                      className={`form-select ${errors.genre ? "is-invalid" : ""
+                        }`}
                       value={newTrackGenre}
                       onChange={(e) => setTrackGenre(e.target.value)}
                     >
@@ -581,9 +628,8 @@ const Navbar = () => {
                     <textarea
                       cols="50"
                       rows="5"
-                      className={`form-control ${
-                        errors.description ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.description ? "is-invalid" : ""
+                        }`}
                       value={newTrackDescription}
                       onChange={(e) => setTrackDescription(e.target.value)}
                     ></textarea>
@@ -608,8 +654,13 @@ const Navbar = () => {
                   type="button"
                   className="btn btn-primary"
                   onClick={handleSave}
+                  disabled={isLoading} // Disable button during loading
                 >
-                  Save Track
+                  {isLoading ? (
+                    <Audio height="20" width="20" color="white" ariaLabel="loading" />
+                  ) : (
+                    "Save Track"
+                  )}
                 </button>
               </div>
             </div>

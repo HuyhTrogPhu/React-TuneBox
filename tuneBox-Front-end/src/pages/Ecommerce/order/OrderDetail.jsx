@@ -160,6 +160,7 @@ const OrderDetail = () => {
                             <div className="row">
                                 <div className="col-md-12 text-right identity">
                                     <p>Order is covered by <strong>tuneBox@2024</strong></p>
+                                    <p>Head office address: QTSC 9 Building, D. To Ky, Tan Chanh Hiep, District 12, Ho Chi Minh, Vietnam</p>
                                 </div>
                             </div>
                         </div>

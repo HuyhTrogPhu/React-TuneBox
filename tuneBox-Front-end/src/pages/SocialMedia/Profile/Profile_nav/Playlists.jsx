@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   getPlaylistByUserId,
   createPlaylist,
@@ -11,9 +11,11 @@ import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { ToastContainer, toast } from "react-toastify";
 import "../Profile_nav/css/playlist.css";
+import { Audio } from "react-loader-spinner";
 
 const Playlists = () => {
   const userId = Cookies.get("userId");
+  const { id } = useParams(); // Lấy ID từ URL
   const [errors, setErrors] = useState({});
   const [playlists, setPlaylists] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,11 +43,20 @@ const Playlists = () => {
   }, [userId]);
 
   const fetchListPlaylist = async () => {
+    const targetUserId = id || userId;
+    console.log("Target User ID:", targetUserId);
+
     setIsLoading(true);
     try {
-      const playlistResponse = await getPlaylistByUserId(userId);
-      setPlaylists(playlistResponse || []);
-      console.log("fetchListPlaylist: ", playlistResponse);
+      const playlistResponse = await getPlaylistByUserId(targetUserId);
+
+      // Lọc playlist theo điều kiện type
+      const filteredPlaylists = playlistResponse.filter(
+        (playlist) => targetUserId === userId || playlist.type === "Public"
+      );
+
+      setPlaylists(filteredPlaylists || []);
+      console.log("fetchListPlaylist: ", filteredPlaylists);
 
       const likesCountsMap = {};
 
@@ -207,10 +218,10 @@ const Playlists = () => {
       const response = await deletePlaylist(playlistId);
       console.log("Album deleted successfully:", response);
       fetchListPlaylist();
-      alert("Playlist deleted successfully!");
+      toast.success("Playlist deleted successfully!");
     } catch (error) {
       console.error("Error deleting playlist:", error);
-      alert("Failed. Please try again.");
+      toast.error("Failed to delete Playlist. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -219,28 +230,34 @@ const Playlists = () => {
   return (
     <div className="albums">
       <ToastContainer />
-      <div className="btn-container">
-        <button
-          type="button"
-          className="btn-new"
-          data-bs-toggle="modal"
-          data-bs-target="#newPlaylist"
-        >
-          New
-        </button>
-
-        <div className="search-container">
-          <input type="text" placeholder="Search..." className="search-input" />
-          <button type="button" className="btn-search">
-            Search
+      {!id || String(id) === String(userId) ? (
+        <div className="btn-container">
+          <button
+            type="button"
+            className="btn-new"
+            data-bs-toggle="modal"
+            data-bs-target="#newPlaylist"
+          >
+            New
           </button>
+
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="search-input"
+            />
+            <button type="button" className="btn-search">
+              Search
+            </button>
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Playlist List */}
       <div className="post-header-albums">
         {isLoading ? (
-          <div>Loading albums...</div>
+          <div></div>
         ) : playlists && playlists.length > 0 ? (
           playlists.map(
             (list) =>
@@ -275,36 +292,42 @@ const Playlists = () => {
                       </span>
                     </div>
                   </div>
-
-                  <div className="btn-group" style={{ marginLeft: 25 }}>
+                  {String(list.creatorId) === String(userId) ? (
+                    <div className="btn-group" style={{ marginLeft: 25 }}>
+                      <button
+                        className="btn dropdown-toggle no-border"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      />
+                      <ul className="dropdown-menu dropdown-menu-lg-end">
+                        <li>
+                          <a
+                            className="dropdown-item"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editPlaylist"
+                            onClick={() => handleEditClick(list)}
+                          >
+                            Edit
+                          </a>
+                        </li>
+                        <li>
+                          <a
+                            className="dropdown-item"
+                            onClick={() => handDeletePlaylist(list.id)}
+                          >
+                            Delete
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  ) : (
                     <button
-                      className="btn dropdown-toggle no-border"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    />
-                    <ul className="dropdown-menu dropdown-menu-lg-end">
-                      <li>
-                        <a
-                          className="dropdown-item"
-                          type="button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#editPlaylist"
-                          onClick={() => handleEditClick(list)}
-                        >
-                          Edit
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          className="dropdown-item"
-                          onClick={() => handDeletePlaylist(list.id)}
-                        >
-                          Delete
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
+                      className="fa-regular fa-flag btn-report ms-3 top-8 border-0"
+                      onClick={() => handleReport(list.id, "album")}
+                    ></button>
+                  )}
                 </div>
               )
           )

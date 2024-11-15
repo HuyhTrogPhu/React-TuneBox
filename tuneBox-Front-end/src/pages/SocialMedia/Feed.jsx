@@ -11,32 +11,40 @@ import "./css/mxh/modal-create-post.css";
 import "./css/profile.css";
 import "./css/mxh/comment.css";
 import "./css/mxh/button.css";
-import { useParams, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import "./css/mxh/feedUpdate.css";
+import {
+  useParams,
+  useNavigate,
+  Navigate,
+  Router,
+  useLocation,
+  Outlet,
+} from "react-router-dom";
+import { Link, Routes, Route } from "react-router-dom";
 import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
-  
   addLike,
   checkUserLikeTrack,
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import UsersToFollow from './Profile/UsersToFollow';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import UsersToFollow from "./Profile/UsersToFollow";
 import {
   getPlaylistByUserId,
   getPlaylistById,
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
-
-
+import FeedTrack from "./FeedTrack";
+import FeedPost from "./FeedPost";
 
 const HomeFeed = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
   console.log("currentUserId: ", currentUserId);
@@ -63,7 +71,7 @@ const HomeFeed = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [ReportId, setReportId] = useState(null);
-  const [reportType, setReportType] = useState('');
+  const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
   const [postHiddenStates, setPostHiddenStates] = useState({});
 
@@ -76,10 +84,24 @@ const HomeFeed = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
-  const tokenjwt = localStorage.getItem('jwtToken');
+  const tokenjwt = localStorage.getItem("jwtToken");
+  const [activeComponent, setActiveComponent] = useState("track"); // State để quản lý component hiển thị track or post
 
   //get avatar
   const [userData, setUserData] = useState({});
+
+  // share
+  const [sharedData, setSharedData] = useState(null);
+  useEffect(() => {
+    if (location.state) {
+      setActiveComponent(location.state.activeComponent || "track");
+      setSharedData(location.state.sharedData || null);
+    }
+  }, [location.state]);
+
+  const clearSharedData = () => {
+    setSharedData(null);
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -95,7 +117,6 @@ const HomeFeed = () => {
 
     fetchUser();
   }, [currentUserId]);
-
 
   // track
   const [tracks, setTracks] = useState([]);
@@ -287,11 +308,8 @@ const HomeFeed = () => {
   const [showModal, setShowModal] = useState(false);
   const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
 
-
-
   const fetchListPlaylist = async () => {
     try {
-      
       const playlistResponse = await getPlaylistByUserId(currentUserId);
       setPlaylists(playlistResponse);
       console.log("playlist  ", playlistResponse);
@@ -303,7 +321,7 @@ const HomeFeed = () => {
     setShowModal(true); // Mở modal
     setTrackToAddPlayList(trackId);
   };
-  
+
   useEffect(() => {
     fetchListPlaylist();
   }, [currentUserId]);
@@ -452,7 +470,7 @@ const HomeFeed = () => {
         postId: postId,
       };
 
-      if (likes[postId]) {
+      if (likes[postId]?.data) {
         // Nếu đã like, thực hiện unlike
         await fetch(
           `http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`,
@@ -460,7 +478,11 @@ const HomeFeed = () => {
             method: "DELETE",
           }
         );
-        setLikes((prevLikes) => ({ ...prevLikes, [postId]: false })); // Cập nhật trạng thái like
+
+        setLikes((prevLikes) => ({
+          ...prevLikes,
+          [postId]: { ...prevLikes[postId], data: false },
+        })); // Cập nhật trạng thái like
 
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
@@ -477,14 +499,17 @@ const HomeFeed = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(likeDto),
+          body: JSON.stringify(likeDto), // Gửi dữ liệu likeDto
         });
 
         if (!response.ok) {
           throw new Error("Failed to like the post");
         }
 
-        setLikes((prevLikes) => ({ ...prevLikes, [postId]: true })); // Cập nhật trạng thái like
+        setLikes((prevLikes) => ({
+          ...prevLikes,
+          [postId]: { ...prevLikes[postId], data: true },
+        })); // Cập nhật trạng thái like
 
         // Cập nhật số lượt like trên UI
         setPosts((prevPosts) =>
@@ -883,16 +908,16 @@ const HomeFeed = () => {
       );
     }
   };
-  // report post 
+  // report post
   const handleReport = (id, type) => {
-    console.log('ID to report:', id); // Kiểm tra giá trị ID
-    console.log('Type to report:', type); // Kiểm tra giá trị type
+    console.log("ID to report:", id); // Kiểm tra giá trị ID
+    console.log("Type to report:", type); // Kiểm tra giá trị type
     setReportId(id);
     setReportType(type);
     setShowReportModal(true);
   };
   const handleSubmit = () => {
-    console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
+    console.log("Report Type before submit:", reportType); // Kiểm tra giá trị type
 
     if (!ReportId || !reportType) {
       setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
@@ -902,50 +927,73 @@ const HomeFeed = () => {
     // Gọi hàm submitReport với các giá trị đúng
     submitReport(currentUserId, ReportId, reportType, reportReason);
   };
-  
   const submitReport = async (userId, reportId, reportType, reason) => {
     try {
-      const response = await fetch('http://localhost:8080/api/reports', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Đảm bảo gửi cookie cùng với request
-        body: JSON.stringify({
-          postId: reportPostId,
-          reason: reportReason,
-        }),
-      });
+      const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
 
-      if (response.ok) {
-        console.log('thành công');
+      const reportExists = await checkReportExists(
+        userId,
+        reportId,
+        reportType
+      );
+      if (reportExists) {
+        setReportMessage("Bạn đã báo cáo nội dung này rồi.");
+        toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
+      } else {
+        const reportData = {
+          userId: userId,
+          postId: reportType === "post" ? reportId : null,
+          trackId: reportType === "track" ? reportId : null,
+          albumId: reportType === "album" ? reportId : null,
+          type: reportType,
+          reason: reason,
+        };
+
+        const response = await axios.post(
+          "http://localhost:8080/api/reports",
+          reportData,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`, // Thêm JWT token vào header
+            },
+          }
+        );
+
+        console.log("Report submitted successfully:", response.data);
+        setReportMessage("Báo cáo đã được gửi thành công.");
+        toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
         setShowReportModal(false);
       }
     } catch (error) {
       console.error("Lỗi khi tạo báo cáo:", error);
       if (error.response && error.response.status === 401) {
-        navigate('/login?error=true');
+        navigate("/login?error=true");
       } else {
-        console.error('Có lỗi xảy ra khi gửi báo cáo.');
+        setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
+        toast.error("Đã có lỗi xảy ra khi gửi báo cáo."); // Hiển thị toast thông báo lỗi
       }
     }
   };
   const checkReportExists = async (userId, reportId, reportType) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/reports/check`, {
-        params: {
-          userId: userId,
-          postId: reportType === 'post' ? reportId : null,
-          trackId: reportType === 'track' ? reportId : null,
-          albumId: reportType === 'album' ? reportId : null,
-          type: reportType,
-        },
-        withCredentials: true,
-      });
-      console.log('Check report response:', response.data);
+      const response = await axios.get(
+        `http://localhost:8080/api/reports/check`,
+        {
+          params: {
+            userId: userId,
+            postId: reportType === "post" ? reportId : null,
+            trackId: reportType === "track" ? reportId : null,
+            albumId: reportType === "album" ? reportId : null,
+            type: reportType,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("Check report response:", response.data);
       return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
     } catch (error) {
-      console.error('Lỗi mạng:', error);
+      console.error("Lỗi mạng:", error);
     }
   };
 
@@ -980,40 +1028,68 @@ const HomeFeed = () => {
 
   // ẩn hiện post
   const toggleHiddenState = async (postId) => {
-    const token = localStorage.getItem('jwtToken');
-    
+    const token = localStorage.getItem("jwtToken");
+
     if (!token) {
-        console.error("No JWT token found");
-        toast.error("You need to be logged in to toggle post visibility.");
-        return; // No token, do not call API
+      console.error("No JWT token found");
+      toast.error("You need to be logged in to toggle post visibility.");
+      return; // No token, do not call API
     }
 
     try {
-        await axios.put(`http://localhost:8080/api/posts/${postId}/toggle-visibility`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        });
+      await axios.put(
+        `http://localhost:8080/api/posts/${postId}/toggle-visibility`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-        // Update the visibility state of the post
-        setPostHiddenStates(prevStates => ({
-            ...prevStates,
-            [postId]: !prevStates[postId] // Toggle the visibility state
-        }));
-        fetchPosts();
+      // Update the visibility state of the post
+      setPostHiddenStates((prevStates) => ({
+        ...prevStates,
+        [postId]: !prevStates[postId], // Toggle the visibility state
+      }));
+      fetchPosts();
     } catch (error) {
-        console.error("Error toggling post visibility:", error);
-        toast.error("Failed to toggle post visibility. Please try again."); // Notify user of error
+      console.error("Error toggling post visibility:", error);
+      toast.error("Failed to toggle post visibility. Please try again."); // Notify user of error
     }
-};
-    return (
+  };
+
+  // get user information in feed
+
+  return (
     <div>
-            <ToastContainer />
-      <div className="container-fluid">
+      <div className="container-fluid feed-container">
         <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
+            {/* Profile */}
+            <div className="feed-profile mb-5">
+              {/* avatar */}
+              <div className="feed-avatar d-flex align-item-center justify-content-center">
+                <img src={images.logoTuneBox} alt="" />
+              </div>
+              {/* information */}
+              <div className="feed-information text-center">
+                <h6 className="feed-username">User Name</h6>
+                <h6 className="feed-name">Name</h6>
+                <h6 className="feed-following">Following</h6>
+                <p>100</p>
+                <h6 className="feed-follower">Follower</h6>
+                <p>100</p>
+              </div>
+              {/* View profile */}
+              <div className="view-profile text-center">
+                <Link style={{ color: "#E94F37" }} to={"/profileUser"}>
+                  View profile
+                </Link>
+              </div>
+            </div>
             <ul className="list-unstyled">
               <li className="left mb-4">
                 <a
@@ -1090,13 +1166,43 @@ const HomeFeed = () => {
               </li>
             </ul>
           </div>
-          {/* Main Content */}
-          <div className="col-6 content p-4">
+
+          {/* Main content */}
+          <div className="col-6 content">
+            {/* Nav tab link */}
+            <div className="row nav-link-feed mt-4">
+              <ul className="d-flex justify-content-center">
+                <li
+                  className={`col-6 text-center feed-link ${
+                    activeComponent === "track" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveComponent("track")}
+                >
+                  <i className="fa-solid fa-music me-1"></i>
+                  <span>Track</span>
+                </li>
+                <li
+                  className={`col-6 text-center feed-link ${
+                    activeComponent === "post" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveComponent("post")}
+                >
+                  <i className="fa-solid fa-newspaper me-1"></i>
+                  <span>Post</span>
+                </li>
+              </ul>
+            </div>
+
             {/* Nút tạo bài */}
-            <div className="container mt-2 mb-5">
+            <div className="create-post container">
               <div className="row align-items-center">
                 <div className="col-auto post-header">
-                  <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                  <img
+                    src={
+                      userData.avatar ||
+                      "/src/UserImages/Avatar/default-avt.jpg"
+                    }
+                    alt="User avatar"
                   />
                 </div>
                 <div className="col">
@@ -1116,789 +1222,33 @@ const HomeFeed = () => {
               </div>
             </div>
 
-            {/* Phần hiển thị track */}
-            <div className="container mt-2 mb-5">
-              {tracks.map((track) => {
-                const createdAt = track.createDate ? new Date(track.createDate) : null;
-                return (
-                  <div className="post border" key={track.id}>
-                    {/* Tiêu đề */}
-                    <div className="post-header position-relative">
-                      <button
-                        type="button"
-                        className="btn"
-                        onClick={() => handleAvatarClick(track)}
-                        aria-label="Avatar"
-                      >
-                        <img
-                          src={track.avatar}
-                          className="avatar_small"
-                          alt="Avatar"
-                        />
-                      </button>
-                      <div>
-                        <div className="name">
-                          {track.userNickname || "Unknown User"}
-                        </div>
-                        <div className="time">
-                          {createdAt && !isNaN(createdAt.getTime())
-                            ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                            : "Invalid date"}
-                        </div>
-                      </div>
-                      {/* Dropdown cho bài viết */}
-                      {String(track.userId) === String(currentUserId) ? (
-                        <div className="dropdown position-absolute top-0 end-0">
-                          <button
-                            className="btn btn-options dropdown-toggle"
-                            type="button"
-                            id={`dropdownMenuButton-${track.id}`}
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            ...
-                          </button>
-                          <ul className="dropdown-menu"
-                            aria-labelledby={`dropdownMenuButton-${track.id}`}>
-                              <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => addToPlaylist(track.id)}
-                                >
-                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
-                                  Add to playlist
-                                </button>
-                              </li>
-                              <li>
-                              <button className="dropdown-item" onClick={() => handleEditClick(track)}>
-                                <i className='fa-solid fa-pen-to-square'></i>Edit
-                              </button>
-                              </li>
-                              <li>
-                              <button className="dropdown-item" onClick={() => deleteTrack(track.id)}>
-                                <i className='fa-solid fa-trash '></i>Delete
-                              </button>
-                              </li>
-                          </ul>
-                        </div>
-                      ) : (
-                        <div className="dropdown position-absolute top-0 end-0">
-                          <ul>
-                            <li>
-                            <button className="fa-regular fa-flag btn-report border border-0" onClick={() => handleReport(track.id, 'track')}></button>
-                            </li>
-                            <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => addToPlaylist(track.id)}
-                                >
-                                  <i className="fa-solid fa-pen-to-square"></i>{" "}
-                                  Add to playlist
-                                </button>
-                              </li>
-                          </ul>
-                        </div>
-
-                      )}
-                    </div>
-
-                    <div className="post-content description">
-                      {track.description || "Unknown description"}
-                    </div>
-                    {/* Nội dung */}
-                    <div className="track-content audio">
-                      <WaveFormFeed
-                        audioUrl={track.trackFile}
-                        track={track}
-                        className="track-waveform "
-                      />
-                    </div>
-
-                    {/* Like/Comment */}
-                    <div className="row d-flex justify-content-start align-items-center">
-                      {/* Like track*/}
-                      <div className="col-2 mt-2 text-center">
-                        <div className="like-count">
-                          {countLikedTracks[track.id]?.data || 0} {/* Hiển thị số lượng like */}
-                          <i
-                            className={`fa-solid fa-heart ${likedTracks[track.id]?.data
-                              ? "text-danger"
-                              : "text-muted"
-                              }`}
-                            onClick={() => handleLikeTrack(track.id)}
-                            style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                          ></i>
-                        </div>
-                      </div>
-
-                      {/* Comment track*/}
-                      <div className="col-2 mt-2 text-center">
-                        <div className="d-flex justify-content-center align-items-center">
-                          {track.commentCount || 0}
-                          <i
-                            type="button"
-                            style={{ fontSize: "25px" }}
-                            className="fa-regular fa-comment"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalComment"
-                          ></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            {/* Phần hiển thị bài viết */}
-            <div className="container mt-2 mb-5">
-              {posts.map((post) => {
-                const createdAt = post.createdAt
-                  ? new Date(post.createdAt)
-                  : null;
-                const showAll = showAllComments[post.id];
-
-                return (
-                  <div key={post.id} className="post border">
-                    {/* Modal hiển thị comment  */}
-                    <div className="modal fade" id="modalComent" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="false">
-                      <div className="modal-dialog">
-                        <div className="modal-content">
-                          <div className="modal-header">
-                            <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div className="modal-body">
-                            {/* Danh sách bình luận */}
-                            {selectedPost ? (
-                              <div className="mt-4">
-                                {(showAllComments[selectedPost.id]
-                                  ? selectedPost.comments
-                                  : selectedPost.comments.slice(0, 3)
-                                ).map((comment) => (
-                                  <div
-                                    key={comment.id}
-                                    className="comment mt-2"
-                                  >
-                                    <div className="container">
-                                      <div className="row justify-content-start">
-                                        <div className="comment-content position-relative">
-                                          <img
-                                            src="/src/UserImages/Avatar/avt.jpg"
-                                            className="avatar_small"
-                                            alt="Avatar"
-                                          />
-                                          <div>
-                                            <div className="comment-author">
-                                              {comment.userNickname}
-                                            </div>
-                                            <div className="comment-time">
-                                              {format(
-                                                new Date(comment.creationDate),
-                                                "hh:mm a, dd MMM yyyy"
-                                              )}
-                                              {comment.edited && (
-                                                <span className="edited-notice">
-                                                  {" "}
-                                                  (Edited)
-                                                </span>
-                                              )}
-                                            </div>
-                                            {editingCommentId === comment.id ? (
-                                              <div>
-                                                <textarea
-                                                  className="form-control"
-                                                  rows={2}
-                                                  value={editingCommentContent}
-                                                  onChange={(e) =>
-                                                    setEditingCommentContent(
-                                                      e.target.value
-                                                    )
-                                                  }
-                                                />
-                                                <button
-                                                  className="btn btn-primary mt-2"
-                                                  onClick={() =>
-                                                    handleUpdateComment(
-                                                      comment.id,
-                                                      selectedPost.id
-                                                    )
-                                                  }
-                                                >
-                                                  Save
-                                                </button>
-                                                <button
-                                                  className="btn btn-secondary mt-2 ms-2"
-                                                  onClick={() => {
-                                                    setEditingCommentId(null);
-                                                    setEditingCommentContent(
-                                                      ""
-                                                    );
-                                                  }}
-                                                >
-                                                  Cancel
-                                                </button>
-                                              </div>
-                                            ) : (
-                                              <p>{comment.content}</p>
-                                            )}
-                                          </div>
-                                          {(String(comment.userId) ===
-                                            String(currentUserId) ||
-                                            String(selectedPost.userId) ===
-                                              String(currentUserId)) && (
-                                            <div className="dropdown position-absolute top-0 end-0">
-                                              <button
-                                                className="btn btn-options dropdown-toggle"
-                                                type="button"
-                                                id={`dropdownMenuButton-${comment.id}`}
-                                                data-bs-toggle="dropdown"
-                                                aria-expanded="false"
-                                              >
-                                                ...
-                                              </button>
-                                              <ul
-                                                className="dropdown-menu"
-                                                aria-labelledby={`dropdownMenuButton-${comment.id}`}
-                                              >
-                                                <li>
-                                                  <button
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                      setEditingCommentId(
-                                                        comment.id
-                                                      );
-                                                      setEditingCommentContent(
-                                                        comment.content
-                                                      );
-                                                    }}
-                                                  >
-                                                    Edit
-                                                  </button>
-                                                </li>
-                                                {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
-                                                <li>
-                                                  <button
-                                                    className="dropdown-item"
-                                                    onClick={() =>
-                                                      handleDeleteComment(
-                                                        comment.id,
-                                                        selectedPost.id
-                                                      )
-                                                    }
-                                                  >
-                                                    Delete
-                                                  </button>
-                                                </li>
-                                              </ul>
-                                            </div>
-                                          )}
-
-                                          {/* Nút trả lời cho bình luận bậc 2 */}
-                                          <button
-                                            className="btn btn-link mt-2"
-                                            onClick={() =>
-                                              handleReplyClick(comment)
-                                            }
-                                          >
-                                            Reply
-                                          </button>
-
-                                          {/* Input trả lời cho bình luận bậc 2 */}
-                                          {replyingTo[comment.id] && (
-                                            <div className="d-flex reply-input-container">
-                                              <textarea
-                                                className="reply-input mt-2 form-control"
-                                                rows={1}
-                                                placeholder={`Reply to ${comment.userNickname}`}
-                                                value={
-                                                  replyContent[comment.id] || ""
-                                                }
-                                                onChange={(e) =>
-                                                  handleReplyChange(
-                                                    comment.id,
-                                                    e.target.value
-                                                  )
-                                                }
-                                              />
-                                              <i
-                                                type="button"
-                                                className="fa-regular fa-paper-plane ms-3 mt-2"
-                                                style={{ fontSize: "20px" }}
-                                                onClick={() =>
-                                                  handleAddCommentReply(
-                                                    comment.id,
-                                                    selectedPost.id
-                                                  )
-                                                }
-                                              ></i>
-                                            </div>
-                                          )}
-                                        </div>
-                                      </div>
-                                      {/* Hiển thị danh sách trả lời bậc 2 */}
-                                      <div className="row justify-content-center">
-                                        {comment.replies &&
-                                          comment.replies.length > 0 && (
-                                            <div className="replies-list mt-2">
-                                              {showAllReplies[comment.id] ? (
-                                                <>
-                                                  {comment.replies.map(
-                                                    (reply) => (
-                                                      <div
-                                                        key={`reply-${reply.id}`}
-                                                        className="reply"
-                                                      >
-                                                        <div
-                                                          className="reply-content"
-                                                          style={{
-                                                            marginLeft: "20px",
-                                                          }}
-                                                        >
-                                                          <img
-                                                            src="/src/UserImages/Avatar/avt.jpg"
-                                                            className="avatar_small"
-                                                            alt="Avatar"
-                                                          />
-                                                          <div>
-                                                            <div className="d-flex align-items-center">
-                                                              <span className="comment-author pe-3">
-                                                                {
-                                                                  reply.userNickname
-                                                                }
-                                                              </span>
-                                                              <span className="reply-time">
-                                                                {format(
-                                                                  new Date(
-                                                                    reply.creationDate
-                                                                  ),
-                                                                  "hh:mm a, dd MMM yyyy"
-                                                                ) ||
-                                                                  "Invalid date"}
-                                                              </span>
-                                                            </div>
-                                                            {editingReplyId ===
-                                                            reply.id ? (
-                                                              <div>
-                                                                <textarea
-                                                                  className="form-control"
-                                                                  rows={2}
-                                                                  value={
-                                                                    editingReplyContent
-                                                                  }
-                                                                  onChange={(
-                                                                    e
-                                                                  ) =>
-                                                                    setEditingReplyContent(
-                                                                      e.target
-                                                                        .value
-                                                                    )
-                                                                  }
-                                                                />
-                                                                <button
-                                                                  className="btn btn-primary mt-2"
-                                                                  onClick={() =>
-                                                                    handleUpdateReply(
-                                                                      reply.id
-                                                                    )
-                                                                  }
-                                                                >
-                                                                  Save
-                                                                </button>
-                                                                <button
-                                                                  className="btn btn-secondary mt-2 ms-2"
-                                                                  onClick={() => {
-                                                                    setEditingReplyId(
-                                                                      null
-                                                                    );
-                                                                    setEditingReplyContent(
-                                                                      ""
-                                                                    );
-                                                                  }}
-                                                                >
-                                                                  Cancel
-                                                                </button>
-                                                              </div>
-                                                            ) : (
-                                                              <p>
-                                                                <strong>
-                                                                  {
-                                                                    reply.repliedToNickname
-                                                                  }
-                                                                  :
-                                                                </strong>{" "}
-                                                                {reply.content}
-                                                              </p>
-                                                            )}
-
-                                                            {/* Nút trả lời cho reply bậc 2 */}
-                                                            <button
-                                                              className="btn btn-link"
-                                                              onClick={() =>
-                                                                handleReplyClick(
-                                                                  reply
-                                                                )
-                                                              }
-                                                            >
-                                                              Reply
-                                                            </button>
-                                                            {/* Dropdown cho reply bậc 2 */}
-                                                            {String(
-                                                              reply.userId
-                                                            ) ===
-                                                              String(
-                                                                currentUserId
-                                                              ) && (
-                                                              <div className="dropdown position-absolute top-0 end-0">
-                                                                <button
-                                                                  className="btn btn-options dropdown-toggle"
-                                                                  type="button"
-                                                                  id={`dropdownMenuButton-${reply.id}`}
-                                                                  data-bs-toggle="dropdown"
-                                                                  aria-expanded="false"
-                                                                >
-                                                                  ...
-                                                                </button>
-                                                                <ul
-                                                                  className="dropdown-menu"
-                                                                  aria-labelledby={`dropdownMenuButton-${reply.id}`}
-                                                                >
-                                                                  <li>
-                                                                    <button
-                                                                      className="dropdown-item"
-                                                                      onClick={() => {
-                                                                        setEditingReplyId(
-                                                                          reply.id
-                                                                        );
-                                                                        setEditingReplyContent(
-                                                                          reply.content
-                                                                        );
-                                                                      }}
-                                                                    >
-                                                                      Edit
-                                                                    </button>
-                                                                  </li>
-                                                                  <li>
-                                                                    <button
-                                                                      className="dropdown-item"
-                                                                      onClick={() =>
-                                                                        handleDeleteReply(
-                                                                          reply.id
-                                                                        )
-                                                                      }
-                                                                    >
-                                                                      Delete
-                                                                    </button>
-                                                                  </li>
-                                                                </ul>
-                                                              </div>
-                                                            )}
-
-                                                            {/* Input trả lời cho reply bậc 2 */}
-                                                            {replyingTo[
-                                                              reply.id
-                                                            ] && (
-                                                              <div className="d-flex reply-input-container">
-                                                                <textarea
-                                                                  className="reply-input mt-2 form-control"
-                                                                  rows={1}
-                                                                  placeholder="Write a reply..."
-                                                                  value={
-                                                                    replyContent[
-                                                                      reply.id
-                                                                    ] || ""
-                                                                  }
-                                                                  onChange={(
-                                                                    e
-                                                                  ) =>
-                                                                    handleReplyChange(
-                                                                      reply.id,
-                                                                      e.target
-                                                                        .value
-                                                                    )
-                                                                  }
-                                                                />
-                                                                <i
-                                                                  type="button"
-                                                                  className="fa-regular fa-paper-plane ms-3 mt-2"
-                                                                  onClick={() =>
-                                                                    handleAddReplyToReply(
-                                                                      reply.id,
-                                                                      comment.id
-                                                                    )
-                                                                  }
-                                                                />
-                                                              </div>
-                                                            )}
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    )
-                                                  )}
-                                                  {/* Nút để ẩn các phản hồi */}
-                                                  <button
-                                                    className="btn btn-link"
-                                                    onClick={() =>
-                                                      handleToggleReplies(
-                                                        comment.id
-                                                      )
-                                                    }
-                                                  >
-                                                    Hide replies
-                                                  </button>
-                                                </>
-                                              ) : (
-                                                <button
-                                                  className="btn btn-link"
-                                                  onClick={() =>
-                                                    handleToggleReplies(
-                                                      comment.id
-                                                    )
-                                                  }
-                                                >
-                                                  View all replies
-                                                </button>
-                                              )}
-                                            </div>
-                                          )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-
-                                {/* Hiển thị nút xem thêm bình luận */}
-                                {selectedPost.comments.length > 3 && (
-                                  <button
-                                    className="btn btn-link"
-                                    onClick={() =>
-                                      handleToggleComments(selectedPost.id)
-                                    }
-                                  >
-                                    {showAllComments[selectedPost.id]
-                                      ? "View less comments"
-                                      : "View all comments"}
-                                  </button>
-                                )}
-                              </div>
-                            ) : (
-                              <p>No comments available</p>
-                            )}
-                            {/* Phần bình luận */}
-                            <div className="comment-section d-flex mt-4">
-                              <textarea
-                                className="comment-input"
-                                style={{ resize: "none" }}
-                                rows={1}
-                                placeholder="Write a comment..."
-                                value={commentContent[selectedPostId] || ""}
-                                onChange={(e) => handleCommentChange(selectedPost.id, e.target.value)}
-                              />
-                              <button
-                                onClick={() =>
-                                  setShowEmojiPicker(!showEmojiPicker)
-                                }
-                                className="btn btn-sm"
-                              >
-                                😀
-                              </button>
-
-                              {showEmojiPicker && (
-                                <div
-                                  style={{
-                                    position: "absolute",
-                                    bottom: "100%",
-                                    left: "0",
-                                    zIndex: 10,
-                                  }}
-                                >
-                                  <Picker
-                                    onEmojiSelect={(emoji) => {
-                                      addEmoji(selectedPost.id, emoji);
-                                      // Không đóng bảng emoji ở đây
-                                    }}
-                                  />
-                                  {/* Nút để đóng bảng emoji */}
-                                  <button
-                                    onClick={() => setShowEmojiPicker(false)}
-                                    className="btn btn-link"
-                                  >
-                                    Close
-                                  </button>
-                                </div>
-                              )}
-                              <div className="button-comment">
-                                <i
-                                  type="button"
-                                  className="fa-regular fa-paper-plane mt-2"
-                                  style={{ fontSize: "20px" }}
-                                  onClick={() => {
-                                    handleAddComment(selectedPost.id);
-                                    setShowEmojiPicker(false);
-                                  }}
-                                ></i>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Phần tiêu đề bài viết */}
-                    <div className="post-header position-relative">
-                      <button
-                        type="button"
-                        className="btn"
-                        onClick={() => handleAvatarClick(post)}
-                        aria-label="Avatar"
-                      >
-                        <img
-                          src={post.avatar}
-                          className="avatar_small"
-                          alt="Avatar"
-                        />
-                      </button>
-                      <div>
-                        <div className="name">{post.userNickname || "Unknown User"}</div>
-                        <div className="time">
-                          {createdAt && !isNaN(createdAt.getTime())
-                            ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                            : "Invalid date"}
-                          {post.edited && <span className="edited-notice"> (Edited)</span>}
-                        </div>
-                      </div>
-                      {/* Dropdown cho bài viết */}
-                      {String(post.userId) === String(currentUserId) ? (
-                        <div className="dropdown position-absolute top-0 end-0">
-                          <button
-                            className="btn btn-options dropdown-toggle"
-                            type="button"
-                            id={`dropdownMenuButton-${post.id}`}
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            ...
-                          </button>
-                          <ul className="dropdown-menu"
-                            aria-labelledby={`dropdownMenuButton-${post.id}`}>
-                            <li>
-                              <button className="dropdown-item" onClick={() => handleEditPost(post)}>
-                                <i className='fa-solid fa-pen-to-square'></i>Edit
-                              </button>
-                            </li>
-                            <li>
-                              <button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>
-                                <i className='fa-solid fa-trash '></i>Delete
-                              </button>
-                            </li>
-                          </ul>
-                        </div>
-                      ) : (
-                        <button
-                          className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
-                          onClick={() => handleReport(post.id, 'post')}
-                          ></button>
-                      )}
-                    </div>
-                    {/* Nội dung bài viết */}
-                    <div className="post-content">{post.content}</div>
-                    {/* Hiển thị hình ảnh dưới dạng carousel */}
-                    {post.images && post.images.length > 0 && (
-                      <div
-                        id={`carousel-${post.id}`}
-                        className="carousel slide post-images"
-                        data-bs-ride="carousel"
-                      >
-                        <div className="carousel-inner">
-                          {post.images.map((image, index) => (
-                            <div
-                              className={`carousel-item ${
-                                index === 0 ? "active" : ""
-                              }`}
-                              key={index}
-                            >
-                              <img
-                                src={image.postImage}
-                                className="d-block w-100"
-                                alt={`Post image ${index + 1}`}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                        <button
-                          className="carousel-control-prev"
-                          type="button"
-                          data-bs-target={`#carousel-${post.id}`}
-                          data-bs-slide="prev"
-                        >
-                          <span
-                            className="carousel-control-prev-icon"
-                            aria-hidden="true"
-                          ></span>
-                          <span className="visually-hidden">Previous</span>
-                        </button>
-                        <button
-                          className="carousel-control-next"
-                          type="button"
-                          data-bs-target={`#carousel-${post.id}`}
-                          data-bs-slide="next"
-                        >
-                          <span
-                            className="carousel-control-next-icon"
-                            aria-hidden="true"
-                          ></span>
-                          <span className="visually-hidden">Next</span>
-                        </button>
-                      </div>
-                    )}
-                    {/* Interact post */}
-                    <div className="row d-flex justify-content-start align-items-center">
-                      {/* like post */}
-                      <div className="col-2 mt-2 text-center">
-                        <div className="like-count">
-                          {post.likeCount || 0}
-                          <i
-                            className={`fa-solid fa-heart text-danger ${
-                              likes[post.id] ? "like" : "noLike"
-                            }`}
-                            onClick={() => handleLike(post.id)}
-                          >
-                            {likes[post.id]}
-                          </i>
-                        </div>
-                      </div>
-                      {/* comment post */}
-                      <div className="col-2 mt-2 text-center">
-                        <div className="d-flex justify-content-center align-items-center">
-                          {post.comments.length}
-                          <i
-                            type="button"
-                            style={{ fontSize: "25px" }}
-                            className="fa-regular fa-comment"
-                            onClick={() => handleOpenModal(post.id)}
-                          ></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Nội dung theo lựa chọn Track hoặc Post */}
+            <div className="container">
+              {activeComponent === "track" ? (
+                <FeedTrack />
+              ) : (
+                <FeedPost
+                  sharedData={sharedData}
+                  clearSharedData={clearSharedData}
+                />
+              )}
             </div>
           </div>
+
           {/* Right Sidebar */}
           <div className="col-3 sidebar bg-light p-4">
-            <ul className="list-unstyled">
+            <ul className="list-new-follow">
               <li className=" mb-4">
                 <UsersToFollow userId={currentUserId} token={tokenjwt} />
               </li>
             </ul>
-            <div className="advertisement mt-5">
-              <a href>  <img src={images.bannerpre} alt="Banner quảng cáo" className="img-fluid" width="80%" style={{ marginLeft: 30 }} /></a>
-            </div>
+            <div className="advertisement mt-5"></div>
           </div>
         </div>
       </div>
 
       {/* Các modal */}
       {/* Modal báo cáo */}
-      <ToastContainer />
       {showReportModal && (
         <div
           className="modal fade show"
@@ -1922,17 +1272,26 @@ const HomeFeed = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                {reportMessage && (
+                  <div className="alert alert-danger">{reportMessage}</div>
+                )}{" "}
+                {/* Thông báo lỗi hoặc thành công */}
                 <h6>Chọn lý do báo cáo:</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                  {[
+                    "Nội dung phản cảm",
+                    "Vi phạm bản quyền",
+                    "Spam hoặc lừa đảo",
+                    "Khác",
+                  ].map((reason) => (
                     <label className="d-block" key={reason}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
-                      /> {reason}
+                      />{" "}
+                      {reason}
                     </label>
                   ))}
                 </div>
@@ -1941,15 +1300,22 @@ const HomeFeed = () => {
                   placeholder="Nhập lý do báo cáo"
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  style={{ resize: 'none' }}
+                  style={{ resize: "none" }}
                 />
               </div>
               <div className="modal-footer">
                 <button
-                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  onClick={() =>
+                    submitReport(
+                      currentUserId,
+                      ReportId,
+                      reportType,
+                      reportReason
+                    )
+                  }
                   className="btn btn-primary"
                 >
-                  Báo cáo
+                  Report
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -1959,10 +1325,9 @@ const HomeFeed = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  Đóng
+                  Close
                 </button>
               </div>
-
             </div>
           </div>
         </div>
@@ -1976,7 +1341,11 @@ const HomeFeed = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-            <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}/>
+              <img
+                src={
+                  userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"
+                }
+              />
               <div>
                 <div className="name">{userData.name}</div>
                 <div className="time">Posting to Feed</div>
@@ -2045,230 +1414,6 @@ const HomeFeed = () => {
           </div>
         </div>
       </div>
-
-      {/* Modal for editing track */}
-      <div
-        className="modal fade"
-        id="editModal"
-        tabIndex="-1"
-        aria-labelledby="editTrackModalLabel"
-        aria-hidden="true"
-        data-bs-backdrop="false"
-      >
-        <div className="modal-dialog modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5" id="editTrackModalLabel">
-                Edit Track
-              </h1>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => handleSave()}
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <form className="row">
-                {/* Track Name */}
-                <div className="mb-3">
-                  <label className="form-label">Track Name: </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={selectedTrack ? selectedTrack.name : ""}
-                    onChange={(e) =>
-                      setSelectedTrack({
-                        ...selectedTrack,
-                        name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                {/* Image Track */}
-                <div className="mt-3">
-                  <label className="form-label">Image Track: </label>
-                  {selectedTrack && (
-                    <div>
-                      <img
-                        src={selectedTrack.imageTrack}
-                        alt="Current Track"
-                        style={{ width: "100px", marginTop: "10px" }}
-                      />
-                      <div className="custom-file mt-2">
-                        <input
-                          type="file"
-                          id="fileInput"
-                          className="custom-file-input"
-                          onChange={(e) => {
-                            if (e.target.files[0]) {
-                              setSelectedTrack({
-                                ...selectedTrack,
-                                trackImage: e.target.files[0],
-                              });
-                            }
-                          }}
-                          style={{ display: "none" }}
-                        />
-                        <label
-                          className="custom-file-label"
-                          htmlFor="fileInput"
-                        >
-                          Choose new file
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* File Track */}
-                <div className="mt-3">
-                  <label className="form-label">Current File Track: </label>
-                  <label className="custom-file-label" htmlFor="fileInput">
-                    Choose file
-                  </label>
-                  {selectedTrack && (
-                    <div>
-                      <p>
-                        Current file:{" "}
-                        {selectedTrack.trackFileName || selectedTrack.name}
-                      </p>
-                      <div className="custom-file mt-2">
-                        <input
-                          type="file"
-                          id="fileInput"
-                          className="custom-file-input"
-                          onChange={(e) => {
-                            if (e.target.files[0]) {
-                              setSelectedTrack({
-                                ...selectedTrack,
-                                trackFile: e.target.files[0],
-                              });
-                            }
-                          }}
-                          style={{ display: "none" }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Select Genre */}
-                <div className="mt-3">
-                  <label className="form-label">Genre</label>
-                  <select
-                    className="form-select"
-                    value={selectedGenre}
-                    onChange={(e) => setSelectedGenre(e.target.value)}
-                  >
-                    {genres.map((genre) => (
-                      <option
-                        key={genre.id}
-                        value={genre.id}
-                        // Set selected cho genre hiện tại
-                        selected={selectedTrack?.genre?.id === genre.id}
-                      >
-                        {genre.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Description */}
-                <div className="mt-3">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    cols="50"
-                    rows="5"
-                    className="form-control"
-                    value={selectedTrack ? selectedTrack.description : ""}
-                    onChange={(e) =>
-                      setSelectedTrack({
-                        ...selectedTrack,
-                        description: e.target.value,
-                      })
-                    }
-                  ></textarea>
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  const editModal = document.getElementById("editModal");
-                  editModal.classList.remove("show");
-                  editModal.style.display = "none";
-                  document.body.classList.remove("modal-open");
-                }}
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleSave}
-              >
-                Save Track
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* end modal edit */}
-
-      {/* Modal để chọn playlist */}
-      <div
-        className={`modal fade ${showModal ? "show" : ""}`}
-        tabIndex="-1"
-        style={{ display: showModal ? "block" : "none" }}
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Chọn Playlist</h5>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={handleCloseModal}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <ul className="list-group">
-                {playlists.map(
-                  (playlist) =>
-                    !playlist.status && (
-                      <div key={playlist.id} className="post-header-track m-5">
-                        <img
-                          src={playlist.imagePlaylist}
-                          className="avatar_small"
-                          alt="playlist"
-                        />
-                        <div className="info">
-                          <div className="name">{playlist.title}</div>
-                        </div>
-                        <div className="btn-group" style={{ marginLeft: 25 }}>
-                          <button
-                            type="button"
-                            className="btn-new rounded-5"
-                            onClick={() =>
-                              handleAddTrackToPlaylist(playlist.id)
-                            }
-                          >
-                            add
-                          </button>
-                        </div>
-                      </div>
-                    )
-                )}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Modal để chọn playlist */}
     </div>
   );
 };

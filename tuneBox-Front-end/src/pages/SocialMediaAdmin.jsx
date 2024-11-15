@@ -1,8 +1,6 @@
 import React from "react";
 import { images } from "../../src/assets/images/images";
-import "./SocialMediaAdmin/css/sidebar.css";
-import '../pages/SocialMediaAdmin/pageContent/SideBar';
-import '../pages/SocialMediaAdmin/pageContent/TopBar';
+
 import PlaylistDetail from "./SocialMediaAdmin/pageContent/PlaylistDetail";
 import AlbumDetail from "./SocialMediaAdmin/pageContent/AlbumDetail";
 import PostDetail from "./SocialMediaAdmin/pageContent/PostDetail";
@@ -12,10 +10,15 @@ import Posts from "./SocialMediaAdmin/pageContent/Posts";
 import DashBoard from "./SocialMediaAdmin/pageContent/DashBoard";
 import Users from "./SocialMediaAdmin/pageContent/Users";
 import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
-import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
+import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
+import Track from "./SocialMediaAdmin/pageContent/Track";
+import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";
 import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
-import StatisticalUser from "./SocialMediaAdmin/pageContent/StatisticalUser";
-import StatisticalPost from "./SocialMediaAdmin/pageContent/StatisticalPost";
+import StatisticalUser from "./SocialMediaAdmin/Statistical/StaticUser";
+import StaticAlbum from "./SocialMediaAdmin/Statistical/StaticAlbum";
+import StaticPlayList from "./SocialMediaAdmin/Statistical/StaticPlayList";
+import StaticTrack from "./SocialMediaAdmin/Statistical/StaticTrack";
+
 
 const SocialMediaAdmin = () => {
   return (
@@ -23,7 +26,7 @@ const SocialMediaAdmin = () => {
       <div className="container-fluid">
         <div className="row">
           {/* Sidebar */}
-          <div className="sidebar col-lg-2 col-md-3 vh-100">
+          <div className="sidebar21 col-lg-2 col-md-3 vh-100">
             {/* Logo */}
             <div className="logo p-3">
               <a href="#">
@@ -32,7 +35,7 @@ const SocialMediaAdmin = () => {
             </div>
 
             {/* Menu */}
-            <div className="menus">
+            <div className="menu21">
               <ul className="list-unstyled">
                 <li className="p-3">
                   <i className="fa-solid fa-house" />
@@ -47,10 +50,10 @@ const SocialMediaAdmin = () => {
                   </Link>
                 </li>
                 <li className="p-3">
-                  <i className="fa-solid fa-music" />
-                  <a href="#" className="text-white">
-                    Tracks
-                  </a>
+                <i class="fa-brands fa-itunes-note"></i>
+                  <Link to={"/socialadmin/Track"} className="text-white">
+                    Track
+                  </Link>
                 </li>
                 <li className="p-3">
                   <i className="fa-solid fa-headphones" />
@@ -73,10 +76,12 @@ const SocialMediaAdmin = () => {
                 </li>
                 <li className="p-3">
                   <i className="fa-solid fa-chart-simple" />
-                  <Link to={"/socialadmin/statistical"} className="text-white">
-                    Statistical
+                  <Link to={"/socialadmin/Statistical"} className="text-white">
+                  Statistical
                   </Link>
                 </li>
+
+                
               </ul>
             </div>
           </div>
@@ -121,13 +126,24 @@ const SocialMediaAdmin = () => {
             <Routes>
               <Route path='playlists' element={<Playlists/>} />
               <Route path='albums' element={<Albums/>} />
-              {/* <Route path='albumdetail' element={<AlbumDetail/>} /> */}
+              <Route path='Track' element={<Track/>} />
+              <Route path='playlists' element={<Playlists/>} />
+              
+              
+              <Route path='Statistical' element={<Statistical/>} />
+              <Route path='Statistical/UserStatic' element={<StatisticalUser/>} />
+              <Route path='Statistical/StaticAlbum' element={<StaticAlbum/>} />
+              <Route path='Statistical/StaticPlayList' element={<StaticPlayList/>} />
+              <Route path='Statistical/StaticTrack' element={<StaticTrack/>} />
+              
               <Route path='posts' element={<Posts/>} />
               <Route path='dashboard' element={<DashBoard/>} />
               <Route path='users' element={<Users/>} />
+              <Route path='detailUser/:id' element={<UserDetail />} /> 
+              <Route path='TrackDetail/:id' element={<TrackDetail />} /> 
+              <Route path='PlaylistDetail/:id' element={<PlaylistDetail/>} />
               <Route path='postdetail/:id' element={<PostDetail/>} />
-              <Route path='report' element={<ReportManagement/>} />
-              <Route path='statistical' element={<Statistical/>}/>
+              <Route path='AlbumDetail/:id' element={<AlbumDetail/>} />
               </Routes>
             </div>
           </div>

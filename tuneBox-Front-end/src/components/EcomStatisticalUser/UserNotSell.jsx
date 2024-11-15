@@ -54,7 +54,7 @@ const UserNotSell = () => {
         </div>
         {/* Bảng người dùng chưa mua hàng */}
         <section className='row mt-5'>
-          <table className='table border'>
+          <table className='table table-bordered'>
             <thead>
               <tr>
                 <th style={{ textAlign: 'center' }} scope='col'>#</th>
@@ -68,19 +68,21 @@ const UserNotSell = () => {
                 <th style={{ textAlign: 'center' }} scope='col'>Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className='table-group-divider'>
               {userSellList.length > 0 ? (
                 userSellList.map((user, index) => (
                   <tr key={user.userId}>
-                    <th scope='row'>{index + 1}</th>
-                    <td>{user.name}</td>
-                    <td>{user.userName}</td>
-                    <td>{user.email}</td>
-                    <td>{user.phoneNumber}</td>
-                    <td>{user.location}</td>
-                    <td>{user.totalOrder} order</td>
-                    <td>{(user.sumTotalPrice).toLocaleString('vi')} VND</td>
-                    <Link className='btn btn-outline-primary' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
+                    <th style={{ textAlign: 'center' }} scope='row'>{index + 1}</th>
+                    <td style={{ textAlign: 'center' }}>{user.name}</td>
+                    <td style={{ textAlign: 'center' }}>{user.userName}</td>
+                    <td style={{ textAlign: 'center' }}>{user.email}</td>
+                    <td style={{ textAlign: 'center' }}>{user.phoneNumber}</td>
+                    <td style={{ textAlign: 'center' }}>{user.location}</td>
+                    <td style={{ textAlign: 'center' }}>{user.totalOrder} order</td>
+                    <td style={{ textAlign: 'center' }}>{(user.sumTotalPrice).toLocaleString('vi')} VND</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <Link className='btn' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
+                    </td>
                   </tr>
                 ))
               ) : (

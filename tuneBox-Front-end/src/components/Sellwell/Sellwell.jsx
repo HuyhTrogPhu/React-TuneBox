@@ -4,6 +4,8 @@ import { images } from '../../assets/images/images';
 import { Link } from 'react-router-dom';
 import { listInstruments } from '../../service/EcommerceHome';
 
+import { useTranslation } from "react-i18next";
+import '../../i18n/i18n'
 const Sellwell = () => {
     const [instrumentList, setInstrumentList] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -13,21 +15,24 @@ const Sellwell = () => {
         getInstrumentList();
     }, []);
 
+    const { t } = useTranslation();
     function getInstrumentList() {
         listInstruments()
             .then((response) => {
-                setInstrumentList(response.data);
-                console.log(response.data)
+                // Lọc các sản phẩm có status là false
+                const filteredInstruments = response.data.filter(ins => !ins.status);
+                setInstrumentList(filteredInstruments);
+                console.log(filteredInstruments);
             })
             .catch((error) => {
                 console.error("Error fetching instruments", error);
             });
     }
     const getStockStatus = (quantity) => {
-        if (quantity === 0) return 'Out of stock';
-        if (quantity > 0 && quantity <= 5) return 'Almost out of stock';
-        return 'In stock';
-      };
+        if (quantity === 0) return t('hethang');
+        if (quantity > 0 && quantity <= 5) return t('saphhet');
+        return  t('conhang');
+    };
 
     // Hàm để phân trang và lấy danh sách sản phẩm cho trang hiện tại
     const paginate = (pageNumber) => {
@@ -47,23 +52,23 @@ const Sellwell = () => {
             <div className='mt-5'>
                 <div className='sellwell-title'>
                     <div className='d-flex justify-content-between align-items-center mb-4'>
-                        <h4 className='title'>Sell well</h4>
-                        <Link to={'/Shop'} className='view-all'>View all</Link>
+                        <h4 className='title'>{t('sell')}</h4>
+                        <Link to={'/Shop'} className='view-all'>{t('viewall')}</Link>
                     </div>
                 </div>
                 <hr className='hr-100' />
 
                 <div className='row d-flex justify-content-start'>
                     {Array.isArray(instrumentList) && instrumentList.length > 0 ? (
-                        currentItems.map((ins, index) => { // Sử dụng currentItems thay vì instrumentList
+                        currentItems.map((ins) => {
                             return (
-                                <div className='col-3 mb-4'>
-                                    <div className='card' key={index}>
+                                <div key={ins.id} className='col-3 mb-4'>  {/* Add the key here */}
+                                    <div className='card'>
                                         <Link to={{
                                             pathname: `/DetailProduct/${ins.id}`,
                                             state: { ins }
                                         }}>
-                                            <div className='' style={{ width: '100%', height: '100%', border: 'none', cursor: 'pointer' }}>
+                                            <div style={{ width: '100%', height: '100%', border: 'none', cursor: 'pointer' }}>
                                                 <div className='card-img-wrapper ' style={{ height: '250px' }}>
                                                     <img
                                                         src={ins.image ? ins.image : 'default-image-path.jpg'}
@@ -84,11 +89,10 @@ const Sellwell = () => {
                                         </Link>
                                     </div>
                                 </div>
-
                             );
                         })
                     ) : (
-                        <div className='alert alert-danger'>No instrument available</div>
+                        <div className='alert alert-danger'>{t('no')}</div>
                     )}
 
                     {/* Phân trang */}

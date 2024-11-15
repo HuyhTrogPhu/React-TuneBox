@@ -7,11 +7,12 @@ import "slick-carousel/slick/slick-theme.css";
 import { Link, useNavigate } from 'react-router-dom';
 import { listCategories } from '../../service/EcommerceHome';
 
-
+import { useTranslation } from "react-i18next";
+import '../../i18n/i18n'
 
 
 const Category = () => {
-
+  const { t } = useTranslation();
   const [categoryList, setCategoryList] = useState([]);
   const navigate = useNavigate();
   const settings = {
@@ -43,8 +44,8 @@ const Category = () => {
     <div>
       <div className="cotainer slider mt-5">
         <div className='d-flex justify-content-between align-items-center mb-4'>
-          <h4 className='category-title'>Category </h4>
-          <Link to={'/CategoryPage'} className='view-all'>View all</Link>
+          <h4 className='category-title'>{t('cateTitle')} </h4>
+          <Link to={'/CategoryPage'} className='view-all'>{t('viewall')}</Link>
         </div>
         <hr className='hr-100' />
         <div className="row text-center">

@@ -17,7 +17,9 @@ import { FollowContext } from "./FollowContext";
 import { Modal, Button } from "react-bootstrap";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import Footer2 from "../../../components/Footer/Footer2";
+import { useTranslation } from "react-i18next";
+import '../../../i18n/i18n'
 
 const ProfileUser = () => {
   const userIdCookie = Cookies.get("userId");
@@ -27,6 +29,8 @@ const ProfileUser = () => {
     followerCount: 0,
     followingCount: 0,
   });
+  const { t } = useTranslation();
+
   const [friendCount, setFriendCount] = useState(0);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -93,7 +97,8 @@ const ProfileUser = () => {
   };
   
   return (
-    <div className="container">
+<div>
+<div className="container mt-5">
         <ToastContainer />
       <div
         className="background border container"
@@ -103,7 +108,7 @@ const ProfileUser = () => {
       >
         <div className="text-end" style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
           <button className="btn btn-primary" onClick={handleBackgroundChange}>
-            Thay Hình Nền
+          {t('p1')}
           </button>
         </div>
       </div>
@@ -142,24 +147,24 @@ const ProfileUser = () => {
             <div className="col text-center">
               <Link to={`/Follower/${userIdCookie}`}>
                 <span>{followCount.followerCount}</span> <br />
-                <span>Follower</span>
+                <span>{t('p2')}</span>
               </Link>
             </div>
             <div className="col text-center">
               <Link to={`/Following/${userIdCookie}`}>
                 <span>{followCount.followingCount}</span> <br />
-                <span>Following</span>
+                <span>{t('p3')}</span>
               </Link>
             </div>
             <div className="col text-center">
               <Link to={`/FriendList/${userIdCookie}`}>
                 <span>{friendCount}</span> <br />
-                <span>Friends</span>
+                <span>{t('p4')}</span>
               </Link>
             </div>
           </div>
           <div style={{ paddingTop: 30 }}>
-            <label>InspiredBy</label> <br />
+            <label>{t('p5')}</label> <br />
             {userData.inspiredBy && userData.inspiredBy.length > 0 ? (
               userData.inspiredBy.map((name, index) => (
                 <span
@@ -170,10 +175,10 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>No favorite artists.</p>
+              <p>{t('p17')}</p>
             )}
             <br />
-            <label>Talent</label> <br />
+            <label>{t('p6')}</label> <br />
             {userData.talent && userData.talent.length > 0 ? (
               userData.talent.map((name, index) => (
                 <span
@@ -184,10 +189,10 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>No talents selected.</p>
+              <p>{t('18')}</p>
             )}
             <br />
-            <label>Genre</label> <br />
+            <label>{t('p7')}</label> <br />
             {userData.genre && userData.genre.length > 0 ? (
               userData.genre.map((name, index) => (
                 <span
@@ -198,14 +203,14 @@ const ProfileUser = () => {
                 </span>
               ))
             ) : (
-              <p>No favorite genres.</p>
+              <p>{t('p19')}</p>
             )}
           </div>
         </aside>
 
         <div className="col-sm-9 d-flex flex-column">
           <nav className="nav flex-column flex-md-row p-5">
-            <Link to="activity" className="nav-link">Activity</Link>
+            <Link to="activity" className="nav-link">{t('p8')}</Link>
             <Link to="track" className="nav-link">Track</Link>
             <Link to="albums" className="nav-link">Albums</Link>
             <Link to="playlists" className="nav-link">Playlists</Link>
@@ -227,11 +232,11 @@ const ProfileUser = () => {
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Xác Nhận Thay Đổi</Modal.Title>
+          <Modal.Title>{t('p13')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div>
-            <p>Chọn hình nền mới:</p>
+            <p>{t('p14')}</p>
             <input type="file" accept="image/*" onChange={handleImageChange} />
             {selectedBackground && (
               <div className="mt-2">
@@ -242,15 +247,19 @@ const ProfileUser = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Hủy
+          {t('p15')}
           </Button>
           <Button variant="primary" onClick={confirmChange}>
-            Xác Nhận
+          {t('16')}
           </Button>
         </Modal.Footer>
       </Modal>
       {error && <div className="alert alert-danger">{error}</div>}
     </div>
+    <Footer2 />
+</div>
+
+
   );
 };
 

@@ -1,371 +1,292 @@
-import React from "react";
-import { images } from "../../../assets/images/images";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+import { Link } from "react-router-dom";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import {
+  LoadPLayList
+} from "../../../service/SocialMediaAdminService";
 
 const Playlists = () => {
+
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [onDay, setOnDate] = useState();
+  const rowsPerPage = 7;
+
+  useEffect(() => {
+    fetchUsers();   
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await LoadPLayList();
+      setUsers(response.data);
+      setFilteredUsers(response.data);
+      console.log(users);
+      setTotalPages(Math.ceil(response.data.length / rowsPerPage));
+      handlTodayUser(response.data);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    }
+  };
+  const handleOnday = (Day) => {
+    event.preventDefault();
+    const filtered = users.filter((user) => user.createDate === Day);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    filterUsers(Day,Day);
+
+  };
+
+  const handleKeywordChange = (e) => {
+    setKeyword(e.target.value);
+    filterUsers(e.target.value, startDate, endDate, endDate);
+  };
+  const handleDayChange = (from, to) => {
+    setStartDate(from);
+    setEndDate(to);
+    filterUsers(keyword, from, to);
+  };
+
+  const handlTodayUser = (data) => {
+    if (!data) return; 
+    const today = new Date().toISOString().split('T')[0]; 
+    console.log(today);
+    const filtered = data.filter(user => user.createDate.split('T')[0] === today);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+  };
+  
+
+  const filterUsers = async (searchKeyword, fromDate, toDate) => {
+    let filtered = users;
+    if (searchKeyword) {
+      filtered = filtered.filter(
+        (user) =>
+          user.name.includes(searchKeyword)
+        
+      );
+    }
+    if (fromDate && toDate) {
+      filtered = filtered.filter(user => user.createDate.split('T')[0] >= fromDate && user.createDate.split('T')[0] <= toDate);
+    }
+
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage)); // Recalculate total pages after filtering
+  };
+
+  const paginateUsers = () => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return filteredUsers.slice(startIndex, endIndex);
+  };
+
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+    // Hàm xuất Excel
+    const exportToExcel = () => {
+      const ws = XLSX.utils.json_to_sheet(filteredUsers);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Customers");
+      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const data = new Blob([excelBuffer], { type: EXCEL_TYPE });
+      saveAs(data, "customers.xlsx");
+    };
+  
+    const EXCEL_TYPE =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+    const EXCEL_EXTENSION = ".xlsx";
+  
   return (
     <div>
-          <div className="container-fluid">
-              {/* Total Playlits */}
-              <div className="row">
-                <div className="col-lg-3 mt-4 text-center">
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Total Playlists</h5>
-                      <p className="card-text">1000</p>
-                    </div>
-                  </div>
+      {/* Main content */}
+      <div className="container-fluid">
+        <div className="row">
+          {/* Search by keyword */}
+          <div className="col-4">
+            <form action="">
+              <div className="mt-3">
+                <label className="form-label">Search by keyword:</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search by username "
+                  value={keyword}
+                  onChange={handleKeywordChange}
+                />
+              </div>
+            </form>
+          </div>
+
+          {/* Total day filter */}
+          <div className="col-4">
+            <form>
+              <div className="mt-3">
+                <label className="form-label">Chose Day</label>
+                <div className="d-flex">
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="From"
+                    value={startDate}
+                    onChange={(e) => handleDayChange(e.target.value, startDate)}
+                  />
+                  -
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="To"
+                    value={endDate}
+                    onChange={(e) => handleDayChange(startDate, e.target.value)}
+                  />
                 </div>
               </div>
-              <div className="row">
-                {/* New Playlists */}
-                <div className="col-lg-6 col-md-6 mt-4">
-                  <h5>New Playlists</h5>
-                  <form action className="mb-4">
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search..."
-                        aria-describedby="button-addon2"
-                      />
-                      <button
-                        className="btn btn-outline-secondary"
-                        type="button"
-                        id="button-addon2"
-                      >
-                        <i className="fa-solid fa-magnifying-glass" />
-                      </button>
-                    </div>
-                  </form>
-                  <table className="table border">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col" />
-                        <th scope="col">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">1</th>
-                        <td>
-                          {/* Playlists */}
-                          <div className="d-flex align-items-center">
-                            <img
-                              src={images.karinaImage}
-                              alt="Playlist Image"
-                              className="rounded me-3"
-                              style={{ width: 50 }}
-                            />
-                            <div>
-                              <h5 className="mb-1">Playlist Name</h5>
-                              <small>by User Name</small>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <a href="#" className="btn btn-warning">
-                            View
-                          </a>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  {/* Pagination */}
-                  <nav className="mb-4">
-                    <ul className="pagination justify-content-center">
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          Previous
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          1
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          Next
-                        </a>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-                {/* Trending Playlits */}
-                <div className="col-lg-6 col-md-6 mt-4">
-                  <h5>Trending Playlists</h5>
-                  <form action className="mb-4">
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search..."
-                        aria-describedby="button-addon2"
-                      />
-                      <button
-                        className="btn btn-outline-secondary"
-                        type="button"
-                        id="button-addon2"
-                      >
-                        <i className="fa-solid fa-magnifying-glass" />
-                      </button>
-                    </div>
-                  </form>
-                  <table className="table border">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col" />
-                        <th scope="col">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">1</th>
-                        <td>
-                          {/* Playlists */}
-                          <div className="d-flex align-items-center">
-                            <img
-                              src={images.karinaImage}
-                              alt="Playlit Image"
-                              className="rounded me-3"
-                              style={{ width: 50 }}
-                            />
-                            <div>
-                              <h5 className="mb-1">Playlists Name</h5>
-                              <small>by User Name</small>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <a href="#" className="btn btn-warning">
-                            View
-                          </a>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  {/* Pagination */}
-                  <nav className="mb-4">
-                    <ul className="pagination justify-content-center">
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          Previous
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          1
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          Next
-                        </a>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-                {/* Playlits report */}
-                <div className="col-lg-6">
-                  <div className="card shadow-sm">
-                    <div className="card-header bg-danger text-white">
-                      <h5>Playlists Report</h5>
-                    </div>
-                    <div className="card-body">
-                      <form action className="mb-4">
-                        <div className="input-group">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search..."
-                            aria-describedby="button-addon2"
-                          />
-                          <button
-                            className="btn btn-outline-secondary"
-                            type="button"
-                            id="button-addon2"
-                          >
-                            <i className="fa-solid fa-magnifying-glass" />
-                          </button>
-                        </div>
-                      </form>
-                      <table className="table table-striped">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Reporter</th>
-                            <th>Reported Person</th>
-                            <th>Reason</th>
-                            <th>Date Reported</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <th>1</th>
-                            <td>Karina</td>
-                            <td>Trong Phu</td>
-                            <td>WOW</td>
-                            <td>07/09/2024</td>
-                            <td>
-                              <a href="#" className="btn btn-danger btn-sm">
-                                View
-                              </a>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      {/* Pagination */}
-                      <nav className="mb-4">
-                        <ul className="pagination justify-content-center">
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              Previous
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              1
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              2
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              3
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              Next
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
-                {/* All playlist */}
-                <div className="col-lg-12  mt-4">
-                  <div className="card shadow-sm">
-                    <div className="card-header bg-success text-white">
-                      <h5>All Playlists</h5>
-                    </div>
-                    <div className="card-body">
-                      <form action className="mb-4">
-                        <div className="input-group">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search..."
-                            aria-describedby="button-addon2"
-                          />
-                          <button
-                            className="btn btn-outline-secondary"
-                            type="button"
-                            id="button-addon2"
-                          >
-                            <i className="fa-solid fa-magnifying-glass" />
-                          </button>
-                        </div>
-                      </form>
-                      <table className="table table-striped">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <td />
-                            <th>Name playlit</th>
-                            <th>Tyle</th>
-                            <th>Total track</th>
-                            <th>Released date</th>
-                            <th>Description</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <th>1</th>
-                            <td>
-                              <img
-                                src={images.karinaImage}
-                                alt="Album Image"
-                                className="rounded me-3"
-                                style={{ width: 50 }}
-                              />
-                            </td>
-                            <td>Karina</td>
-                            <td>Private</td>
-                            <td>10</td>
-                            <td>08/09/2024</td>
-                            <td>Love</td>
-                            <td>
-                              <a href="#" className="btn btn-danger btn-sm">
-                                View
-                              </a>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      {/* Pagination */}
-                      <nav className="mb-4">
-                        <ul className="pagination justify-content-center">
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              Previous
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              1
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              2
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              3
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              Next
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
+            </form>
+          </div>
+          {/* Total order count filter */}
+          <div className="col-3">
+            <form>
+              <div className="mt-3">
+                <label className="form-label">New Playlist on</label>
+                <div className="d-flex">
+                  <button className="btn btn-primary"  onClick={(e) => handlTodayUser(e)}>
+                    Today
+                  </button>
                 </div>
               </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="row mt-5">
+          <div className="col-12">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    #
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    PlayList Name
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Tracks
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                   Status
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    User Name
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Likes
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                  Create Day
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                  Description
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Action
+                  </th>
+                  
+                </tr>
+              </thead>
+              <tbody>
+                {paginateUsers().map((user, index) => (
+                  <tr key={user.id}>
+                    <th style={{ textAlign: "center" }} scope="row">
+                      {index + 1 + (currentPage - 1) * rowsPerPage}
+                    </th>
+                    <td>{user.title}</td>
+                    <td>{user.tracks.length}</td>
+                    <td>{user.status ? "Active" : "Unactive"}</td>
+                    <td>{user.creator}</td>
+                    <td>{user.likeCount ? user.likeCount:"0"}</td>
+                    <td>{user.createDate.split('T')[0]}</td>
+                    <td>{user.description}</td>
+                    <td>
+                      <Link
+                        className="btn btn-primary"
+                        style={{ color: "#000" }}
+                        to={`/socialadmin/PlaylistDetail/${user.id}`}
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-3">
+              <button className="btn btn-success" onClick={exportToExcel}>
+                Excel export
+              </button>
             </div>
+
+            {/* Pagination */}
+            <div className="">
+              <nav aria-label="Page navigation example">
+                <ul className="pagination justify-content-center text-center">
+                  <li
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => paginate(currentPage - 1)}
+                      aria-label="Previous"
+                    >
+                      <span aria-hidden="true">«</span>
+                    </button>
+                  </li>
+                  {[...Array(totalPages).keys()].map((number) => (
+                    <li
+                      key={number + 1}
+                      className={`page-item ${
+                        currentPage === number + 1 ? "active" : ""
+                      }`}
+                    >
+                      <button
+                        onClick={() => paginate(number + 1)}
+                        className="page-link"
+                      >
+                        {number + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => paginate(currentPage + 1)}
+                      aria-label="Next"
+                    >
+                      <span aria-hidden="true">»</span>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
