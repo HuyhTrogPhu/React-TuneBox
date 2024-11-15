@@ -1,13 +1,11 @@
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate,Link  } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import "./DetailProduct.css";
-import { images } from "../../../assets/images/images";
 import Footer2 from "../../../components/Footer/Footer2";
 import Benefits from "../../../components/Benefits/Benefits";
 import { getInstrumentById } from "../../../service/EcommerceHome";
-import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
-import { addToLocalCart, getLocalCart } from "../../../service/CartService";
+import { addToLocalCart } from "../../../service/CartService";
 
 import { useTranslation } from "react-i18next";
 import '../../../i18n/i18n'
@@ -307,14 +305,7 @@ const DetailProduct = () => {
                     <i className="fa-solid fa-truck-fast"></i>
                     <span className="ms-2">{t('ship')}</span>
                   </div>
-                  <div className="ship-service">
-                    <i
-                      className="fa-solid fa-share"
-                      onClick={handleShareToFeed}
-                    ></i>
-                    <span className="ms-2">Share</span>
-                  </div>
-                  <div className="ship-service">
+                  <div className="ship-service btn btn-primary">
                     <i
                       className="fa-solid fa-share"
                       onClick={handleShareToFeed}

@@ -802,14 +802,6 @@ function Trackdetail() {
                               {relatedTrack.userName || "Unknown userName"}
                             </div>
                           </div>
-                          <div className="btn-group" style={{ marginLeft: 25 }}>
-                            <button
-                              className="btn dropdown-toggle no-border"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            ></button>
-                          </div>
                         </div>
                       )
                   )}
