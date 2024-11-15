@@ -39,6 +39,15 @@ const DetailProduct = () => {
     console.log("sharedData: ", instrument);
   };
 
+  const handleClearSharedData = () => {
+    navigate("/feed", {
+      state: {
+        sharedData: null,
+        activeComponent: "track",
+      },
+    });
+  };
+
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   useEffect(() => {
     // Lấy userId từ cookie khi component mount

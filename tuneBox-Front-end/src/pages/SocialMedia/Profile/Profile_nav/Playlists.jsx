@@ -207,7 +207,7 @@ const Playlists = () => {
     setErrors({});
   };
 
-  // delete album
+  // delete playlist
   const handDeletePlaylist = async (playlistId) => {
     if (!window.confirm("Are you sure you want to delete this playlist?")) {
       return;

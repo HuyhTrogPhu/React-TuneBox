@@ -500,28 +500,28 @@ const PlayListDetail = () => {
               </div>
             </div>
             <div className="col-3">
-              <div className="orther">Orther</div>
+              <div className="orther">Orther playlist</div>
               <div>
                 {isLoading && <p>Loading...</p>}
                 <div className="playlist-container">
-                  {allplaylists.slice(0, 4).map(
-                    (playlist, index) =>
-                      !playlist.status && (
-                        <div key={index} className="card text-bg-dark">
-                          <img
-                            src={
-                              playlist.imagePlaylist ||
-                              "/src/assets/images/nai.jpg"
-                            }
-                            className="card-img"
-                            alt={playlist.title || "Playlist image"}
-                          />
-                          <div className="card-img-overlay">
-                            <p className="card-text">{playlist.title}</p>
-                          </div>
+                  {allplaylists
+                    .filter((list) => list.id !== playlist.id && !list.status)
+                    .slice(0, 3) // Lấy 3 playlist đầu tiên
+                    .map((playlist, index) => (
+                      <div key={index} className="card-orther text-bg-dark">
+                        <img
+                          src={
+                            playlist.imagePlaylist ||
+                            "/src/assets/images/nai.jpg"
+                          }
+                          className="card-orther-img"
+                          alt={playlist.title || "Playlist image"}
+                        />
+                        <div className="card-img-overlay">
+                          <div>{playlist.title}</div>
                         </div>
-                      )
-                  )}
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
@@ -622,29 +622,7 @@ const PlayListDetail = () => {
                 Your browser does not support the audio tag.
               </audio>
             </div>
-            <div className="col-2">
-              {/* <div className="ms-5 mt-1">
-                <button className="btn">
-                  <i
-                    className={`fa-solid fa-heart ${
-                      statusliked ? "text-danger" : "text-muted"
-                    }`}
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "20px",
-                      padding: "10px",
-                    }}
-                  ></i>
-                </button>
-                <button className="btn">
-                  <i
-                    type="button"
-                    style={{ fontSize: "20px", color: "white" }}
-                    className="fa-solid fa-share mt-1"
-                  ></i>
-                </button>
-              </div> */}
-            </div>
+            <div className="col-2"></div>
           </div>
         </div>
       </div>

@@ -101,6 +101,12 @@ const HomeFeed = () => {
 
   const clearSharedData = () => {
     setSharedData(null);
+    navigate("/feed", {
+      state: {
+        sharedData: null, // Xóa sharedData
+        activeComponent: "track", // Xác định lại thành phần cần hiển thị
+      },
+    });
   };
 
   useEffect(() => {

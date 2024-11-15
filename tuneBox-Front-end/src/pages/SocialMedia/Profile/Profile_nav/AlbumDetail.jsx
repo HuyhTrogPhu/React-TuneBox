@@ -19,6 +19,7 @@ import {
 import Cookies from "js-cookie";
 import { getUserInfo } from "../../../../service/UserService";
 import ShareAlbumModal from "./ShareAlbumModal";
+import { Link } from "react-router-dom";
 
 const AlbumDetail = () => {
   const { id } = useParams();
@@ -41,6 +42,7 @@ const AlbumDetail = () => {
   const [userNamePlaylist, setUserName] = useState("");
   const [userImg, setUserImg] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [IDTrack, setIDTrack] = useState("");
 
   const [listAlbums, setListAlbums] = useState([]);
 
@@ -208,6 +210,7 @@ const AlbumDetail = () => {
     }
 
     // Cập nhật thông tin bài hát mới
+    setIDTrack(trackDetails[index]?.id);
     setCurrentTrackIndex(index);
     setCurrentTrackName(trackDetails[index]?.name);
     setCurrentImageTrack(trackDetails[index].imageTrack);
@@ -320,9 +323,9 @@ const AlbumDetail = () => {
         <div className="note">&#9835;</div>
         <div className="note">&#9839;</div>
         <ToastContainer position="top-right" />
-        <div className="" style={{ marginLeft: "140px" }}>
+        <div className="" style={{ marginLeft: "140px", marginRight: "140px" }}>
           <div className="row">
-            <div className="col-9">
+            <div className="">
               <div className="album-info">
                 <div className="album-info-cover">
                   <div className="album-info-img">
@@ -468,29 +471,6 @@ const AlbumDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="col-3">
-              <div className="orther">Orther</div>
-              <div>
-                {isLoading && <p>Loading...</p>}
-                <div className="playlist-container">
-                  {listAlbums.slice(0, 4).map(
-                    (album, index) =>
-                      !album.status && (
-                        <div key={index} className="card text-bg-dark">
-                          <img
-                            src={album.albumImage}
-                            className="card-img"
-                            alt={album.title || "Playlist image"}
-                          />
-                          <div className="card-img-overlay">
-                            <p className="card-text">{album.title}</p>
-                          </div>
-                        </div>
-                      )
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -506,8 +486,23 @@ const AlbumDetail = () => {
                   }`}
                   alt="Track Image"
                 />
-
-                {currentTrackName || "No song selected"}
+                {trackDetails[currentTrackIndex]?.status ? (
+                  <span
+                    onClick={() => alert("Track no longer exists!.")}
+                    style={{ cursor: "not-allowed", color: "grey" }}
+                  >
+                    {currentTrackName || "No song selected"}
+                  </span>
+                ) : (
+                  <Link
+                    to={{
+                      pathname: `/track/${IDTrack}`,
+                      state: { IDTrack },
+                    }}
+                  >
+                    {currentTrackName || "No song selected"}
+                  </Link>
+                )}
               </p>
             </div>
             <div className="col-1">
