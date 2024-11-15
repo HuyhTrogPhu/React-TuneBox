@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import "./css/waveFormFeed.css";
 import { images } from "../../../../assets/images/images";
+import { Link } from 'react-router-dom';
 
 const WaveFormFeed = ({ audioUrl, track }) => {
     const waveformRef = useRef(null);
