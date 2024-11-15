@@ -57,6 +57,7 @@ const Waveform = ({ audioUrl, track }) => {
       barWidth: 5,
     });
 
+    // Tải file âm thanh từ Cloudinary
     wavesurferRef.current.load(audioUrl);
 
     wavesurferRef.current.on("ready", () => {
