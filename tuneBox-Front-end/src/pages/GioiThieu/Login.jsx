@@ -143,7 +143,7 @@ const handleGoogleFailure = () => {
           <div className="row">
             <div className="col-lg-6 mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
-                <h2 className="text-center mb-4">Đăng nhập</h2>
+                <h2 className="text-center mb-4">Log in</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
                   {loading && (
