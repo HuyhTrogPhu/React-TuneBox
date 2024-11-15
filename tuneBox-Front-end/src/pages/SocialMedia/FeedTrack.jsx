@@ -375,19 +375,6 @@ const FeedTrack = () => {
     }
   };
 
-   // get user other
-   const handleAvatarClick = (track) => {
-    console.log("Current User ID:", currentUserId);
-    console.log("Post User ID:", track.userId);
-
-    if (String(track.userId) === String(currentUserId)) {
-      console.log("Navigating to ProfileUser");
-      navigate("/profileUser");
-    } else {
-      console.log("Navigating to OtherUserProfile");
-      navigate(`/profile/${track.userId}`);
-    }
-  };
 
   return (
     <div>

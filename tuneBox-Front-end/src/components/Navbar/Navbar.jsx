@@ -460,6 +460,7 @@ const Navbar = () => {
             alt="avatar-user"
             src={avatarUrl}
             className="avatar-user"
+            style={{objectFit: 'cover'}}
             onClick={handleAvatarClick}
             onMouseEnter={handleMouseEnter}
           />
@@ -495,12 +496,12 @@ const Navbar = () => {
         </button>
 
         {/* Track AI */}
-        <button
+        {/* <button
           className="track-ai ms-4"
           onClick={handleTrackAiClick}
         >
           Track AI
-        </button>
+        </button> */}
       </div>
 
       {/* start modal add */}

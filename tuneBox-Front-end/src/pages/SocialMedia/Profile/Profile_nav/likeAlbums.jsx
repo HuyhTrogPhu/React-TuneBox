@@ -8,10 +8,12 @@ import { getAlbumById } from "../../../../service/AlbumsServiceCus";
 import Cookies from "js-cookie";
 import "./css/albums.css";
 import { Link } from "react-router-dom";
+import UsersToFollow from "../UsersToFollow";
 
 const LikeAlbum = () => {
   const userId = Cookies.get("userId");
   console.log("cookie: ", userId);
+  const tokenjwt = localStorage.getItem('jwtToken');
   const [albums, setAlbums] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -79,49 +81,54 @@ const LikeAlbum = () => {
   };
 
   return (
-    <div className=" container albums mt-5">
+    <div className="albums">
       <h1 className="search-results-title text-center mb-5">Liked Albums</h1>
 
-      <div className="row">
-        <div className="col-3">
-          <h1 className="search-results-title">Orther</h1>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Top
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                User
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Tracks
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Albums
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav ">
-              <a className="navbar-brand" href="#">
-                PlayList
-              </a>
-            </div>
-          </nav>
+      <div className="row side-content">
+        {/* sidebar left */}
+        <div className="col-3 albums-left">
+          <h1 className="search-results-title text-center">Orther</h1>
+          <ul>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''} >
+                  Top
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Following
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Tracks
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Albums
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav ">
+                <Link to={''}>
+                  PlayList
+                </Link>
+              </div>
+            </li>
+          </ul>
         </div>
-        <div className="albums-list col-6 pe-5">
+
+        {/* main content */}
+        <div className="albums-list col-6">
           {/* Albums List */}
           <div className="post-header-albums">
             {isLoading ? (
@@ -186,105 +193,16 @@ const LikeAlbum = () => {
             )}
           </div>
         </div>
-        <div className="col-3 ps-5">
-          <h1 className="search-results-title">People to Follow </h1>
-          <div className="people-to-follow">
-            <div>
-              <div className="post-header-track">
-                <img
-                  src="/src/UserImages/Avatar/avt.jpg"
-                  className="avatar_small"
-                  alt="Avatar"
-                />
 
-                <div className="info">
-                  <div className="author">userName</div>
-                </div>
-
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a className="dropdown-item">Edit</a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item">Delete</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="people-to-follow">
-            <div>
-              <div className="post-header-track">
-                <img
-                  src="/src/UserImages/Avatar/avt.jpg"
-                  className="avatar_small"
-                  alt="Avatar"
-                />
-
-                <div className="info">
-                  <div className="author">userName</div>
-                </div>
-
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a className="dropdown-item">Edit</a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item">Delete</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="people-to-follow">
-            <div>
-              <div className="post-header-track">
-                <img
-                  src="/src/UserImages/Avatar/avt.jpg"
-                  className="avatar_small"
-                  alt="Avatar"
-                />
-
-                <div className="info">
-                  <div className="author">userName</div>
-                </div>
-
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a className="dropdown-item">Edit</a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item">Delete</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* sidebar right */}
+        <div className="col-3 albums-right">
+          <ul className="list-new-follow">
+            <li className=" mb-4">
+              <UsersToFollow userId={userId} token={tokenjwt} />
+            </li>
+          </ul>
         </div>
+
       </div>
     </div>
   );

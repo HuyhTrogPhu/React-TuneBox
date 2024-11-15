@@ -38,20 +38,34 @@
 }
 
 .shopping-cart {
-    background-color: #fff1ef;
+    background-color: #faedcd;
+    border-radius: 10px;
     padding: 20px;
+}
+
+.pay:hover {
+    color: #E94F37;
+    border: 1px solid #E94F37;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.cart-item {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
 }
 
 .instrument-image {
     margin-bottom: 10px;
+    
 }
 
 .instrument-image img {
     width: 100%;
-    padding: 10px;
     background-color: #fff;
-    border: 1px solid #000;
     border-radius: 4px;
+    object-fit: cover;
+    
 }
 
 .instrument-name p {
@@ -63,4 +77,22 @@
 .instrument-price p {
     margin: 0px 0px 0px 10px;
     color: #000;
+}
+
+.total-item h5 {
+    font-size: 18px;
+    margin-top: 40px;
+    font-weight: 500;
+}
+
+.total-price h5 {
+    font-size: 18px;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.fee h5 {
+    font-size: 18px;
+    margin-top: 20px;
+    font-weight: 500;
 }

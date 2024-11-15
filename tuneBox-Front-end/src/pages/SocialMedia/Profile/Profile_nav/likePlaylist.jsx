@@ -7,6 +7,7 @@ import { getAllPlaylistByUserId } from "../../../../service/likeTrackServiceCus"
 import { getPlaylistById } from "../../../../service/PlaylistServiceCus";
 import Cookies from "js-cookie";
 import "./css/albums.css";
+import "./css/likePlaylist.css";
 import { Link } from "react-router-dom";
 import UsersToFollow from "../UsersToFollow";
 
@@ -65,53 +66,56 @@ const LikePlaylists = () => {
   }, [playlist]); // Chỉ log khi playlist thay đổi
 
   return (
-    <div className="albums mt-5">
+    <div className="playlist mt-5">
       <h1 className="search-results-title text-center mb-5">Liked PlayList</h1>
-      <div className="row container-fluid">
-        {/* trái */}
-        <div className="col-3 sidebar bg-light text-center">
-          <h1 className="search-results-title">Orther</h1>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Top
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                User
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Tracks
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Albums
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav ">
-              <a className="navbar-brand" href="#">
-                PlayList
-              </a>
-            </div>
-          </nav>
+      <div className="row side-content">
+        {/* playlist left */}
+        <div className="col-3 playlist-left">
+          <h1 className="search-results-title text-center">Orther</h1>
+          <ul>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''} >
+                  Top
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Following
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Tracks
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Albums
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav ">
+                <Link to={''}>
+                  PlayList
+                </Link>
+              </div>
+            </li>
+          </ul>
         </div>
-        <div className="albums-list col-6 content p-4">
+        {/* main content */}
+        <div className="playlist-content col-6">
           {/* Play List */}
           <div className="post-header-albums">
             {isLoading ? (
-              <div>Loading albums...</div>
+              <div>Loading playlist...</div>
             ) : playlist && playlist.length > 0 ? (
               playlist.map(
                 (list) =>
@@ -170,17 +174,17 @@ const LikePlaylists = () => {
                   )
               )
             ) : (
-              <div className="no-albums">No albums found</div>
+              <div className="no-albums">No playlist found</div>
             )}
           </div>
         </div>
-        {/* phải */}
-        <div className="col-3 sidebar bg-light text-center">
-        <ul className="list-unstyled">
-              <li className=" mb-4">
-                <UsersToFollow userId={userId} token={tokenjwt} />
-              </li>
-        </ul>
+        {/* playlist right */}
+        <div className="col-3  playlist-right">
+          <ul className="list-unstyled">
+            <li className=" mb-4">
+              <UsersToFollow userId={userId} token={tokenjwt} />
+            </li>
+          </ul>
         </div>
       </div>
     </div>

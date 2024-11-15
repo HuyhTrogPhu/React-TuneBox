@@ -1086,32 +1086,30 @@ const HomeFeed = () => {
 
   return (
     <div>
-      <div className="container-fluid feed-container"
-        style={{
-          backgroundImage: `url(${images.backg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+      <div className="feed-container p-0"
+      style={{
+        width: '100%',
+      }}
       >
         <ToastContainer />
-        <div className="row">
+        <div className="row feed-content">
           {/* Left Sidebar */}
-          <div className="col-3 sidebar content-left bg-light p-4">
+          <div className="col-3 sidebar content-left bg-light">
             {/* Profile */}
             <div className="feed-profile mb-5">
               {/* avatar */}
               <div className="feed-avatar d-flex align-item-center justify-content-center">
-              <img
-                    src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
-                    alt="User avatar"
-                  />
+                <img
+                  src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+                  alt="User avatar"
+                />
               </div>
               {/* information */}
               <div className="feed-information text-center">
-                <h6 className="feed-username">{userData.name}</h6>
+                <h5 className="feed-username">{userData.name}</h5>
                 <h6 className="feed-name">@<h7>{userData.userName}</h7></h6>
                 <h6 className="feed-following">Follower</h6>
-                <span>{followCount.followerCount}</span> 
+                <span>{followCount.followerCount}</span>
                 <h6 className="feed-follower">Following</h6>
                 <span>{followCount.followingCount}</span>
               </div>
@@ -1124,7 +1122,7 @@ const HomeFeed = () => {
               <li className="left mb-4">
                 <a
                   href="/#"
-                  className="d-flex align-items-center "
+                  className="d-flex align-items-center justify-content-center"
                   style={{ textAlign: "center", marginTop: '0px' }}
                 >
                   <img
@@ -1139,7 +1137,7 @@ const HomeFeed = () => {
                 </a>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center">
+                <a href="/#" className="d-flex align-items-center justify-content-center">
                   <img
                     src={images.followers}
                     alt="icon"
@@ -1151,7 +1149,7 @@ const HomeFeed = () => {
               </li>
 
               <li className="left mb-4">
-                <Link to={"/likepost"} className="d-flex align-items-center">
+                <Link to={"/likepost"} className="d-flex align-items-center justify-content-center">
                   <img
                     src={images.feedback}
                     alt="icon"
@@ -1162,7 +1160,7 @@ const HomeFeed = () => {
                 </Link>
               </li>
               <li className="left mb-4">
-                <Link to={"/likeAlbums"} className="d-flex align-items-center">
+                <Link to={"/likeAlbums"} className="d-flex align-items-center justify-content-center">
                   <img
                     src={images.music}
                     alt="icon"
@@ -1175,7 +1173,7 @@ const HomeFeed = () => {
               <li className="left mb-4">
                 <Link
                   to={"/likePlaylist"}
-                  className="d-flex align-items-center"
+                  className="d-flex align-items-center justify-content-center"
                 >
                   <img
                     src={images.playlist}
@@ -1258,14 +1256,13 @@ const HomeFeed = () => {
 
 
           {/* Right Sidebar */}
-          <div className="col-3 sidebar content-right bg-light p-4">
+          <div className="col-3 sidebar content-right bg-light">
             <ul className="list-new-follow">
               <li className=" mb-4">
                 <UsersToFollow userId={currentUserId} token={tokenjwt} />
               </li>
             </ul>
             <div className="advertisement mt-5">
-
             </div>
           </div>
         </div>

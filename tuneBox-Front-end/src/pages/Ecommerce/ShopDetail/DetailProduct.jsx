@@ -185,7 +185,7 @@ const DetailProduct = () => {
   return (
     <div>
       <div className="container">
-        <div className="content">
+        <div className="content" style={{width: '100%'}}>
           {/* Instrument image */}
           <div className="row">
             <h3 className="text-uppercase">{instrument.name}</h3>

@@ -762,20 +762,7 @@ const FeedPost = () => {
     }
   };
 
-  // get user other
-  const handleAvatarClick = (post) => {
-    console.log("Current User ID:", currentUserId);
-    console.log("Post User ID:", post.userId);
-
-    if (String(post.userId) === String(currentUserId)) {
-      console.log("Navigating to ProfileUser");
-      navigate("/profileUser");
-    } else {
-      console.log("Navigating to OtherUserProfile");
-      navigate(`/profile/${post.userId}`);
-    }
-  };
-
+  
   return (
     <div>
       {/* Phần hiển thị post */}
