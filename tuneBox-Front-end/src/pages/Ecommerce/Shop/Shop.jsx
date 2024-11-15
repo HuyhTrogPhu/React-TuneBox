@@ -280,15 +280,15 @@ const Shop = () => {
               {/* Sort */}
 
               <div className="row">
-                <div className='col-9'>Total product</div>
+                <div className='col-9'></div>
 
                 <div className='col-3'>
                   <select className="form-select" onChange={(e) => handleSort(e.target.value)}>
-                    <option value="" selected>Default</option>
-                    <option value="priceAsc">Price: Low to high</option>
-                    <option value="priceDesc">Price: High to low</option>
-                    <option value="nameAsc">Name: A to Z</option>
-                    <option value="nameDesc">Name: Z to A</option>
+                    <option value="" selected>{t('shop6')}</option>
+                    <option value="priceAsc">{t('shop2')}</option>
+                    <option value="priceDesc">{t('shop3')}</option>
+                    <option value="nameAsc">{t('shop4')}</option>
+                    <option value="nameDesc">{t('shop5')}</option>
                   </select>
 
                 </div>
