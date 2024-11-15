@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Waveform from "../Profile_nav/Waveform";
 import {
   addLike,
@@ -12,7 +12,7 @@ import {
 } from "../../../../service/likeTrackServiceCus";
 import { getTrackById } from "../../../../service/TrackServiceCus";
 import UsersToFollow from "../UsersToFollow";
-
+import "./css/likePostStyle.css";
 
 const LikePost = () => {
   const navigate = useNavigate();
@@ -140,11 +140,11 @@ const LikePost = () => {
         prevTracks.map((track) =>
           track.id === trackId
             ? {
-                ...track,
-                likeCount: likedTracks[trackId]?.data
-                  ? track.likeCount - 1
-                  : track.likeCount + 1,
-              }
+              ...track,
+              likeCount: likedTracks[trackId]?.data
+                ? track.likeCount - 1
+                : track.likeCount + 1,
+            }
             : track
         )
       );
@@ -168,11 +168,11 @@ const LikePost = () => {
         prevPosts.map((post) =>
           post.id === postId
             ? {
-                ...post,
-                likeCount: likedPosts[postId]?.data
-                  ? post.likeCount - 1
-                  : post.likeCount + 1,
-              }
+              ...post,
+              likeCount: likedPosts[postId]?.data
+                ? post.likeCount - 1
+                : post.likeCount + 1,
+            }
             : post
         )
       );
@@ -187,48 +187,51 @@ const LikePost = () => {
   return (
     <div className="likePost mt-5">
       <h1 className="search-results-title text-center mb-5">Liked Post</h1>
-      <div className="row container-fluid">
-        {/* trái */}
-        <div className="col-3 sidebar bg-light text-center">
-          <h1 className="search-results-title">Orther</h1>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Top
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                User
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Tracks
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Albums
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav ">
-              <a className="navbar-brand" href="#">
-                PlayList
-              </a>
-            </div>
-          </nav>
+      <div className="row side-content">
+        {/* side left */}
+        <div className="col-3 post-left">
+          <h1 className="search-results-title text-center">Orther</h1>
+          <ul>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''} >
+                  Top
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Following
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Tracks
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav">
+                <Link to={''}>
+                  Albums
+                </Link>
+              </div>
+            </li>
+            <li className="side-item">
+              <div className="container-fluid nav ">
+                <Link to={''}>
+                  PlayList
+                </Link>
+              </div>
+            </li>
+          </ul>
         </div>
-        {/* giữa */}
-        <div className="post-list col-6 content p-4">
+
+        {/* main content */}
+        <div className="post-list col-6">
           {/* track */}
           <div className="container mt-2">
             {tracks.map((track) => (
@@ -294,11 +297,10 @@ const LikePost = () => {
                     <div className="like-count">
                       {track.likeCount || 0}
                       <i
-                        className={`fa-solid fa-heart ${
-                          likedTracks[track.id]?.data
+                        className={`fa-solid fa-heart ${likedTracks[track.id]?.data
                             ? "text-danger"
                             : "text-muted"
-                        }`}
+                          }`}
                         onClick={() => handleLikeTrack(track.id)}
                         style={{ cursor: "pointer", fontSize: "25px" }}
                       ></i>
@@ -387,11 +389,10 @@ const LikePost = () => {
                     <div className="like-count">
                       {post.likeCount || 0}
                       <i
-                        className={`fa-solid fa-heart ${
-                          likedPosts[post.id]?.data
+                        className={`fa-solid fa-heart ${likedPosts[post.id]?.data
                             ? "text-danger"
                             : "text-muted"
-                        }`}
+                          }`}
                         onClick={() => handleLikePost(post.id)}
                         style={{ cursor: "pointer", fontSize: "25px" }}
                       ></i>
@@ -415,14 +416,16 @@ const LikePost = () => {
             ))}
           </div>
         </div>
-        {/* phải */}
-        <div className="col-3 sidebar bg-light text-center">
-        <ul className="list-unstyled">
-              <li className=" mb-4">
-                <UsersToFollow userId={currentUserId} token={tokenjwt} />
-              </li>
-        </ul>
+
+        {/* side right */}
+        <div className="col-3 post-right">
+          <ul className="list-unstyled">
+            <li className=" mb-4">
+              <UsersToFollow userId={currentUserId} token={tokenjwt} />
+            </li>
+          </ul>
         </div>
+
       </div>
     </div>
   );

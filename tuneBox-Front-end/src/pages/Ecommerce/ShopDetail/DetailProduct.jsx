@@ -189,7 +189,7 @@ const DetailProduct = () => {
   return (
     <div>
       <div className="container" style={{marginTop: '100px'}}>
-        <div className="content"> 
+        <div className="content" style={{width: '100%'}}> 
           {/* Instrument image */}
           <div className="row">
             <h3 className="text-uppercase">{instrument.name}</h3>
