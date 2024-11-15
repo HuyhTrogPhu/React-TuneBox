@@ -14,6 +14,7 @@ import '../../../i18n/i18n'
 
 import Swal from "sweetalert2";
 import { Audio } from "react-loader-spinner";
+import ShareProductModal from "../../SocialMedia/Profile/Profile_nav/ShareProductModal";
 
 const DetailProduct = () => {
   const { id } = useParams();
@@ -30,6 +31,9 @@ const DetailProduct = () => {
   const navigate = useNavigate();
 
   const [cartItems, setCartItems] = useState({});
+
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
 
   // share sanpham sang feed
   const handleShareToFeed = () => {
@@ -298,13 +302,21 @@ const DetailProduct = () => {
                     <i className="fa-solid fa-truck-fast"></i>
                     <span className="ms-2">{t('ship')}</span>
                   </div>
-                  <div className="ship-service">
-                    <i
-                      className="fa-solid fa-share"
-                      onClick={handleShareToFeed}
-                    ></i>
-                    <span className="ms-2">Share</span>
-                  </div>
+                  <button
+                      className="btn btn-danger"
+                      onClick={() => setIsShareModalOpen(true)}
+                    >
+                      <i
+                        type="button"
+                        style={{ fontSize: "20px", color: "white" }}
+                        className="fa-solid fa-share"
+                      ></i>
+                    </button>
+                    <ShareProductModal
+                      ProductId={id}
+                      isOpen={isShareModalOpen}
+                      onClose={() => setIsShareModalOpen(false)}
+                    />
                   <div className="ship-service">
                     <i
                       className="fa-solid fa-share"
