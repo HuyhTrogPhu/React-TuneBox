@@ -1083,6 +1083,24 @@ const HomeFeed = () => {
     setFollowCount(counts);
   }, [followCounts, currentUserId]);
 
+  // share
+  const [sharedData, setSharedData] = useState(null);
+  useEffect(() => {
+    if (location.state) {
+      setActiveComponent(location.state.activeComponent || "track");
+      setSharedData(location.state.sharedData || null);
+    }
+  }, [location.state]);
+
+  const clearSharedData = () => {
+    setSharedData(null);
+    navigate("/feed", {
+      state: {
+        sharedData: null, // Xóa sharedData
+        activeComponent: "track", // Xác định lại thành phần cần hiển thị
+      },
+    });
+  };
 
   return (
     <div>
@@ -1249,7 +1267,14 @@ const HomeFeed = () => {
 
             {/* Nội dung theo lựa chọn Track hoặc Post */}
             <div className="container">
-              {activeComponent === 'track' ? <FeedTrack /> : <FeedPost />}
+              {activeComponent === "track" ? (
+                <FeedTrack />
+              ) : (
+                <FeedPost
+                  sharedData={sharedData}
+                  clearSharedData={clearSharedData}
+                />
+              )}
             </div>
           </div>
 

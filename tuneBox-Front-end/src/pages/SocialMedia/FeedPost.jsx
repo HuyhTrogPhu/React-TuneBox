@@ -1246,8 +1246,8 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                           <div
                             style={{
                               position: "absolute",
-                              bottom: "15px",
-                              right: "-380px",
+                              bottom: "100%",
+                              left: "0",
                               zIndex: 10,
                             }}
                           >
@@ -1256,13 +1256,11 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                 addEmoji(selectedPost.id, emoji);
                                 // Không đóng bảng emoji ở đây
                               }}
-                              
                             />
                             {/* Nút để đóng bảng emoji */}
                             <button
                               onClick={() => setShowEmojiPicker(false)}
-                              className="btn"
-                              style={{backgroundColor: '#E94F37'}}
+                              className="btn btn-link"
                             >
                               Close
                             </button>
