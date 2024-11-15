@@ -694,6 +694,23 @@ useEffect(() => {
           toast.error("Failed to toggle post visibility. Please try again.");
       }
   };
+   //get avatar
+   const [userData, setUserData] = useState({});
+
+   useEffect(() => {
+     const fetchUser = async () => {
+       if (currentUserId) {
+         try {
+           const userData = await getUserInfo(userId);
+           setUserData(userData);
+         } catch (error) {
+           console.error("Error fetching user", error);
+         }
+       }
+     };
+ 
+     fetchUser();
+   }, [userId]);
   
   return (
     <div>
