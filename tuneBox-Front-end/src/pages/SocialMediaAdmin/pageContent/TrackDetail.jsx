@@ -87,7 +87,7 @@ const TrackDetail = () => {
           <div className="card">
             <div className="card-body">
               <h6>Total Likes</h6>
-              <h4>{trackDetails.likes}</h4>
+              <h4>{trackDetails.likes.length}</h4>
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@ const TrackDetail = () => {
           <div className="card">
             <div className="card-body">
               <h6>Total Comments</h6>
-              <h4>{trackDetails.comments}</h4>
+              <h4>{trackDetails.comments.length}</h4>
             </div>
           </div>
         </div>

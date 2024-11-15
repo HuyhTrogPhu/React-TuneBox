@@ -180,10 +180,10 @@ export const LoadAlbum = async () => {
 };
 
 //load all Track<Report>
-export const LoadTrackReport = async () => {
+export const LoadTrackReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getTrackReport`,
+      `http://localhost:8082/SocialAdmin/static/getTrackReport?page=${page}&size=${size}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -193,10 +193,10 @@ export const LoadTrackReport = async () => {
   }
 };
 //load all Post<Report>
-export const LoadPostReport = async () => {
+export const LoadPostReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getPostReport`,
+      `http://localhost:8082/SocialAdmin/static/getPostReport?page=${page}&size=${size}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -206,10 +206,10 @@ export const LoadPostReport = async () => {
   }
 };
 //load all Album<Report>
-export const LoadAlbumReport = async () => {
+export const LoadAlbumReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getAlbumReport`,
+      `http://localhost:8082/SocialAdmin/static/getAlbumReport?page=${page}&size=${size}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -221,8 +221,7 @@ export const LoadAlbumReport = async () => {
 //load Report
 export const LoadReportDetail = async (id) => {
   try {
-    const response = await axios.get(
-      ` ${id}`,
+    const response = await axios.get(`http://localhost:8082/SocialAdmin/static/getReport/${id}`,
       { withCredentials: true }
     );
     const data = response.data;
