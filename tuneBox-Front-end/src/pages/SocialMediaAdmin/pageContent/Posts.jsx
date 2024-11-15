@@ -12,7 +12,14 @@ import {
 } from "lucide-react";
 import { Alert, AlertDescription } from "../../../components/ui/Alert";
 
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
+import { toast } from "react-toastify";
+
 const Posts = () => {
+  //xu ly phan thong bao cho dissmiss va resolve
+  const [stompClient, setStompClient] = useState(null);
+
   const [newPosts, setNewPosts] = useState([]);
   const [allPosts, setAllPosts] = useState([]);
   const [reportedPosts, setReportedPosts] = useState([]);
@@ -41,6 +48,21 @@ const Posts = () => {
   // Report management states
   const [selectedReport, setSelectedReport] = useState(null);
   const [dismissReason, setDismissReason] = useState("");
+
+  const api = axios.create({
+    baseURL: "http://localhost:8080/api",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("jwtToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
 
   const formatDateForAPI = (dateString) => {
     if (!dateString) return null;
@@ -169,63 +191,64 @@ const Posts = () => {
       setErrorMessage(errorMsg);
     }
   };
-  const fetchRePort = async (startDate, endDate, specificDate) => {
+  const fetchReports = async () => {
     try {
-      let url = "http://localhost:8080/api/reports/pending";
       const params = new URLSearchParams();
 
-      if (specificDate) {
-        const formattedDate = formatDateForAPI(specificDate);
-        if (!formattedDate) {
-          throw new Error("Invalid specific date format");
-        }
-        params.append("specificDate", formattedDate);
-      } else if (startDate && endDate) {
-        const formattedStartDate = formatDateForAPI(startDate);
-        const formattedEndDate = formatDateForAPI(endDate);
-
-        if (!formattedStartDate || !formattedEndDate) {
-          throw new Error("Invalid date format");
-        }
-
-        if (!validateDateRange(startDate, endDate)) {
-          throw new Error("End date must be after start date");
-        }
-
-        params.append("startDate", formattedStartDate);
-        params.append("endDate", formattedEndDate);
+      if (reportedSpecificDate) {
+        params.append("specificDate", reportedSpecificDate);
+      } else if (reportedStartDate && reportedEndDate) {
+        params.append("startDate", reportedStartDate);
+        params.append("endDate", reportedEndDate);
       }
 
-      const requestUrl = params.toString()
-        ? `${url}?${params.toString()}`
-        : url;
-      console.log("Making request to:", requestUrl);
-
-      const response = await axios.get(requestUrl);
+      const response = await api.get(`/reports/pending`, { params });
       setReportedPosts(response.data);
-      setErrorMessage(""); // Clear any existing error messages
     } catch (error) {
-      console.error("Error fetching reported posts:", error);
-      let errorMessage = "Error fetching reported posts";
+      console.error("Error fetching reports:", error);
+
+      let errorMessage = "Không thể tải danh sách báo cáo.";
 
       if (error.response?.status === 400) {
-        errorMessage = "Invalid date range or format. Please check your dates.";
+        errorMessage = "Ngày không hợp lệ. Vui lòng kiểm tra lại.";
       } else if (error.response) {
-        errorMessage = error.response.data?.message || "Server error occurred";
+        errorMessage = error.response.data?.message || "Lỗi máy chủ.";
       } else if (error.request) {
-        errorMessage = "No response from server. Please check your connection.";
-      } else {
-        errorMessage = error.message;
+        errorMessage = "Không thể kết nối đến máy chủ.";
       }
 
-      setErrorMessage(errorMessage);
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+
       setReportedPosts([]);
     }
   };
+  // Xu ly thong bao
+  const displayNotification = (notification) => {
+    switch (notification.type) {
+      case "REPORT_RESOLVED":
+        toast.success(notification.message, {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        break;
+      case "REPORT_DISMISSED":
+        toast.info(notification.message, {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        break;
+      default:
+        toast(notification.message);
+    }
+  };
+
   useEffect(() => {
     fetchData();
     fetchPosts();
-    fetchRePort();
+    fetchReports();
   }, []);
 
   // Search handlers
@@ -240,54 +263,89 @@ const Posts = () => {
   // Report management handlers
   const handleResolve = async (reportId, hidePost) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/reports/${reportId}/resolve?hidePost=${hidePost}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await api.put(`/reports/${reportId}/resolve`, null, {
+        params: { hidePost },
+      });
 
-      if (!response.ok) {
-        throw new Error("Failed to resolve report");
+      if (response.data) {
+        // Cập nhật state local nếu cần
+        setSelectedReport(null);
+
+        // Hiển thị thông báo thành công
+        toast.success(
+          `Báo cáo đã được xử lý. Bài viết đã được ${
+            hidePost ? "ẩn" : "giữ hiển thị"
+          }.`,
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+          }
+        );
+
+        // Refresh danh sách báo cáo
+        await fetchReports();
       }
+    } catch (error) {
+      console.error("Error resolving report:", error);
 
-      // Làm mới dữ liệu sau khi giải quyết báo cáo
-      await fetchData();
-      setSelectedReport(null);
-    } catch (err) {
-      setErrorMessage("Failed to resolve report. Please try again.");
-      console.error(err);
+      // Xử lý các loại lỗi khác nhau
+      const errorMessage =
+        error.response?.data?.message ||
+        "Không thể xử lý báo cáo. Vui lòng thử lại.";
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
   };
 
-  const handleDismiss = async (reportId) => {
+  const handleDismiss = async (report) => {
     try {
-      const token = localStorage.getItem("jwtToken"); // hoặc từ context của bạn
-
-      const response = await fetch(
-        `http://localhost:8080/api/reports/${reportId}/dismiss?reason=${dismissReason}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Thêm token vào header
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to dismiss report");
+      if (!report) {
+        toast.error("Không tìm thấy thông tin báo cáo");
+        return;
       }
-
-      await fetchData();
-      setSelectedReport(null);
-      setDismissReason("");
-    } catch (err) {
-      setErrorMessage("Failed to dismiss report. Please try again.");
-      console.error(err);
+  
+      const postId = report.post?.postId;
+      if (!postId) {
+        toast.error("Không tìm thấy ID bài viết trong báo cáo");
+        return;
+      }
+  
+      if (!dismissReason.trim()) {
+        toast.error("Vui lòng nhập lý do từ chối báo cáo");
+        return;
+      }
+  
+      // Lấy token từ localStorage
+      const token = localStorage.getItem("jwtToken");
+      
+      // Thêm token vào headers và chuyển reason thành query parameter
+      const response = await api.put(`/reports/${postId}/dismiss?reason=${encodeURIComponent(dismissReason)}`, null, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      if (response.data) {
+        setSelectedReport(null); 
+        setDismissReason("");
+        toast.success("Báo cáo đã được bỏ qua thành công");
+        await fetchReports();
+      }
+    } catch (error) {
+      console.error("Lỗi khi bỏ qua báo cáo:", error);
+      const errorMessage = 
+        error.response?.data?.message ||
+        "Không thể bỏ qua báo cáo. Vui lòng thử lại.";
+      toast.error(errorMessage);
     }
   };
 
@@ -299,6 +357,36 @@ const Posts = () => {
       setErrorMessage("Failed to restore post. Please try again.");
     }
   };
+
+  useEffect(() => {
+    const socket = new SockJS("http://localhost:8080/ws");
+    const client = new Client({
+      webSocketFactory: () => socket,
+      debug: (str) => {
+        console.log(str);
+      },
+    });
+
+    client.onConnect = () => {
+      // Subscribe to personal notifications
+      const username = localStorage.getItem("username"); // Assuming username is stored in localStorage
+      if (username) {
+        client.subscribe(`/user/${username}/queue/notifications`, (message) => {
+          const notification = JSON.parse(message.body);
+          displayNotification(notification);
+        });
+      }
+    };
+
+    client.activate();
+    setStompClient(client);
+
+    return () => {
+      if (client) {
+        client.deactivate();
+      }
+    };
+  }, []);
 
   // Filtered data
   const filteredNewPosts = newPosts.filter((post) =>
@@ -771,8 +859,7 @@ const Posts = () => {
                             placeholder="Enter reason for dismissal..."
                           />
                           <button
-                            onClick={() => handleDismiss(selectedReport.id)}
-                            className="btn btn-secondary"
+                            onClick={() => handleDismiss(selectedReport)}
                             disabled={!dismissReason.trim()}
                           >
                             Dismiss
