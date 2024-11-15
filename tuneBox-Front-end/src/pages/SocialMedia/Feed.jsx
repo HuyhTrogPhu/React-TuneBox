@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { images } from "../../assets/images/images";
 import axios from "axios";
 import { format } from "date-fns";
@@ -41,10 +41,6 @@ import {
 import { getUserInfo } from "../../service/UserService";
 import FeedTrack from "./FeedTrack";
 import FeedPost from "./FeedPost";
-import { FollowContext } from "./Profile/FollowContext";
-import { useTranslation } from "react-i18next";
-import '../../i18n/i18n'
-import Swal from 'sweetalert2';
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -71,7 +67,7 @@ const HomeFeed = () => {
   const currentUserNickname = Cookies.get("userNickname");
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editingReplyContent, setEditingReplyContent] = useState("");
-  const { t } = useTranslation();
+
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [ReportId, setReportId] = useState(null);
@@ -93,6 +89,19 @@ const HomeFeed = () => {
 
   //get avatar
   const [userData, setUserData] = useState({});
+
+  // share
+  const [sharedData, setSharedData] = useState(null);
+  useEffect(() => {
+    if (location.state) {
+      setActiveComponent(location.state.activeComponent || "track");
+      setSharedData(location.state.sharedData || null);
+    }
+  }, [location.state]);
+
+  const clearSharedData = () => {
+    setSharedData(null);
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -352,6 +361,19 @@ const HomeFeed = () => {
     }
   };
   // end playlist
+
+  const handleAvatarClick = (post) => {
+    console.log("Current User ID:", currentUserId);
+    console.log("Post User ID:", post.userId);
+
+    if (String(post.userId) === String(currentUserId)) {
+      console.log("Navigating to ProfileUser");
+      navigate("/profileUser");
+    } else {
+      console.log("Navigating to OtherUserProfile");
+      navigate(`/profile/${post.userId}`);
+    }
+  };
 
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
@@ -1039,150 +1061,111 @@ const HomeFeed = () => {
 
   // get user information in feed
 
-
-  // Lấy danh sách tên người dùng có thể tag
-  useEffect(() => {
-    const fetchUserTags = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/api/posts/tagName", {
-          withCredentials: true,
-        });
-        console.log("User tags fetched:", response.data);
-        setUserSuggestions(response.data);
-      } catch (error) {
-        console.error("Error fetching user tags:", error);
-      }
-    };
-    fetchUserTags();
-  }, []);
-
-  // Hiển thị modal khi nhấn nút "What are you thinking about?"
-  const handleCreatePostClick = () => {
-    setShowPostModal(true);
-  };
-
-  // Đóng modal tạo bài viết
-  const closePostModal = () => {
-    setShowPostModal(false);
-    setPostContent("");
-    setPostImages([]);
-    setPostImageUrls([]);
-  };
-
-  // Xử lý khi có thay đổi trong textarea
-  const handleTextareaChange = (e) => {
-    const value = e.target.value;
-    setPostContent(value);
-
-    // Kiểm tra nếu ký tự cuối là "@"
-    if (value.slice(-1) === "@") {
-      setShowTagModal(true);
-    } else {
-      setShowTagModal(false); // Đóng modal nếu không phải là "@"
-    }
-  };
-
-  // Thêm tên người dùng vào postContent khi chọn
-  const handleTagUser = (username) => {
-    setPostContent((prevContent) => prevContent + username + " ");
-    setShowTagModal(false); // Đóng modal sau khi chọn
-  };
-  const { followCounts } = useContext(FollowContext);
-
-  const [followCount, setFollowCount] = useState({
-    followerCount: 0,
-    followingCount: 0,
-  });
-  useEffect(() => {
-    const counts = followCounts[currentUserId] || {
-      followerCount: 0,
-      followingCount: 0,
-    };
-    setFollowCount(counts);
-  }, [followCounts, currentUserId]);
-
-  const reasons = [
-    t('offensiveContent'),
-    t('copyrightViolation'),
-    t('spamOrScam'),
-    t('other')
-  ];
-
   return (
     <div>
-      <div className="container-fluid feed-container"
-        style={{
-          backgroundImage: `url(${images.backg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
+      <div className="container-fluid feed-container">
         <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
-          <div className="col-3 sidebar bg-light p-4" style={{ height: '100vh', overflowY: 'auto' }}>
-  {/* Profile */}
-  <div className="feed-profile mb-5">
-    {/* avatar */}
-    <div className="feed-avatar d-flex align-item-center justify-content-center">
-      <img
-        src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
-        alt="User avatar"
-      />
-    </div>
-    {/* information */}
-    <div className="feed-information text-center" style={{ marginTop: '100px' }}>
-      <h6 className="feed-username">{userData.name}</h6>
-      <h6 className="feed-name">@<span>{userData.userName}</span></h6>
-      <h6 className="feed-following">{t('p2')}</h6>
-      <span>{followCount.followerCount}</span>
-      <h6 className="feed-follower">{t('p3')}</h6>
-      <span>{followCount.followingCount}</span>
-    </div>
-    {/* View profile */}
-    <div className="view-profile text-center">
-      <Link style={{ color: '#E94F37' }} to={'/profileUser'}>{t('f1')}</Link>
-    </div>
-  </div>
-  <ul className="list-unstyled">
-    <li className="left mb-4">
-      <a href="/#" className="d-flex align-items-center" style={{ textAlign: "center", marginTop: '0px' }}>
-        <img src={images.web_content} alt="icon" width={20} className="me-2" />
-        <span className="fw-bold"><Link to={"/"}>{t('f2')}</Link></span>
-      </a>
-    </li>
-    <li className="left mb-4">
-      <Link to={`/Following/${currentUserId}`} className="d-flex align-items-center">
-        <img src={images.followers} alt="icon" width={20} className="me-2" />
-        <span className="fw-bold">{t('p3')}</span>
-      </Link>
-    </li>
-    <li className="left mb-4">
-      <Link to={"/likepost"} className="d-flex align-items-center">
-        <img src={images.feedback} alt="icon" width={20} className="me-2" />
-        <span className="fw-bold">{t('f3')}</span>
-      </Link>
-    </li>
-    <li className="left mb-4">
-      <Link to={"/likeAlbums"} className="d-flex align-items-center">
-        <img src={images.music} alt="icon" width={20} className="me-2" />
-        <span className="fw-bold">{t('f4')}</span>
-      </Link>
-    </li>
-    <li className="left mb-4">
-      <Link to={"/likePlaylist"} className="d-flex align-items-center">
-        <img src={images.playlist} alt="icon" width={20} className="me-2" />
-        <span className="fw-bold">{t('f5')}</span>
-      </Link>
-    </li>
-    <li className="left mb-4">
-      <Link to={"/FriendRequests"} className="d-flex align-items-center justify-content-center">
-        <i className="fa-solid fa-user-group me-1"></i>
-        <span className="fw-bold">{t('f6')}</span>
-      </Link>
-    </li>
-  </ul>
-</div>
+          <div className="col-3 sidebar bg-light p-4">
+            {/* Profile */}
+            <div className="feed-profile mb-5">
+              {/* avatar */}
+              <div className="feed-avatar d-flex align-item-center justify-content-center">
+                <img src={images.logoTuneBox} alt="" />
+              </div>
+              {/* information */}
+              <div className="feed-information text-center">
+                <h6 className="feed-username">User Name</h6>
+                <h6 className="feed-name">Name</h6>
+                <h6 className="feed-following">Following</h6>
+                <p>100</p>
+                <h6 className="feed-follower">Follower</h6>
+                <p>100</p>
+              </div>
+              {/* View profile */}
+              <div className="view-profile text-center">
+                <Link style={{ color: "#E94F37" }} to={"/profileUser"}>
+                  View profile
+                </Link>
+              </div>
+            </div>
+            <ul className="list-unstyled">
+              <li className="left mb-4">
+                <a
+                  href="/#"
+                  className="d-flex align-items-center "
+                  style={{ textAlign: "center" }}
+                >
+                  <img
+                    src={images.web_content}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">
+                    <Link to={"/"}>Bản tin</Link>
+                  </span>
+                </a>
+              </li>
+              <li className="left mb-4">
+                <a href="/#" className="d-flex align-items-center">
+                  <img
+                    src={images.followers}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Đang theo dõi</span>
+                </a>
+              </li>
+
+              <li className="left mb-4">
+                <Link to={"/likepost"} className="d-flex align-items-center">
+                  <img
+                    src={images.feedback}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Bài viết đã thích</span>
+                </Link>
+              </li>
+              <li className="left mb-4">
+                <Link to={"/likeAlbums"} className="d-flex align-items-center">
+                  <img
+                    src={images.music}
+                    alt="icon"
+                    width={20}
+                    className="me-2"
+                  />
+                  <span className="fw-bold">Albums đã thích</span>
+                </Link>
+              </li>
+              <li className="left mb-4">
+                <Link
+                  to={"/likePlaylist"}
+                  className="d-flex align-items-center"
+                >
+                  <img
+                    src={images.playlist}
+                    alt="icon"
+                    width={20}
+                    className="me-2 "
+                  />
+                  <span className="fw-bold">Playlist đã thích</span>
+                </Link>
+              </li>
+              <li className="left mb-4">
+                <Link
+                  to={"/FriendRequests"}
+                  className="d-flex align-items-center"
+                >
+                  <span className="fw-bold">Danh sách lời mời kết bạn</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
 
           {/* Main content */}
           <div className="col-6 content">
@@ -1196,7 +1179,7 @@ const HomeFeed = () => {
                   onClick={() => setActiveComponent("track")}
                 >
                   <i className="fa-solid fa-music me-1"></i>
-                  <span>{t('f7')}</span>
+                  <span>Track</span>
                 </li>
                 <li
                   className={`col-6 text-center feed-link ${
@@ -1205,7 +1188,7 @@ const HomeFeed = () => {
                   onClick={() => setActiveComponent("post")}
                 >
                   <i className="fa-solid fa-newspaper me-1"></i>
-                  <span>{t('f8')}</span>
+                  <span>Post</span>
                 </li>
               </ul>
             </div>
@@ -1232,9 +1215,8 @@ const HomeFeed = () => {
                       width: "85%",
                       height: 50,
                     }}
-                    onClick={handleCreatePostClick}
                   >
-                    {t('f9')}
+                    What are you thinking about?
                   </button>
                 </div>
               </div>
@@ -1276,7 +1258,7 @@ const HomeFeed = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">{t('a3')}</h5>
+                <h5 className="modal-title">Báo cáo nội dung</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -1290,18 +1272,26 @@ const HomeFeed = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
-                <h6>{t('a4')}</h6>
+                {reportMessage && (
+                  <div className="alert alert-danger">{reportMessage}</div>
+                )}{" "}
+                {/* Thông báo lỗi hoặc thành công */}
+                <h6>Chọn lý do báo cáo:</h6>
                 <div className="mb-3">
-                  {reasons.map((reason, index) => (
-                    <label className="d-block" key={index}>
+                  {[
+                    "Nội dung phản cảm",
+                    "Vi phạm bản quyền",
+                    "Spam hoặc lừa đảo",
+                    "Khác",
+                  ].map((reason) => (
+                    <label className="d-block" key={reason}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
-                        style={{ marginRight: '10px' }}
-                      /> {reason}
+                      />{" "}
+                      {reason}
                     </label>
                   ))}
                 </div>
@@ -1325,7 +1315,7 @@ const HomeFeed = () => {
                   }
                   className="btn btn-primary"
                 >
-                  {t('a6')}
+                  Report
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -1335,14 +1325,13 @@ const HomeFeed = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  {t('a16')}
+                  Close
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
-
       {/* Modal để tạo bài viết */}
       <div
         id="post-modal"
@@ -1352,7 +1341,11 @@ const HomeFeed = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-              <img src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"} />
+              <img
+                src={
+                  userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"
+                }
+              />
               <div>
                 <div className="name">{userData.name}</div>
                 <div className="time">Posting to Feed</div>
@@ -1421,7 +1414,6 @@ const HomeFeed = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };

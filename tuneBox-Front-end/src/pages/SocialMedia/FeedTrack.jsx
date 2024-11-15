@@ -3,7 +3,7 @@ import { images } from "../../assets/images/images";
 import axios from "axios";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { Link, Routes, Route } from "react-router-dom";
 import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
@@ -24,15 +24,11 @@ import {
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
 
-import { useTranslation } from "react-i18next";
-import '../../i18n/i18n'
-
-import Swal from 'sweetalert2';
 const FeedTrack = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
-  const { t } = useTranslation();
+
   // track
   const [tracks, setTracks] = useState([]);
   const [likedTracks, setLikedTracks] = useState({});
@@ -46,20 +42,6 @@ const FeedTrack = () => {
   const [ReportId, setReportId] = useState(null);
   const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
-
-
-  const handleAvatarClick = (post) => {
-    console.log("Current User ID:", currentUserId);
-    console.log("Post User ID:", post.userId);
-
-    if (String(post.userId) === String(currentUserId)) {
-      console.log("Navigating to ProfileUser");
-      navigate("/profileUser");
-    } else {
-      console.log("Navigating to OtherUserProfile");
-      navigate(`/profile/${post.userId}`);
-    }
-  };
 
   useEffect(() => {
     fetchTracks();
@@ -382,100 +364,120 @@ const FeedTrack = () => {
       console.error("Lỗi mạng:", error);
     }
   };
-  const reasons = [
-    t('offensiveContent'),
-    t('copyrightViolation'),
-    t('spamOrScam'),
-    t('other')
-  ];
+
+  const handleAvatarClick = (post) => {
+    console.log("Current User ID:", currentUserId);
+    console.log("Post User ID:", post.userId);
+
+    if (String(post.userId) === String(currentUserId)) {
+      console.log("Navigating to ProfileUser");
+      navigate("/profileUser");
+    } else {
+      console.log("Navigating to OtherUserProfile");
+      navigate(`/profile/${post.userId}`);
+    }
+  };
 
   return (
     <div>
       {/* Phần hiển thị track */}
       <div className="container p-0">
         {tracks.map((track) => {
-          const createdAt = track.createDate ? new Date(track.createDate) : null;
-          return (
-            <div className="post border" key={track.id}>
-              {/* Tiêu đề */}
-              <div className="post-header position-relative">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => handleAvatarClick(track)}
-                  aria-label="Avatar"
-                >
-                  <img
-                    src={track.avatar}
-                    className="avatar_small"
-                    alt="Avatar"
-                  />
-                </button>
-                <div>
-                  <div className="name">
-                    {track.userNickname || "Unknown User"}
+          const createdAt = track.createDate
+            ? new Date(track.createDate)
+            : null;
+          if (track.status === false) {
+            return (
+              <div className="post border" key={track.id}>
+                {/* Tiêu đề */}
+                <div className="post-header position-relative">
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => handleAvatarClick(track)}
+                    aria-label="Avatar"
+                  >
+                    <img
+                      src={track.avatar}
+                      className="avatar_small"
+                      alt="Avatar"
+                    />
+                  </button>
+                  <div>
+                    <div className="name">
+                      {track.userNickname || "Unknown User"}
+                    </div>
+                    <div className="time">
+                      {createdAt && !isNaN(createdAt.getTime())
+                        ? format(createdAt, "hh:mm a, dd MMM yyyy")
+                        : "Invalid date"}
+                    </div>
                   </div>
-                  <div className="time">
-                    {createdAt && !isNaN(createdAt.getTime())
-                      ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                      : "Invalid date"}
-                  </div>
+                  {/* Dropdown cho bài viết */}
+                  {String(track.userId) === String(currentUserId) ? (
+                    <div className="dropdown position-absolute top-0 end-0">
+                      <button
+                        className="btn btn-options dropdown-toggle"
+                        type="button"
+                        id={`dropdownMenuButton-${track.id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        ...
+                      </button>
+                      <ul
+                        className="dropdown-menu"
+                        aria-labelledby={`dropdownMenuButton-${track.id}`}
+                      >
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => addToPlaylist(track.id)}
+                          >
+                            <i className="fa-solid fa-pen-to-square"></i> Add to
+                            playlist
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleEditClick(track)}
+                          >
+                            <i className="fa-solid fa-pen-to-square"></i>Edit
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => deleteTrack(track.id)}
+                          >
+                            <i className="fa-solid fa-trash "></i>Delete
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  ) : (
+                    <div className="dropdown position-absolute top-0 end-0">
+                      <ul>
+                        <li>
+                          <button
+                            className="fa-regular fa-flag btn-report border border-0"
+                            onClick={() => handleReport(track.id, "track")}
+                          ></button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => addToPlaylist(track.id)}
+                          >
+                            <i className="fa-solid fa-pen-to-square"></i> Add to
+                            playlist
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
-                {/* Dropdown cho bài viết */}
-                {String(track.userId) === String(currentUserId) ? (
-                  <div className="dropdown position-absolute top-0 end-0">
-                    <button
-                      className="btn btn-options dropdown-toggle"
-                      type="button"
-                      id={`dropdownMenuButton-${track.id}`}
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      ...
-                    </button>
-                    <ul className="dropdown-menu"
-                      aria-labelledby={`dropdownMenuButton-${track.id}`}>
-                      <li>
-                        <button
-                          className="dropdown-item"
-                          onClick={() => addToPlaylist(track.id)}
-                        >
-                          <i className="fa-solid fa-pen-to-square"></i>{" "}
-                          Add to playlist
-                        </button>
-                      </li>
-                      <li>
-                        <button className="dropdown-item" onClick={() => handleEditClick(track)}>
-                          <i className='fa-solid fa-pen-to-square'></i>Edit
-                        </button>
-                      </li>
-                      <li>
-                        <button className="dropdown-item" onClick={() => deleteTrack(track.id)}>
-                          <i className='fa-solid fa-trash '></i>Delete
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                ) : (
-                  <div className="dropdown position-absolute top-0 end-0">
-                    <ul>
-                      <li>
-                        <button className="fa-regular fa-flag btn-report border border-0" onClick={() => handleReport(track.id, 'track')}></button>
-                      </li>
-                      <li>
-                        <button
-                          className="dropdown-item"
-                          onClick={() => addToPlaylist(track.id)}
-                        >
-                          <i className="fa-solid fa-pen-to-square"></i>{" "}
-                          Add to playlist
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-
-                )}
-              </div>
 
                 <div className="post-content description">
                   {track.description || "Unknown description"}
@@ -538,7 +540,7 @@ const FeedTrack = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="editTrackModalLabel">
-              {t('f13')}
+                Edit Track
               </h1>
               <button
                 type="button"
@@ -551,7 +553,7 @@ const FeedTrack = () => {
               <form className="row">
                 {/* Track Name */}
                 <div className="mb-3">
-                  <label className="form-label">{t('a21')} </label>
+                  <label className="form-label">Track Name: </label>
                   <input
                     type="text"
                     className="form-control"
@@ -567,7 +569,7 @@ const FeedTrack = () => {
 
                 {/* Image Track */}
                 <div className="mt-3">
-                  <label className="form-label">{t('a22')} </label>
+                  <label className="form-label">Image Track: </label>
                   {selectedTrack && (
                     <div>
                       <img
@@ -594,7 +596,7 @@ const FeedTrack = () => {
                           className="custom-file-label"
                           htmlFor="fileInput"
                         >
-                          {t('a23')}
+                          Choose new file
                         </label>
                       </div>
                     </div>
@@ -603,9 +605,9 @@ const FeedTrack = () => {
 
                 {/* File Track */}
                 <div className="mt-3">
-                  <label className="form-label">{t('a24')} </label>
+                  <label className="form-label">Current File Track: </label>
                   <label className="custom-file-label" htmlFor="fileInput">
-                    {t('a25')}
+                    Choose file
                   </label>
                   {selectedTrack && (
                     <div>
@@ -635,7 +637,7 @@ const FeedTrack = () => {
 
                 {/* Select Genre */}
                 <div className="mt-3">
-                  <label className="form-label">{t('a26')}</label>
+                  <label className="form-label">Genre</label>
                   <select
                     className="form-select"
                     value={selectedGenre}
@@ -656,7 +658,7 @@ const FeedTrack = () => {
 
                 {/* Description */}
                 <div className="mt-3">
-                  <label className="form-label">{t('a27')}</label>
+                  <label className="form-label">Description</label>
                   <textarea
                     cols="50"
                     rows="5"
@@ -683,14 +685,14 @@ const FeedTrack = () => {
                   document.body.classList.remove("modal-open");
                 }}
               >
-                {t('c33')}
+                Close
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={handleSave}
               >
-                {t('f16')}
+                Save Track
               </button>
             </div>
           </div>
@@ -707,7 +709,7 @@ const FeedTrack = () => {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">{t('f17')}</h5>
+              <h5 className="modal-title">Chọn Playlist</h5>
               <button
                 type="button"
                 className="btn-close"
@@ -736,7 +738,7 @@ const FeedTrack = () => {
                               handleAddTrackToPlaylist(playlist.id)
                             }
                           >
-                            {t('f18')}
+                            add
                           </button>
                         </div>
                       </div>
@@ -758,7 +760,7 @@ const FeedTrack = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">{t('a3')}</h5>
+                <h5 className="modal-title">Báo cáo nội dung</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -772,23 +774,32 @@ const FeedTrack = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
-                <h6>{t('a5')}</h6>
+                {reportMessage && (
+                  <div className="alert alert-danger">{reportMessage}</div>
+                )}{" "}
+                {/* Thông báo lỗi hoặc thành công */}
+                <h6>Chọn lý do báo cáo:</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                  {[
+                    "Nội dung phản cảm",
+                    "Vi phạm bản quyền",
+                    "Spam hoặc lừa đảo",
+                    "Khác",
+                  ].map((reason) => (
                     <label className="d-block" key={reason}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
-                      /> {reason}
+                      />{" "}
+                      {reason}
                     </label>
                   ))}
                 </div>
                 <textarea
                   className="form-control mt-2"
-                  placeholder={t('a5')}
+                  placeholder="Nhập lý do báo cáo"
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                   style={{ resize: "none" }}
@@ -806,7 +817,7 @@ const FeedTrack = () => {
                   }
                   className="btn btn-primary"
                 >
-                  {t('a6')}
+                  Báo cáo
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -816,7 +827,7 @@ const FeedTrack = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                 {t('a16')}
+                  Đóng
                 </button>
               </div>
             </div>

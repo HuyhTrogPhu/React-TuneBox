@@ -23,13 +23,9 @@ import {
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
-import { useTranslation } from "react-i18next";
-import '../../i18n/i18n'
 import "./css/mxh/post.css";
 
-
-const FeedPost = () => {
-  const { t } = useTranslation();
+const FeedPost = ({ sharedData, clearSharedData }) => {
   const navigate = useNavigate();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
@@ -70,7 +66,7 @@ const FeedPost = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
-  const tokenjwt = localStorage.getItem('jwtToken');
+  const tokenjwt = localStorage.getItem("jwtToken");
 
   //get avatar
   const [userData, setUserData] = useState({});
@@ -751,13 +747,6 @@ const FeedPost = () => {
     }));
     setShowEmojiPicker(null); // Ẩn emoji picker sau khi chọn emoji
   };
-  const reasons = [
-    t('offensiveContent'),
-    t('copyrightViolation'),
-    t('spamOrScam'),
-    t('other')
-  ];
-
 
   const handleClickOutside = (event) => {
     if (
@@ -842,8 +831,15 @@ const FeedPost = () => {
                 <div className="modal-dialog">
                   <div className="modal-content">
                     <div className="modal-header">
-                      <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
-                      <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      <h1 className="modal-title fs-5" id="exampleModalLabel">
+                        Comments
+                      </h1>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
                     </div>
                     <div className="modal-body">
                       {/* Danh sách bình luận */}
@@ -874,7 +870,7 @@ const FeedPost = () => {
                                         {comment.edited && (
                                           <span className="edited-notice">
                                             {" "}
-                                            {t('edited')}
+                                            (Edited)
                                           </span>
                                         )}
                                       </div>
@@ -899,7 +895,7 @@ const FeedPost = () => {
                                               )
                                             }
                                           >
-                                            {t('p16')}
+                                            Save
                                           </button>
                                           <button
                                             className="btn btn-secondary mt-2 ms-2"
@@ -908,7 +904,7 @@ const FeedPost = () => {
                                               setEditingCommentContent("");
                                             }}
                                           >
-                                            {t('p15')}
+                                            Cancel
                                           </button>
                                         </div>
                                       ) : (
@@ -918,60 +914,58 @@ const FeedPost = () => {
                                     {(String(comment.userId) ===
                                       String(currentUserId) ||
                                       String(selectedPost.userId) ===
-                                      String(currentUserId)) && (
-                                        <div className="dropdown position-absolute top-0 end-0">
-                                          <button
-                                            className="btn btn-options dropdown-toggle"
-                                            type="button"
-                                            id={`dropdownMenuButton-${comment.id}`}
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false"
-                                          >
-                                            ...
-                                          </button>
-                                          <ul
-                                            className="dropdown-menu"
-                                            aria-labelledby={`dropdownMenuButton-${comment.id}`}
-                                          >
-                                            <li>
-                                              <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                  setEditingCommentId(
-                                                    comment.id
-                                                  );
-                                                  setEditingCommentContent(
-                                                    comment.content
-                                                  );
-                                                }}
-                                              >
-                                                Edit
-                                              </button>
-                                            </li>
-                                            {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
-                                            <li>
-                                              <button
-                                                className="dropdown-item"
-                                                onClick={() =>
-                                                  handleDeleteComment(
-                                                    comment.id,
-                                                    selectedPost.id
-                                                  )
-                                                }
-                                              >
-                                                Delete
-                                              </button>
-                                            </li>
-                                          </ul>
-                                        </div>
-                                      )}
+                                        String(currentUserId)) && (
+                                      <div className="dropdown position-absolute top-0 end-0">
+                                        <button
+                                          className="btn btn-options dropdown-toggle"
+                                          type="button"
+                                          id={`dropdownMenuButton-${comment.id}`}
+                                          data-bs-toggle="dropdown"
+                                          aria-expanded="false"
+                                        >
+                                          ...
+                                        </button>
+                                        <ul
+                                          className="dropdown-menu"
+                                          aria-labelledby={`dropdownMenuButton-${comment.id}`}
+                                        >
+                                          <li>
+                                            <button
+                                              className="dropdown-item"
+                                              onClick={() => {
+                                                setEditingCommentId(comment.id);
+                                                setEditingCommentContent(
+                                                  comment.content
+                                                );
+                                              }}
+                                            >
+                                              Edit
+                                            </button>
+                                          </li>
+                                          {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
+                                          <li>
+                                            <button
+                                              className="dropdown-item"
+                                              onClick={() =>
+                                                handleDeleteComment(
+                                                  comment.id,
+                                                  selectedPost.id
+                                                )
+                                              }
+                                            >
+                                              Delete
+                                            </button>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    )}
 
                                     {/* Nút trả lời cho bình luận bậc 2 */}
                                     <button
                                       className="btn btn-link mt-2"
                                       onClick={() => handleReplyClick(comment)}
                                     >
-                                      {t('a10')}
+                                      Reply
                                     </button>
 
                                     {/* Input trả lời cho bình luận bậc 2 */}
@@ -1011,156 +1005,143 @@ const FeedPost = () => {
                                       <div className="replies-list mt-2">
                                         {showAllReplies[comment.id] ? (
                                           <>
-                                            {comment.replies.map(
-                                              (reply) => (
+                                            {comment.replies.map((reply) => (
+                                              <div
+                                                key={`reply-${reply.id}`}
+                                                className="reply"
+                                              >
                                                 <div
-                                                  key={`reply-${reply.id}`}
-                                                  className="reply"
+                                                  className="reply-content"
+                                                  style={{
+                                                    marginLeft: "20px",
+                                                  }}
                                                 >
-                                                  <div
-                                                    className="reply-content"
-                                                    style={{
-                                                      marginLeft: "20px",
-                                                    }}
-                                                  >
-                                                    <img
-                                                      src="/src/UserImages/Avatar/avt.jpg"
-                                                      className="avatar_small"
-                                                      alt="Avatar"
-                                                    />
-                                                    <div>
-                                                      <div className="d-flex align-items-center">
-                                                        <span className="comment-author pe-3">
-                                                          {
-                                                            reply.userNickname
+                                                  <img
+                                                    src="/src/UserImages/Avatar/avt.jpg"
+                                                    className="avatar_small"
+                                                    alt="Avatar"
+                                                  />
+                                                  <div>
+                                                    <div className="d-flex align-items-center">
+                                                      <span className="comment-author pe-3">
+                                                        {reply.userNickname}
+                                                      </span>
+                                                      <span className="reply-time">
+                                                        {format(
+                                                          new Date(
+                                                            reply.creationDate
+                                                          ),
+                                                          "hh:mm a, dd MMM yyyy"
+                                                        ) || "Invalid date"}
+                                                      </span>
+                                                    </div>
+                                                    {editingReplyId ===
+                                                    reply.id ? (
+                                                      <div>
+                                                        <textarea
+                                                          className="form-control"
+                                                          rows={2}
+                                                          value={
+                                                            editingReplyContent
                                                           }
-                                                        </span>
-                                                        <span className="reply-time">
-                                                          {format(
-                                                            new Date(
-                                                              reply.creationDate
-                                                            ),
-                                                            "hh:mm a, dd MMM yyyy"
-                                                          ) ||
-                                                            "Invalid date"}
-                                                        </span>
+                                                          onChange={(e) =>
+                                                            setEditingReplyContent(
+                                                              e.target.value
+                                                            )
+                                                          }
+                                                        />
+                                                        <button
+                                                          className="btn btn-primary mt-2"
+                                                          onClick={() =>
+                                                            handleUpdateReply(
+                                                              reply.id
+                                                            )
+                                                          }
+                                                        >
+                                                          Save
+                                                        </button>
+                                                        <button
+                                                          className="btn btn-secondary mt-2 ms-2"
+                                                          onClick={() => {
+                                                            setEditingReplyId(
+                                                              null
+                                                            );
+                                                            setEditingReplyContent(
+                                                              ""
+                                                            );
+                                                          }}
+                                                        >
+                                                          Cancel
+                                                        </button>
                                                       </div>
-                                                      {editingReplyId ===
-                                                        reply.id ? (
-                                                        <div>
-                                                          <textarea
-                                                            className="form-control"
-                                                            rows={2}
-                                                            value={
-                                                              editingReplyContent
-                                                            }
-                                                            onChange={(
-                                                              e
-                                                            ) =>
-                                                              setEditingReplyContent(
-                                                                e.target
-                                                                  .value
-                                                              )
-                                                            }
-                                                          />
-                                                          <button
-                                                            className="btn btn-primary mt-2"
-                                                            onClick={() =>
-                                                              handleUpdateReply(
-                                                                reply.id
-                                                              )
-                                                            }
-                                                          >
-                                                            Save
-                                                          </button>
-                                                          <button
-                                                            className="btn btn-secondary mt-2 ms-2"
-                                                            onClick={() => {
-                                                              setEditingReplyId(
-                                                                null
-                                                              );
-                                                              setEditingReplyContent(
-                                                                ""
-                                                              );
-                                                            }}
-                                                          >
-                                                            Cancel
-                                                          </button>
-                                                        </div>
-                                                      ) : (
-                                                        <p>
-                                                          <strong>
-                                                            {
-                                                              reply.repliedToNickname
-                                                            }
-                                                            :
-                                                          </strong>{" "}
-                                                          {reply.content}
-                                                        </p>
-                                                      )}
+                                                    ) : (
+                                                      <p>
+                                                        <strong>
+                                                          {
+                                                            reply.repliedToNickname
+                                                          }
+                                                          :
+                                                        </strong>{" "}
+                                                        {reply.content}
+                                                      </p>
+                                                    )}
 
-                                                      {/* Nút trả lời cho reply bậc 2 */}
-                                                      <button
-                                                        className="btn btn-link"
-                                                        onClick={() =>
-                                                          handleReplyClick(
-                                                            reply
-                                                          )
-                                                        }
-                                                      >
-                                                        Reply
-                                                      </button>
-                                                      {/* Dropdown cho reply bậc 2 */}
-                                                      {String(
-                                                        reply.userId
-                                                      ) ===
-                                                        String(
-                                                          currentUserId
-                                                        ) && (
-                                                          <div className="dropdown position-absolute top-0 end-0">
+                                                    {/* Nút trả lời cho reply bậc 2 */}
+                                                    <button
+                                                      className="btn btn-link"
+                                                      onClick={() =>
+                                                        handleReplyClick(reply)
+                                                      }
+                                                    >
+                                                      Reply
+                                                    </button>
+                                                    {/* Dropdown cho reply bậc 2 */}
+                                                    {String(reply.userId) ===
+                                                      String(currentUserId) && (
+                                                      <div className="dropdown position-absolute top-0 end-0">
+                                                        <button
+                                                          className="btn btn-options dropdown-toggle"
+                                                          type="button"
+                                                          id={`dropdownMenuButton-${reply.id}`}
+                                                          data-bs-toggle="dropdown"
+                                                          aria-expanded="false"
+                                                        >
+                                                          ...
+                                                        </button>
+                                                        <ul
+                                                          className="dropdown-menu"
+                                                          aria-labelledby={`dropdownMenuButton-${reply.id}`}
+                                                        >
+                                                          <li>
                                                             <button
-                                                              className="btn btn-options dropdown-toggle"
-                                                              type="button"
-                                                              id={`dropdownMenuButton-${reply.id}`}
-                                                              data-bs-toggle="dropdown"
-                                                              aria-expanded="false"
+                                                              className="dropdown-item"
+                                                              onClick={() => {
+                                                                setEditingReplyId(
+                                                                  reply.id
+                                                                );
+                                                                setEditingReplyContent(
+                                                                  reply.content
+                                                                );
+                                                              }}
                                                             >
-                                                              ...
+                                                              Edit
                                                             </button>
-                                                            <ul
-                                                              className="dropdown-menu"
-                                                              aria-labelledby={`dropdownMenuButton-${reply.id}`}
+                                                          </li>
+                                                          <li>
+                                                            <button
+                                                              className="dropdown-item"
+                                                              onClick={() =>
+                                                                handleDeleteReply(
+                                                                  reply.id
+                                                                )
+                                                              }
                                                             >
-                                                              <li>
-                                                                <button
-                                                                  className="dropdown-item"
-                                                                  onClick={() => {
-                                                                    setEditingReplyId(
-                                                                      reply.id
-                                                                    );
-                                                                    setEditingReplyContent(
-                                                                      reply.content
-                                                                    );
-                                                                  }}
-                                                                >
-                                                                  Edit
-                                                                </button>
-                                                              </li>
-                                                              <li>
-                                                                <button
-                                                                  className="dropdown-item"
-                                                                  onClick={() =>
-                                                                    handleDeleteReply(
-                                                                      reply.id
-                                                                    )
-                                                                  }
-                                                                >
-                                                                  Delete
-                                                                </button>
-                                                              </li>
-                                                            </ul>
-                                                          </div>
-                                                        )}
+                                                              Delete
+                                                            </button>
+                                                          </li>
+                                                        </ul>
+                                                      </div>
+                                                    )}
 
                                                     {/* Input trả lời cho reply bậc 2 */}
                                                     {replyingTo[reply.id] && (
@@ -1204,7 +1185,7 @@ const FeedPost = () => {
                                                 handleToggleReplies(comment.id)
                                               }
                                             >
-                                              {t('f19')}
+                                              Hide replies
                                             </button>
                                           </>
                                         ) : (
@@ -1214,7 +1195,7 @@ const FeedPost = () => {
                                               handleToggleReplies(comment.id)
                                             }
                                           >
-                                           {t('f20')}
+                                            View all replies
                                           </button>
                                         )}
                                       </div>
@@ -1239,7 +1220,7 @@ const FeedPost = () => {
                           )}
                         </div>
                       ) : (
-                        <p>{t('f21')}</p>
+                        <p>No comments available</p>
                       )}
                       {/* Phần bình luận */}
                       <div className="comment-section d-flex mt-4">
@@ -1280,7 +1261,7 @@ const FeedPost = () => {
                               onClick={() => setShowEmojiPicker(false)}
                               className="btn btn-link"
                             >
-                              {t('c33')}
+                              Close
                             </button>
                           </div>
                         )}
@@ -1322,7 +1303,9 @@ const FeedPost = () => {
                     {createdAt && !isNaN(createdAt.getTime())
                       ? format(createdAt, "hh:mm a, dd MMM yyyy")
                       : "Invalid date"}
-                    {post.edited && <span className="edited-notice"> (Edited)</span>}
+                    {post.edited && (
+                      <span className="edited-notice"> (Edited)</span>
+                    )}
                   </div>
                 </div>
                 {/* Dropdown cho bài viết */}
@@ -1342,13 +1325,19 @@ const FeedPost = () => {
                       aria-labelledby={`dropdownMenuButton-${post.id}`}
                     >
                       <li>
-                        <button className="dropdown-item" onClick={() => handleEditPost(post)}>
-                          <i className='fa-solid fa-pen-to-square'></i>Edit
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handleEditPost(post)}
+                        >
+                          <i className="fa-solid fa-pen-to-square"></i>Edit
                         </button>
                       </li>
                       <li>
-                        <button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>
-                          <i className='fa-solid fa-trash '></i>Delete
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handleDeletePost(post.id)}
+                        >
+                          <i className="fa-solid fa-trash "></i>Delete
                         </button>
                       </li>
                     </ul>
@@ -1406,7 +1395,7 @@ const FeedPost = () => {
                       className="carousel-control-prev-icon"
                       aria-hidden="true"
                     ></span>
-                    <span className="visually-hidden">{t('a17')}</span>
+                    <span className="visually-hidden">Previous</span>
                   </button>
                   <button
                     className="carousel-control-next"
@@ -1418,7 +1407,7 @@ const FeedPost = () => {
                       className="carousel-control-next-icon"
                       aria-hidden="true"
                     ></span>
-                    <span className="visually-hidden">{t('a18')}</span>
+                    <span className="visually-hidden">Next</span>
                   </button>
                 </div>
               )}
@@ -1465,7 +1454,7 @@ const FeedPost = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">{t('a3')}</h5>
+                <h5 className="modal-title">Báo cáo nội dung</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -1479,17 +1468,26 @@ const FeedPost = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                {reportMessage && (
+                  <div className="alert alert-danger">{reportMessage}</div>
+                )}{" "}
+                {/* Thông báo lỗi hoặc thành công */}
                 <h6>Chọn lý do báo cáo:</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                  {[
+                    "Nội dung phản cảm",
+                    "Vi phạm bản quyền",
+                    "Spam hoặc lừa đảo",
+                    "Khác",
+                  ].map((reason) => (
                     <label className="d-block" key={reason}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
-                      /> {reason}
+                      />{" "}
+                      {reason}
                     </label>
                   ))}
                 </div>
@@ -1513,7 +1511,7 @@ const FeedPost = () => {
                   }
                   className="btn btn-primary"
                 >
-                 {t('a6')}
+                  Báo cáo
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -1523,7 +1521,7 @@ const FeedPost = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                {t('a16')}
+                  Đóng
                 </button>
               </div>
             </div>
