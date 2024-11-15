@@ -504,24 +504,24 @@ const PlayListDetail = () => {
               <div>
                 {isLoading && <p>Loading...</p>}
                 <div className="playlist-container">
-                  {allplaylists.slice(0, 4).map(
-                    (playlist, index) =>
-                      !playlist.status && (
-                        <div key={index} className="card text-bg-dark">
-                          <img
-                            src={
-                              playlist.imagePlaylist ||
-                              "/src/assets/images/nai.jpg"
-                            }
-                            className="card-img"
-                            alt={playlist.title || "Playlist image"}
-                          />
-                          <div className="card-img-overlay">
-                            <p className="card-text">{playlist.title}</p>
-                          </div>
+                  {allplaylists
+                    .filter((list) => list.id !== playlist.id && !list.status)
+                    .slice(0, 3) // Lấy 3 playlist đầu tiên
+                    .map((playlist, index) => (
+                      <div key={index} className="card-orther text-bg-dark">
+                        <img
+                          src={
+                            playlist.imagePlaylist ||
+                            "/src/assets/images/nai.jpg"
+                          }
+                          className="card-orther-img"
+                          alt={playlist.title || "Playlist image"}
+                        />
+                        <div className="card-img-overlay">
+                          <div>{playlist.title}</div>
                         </div>
-                      )
-                  )}
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
