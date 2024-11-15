@@ -12,6 +12,7 @@ import Posts from "./SocialMediaAdmin/pageContent/Posts";
 import DashBoard from "./SocialMediaAdmin/pageContent/DashBoard";
 import Users from "./SocialMediaAdmin/pageContent/Users";
 import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
+import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
 import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
 import Track from "./SocialMediaAdmin/pageContent/Track";
 import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";

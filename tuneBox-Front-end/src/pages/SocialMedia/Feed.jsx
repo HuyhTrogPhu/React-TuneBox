@@ -1104,109 +1104,69 @@ const HomeFeed = () => {
         <ToastContainer />
         <div className="row">
           {/* Left Sidebar */}
-          <div className="col-3 sidebar bg-light p-4">
-            {/* Profile */}
-            <div className="feed-profile mb-5">
-              {/* avatar */}
-              <div className="feed-avatar d-flex align-item-center justify-content-center">
-              <img
-                    src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
-                    alt="User avatar"
-                  />
-              </div>
-              {/* information */}
-              <div className="feed-information text-center " style={{marginTop: '100px'}}>
-                <h6 className="feed-username">{userData.name}</h6>
-                <h6 className="feed-name">@<h7>{userData.userName}</h7></h6>
-                <h6 className="feed-following">{t('p2')}</h6>
-                <span>{followCount.followerCount}</span> 
-                <h6 className="feed-follower">{t('p3')}</h6>
-                <span>{followCount.followingCount}</span>
-              </div>
-              {/* View profile */}
-              <div className="view-profile text-center">
-                <Link style={{ color: '#E94F37' }} to={'/profileUser'}>{t('f1')}</Link>
-              </div>
-            </div>
-            <ul className="list-unstyled">
-              <li className="left mb-4">
-                <a
-                  href="/#"
-                  className="d-flex align-items-center "
-                  style={{ textAlign: "center", marginTop: '0px' }}
-                >
-                  <img
-                    src={images.web_content}
-                    alt="icon"
-                    width={20}
-                    className="me-2"
-                  />
-                  <span className="fw-bold">
-                    <Link to={"/"}>{t('f2')}</Link>
-                  </span>
-                </a>
-              </li>
-              <li className="left mb-4">
-                <Link to={`/Following/${currentUserId}`} className="d-flex align-items-center">
-                  <img
-                    src={images.followers}
-                    alt="icon"
-                    width={20}
-                    className="me-2"
-                  />
-                  <span className="fw-bold">{t('p3')}</span>
-                </Link>
-              </li>
-
-              <li className="left mb-4">
-                <Link to={"/likepost"} className="d-flex align-items-center">
-                  <img
-                    src={images.feedback}
-                    alt="icon"
-                    width={20}
-                    className="me-2"
-                  />
-                  <span className="fw-bold">{t('f3')}</span>
-                </Link>
-              </li>
-              <li className="left mb-4">
-                <Link to={"/likeAlbums"} className="d-flex align-items-center">
-                  <img
-                    src={images.music}
-                    alt="icon"
-                    width={20}
-                    className="me-2"
-                  />
-                  <span className="fw-bold">{t('f4')}</span>
-                </Link>
-              </li>
-              <li className="left mb-4">
-                <Link
-                  to={"/likePlaylist"}
-                  className="d-flex align-items-center"
-                >
-                  <img
-                    src={images.playlist}
-                    alt="icon"
-                    width={20}
-                    className="me-2 "
-                  />
-                  <span className="fw-bold">{t('f5')}</span>
-                </Link>
-              </li>
-              <li className="left mb-4">
-
-                <Link
-                  to={"/FriendRequests"}
-                  className="d-flex align-items-center justify-content-center"
-                >
-                  <i className="fa-solid fa-user-group me-1"></i>
-                  <span className="fw-bold">{t('f6')}</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-
+          <div className="col-3 sidebar bg-light p-4" style={{ height: '100vh', overflowY: 'auto' }}>
+  {/* Profile */}
+  <div className="feed-profile mb-5">
+    {/* avatar */}
+    <div className="feed-avatar d-flex align-item-center justify-content-center">
+      <img
+        src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+        alt="User avatar"
+      />
+    </div>
+    {/* information */}
+    <div className="feed-information text-center" style={{ marginTop: '100px' }}>
+      <h6 className="feed-username">{userData.name}</h6>
+      <h6 className="feed-name">@<span>{userData.userName}</span></h6>
+      <h6 className="feed-following">{t('p2')}</h6>
+      <span>{followCount.followerCount}</span>
+      <h6 className="feed-follower">{t('p3')}</h6>
+      <span>{followCount.followingCount}</span>
+    </div>
+    {/* View profile */}
+    <div className="view-profile text-center">
+      <Link style={{ color: '#E94F37' }} to={'/profileUser'}>{t('f1')}</Link>
+    </div>
+  </div>
+  <ul className="list-unstyled">
+    <li className="left mb-4">
+      <a href="/#" className="d-flex align-items-center" style={{ textAlign: "center", marginTop: '0px' }}>
+        <img src={images.web_content} alt="icon" width={20} className="me-2" />
+        <span className="fw-bold"><Link to={"/"}>{t('f2')}</Link></span>
+      </a>
+    </li>
+    <li className="left mb-4">
+      <Link to={`/Following/${currentUserId}`} className="d-flex align-items-center">
+        <img src={images.followers} alt="icon" width={20} className="me-2" />
+        <span className="fw-bold">{t('p3')}</span>
+      </Link>
+    </li>
+    <li className="left mb-4">
+      <Link to={"/likepost"} className="d-flex align-items-center">
+        <img src={images.feedback} alt="icon" width={20} className="me-2" />
+        <span className="fw-bold">{t('f3')}</span>
+      </Link>
+    </li>
+    <li className="left mb-4">
+      <Link to={"/likeAlbums"} className="d-flex align-items-center">
+        <img src={images.music} alt="icon" width={20} className="me-2" />
+        <span className="fw-bold">{t('f4')}</span>
+      </Link>
+    </li>
+    <li className="left mb-4">
+      <Link to={"/likePlaylist"} className="d-flex align-items-center">
+        <img src={images.playlist} alt="icon" width={20} className="me-2" />
+        <span className="fw-bold">{t('f5')}</span>
+      </Link>
+    </li>
+    <li className="left mb-4">
+      <Link to={"/FriendRequests"} className="d-flex align-items-center justify-content-center">
+        <i className="fa-solid fa-user-group me-1"></i>
+        <span className="fw-bold">{t('f6')}</span>
+      </Link>
+    </li>
+  </ul>
+</div>
 
           {/* Main content */}
           <div className="col-6 content">

@@ -15,7 +15,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
 import { useTranslation } from "react-i18next";
-import '../../../../i18n/i18n'
+import '../../../../i18n/i18n';
+import { getUserInfo } from "../../../../service/UserService";
 
 const Activity = () => {
   const [postContent, setPostContent] = useState("");
@@ -592,7 +593,6 @@ const Activity = () => {
     }
   };
 
-
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -617,7 +617,7 @@ const Activity = () => {
     }
 
     // Gọi hàm submitReport với các giá trị đúng
-    submitReport(currentUserId, ReportId, reportType, reportReason);
+    submitReport(userId, ReportId, reportType, reportReason);
   };
 
   const submitReport = async (userId, reportId, reportType, reason) => {
@@ -723,6 +723,22 @@ const Activity = () => {
     t('other')
   ];
 
+  const [userData, setUserData] = useState({});
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (userId) {
+        try {
+          const userData = await getUserInfo(userId);
+          setUserData(userData);
+        } catch (error) {
+          console.error("Error fetching user", error);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [userId]);
+
 
   return (
     <div>
@@ -732,7 +748,10 @@ const Activity = () => {
       <div className="container mt-2 mb-5">
         <div className="row align-items-center">
           <div className="col-auto post-header">
-            <img src={images.ava} className="avatar_small" alt="avatar" />
+          <img
+                    src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+                    alt="User avatar"
+                  />
           </div>
           <div className="col">
             <button
@@ -760,10 +779,11 @@ const Activity = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-              <img src={images.ava} className="avatar_small" alt="Avatar" />
-              <div>
-                <div className="name">Phạm Xuân Trường</div>
-                <div className="time">{t('p10')}</div>
+            <img
+                  src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                />              <div>
+                  <div className="name">{userData.name}</div>
+                  <div className="time">{t('f10')}</div>
               </div>
               <button
                 id="close-modal"
@@ -870,7 +890,7 @@ const Activity = () => {
               </div>
               <div className="modal-footer">
                 <button
-                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  onClick={() => submitReport(userId, ReportId, reportType, reportReason)}
                   className="btn btn-primary"
                 >
                   {t('a6')}
