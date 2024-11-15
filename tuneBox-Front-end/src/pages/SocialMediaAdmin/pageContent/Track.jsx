@@ -199,7 +199,7 @@ const Track = () => {
                     Likes
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
-                  Create Day
+                  comments
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
                  Description
@@ -220,8 +220,8 @@ const Track = () => {
                     <td>{user.genreName}</td>
                     <td>{user.status ? "Active" : "Unactive"}</td>
                     <td>{user.userName}</td>
-                    <td>{user.likes>0 ? user.likes : "0"}</td>
-                    <td>{user.createDate.split('T')[0]}</td>
+                    <td>{user.likes>0 ? user.likes.length : "0"}</td>
+                    <td>{user.comments>0 ? user.comments.length : "0"}</td>
                     <td>{user.description}</td>
                     <td>
                       <Link

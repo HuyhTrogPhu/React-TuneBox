@@ -12,6 +12,8 @@ import Users from "./SocialMediaAdmin/pageContent/Users";
 import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
 import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
 import Track from "./SocialMediaAdmin/pageContent/Track";
+import Report from "./SocialMediaAdmin/pageContent/Report";
+import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
 import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";
 import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
 import StatisticalUser from "./SocialMediaAdmin/Statistical/StaticUser";
@@ -74,6 +76,23 @@ const SocialMediaAdmin = () => {
                     Post
                   </Link>
                 </li>
+
+                <li className="p-3">
+                  <i className="fa-solid fa-newspaper" />
+                  
+                  <Link to={"/socialadmin/Report"} className="text-white">
+                  Report
+                  </Link>
+                </li>
+
+                <li className="p-3">
+                  <i className="fa-solid fa-newspaper" />
+                  
+                  <Link to={"/socialadmin/Report2"} className="text-white">
+                  Report2
+                  </Link>
+                </li>
+
                 <li className="p-3">
                   <i className="fa-solid fa-chart-simple" />
                   <Link to={"/socialadmin/Statistical"} className="text-white">
@@ -128,7 +147,8 @@ const SocialMediaAdmin = () => {
               <Route path='albums' element={<Albums/>} />
               <Route path='Track' element={<Track/>} />
               <Route path='playlists' element={<Playlists/>} />
-              
+              <Route path='Report' element={<Report/>} />
+              <Route path='Report2' element={<ReportManagement/>} />
               
               <Route path='Statistical' element={<Statistical/>} />
               <Route path='Statistical/UserStatic' element={<StatisticalUser/>} />

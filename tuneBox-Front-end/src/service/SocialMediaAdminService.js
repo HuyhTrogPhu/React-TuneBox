@@ -192,7 +192,7 @@ export const LoadTrackReport = async () => {
     console.error("Error fetching user data:", error);
   }
 };
-//load all Track<Report>
+//load all Post<Report>
 export const LoadPostReport = async () => {
   try {
     const response = await axios.get(
@@ -205,7 +205,7 @@ export const LoadPostReport = async () => {
     console.error("Error fetching user data:", error);
   }
 };
-//load all Track<Report>
+//load all Album<Report>
 export const LoadAlbumReport = async () => {
   try {
     const response = await axios.get(
@@ -222,7 +222,7 @@ export const LoadAlbumReport = async () => {
 export const LoadReportDetail = async (id) => {
   try {
     const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getReport/${id}`,
+      ` ${id}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -232,11 +232,11 @@ export const LoadReportDetail = async (id) => {
   }
 };
 
-//load Track<Report>
+//DeniedRP
 export const DeniedRP = async (id) => {
   try {
     const response = await axios.put(
-      `http://localhost:8082/SocialAdmin/static/DeniedRPTrack/${id}`,
+      `http://localhost:8082/SocialAdmin/static/DeniedRP/${id}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -246,11 +246,11 @@ export const DeniedRP = async (id) => {
   }
 };
 
-//load Track<Report>
+//ApproveRP
 export const ApproveRP = async (id) => {
   try {
     const response = await axios.put(
-      `http://localhost:8082/SocialAdmin/static/ApproveRPTrack/${id}`,
+      `http://localhost:8082/SocialAdmin/static/ApproveRP/${id}`,
       { withCredentials: true }
     );
     const data = response.data;
