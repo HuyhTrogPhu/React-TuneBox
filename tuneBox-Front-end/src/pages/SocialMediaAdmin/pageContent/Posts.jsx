@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { AlertCircle, Check, X, RefreshCw } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  X,
+  RefreshCw,
+  EyeOff,
+  Eye,
+  XCircle,
+} from "lucide-react";
 import { Alert, AlertDescription } from "../../../components/ui/Alert";
 
 const Posts = () => {
@@ -11,6 +19,18 @@ const Posts = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [countPost, setCountPost] = useState(0);
   const [trendingPosts, setTrendingPost] = useState([]);
+
+  // Separate date states for All Posts
+  const [allPostsStartDate, setAllPostsStartDate] = useState("");
+  const [allPostsEndDate, setAllPostsEndDate] = useState("");
+
+  // Separate date states for Reported Posts
+  const [reportedStartDate, setReportedStartDate] = useState("");
+  const [reportedEndDate, setReportedEndDate] = useState("");
+
+  // Thêm state mới cho specific date
+  const [allPostsSpecificDate, setAllPostsSpecificDate] = useState("");
+  const [reportedSpecificDate, setReportedSpecificDate] = useState("");
 
   // Search states
   const [searchNewPosts, setSearchNewPosts] = useState("");
@@ -22,21 +42,97 @@ const Posts = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [dismissReason, setDismissReason] = useState("");
 
+  const formatDateForAPI = (dateString) => {
+    if (!dateString) return null;
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return null;
+      // Adjust for timezone offset
+      const timezoneOffset = date.getTimezoneOffset() * 60000;
+      const localDate = new Date(date.getTime() - timezoneOffset);
+      return localDate.toISOString().split("T")[0];
+    } catch (error) {
+      console.error("Date formatting error:", error);
+      return null;
+    }
+  };
+
+  // Validation function for date ranges
+  const validateDateRange = (startDate, endDate) => {
+    if (!startDate || !endDate) return false;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return false;
+    }
+
+    return end >= start;
+  };
+
+  const handleAllPostsDateFilter = () => {
+    if (allPostsSpecificDate) {
+      // Nếu có specific date, sử dụng nó
+      fetchPosts(null, null, allPostsSpecificDate);
+    } else if (allPostsStartDate && allPostsEndDate) {
+      // Nếu không có specific date nhưng có start và end date
+      fetchPosts(allPostsStartDate, allPostsEndDate, null);
+    } else {
+      setErrorMessage(
+        "Please select either a specific date or both start and end dates for All Posts."
+      );
+    }
+  };
+
+  // Cập nhật hàm xử lý tìm kiếm cho Reported Posts
+  const handleReportedDateFilter = () => {
+    setErrorMessage(""); // Clear previous error messages
+
+    try {
+      if (reportedSpecificDate) {
+        const formattedDate = formatDateForAPI(reportedSpecificDate);
+        if (!formattedDate) {
+          throw new Error("Please enter a valid specific date");
+        }
+        fetchRePort(null, null, reportedSpecificDate);
+      } else if (reportedStartDate && reportedEndDate) {
+        if (!validateDateRange(reportedStartDate, reportedEndDate)) {
+          throw new Error("End date must be after start date");
+        }
+        fetchRePort(reportedStartDate, reportedEndDate, null);
+      } else if (
+        !reportedSpecificDate &&
+        (!reportedStartDate || !reportedEndDate)
+      ) {
+        // If no dates are selected, fetch all reports
+        fetchRePort();
+      } else {
+        throw new Error(
+          "Please select either a specific date or both start and end dates"
+        );
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  };
   const fetchData = async () => {
     try {
-      const [countResponse, newResponse, allResponse, reportedResponse,trendingResponse] =
-        await Promise.all([
-          axios.get("http://localhost:8082/admin/posts/total"),
-          axios.get("http://localhost:8082/admin/posts/new"),
-          axios.get("http://localhost:8082/admin/posts"),
-          axios.get("http://localhost:8080/api/reports/pending"),
-          axios.get("http://localhost:8082/admin/posts/trending"),
-        ]);
+      const [
+        countResponse,
+        newResponse,
+        // reportedResponse,
+        trendingResponse,
+      ] = await Promise.all([
+        axios.get("http://localhost:8082/admin/posts/total"),
+        axios.get("http://localhost:8082/admin/posts/new"),
+        // axios.get("http://localhost:8080/api/reports/pending"),
+        axios.get("http://localhost:8082/social-statistical/trending-posts"),
+      ]);
 
       setCountPost(countResponse.data);
       setNewPosts(newResponse.data);
-      setAllPosts(allResponse.data);
-      setReportedPosts(reportedResponse.data);
+      // setReportedPosts(reportedResponse.data);
       setTrendingPost(trendingResponse.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -47,18 +143,99 @@ const Posts = () => {
     }
   };
 
+  const fetchPosts = async (startDate, endDate, specificDate) => {
+    try {
+      let url = "http://localhost:8082/admin/posts";
+      const params = new URLSearchParams();
+
+      if (specificDate) {
+        params.append("specificDate", specificDate);
+      } else if (startDate && endDate) {
+        params.append("startDate", startDate);
+        params.append("endDate", endDate);
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await axios.get(url);
+      setAllPosts(response.data);
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.message ||
+        "Error fetching filtered posts. Please try again.";
+      console.error("Error fetching filtered posts:", error);
+      setErrorMessage(errorMsg);
+    }
+  };
+  const fetchRePort = async (startDate, endDate, specificDate) => {
+    try {
+      let url = "http://localhost:8080/api/reports/pending";
+      const params = new URLSearchParams();
+
+      if (specificDate) {
+        const formattedDate = formatDateForAPI(specificDate);
+        if (!formattedDate) {
+          throw new Error("Invalid specific date format");
+        }
+        params.append("specificDate", formattedDate);
+      } else if (startDate && endDate) {
+        const formattedStartDate = formatDateForAPI(startDate);
+        const formattedEndDate = formatDateForAPI(endDate);
+
+        if (!formattedStartDate || !formattedEndDate) {
+          throw new Error("Invalid date format");
+        }
+
+        if (!validateDateRange(startDate, endDate)) {
+          throw new Error("End date must be after start date");
+        }
+
+        params.append("startDate", formattedStartDate);
+        params.append("endDate", formattedEndDate);
+      }
+
+      const requestUrl = params.toString()
+        ? `${url}?${params.toString()}`
+        : url;
+      console.log("Making request to:", requestUrl);
+
+      const response = await axios.get(requestUrl);
+      setReportedPosts(response.data);
+      setErrorMessage(""); // Clear any existing error messages
+    } catch (error) {
+      console.error("Error fetching reported posts:", error);
+      let errorMessage = "Error fetching reported posts";
+
+      if (error.response?.status === 400) {
+        errorMessage = "Invalid date range or format. Please check your dates.";
+      } else if (error.response) {
+        errorMessage = error.response.data?.message || "Server error occurred";
+      } else if (error.request) {
+        errorMessage = "No response from server. Please check your connection.";
+      } else {
+        errorMessage = error.message;
+      }
+
+      setErrorMessage(errorMessage);
+      setReportedPosts([]);
+    }
+  };
   useEffect(() => {
     fetchData();
+    fetchPosts();
+    fetchRePort();
   }, []);
 
   // Search handlers
   const handleSearchNewPosts = (e) => setSearchNewPosts(e.target.value);
   const handleSearchAllPosts = (e) => setSearchAllPosts(e.target.value);
-  const handleSearchReportedPosts = (e) => setSearchReportedPosts(e.target.value);
+  const handleSearchReportedPosts = (e) =>
+    setSearchReportedPosts(e.target.value);
 
-  const handleSearchTrendingPosts = (e) => setSearchTrendingPosts(e.target.value);
-
-  
+  const handleSearchTrendingPosts = (e) =>
+    setSearchTrendingPosts(e.target.value);
 
   // Report management handlers
   const handleResolve = async (reportId, hidePost) => {
@@ -88,12 +265,15 @@ const Posts = () => {
 
   const handleDismiss = async (reportId) => {
     try {
+      const token = localStorage.getItem("jwtToken"); // hoặc từ context của bạn
+
       const response = await fetch(
         `http://localhost:8080/api/reports/${reportId}/dismiss?reason=${dismissReason}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Thêm token vào header
           },
         }
       );
@@ -232,13 +412,48 @@ const Posts = () => {
               <h5>All Posts</h5>
             </div>
             <div className="card-body">
-              <input
-                type="text"
-                className="form-control mb-3"
-                placeholder="Search all posts..."
-                value={searchAllPosts}
-                onChange={handleSearchAllPosts}
-              />
+              {/* All Posts Date Filters */}
+              <div className="row mb-4">
+                <div className="col-md-4">
+                  <label className="form-label">Specific Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={allPostsSpecificDate}
+                    onChange={(e) => setAllPostsSpecificDate(e.target.value)}
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Start Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={allPostsStartDate}
+                    onChange={(e) => setAllPostsStartDate(e.target.value)}
+                    placeholder="Start Date"
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">End Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={allPostsEndDate}
+                    onChange={(e) => setAllPostsEndDate(e.target.value)}
+                    placeholder="End Date"
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">&nbsp;</label>
+                  <button
+                    className="btn btn-primary w-100"
+                    onClick={handleAllPostsDateFilter}
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
+
               <div className="table-responsive">
                 <table className="table">
                   <thead>
@@ -284,36 +499,70 @@ const Posts = () => {
       </div>
 
       {/* Reported Posts Table */}
-      <div className="row">
+      <div className="row mb-4">
         <div className="col-12">
           <div className="card">
             <div className="card-header bg-danger text-white">
-              <h5>Reported Posts</h5>
+              <h5 className="mb-0 d-flex justify-content-between align-items-center">
+                <span>Reported Posts</span>
+                <span className="badge bg-light text-danger">
+                  {filteredReportedPosts.length} Reports
+                </span>
+              </h5>
             </div>
             <div className="card-body">
-              {errorMessage && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{errorMessage}</AlertDescription>
-                </Alert>
-              )}
-              <input
-                type="text"
-                className="form-control mb-3"
-                placeholder="Search reported posts..."
-                value={searchReportedPosts}
-                onChange={handleSearchReportedPosts}
-              />
+              {/* Reported Posts Date Filters */}
+              <div className="row mb-4">
+                <div className="col-md-4">
+                  <label className="form-label">Specific Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={reportedSpecificDate}
+                    onChange={(e) => setReportedSpecificDate(e.target.value)}
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Start Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={reportedStartDate}
+                    onChange={(e) => setReportedStartDate(e.target.value)}
+                    placeholder="Start Date"
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">End Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={reportedEndDate}
+                    onChange={(e) => setReportedEndDate(e.target.value)}
+                    placeholder="End Date"
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">&nbsp;</label>
+                  <button
+                    className="btn btn-primary w-100"
+                    onClick={handleReportedDateFilter}
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
               <div className="table-responsive">
-                <table className="table">
-                  <thead>
+                <table className="table table-hover">
+                  <thead className="table-light">
                     <tr>
                       <th>#</th>
-                      <th>Reporter ID</th>
+                      <th>Post ID</th>
+                      <th>Reporter</th>
                       <th>Post Owner</th>
-                      <th>Description</th>
                       <th>Reason</th>
-                      <th>Create Date</th>
+                      <th>Date</th>
+                      <th>Report Count</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
@@ -322,19 +571,35 @@ const Posts = () => {
                     {filteredReportedPosts.map((report, index) => (
                       <tr key={report.id}>
                         <td>{index + 1}</td>
-                        <td>User {report.reporterId}</td>
-                        <td>User {report.post.postOwner}</td>
-                        <td>
-                          {report.description?.length > 50
-                            ? `${report.description.substring(0, 50)}...`
-                            : report.description}
-                        </td>
+                        <td>{report.post.postId}</td>
+                        <td>{report.reporterId}</td>
+                        <td>{report.post.postOwner}</td>
                         <td>{report.reason || "No reason provided"}</td>
                         <td>
                           {new Date(report.createDate).toLocaleDateString()}
                         </td>
-                        <td>{getStatusBadge(report.status)}</td>
-                        <td className="space-x-2">
+
+                        <td>
+                          <span className="badge bg-info">
+                            {report.reportDetails?.length || 0}{" "}
+                            {/* Hiển thị số lượng report */}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span
+                            className={`badge ${
+                              report.status === "PENDING"
+                                ? "bg-warning"
+                                : report.status === "RESOLVED"
+                                ? "bg-success"
+                                : "bg-danger"
+                            }`}
+                          >
+                            {report.status}
+                          </span>
+                        </td>
+                        <td>
                           {report.status === "PENDING" ? (
                             <button
                               onClick={() => setSelectedReport(report)}
@@ -403,9 +668,7 @@ const Posts = () => {
                             {post.commentCount}
                           </span>
                         </td>
-                        <td>
-                          {new Date(post.createdAt).toLocaleDateString()}
-                        </td>
+                        <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                         <td>
                           <Link
                             to={`/socialadmin/postdetail/${post.id}`}
@@ -422,15 +685,15 @@ const Posts = () => {
             </div>
           </div>
         </div>
-      </div>              
+      </div>
 
       {/* Report Review Modal */}
       {selectedReport && (
         <div
-          className="modal fade show d-block"
+          className="modal show d-block"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         >
-          <div className="modal-dialog modal-lg modal-dialog-centered">
+          <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header bg-warning text-dark">
                 <h5 className="modal-title">
@@ -442,116 +705,124 @@ const Posts = () => {
                   onClick={() => setSelectedReport(null)}
                 ></button>
               </div>
-
               <div className="modal-body">
-                <div className="mb-4">
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="card mb-3">
-                        <div className="card-header bg-light">
-                          <h6 className="mb-0">Report Details</h6>
-                        </div>
-                        <div className="card-body">
-                          <p>
-                            <strong>Reporter:</strong> User{" "}
-                            {selectedReport.reporterId}
-                          </p>
-                          <p>
-                            <strong>Post Owner:</strong> User{" "}
-                            {selectedReport.post.postOwner}
-                          </p>
-                          <p>
-                            <strong>Report Date:</strong>{" "}
-                            {new Date(
-                              selectedReport.createDate
-                            ).toLocaleDateString()}
-                          </p>
-                        </div>
+                <div className="row mb-4">
+                  {/* Post Information */}
+                  <div className="col-md-6">
+                    <div className="card">
+                      <div className="card-header bg-light">
+                        <h6 className="mb-0">Post Information</h6>
                       </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="card mb-3">
-                        <div className="card-header bg-light">
-                          <h6 className="mb-0">Report Content</h6>
-                        </div>
-                        <div className="card-body">
-                          <div className="mb-3">
-                            <strong>Reason:</strong>
-                            <p className="mt-1">
-                              {selectedReport.reason || "No reason provided"}
-                            </p>
-                          </div>
-                          <div>
-                            <strong>Description:</strong>
-                            <p className="mt-1">
-                              {selectedReport.description ||
-                                "No description provided"}
-                            </p>
-                          </div>
-                        </div>
+                      <div className="card-body">
+                        <p>
+                          <strong>Post ID:</strong> {selectedReport.post.postId}
+                        </p>
+                        <p>
+                          <strong>Post Owner:</strong>{" "}
+                          {selectedReport.post.postOwner}
+                        </p>
+                        <p>
+                          <strong>Status:</strong>{" "}
+                          <span
+                            className={`badge ${
+                              selectedReport.post.hidden
+                                ? "bg-danger"
+                                : "bg-success"
+                            }`}
+                          >
+                            {selectedReport.post.hidden ? "Hidden" : "Visible"}
+                          </span>
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="card">
-                    <div className="card-header bg-light">
-                      <h6 className="mb-0">Take Action</h6>
-                    </div>
-                    <div className="card-body">
-                      <div className="row g-3">
-                        <div className="col-12">
-                          <div className="d-flex gap-2 mb-3">
-                            <button
-                              onClick={() =>
-                                handleResolve(selectedReport.id, true)
-                              }
-                              className="btn btn-danger"
-                            >
-                              <i className="bi bi-eye-slash me-2"></i>
-                              Hide Post
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleResolve(selectedReport.id, false)
-                              }
-                              className="btn btn-warning"
-                            >
-                              <i className="bi bi-eye me-2"></i>
-                              Keep Visible
-                            </button>
-                          </div>
+                  {/* Actions */}
+                  <div className="col-md-6">
+                    <div className="card">
+                      <div className="card-header bg-light">
+                        <h6 className="mb-0">Take Action</h6>
+                      </div>
+                      <div className="card-body">
+                        <div className="d-grid gap-2 mb-3">
+                          <button
+                            onClick={() =>
+                              handleResolve(selectedReport.id, true)
+                            }
+                            className="btn btn-danger"
+                          >
+                            Hide Post
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleResolve(selectedReport.id, false)
+                            }
+                            className="btn btn-warning"
+                          >
+                            Keep Visible
+                          </button>
                         </div>
-
-                        <div className="col-12">
-                          <div className="input-group">
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={dismissReason}
-                              onChange={(e) => setDismissReason(e.target.value)}
-                              placeholder="Enter reason for dismissal..."
-                            />
-                            <button
-                              onClick={() => handleDismiss(selectedReport.id)}
-                              className="btn btn-secondary"
-                              disabled={!dismissReason.trim()}
-                            >
-                              <i className="bi bi-x-circle me-2"></i>
-                              Dismiss Report
-                            </button>
-                          </div>
+                        <div className="input-group">
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={dismissReason}
+                            onChange={(e) => setDismissReason(e.target.value)}
+                            placeholder="Enter reason for dismissal..."
+                          />
+                          <button
+                            onClick={() => handleDismiss(selectedReport.id)}
+                            className="btn btn-secondary"
+                            disabled={!dismissReason.trim()}
+                          >
+                            Dismiss
+                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
+                {/* Report History */}
+                <div className="card">
+                  <div className="card-header bg-light">
+                    <h6 className="mb-0">Report History</h6>
+                  </div>
+                  <div className="card-body">
+                    <div
+                      className="table-responsive"
+                      style={{ maxHeight: "200px" }}
+                    >
+                      <table className="table table-sm">
+                        <thead>
+                          <tr>
+                            <th>Reporter</th>
+                            <th>Reason</th>
+                            <th>Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedReport.reportDetails?.map((report) => (
+                            <tr key={report.id}>
+                              <td>{report.reporterName}</td>
+                              <td>{report.reason}</td>
+                              <td>
+                                {new Date(
+                                  report.createDate
+                                ).toLocaleDateString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-light"
+                  className="btn btn-secondary"
                   onClick={() => setSelectedReport(null)}
                 >
                   Close
