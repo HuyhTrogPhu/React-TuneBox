@@ -319,6 +319,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
       formData.append("images", image);
     });
 
+    clearSharedData();
     setIsUploading(true); // Bắt đầu quá trình tải lên
 
     try {

@@ -510,14 +510,23 @@ const FeedTrack = () => {
                     </div>
                   </div>
 
-                  {/* share track*/}
+                  {/* comment track -> trackDetail*/}
                   <div className="col-2 mt-2 text-center">
                     <div className="d-flex justify-content-center align-items-center">
-                      <i
-                        type="button"
-                        style={{ fontSize: "20px", color: "black" }}
-                        className="fa-solid fa-share"
-                      ></i>
+                      <Link
+                        to={{
+                          pathname: `/track/${track.id}`,
+                          state: { track },
+                        }}
+                      >
+                        <i
+                          type="button"
+                          style={{ fontSize: "25px" }}
+                          className="fa-regular fa-comment"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalComment"
+                        ></i>
+                      </Link>
                     </div>
                   </div>
                 </div>

@@ -500,7 +500,7 @@ const PlayListDetail = () => {
               </div>
             </div>
             <div className="col-3">
-              <div className="orther">Orther</div>
+              <div className="orther">Orther playlist</div>
               <div>
                 {isLoading && <p>Loading...</p>}
                 <div className="playlist-container">
@@ -622,29 +622,7 @@ const PlayListDetail = () => {
                 Your browser does not support the audio tag.
               </audio>
             </div>
-            <div className="col-2">
-              {/* <div className="ms-5 mt-1">
-                <button className="btn">
-                  <i
-                    className={`fa-solid fa-heart ${
-                      statusliked ? "text-danger" : "text-muted"
-                    }`}
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "20px",
-                      padding: "10px",
-                    }}
-                  ></i>
-                </button>
-                <button className="btn">
-                  <i
-                    type="button"
-                    style={{ fontSize: "20px", color: "white" }}
-                    className="fa-solid fa-share mt-1"
-                  ></i>
-                </button>
-              </div> */}
-            </div>
+            <div className="col-2"></div>
           </div>
         </div>
       </div>
