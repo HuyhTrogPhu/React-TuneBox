@@ -7,6 +7,7 @@ import { saveAs } from "file-saver";
 import {
   LoadTrack
 } from "../../../service/SocialMediaAdminService";
+
 const Track = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -106,60 +107,15 @@ const Track = () => {
     const EXCEL_EXTENSION = ".xlsx";
   
   return (
-    <div className="container mt-4">
-      <div className="row">
-        {/* New Users */}
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header bg-dark text-white">
-              <h5 className="text-light">New Track</h5>
-            </div>
-            <div className="card-body">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>createDate</th>
-                    <th>Total Likes</th>
-                    <th>Total Comments</th>
-                    <th>Description</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {NewUser.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.name}</td>
-                      <td>{user.createDate}</td>
-                      <td>{user.likes.length}</td>
-                      <td>{user.comments.length}</td>
-                      <td>{user.description}</td>
-                      <td>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() =>
-                            navigate(`/socialadmin/TrackDetail/${user.id}`)
-                          }
-                        >
-                          Views
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Featured Users */}
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header bg-dark text-white">
-              <h5 className="text-light">All Track</h5>
-            </div>
-            <div className="card-body">
-              <div className="input-group mb-3">
+    <div>
+      {/* Main content */}
+      <div className="container-fluid">
+        <div className="row">
+          {/* Search by keyword */}
+          <div className="col-4">
+            <form action="">
+              <div className="mt-3">
+                <label className="form-label">Search by keyword:</label>
                 <input
                   type="text"
                   className="form-control"
@@ -218,44 +174,72 @@ const Track = () => {
           </div>
         </div>
 
-      <div className="row">
-        {/* All Users */}
-
-        {/* Report */}
-        {console.log(Report)}
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header bg-dark text-white">
-              <h5 className="text-light">Report</h5>
-            </div>
-            <div className="card-body">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Report Date</th>
-                    <th>Status</th>
+        {/* Table */}
+        <div className="row mt-5">
+          <div className="col-12">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    #
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Track Name
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Genre
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                   Status
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    User Name
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Likes
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                  Create Day
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                 Description
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Action
+                  </th>
+                  
+                </tr>
+              </thead>
+              <tbody>
+                {paginateUsers().map((user, index) => (
+                  <tr key={user.id}>
+                    <th style={{ textAlign: "center" }} scope="row">
+                      {index + 1 + (currentPage - 1) * rowsPerPage}
+                    </th>
+                    <td>{user.name}</td>
+                    <td>{user.genreName}</td>
+                    <td>{user.status ? "Active" : "Unactive"}</td>
+                    <td>{user.userName}</td>
+                    <td>{user.likes>0 ? user.likes : "0"}</td>
+                    <td>{user.createDate.split('T')[0]}</td>
+                    <td>{user.description}</td>
+                    <td>
+                      <Link
+                        className="btn btn-primary"
+                        style={{ color: "#000" }}
+                        to={`/socialadmin/TrackDetail/${user.id}`}
+                      >
+                        View
+                      </Link>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {Report.map((rp) => (
-                    <tr key={rp.id}>
-                      <td>{rp.track.name}</td>
-                      <td>{rp.createDate}</td>
-                      <td>{rp.status}</td>
-                      <td>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() => handleShowModal(rp.id)}
-                        >
-                          Views
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-3">
+              <button className="btn btn-success" onClick={exportToExcel}>
+                Excel export
+              </button>
             </div>
 
             {/* Pagination */}
