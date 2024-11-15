@@ -2,27 +2,27 @@ import React, { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import "./css/waveFormFeed.css";
 import { images } from "../../../../assets/images/images";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 const WaveFormFeed = ({ audioUrl, track }) => {
-  const waveformRef = useRef(null);
-  const wavesurferRef = useRef(null);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+    const waveformRef = useRef(null);
+    const wavesurferRef = useRef(null);
+    const [duration, setDuration] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
 
-  useEffect(() => {
-    // Tạo gradient cho sóng âm và phần đã phát
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    useEffect(() => {
+        // Tạo gradient cho sóng âm và phần đã phát
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 1.35);
-    gradient.addColorStop(0, "#656666");
-    gradient.addColorStop((canvas.height * 0.7) / canvas.height, "#656666");
-    gradient.addColorStop((canvas.height * 0.7 + 1) / canvas.height, "#ffffff");
-    gradient.addColorStop((canvas.height * 0.7 + 2) / canvas.height, "#ffffff");
-    gradient.addColorStop((canvas.height * 0.7 + 3) / canvas.height, "#B1B1B1");
-    gradient.addColorStop(1, "#B1B1B1");
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 1.35);
+        gradient.addColorStop(0, "#656666");
+        gradient.addColorStop((canvas.height * 0.7) / canvas.height, "#656666");
+        gradient.addColorStop((canvas.height * 0.7 + 1) / canvas.height, "#ffffff");
+        gradient.addColorStop((canvas.height * 0.7 + 2) / canvas.height, "#ffffff");
+        gradient.addColorStop((canvas.height * 0.7 + 3) / canvas.height, "#B1B1B1");
+        gradient.addColorStop(1, "#B1B1B1");
 
     const progressGradient = ctx.createLinearGradient(
       0,
