@@ -65,7 +65,7 @@ console.log("album:",album)
               <strong>{album.creator ? album.creator.userName: "unkown"}</strong>
             </p>
             <p>Released: {album.createDate}</p>
-            <p>Genre: {album.genreName? album.genreName:"unkown"}</p>
+            <p>Genre: {album.genreName ? album.genreName:"unkown"}</p>
             <p>Creator: {album.creator? album.creator:"unkown"}</p>
             <p>Description: {album.description? album.description:"unkown"}</p>
           </div>

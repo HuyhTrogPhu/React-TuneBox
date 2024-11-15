@@ -9,18 +9,19 @@ import {
 } from "../../../service/SocialMediaAdminService";
 
 const Playlists = () => {
+
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [onDate, setOnDate] = useState();
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [onDay, setOnDate] = useState();
   const rowsPerPage = 7;
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers();   
   }, []);
 
   const fetchUsers = async () => {
@@ -28,10 +29,20 @@ const Playlists = () => {
       const response = await LoadPLayList();
       setUsers(response.data);
       setFilteredUsers(response.data);
+      console.log(users);
       setTotalPages(Math.ceil(response.data.length / rowsPerPage));
+      handlTodayUser(response.data);
     } catch (error) {
       console.error("Failed to fetch users:", error);
     }
+  };
+  const handleOnday = (Day) => {
+    event.preventDefault();
+    const filtered = users.filter((user) => user.createDate === Day);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    filterUsers(Day,Day);
+
   };
 
   const handleKeywordChange = (e) => {
@@ -44,13 +55,11 @@ const Playlists = () => {
     filterUsers(keyword, from, to);
   };
 
-  const handlTodayUser = (event) => {
-    event.preventDefault();
-  
+  const handlTodayUser = (data) => {
+    if (!data) return; 
     const today = new Date().toISOString().split('T')[0]; 
     console.log(today);
-    const filtered = users.filter(user => user.createDate === today);
-    
+    const filtered = data.filter(user => user.createDate.split('T')[0] === today);
     setFilteredUsers(filtered);
     setTotalPages(Math.ceil(filtered.length / rowsPerPage));
   };
@@ -66,7 +75,7 @@ const Playlists = () => {
       );
     }
     if (fromDate && toDate) {
-      filtered = filtered.filter(user => user.createDate >= fromDate && user.createDate <= toDate);
+      filtered = filtered.filter(user => user.createDate.split('T')[0] >= fromDate && user.createDate.split('T')[0] <= toDate);
     }
 
     setFilteredUsers(filtered);
@@ -84,20 +93,20 @@ const Playlists = () => {
       setCurrentPage(pageNumber);
     }
   };
-  // Hàm xuất Excel
-  const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(filteredUsers);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Customers");
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: EXCEL_TYPE });
-    saveAs(data, "customers.xlsx");
-  };
-
-  const EXCEL_TYPE =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-  const EXCEL_EXTENSION = ".xlsx";
-
+    // Hàm xuất Excel
+    const exportToExcel = () => {
+      const ws = XLSX.utils.json_to_sheet(filteredUsers);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Customers");
+      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const data = new Blob([excelBuffer], { type: EXCEL_TYPE });
+      saveAs(data, "customers.xlsx");
+    };
+  
+    const EXCEL_TYPE =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+    const EXCEL_EXTENSION = ".xlsx";
+  
   return (
     <div>
       {/* Main content */}

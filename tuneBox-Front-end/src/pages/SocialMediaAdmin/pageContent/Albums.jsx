@@ -8,18 +8,19 @@ import {
   LoadAlbum
 } from "../../../service/SocialMediaAdminService";
 
-const Albums = () => {  const [users, setUsers] = useState([]);
+const Albums = () => { 
+   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [onDate, setOnDate] = useState();
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [onDay, setOnDate] = useState();
   const rowsPerPage = 7;
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers();   
   }, []);
 
   const fetchUsers = async () => {
@@ -27,10 +28,20 @@ const Albums = () => {  const [users, setUsers] = useState([]);
       const response = await LoadAlbum();
       setUsers(response.data);
       setFilteredUsers(response.data);
+      console.log(users);
       setTotalPages(Math.ceil(response.data.length / rowsPerPage));
+      handlTodayUser(response.data);
     } catch (error) {
       console.error("Failed to fetch users:", error);
     }
+  };
+  const handleOnday = (Day) => {
+    event.preventDefault();
+    const filtered = users.filter((user) => user.createDate === Day);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    filterUsers(Day,Day);
+
   };
 
   const handleKeywordChange = (e) => {
@@ -43,13 +54,11 @@ const Albums = () => {  const [users, setUsers] = useState([]);
     filterUsers(keyword, from, to);
   };
 
-  const handlTodayUser = (event) => {
-    event.preventDefault();
-  
+  const handlTodayUser = (data) => {
+    if (!data) return; 
     const today = new Date().toISOString().split('T')[0]; 
     console.log(today);
-    const filtered = users.filter(user => user.createDate.split('T')[0] === today);
-    
+    const filtered = data.filter(user => user.createDate.split('T')[0] === today);
     setFilteredUsers(filtered);
     setTotalPages(Math.ceil(filtered.length / rowsPerPage));
   };
@@ -145,16 +154,22 @@ const Albums = () => {  const [users, setUsers] = useState([]);
           </div>
           {/* Total order count filter */}
           <div className="col-3">
-            <form>
+    
               <div className="mt-3">
                 <label className="form-label">New Album on</label>
-                <div className="d-flex">
-                  <button className="btn btn-primary"  onClick={(e) => handlTodayUser(e)}>
+                <input
+                    type="date"
+                    className="form-control m-2"
+                    value={onDay}
+                    onChange={(e) => handleOnday(e.target.value)}
+                  />
+                  <div className="d-flex m-2">
+                  <button className="btn btn-primary"  onClick={(e) => handlTodayUser(users)}>
                     Today
                   </button>
                 </div>
               </div>
-            </form>
+         
           </div>
         </div>
 

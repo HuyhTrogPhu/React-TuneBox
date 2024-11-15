@@ -6,7 +6,7 @@ const Dashboard = () => {
   const [postData, setPostData] = useState([]);
   const [sortedUsers, setSortedUsers] = useState([]);
   const [AllUser, setAllUser] = useState([]);
-  const [reported, setReported] = useState([]);
+  const [track, setTrack] = useState([]);
   const navigate = useNavigate();
   //count User API
   const LoadCount = async () => {
@@ -64,11 +64,11 @@ const Dashboard = () => {
     }
   };
 
-  //get all User API
-  const LoadReportedUser = async () => {
+
+  const LoadAllTrack = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8082/SocialAdmin/static/getUserReported`,
+        `http://localhost:8082/SocialAdmin/static/getAllTrack`,
         { withCredentials: true }
       );
       const data = response.data;
@@ -84,15 +84,14 @@ const Dashboard = () => {
       const responseLoadCount = await LoadCount();
       console.log("Tổng số user:", responseLoadCount);
       if (responseLoadCount.status) {
-        console.log(AllUser);
         setcountUser(responseLoadCount.data);
         
       }
-//goi API reported
-      const responseReported = await LoadReportedUser();
+       //goi API reported
+      const responseReported = await LoadAllTrack();
       console.log("Tổng số user reported:", responseReported);
       if (responseReported.status) {
-        setReported(responseReported.data);
+        setTrack(responseReported.data);
       }
 
       // Gọi API load all user
@@ -156,103 +155,25 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Unique Visitors and Report */}
-      <div className="row">
-        <div className="col-md-6">
-          <div className="card">
+        <div className="col-md-4">
+          <div className="card text-center bg-dark text-white">
             <div className="card-body">
-              <h5>Total/Unique Visitors</h5>
-              <h3>5,000 / 10,000</h3>
-              <div
-                className="chart-placeholder"
-                style={{ height: "200px", background: "#ddd" }}
-              >
-                <h4 className="text-center">Chart</h4>
-              </div>
+              <h5 className="text-light">Total Post</h5>
+              <h2 className="text-light">{postData.length}</h2>
             </div>
           </div>
         </div>
-        <div className="col-md-6">
-          <div className="card">
+
+        <div className="col-md-4">
+          <div className="card text-center bg-dark text-white">
             <div className="card-body">
-              <h5>Report of User</h5>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Follower</th>
-                    <th>Following</th>
-                    <th>Total Post</th>
-                    <th>Total Track</th>
-                    <th>Total Oders</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reported.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.userName}</td>
-                      <td>{user.followers.length}</td>
-                      <td>{user.following.length}</td>
-                      <td>{user.totalPosts}</td>
-                      <td>{user.tracks.length}</td>
-                      <td>{user.orderList.length}</td>
-                      <td>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() =>
-                            navigate(`/socialadmin/detailUser/${user.id}`)
-                          }
-                        >
-                          Views
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <h5 className="text-light">Total track</h5>
+              <h2 className="text-light">{track.length}</h2>
             </div>
           </div>
         </div>
       </div>
-
-      {/* New Registrations and Trending Users */}
-      {/* <div className="row mt-4">
-        <div className="col-md-6">
-          <div className="card">
-            <div className="card-body">
-              <h5>Trending Users</h5>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Total Posts</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedUsers.map((user, index) => (
-                    <tr key={index}>
-                      <td>{user.userName}</td>
-                      <td>{user.postCount}</td>
-                      <td>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() => navigate(`/ecomadmin/detailUser/${user.userId}`)}
-                        >
-                          Views
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };

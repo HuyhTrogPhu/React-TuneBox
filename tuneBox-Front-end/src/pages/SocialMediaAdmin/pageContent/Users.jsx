@@ -4,18 +4,16 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import {
-  LoadAllUser
-} from "../../../service/SocialMediaAdminService";
+import { LoadAllUser } from "../../../service/SocialMediaAdminService";
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [onDate, setOnDate] = useState();
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [onDay, setOnDate] = useState();
   const rowsPerPage = 7;
 
   useEffect(() => {
@@ -27,10 +25,19 @@ const Users = () => {
       const response = await LoadAllUser();
       setUsers(response.data);
       setFilteredUsers(response.data);
+      console.log(users);
       setTotalPages(Math.ceil(response.data.length / rowsPerPage));
+      handlTodayUser(response.data);
     } catch (error) {
       console.error("Failed to fetch users:", error);
     }
+  };
+  const handleOnday = (Day) => {
+    event.preventDefault();
+    const filtered = users.filter((user) => user.createDate === Day);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    filterUsers(Day, Day);
   };
 
   const handleKeywordChange = (e) => {
@@ -43,29 +50,27 @@ const Users = () => {
     filterUsers(keyword, from, to);
   };
 
-  const handlTodayUser = (event) => {
-    event.preventDefault();
-    const today = new Date().toISOString().split('T')[0]; 
+  const handlTodayUser = (data) => {
+    if (!data) return;
+    const today = new Date().toISOString().split("T")[0];
     console.log(today);
-    const filtered = users.filter(user => user.createDate === today);
+    const filtered = data.filter(
+      (user) => user.createDate.split("T")[0] === today
+    );
     setFilteredUsers(filtered);
     setTotalPages(Math.ceil(filtered.length / rowsPerPage));
   };
-  
 
   const filterUsers = async (searchKeyword, fromDate, toDate) => {
     let filtered = users;
     if (searchKeyword) {
-      filtered = filtered.filter(
-        (user) =>
-          user.userName.includes(searchKeyword) ||
-          user.email.includes(searchKeyword)
-      );
+      filtered = filtered.filter((user) => user.name.includes(searchKeyword));
     }
     if (fromDate && toDate) {
-      filtered = filtered.filter(user => user.createDate >= fromDate && user.createDate <= toDate);
+      filtered = filtered.filter(
+        (user) => user.createDate >= fromDate && user.createDate <= toDate
+      );
     }
-
     setFilteredUsers(filtered);
     setTotalPages(Math.ceil(filtered.length / rowsPerPage)); // Recalculate total pages after filtering
   };
@@ -143,18 +148,38 @@ const Users = () => {
           </div>
           {/* Total order count filter */}
           <div className="col-3">
-            <form>
-              <div className="mt-3">
-                <label className="form-label">New User on</label>
-                <div className="d-flex">
-                  <button className="btn btn-primary"  onClick={(e) => handlTodayUser(e)}>
-                    Today
-                  </button>
-                </div>
+            <div className="mt-3">
+              <label className="form-label">New Album on</label>
+              <input
+                type="date"
+                className="form-control m-2"
+                value={onDay}
+                onChange={(e) => handleOnday(e.target.value)}
+              />
+              <div className="d-flex m-2">
+                <button
+                  className="btn btn-primary"
+                  onClick={(e) => handlTodayUser(users)}
+                >
+                  Today
+                </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
+      
+      {/* Top Statistics */}
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <div className="card text-center bg-dark text-white">
+            <div className="card-body">
+              <h5 className="text-light">Total Users</h5>
+              <h2 className="text-light">{users.length}</h2>
+               
+            </div>
+          </div>
+        </div>
+      </div>
 
         {/* Table */}
         <div className="row mt-5">
@@ -219,7 +244,7 @@ const Users = () => {
             </table>
             <div className="mt-3">
               <button className="btn btn-success" onClick={exportToExcel}>
-               Excel export
+                Excel export
               </button>
             </div>
 

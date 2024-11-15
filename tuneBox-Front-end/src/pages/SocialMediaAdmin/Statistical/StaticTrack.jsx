@@ -6,93 +6,220 @@ import { Link } from "react-router-dom";
 import {
   LoadTrack
 } from "../../../service/SocialMediaAdminService";
-function StaticTrack() {
-    const [startDate, setStartDate] = useState();
-    const [endDate, setEndDate] = useState();
-    const [onDay, setOnDate] = useState();
-    const [user, setUser] = useState();
-    const [userChart, setUserChart] = useState();
-    const [user2, setUser2] = useState();
-    const [currentPage, setCurrentPage] = useState(1);
-    const [filteredUsers, setFilteredUsers] = useState([]);
-    const [dateLabels, setDateLabels] = useState([]);
-    const [form, setForm] = useState("");
-    const [totalPages, setTotalPages] = useState(1);
-    const [chartType, setChartType] = useState("");
-    const [Typlabel, setTyplabel] = useState("");
-    const [dataOnday, setDataOnday] = useState("");
-    const rowsPerPage = 7;
-    useEffect(() => {
-      fetchUsers();
-    }, []);
-  
-    const getDatesInRange = useCallback((startDate, endDate) => {
-      const dateArray = [];
-      let currentDate = new Date(startDate);
-      const end = new Date(endDate);
-      end.setDate(end.getDate() + 1); // Đảm bảo bao gồm cả ngày cuối cùng
-      while (currentDate < end) {
-        dateArray.push(currentDate.toISOString().split("T")[0]);
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-      return dateArray;
-    }, []);
-    const fetchUsers = async () => {
-      try {
-        const response = await LoadTrack();
-        setUser(response.data);
-        setFilteredUsers(response.data);
-        setTotalPages(Math.ceil(response.data.length / rowsPerPage));
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
-      }
-    };
-    //check khi doi ngay
-    const handleDayChange = (from, to) => {
-      setStartDate(from);
-      setEndDate(to);
-      const datesInRange = getDatesInRange(from, to);
-      setDateLabels(datesInRange);
-      setChartType("line");
-      filterUsers(from, to);
-      fillOnChart(datesInRange);
-    };
-    const handlTodayUser = (from, to) => {
-      event.preventDefault();
-      const today = new Date().toISOString().split("T")[0];
-      const filtered = user.filter((user) => user.createDate.split("T")[0] === today);
-     
-      setFilteredUsers(filtered);
-      setTotalPages(Math.ceil(filtered.length / rowsPerPage));
-      //chart
-      setChartType("bar");
-      filterUsers([today]);
-      fillOnChart([today]);
-    };
-    const handleOnday = (Day) => {
-      event.preventDefault();
-  
-      const filtered = user.filter((user) => user.createDate.split("T")[0] === Day);
-      
-      setFilteredUsers(filtered);
-      setTotalPages(Math.ceil(filtered.length / rowsPerPage));
-      //chart
-      setChartType("bar");
-      filterUsers(Day,Day);
-      fillOnChart([Day]);
-    };
+function StaticTrack() {  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
+  const [onDay, setOnDate] = useState();
+  const [startWeek, setStartWeek] = useState();
+  const [endWeek, setEndWeek] = useState();
+  const [onWeek, setOnWeek] = useState();
+  const [startMonth, setStartMonth] = useState();
+  const [endMonth, setEndMonth] = useState();
+  const [onMonth, setOnMonth] = useState();
+  const [user, setUser] = useState();
+  const [userChart, setUserChart] = useState();
+  const [user2, setUser2] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [dateLabels, setDateLabels] = useState([]);
+  const [form, setForm] = useState("");
+  const [totalPages, setTotalPages] = useState(1);
+  const [chartType, setChartType] = useState("line");
+  const [Typlabel, setTyplabel] = useState("");
+  const [dataOnday, setDataOnday] = useState("");
+  const [timeType, setTimeType] = useState("day");
+  const rowsPerPage = 7;
 
-    const handleMostFollowed = async () => {
-      setChartType("bar");
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    console.log("Updated userChart:", userChart);
+  }, [userChart]);
+
+  const handleTimeTypeChange = (e) => {
+    setTimeType(e.target.value);
+    setDateLabels([]);
+  };
+  const getDatesInRange = useCallback((start, endIn) => {
+    const dateArray = [];
+
+
+  // Hàm tính ngày đầu tiên của tuần (Thứ Hai)
+  const parseWeek = (weekStr, getLastDay = false) => {
+    const [year, week] = weekStr.split("-W").map(Number);
+    const firstDayOfYear = new Date(year, 0, 1);
+    const daysOffset = (week - 1) * 7 - firstDayOfYear.getDay() + (firstDayOfYear.getDay() <= 1 ? 1 : -6);
+    const firstDayOfWeek = new Date(year, 0, firstDayOfYear.getDate() + daysOffset+1);
+
+    if (getLastDay) {
+      firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+    }
+    return firstDayOfWeek;
+  };
   
-      const filtered = user.sort((a, b) => b.likes - a.likes);
-      console.log("User:",user);
-      console.log("Sorted:",filtered);
-      setFilteredUsers(filtered);
-      setTotalPages(Math.ceil(filtered.length / rowsPerPage));
-      fillOnChartWithMostFollowed(filtered);
+  
+    // Hàm chuyển đổi tháng từ chuỗi "YYYY-MM" thành ngày đầu tiên của tháng
+    const parseMonth = (monthStr) => {
+      const [year, month] = monthStr.split("-").map(Number);
+      return new Date(year, month - 1, 1); // month - 1 vì tháng trong JavaScript bắt đầu từ 0
     };
   
+    // Kiểm tra nếu kiểu thời gian là 'day', 'week', hoặc 'month'
+    switch (timeType) {
+      case "day":
+
+        let currentDate = new Date(start);
+        const endDate = new Date(endIn);
+        endDate.setDate(endDate.getDate() + 1); // Bao gồm ngày cuối
+        while (currentDate < endDate) {
+          dateArray.push(currentDate.toISOString().split("T")[0]);
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+        break;
+  
+        case "week":
+          let currentWeekDate = parseWeek(start);  
+          const endWeekDate = parseWeek(endIn, true);  
+          while (currentWeekDate <= endWeekDate) {
+            dateArray.push(currentWeekDate.toISOString().split("T")[0]); // Đưa ra định dạng YYYY-MM-DD
+            currentWeekDate.setDate(currentWeekDate.getDate() + 1);
+          }
+          break;
+  
+      case "month":
+        // Xử lý cho loại tháng (month)
+        let currentMonthDate = parseMonth(start);
+        const endMonthDate = parseMonth(endIn);
+  
+        // Lặp qua từng tháng, lấy tất cả các ngày trong từng tháng
+        while (currentMonthDate <= endMonthDate) {
+          const monthEndDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + 1, 0);
+          while (currentMonthDate <= monthEndDate && currentMonthDate <= endMonthDate) {
+            dateArray.push(currentMonthDate.toISOString().split("T")[0]);
+            currentMonthDate.setDate(currentMonthDate.getDate() + 1);
+          }
+        }
+        break;
+  
+      default:
+        console.error("Invalid timeType provided.");
+    }
+  
+    return dateArray;
+  }, [timeType]);
+  
+  function getWeeksInRange(from, to) {
+    // Phân tích chuỗi để lấy năm và tuần bắt đầu/kết thúc
+    const [startYear, startWeek] = from.split("-W").map(Number);
+    const [endYear, endWeek] = to.split("-W").map(Number);
+  
+    const weeks = [];
+    let currentYear = startYear;
+    let currentWeek = startWeek;
+  
+    while (currentYear < endYear || (currentYear === endYear && currentWeek <= endWeek)) {
+      weeks.push(`${currentYear}-W${String(currentWeek).padStart(2, '0')}`);
+  
+      // Tăng tuần lên 1 và kiểm tra xem có cần chuyển sang năm tiếp theo
+      currentWeek++;
+      if (currentWeek > 52) {  // Giả định rằng có 52 tuần trong một năm
+        currentWeek = 1;
+        currentYear++;
+      }
+    }
+  
+    return weeks;
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const response = await LoadTrack();
+      setUser(response.data);
+      setFilteredUsers(response.data);
+      setTotalPages(Math.ceil(response.data.length / rowsPerPage));
+      console.log(response);
+      if(response.status){
+        console.log("Calling handlTodayUser with data:", response.data);
+        handlTodayUser(response.data);
+      } 
+    } catch (error) {
+      setTimeType("day");
+      console.error("Failed to fetch users:", error);
+    }
+  };
+  //check khi doi ngay
+  const handleDayChange = (from, to) => {
+    setStartDate(from);
+    setEndDate(to);
+    console.log("from:", from, "To", to);
+    const datesInRange = getDatesInRange(from, to);
+    setDateLabels(datesInRange);
+    setChartType("line");
+    filterUsers(datesInRange);
+    fillOnChart(datesInRange);
+  };
+
+  //check khi chon tuan
+  const handleWeekChange = (from, to) => {
+    setStartWeek(from);
+    setEndWeek(to);
+    console.log("from:", from, "To", to);
+    const datesInRange = getDatesInRange(from, to);
+    const weekInRange =getWeeksInRange(from, to);
+    console.log(datesInRange);
+    console.log(weekInRange);
+    setChartType("line");
+    filterUsers(datesInRange);
+    fillOnChart(weekInRange);
+  };
+
+  //check khi chon nam
+  const handleMonthChange = (from, to) => {
+    setStartMonth(from);
+    setEndMonth(to);
+    console.log("from:", from, "To", to);
+    const datesInRange = getDatesInRange(from, to);
+    console.log(datesInRange);
+  };
+
+  const handlTodayUser = (data) => {
+    if (!data) return;
+    const today = new Date().toISOString().split("T")[0];
+    console.warn("data",data);
+    console.warn("today",today);
+    const filtered = data.filter((data) => data.createDate.split("T")[0] === today);
+    console.warn(filtered);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    //chart
+    setChartType("bar");
+    filterUsers(today, today);
+    fillOnChart([today]);
+  };
+
+  //onday
+  const handleOnday = (Day) => {
+    event.preventDefault();
+    const filtered = user.filter((user) => user.createDate === Day);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    //chart
+    setChartType("bar");
+    setTimeType("day")
+    filterUsers(Day, Day);
+    fillOnChart([Day]);
+  };
+  const handleMostFollowed = async () => {
+    setChartType("bar");
+    const filtered = user.sort((a, b) => b.likes - a.likes);
+    console.log("User:",user);
+    console.log("Sorted:",filtered);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    fillOnChartWithMostFollowed(filtered);
+  };
+
   const fillOnChartWithMostFollowed = (sortedUsers) => {
     const userCountByName = sortedUsers.slice(0, 10).reduce((acc, user) => {
       acc[user.name] = user.likes;
@@ -100,61 +227,126 @@ function StaticTrack() {
     }, {});
     setUserChart(userCountByName);
   };
-    //table
-    const filterUsers = async (fromDate, toDate) => {
-      let filtered = user;
-      if (fromDate && toDate) {
-        filtered = filtered.filter(
-          (user) => user.createDate.split("T")[0] >= fromDate && user.createDate.split("T")[0] <= toDate
-        );
-      }
-      setFilteredUsers(filtered);
-      setTotalPages(Math.ceil(filtered.length / rowsPerPage)); // Recalculate total pages after filtering
-    };
 
-    const fillOnChart = (datesInRange) => {
+  //table
+  const filterUsers = async (datesInRange) => {
+    let filtered = user;
+    console.log(filtered);
+    if (datesInRange && datesInRange.length > 0 &&filtered) {
+      filtered = filtered.filter((user) => datesInRange.includes(user.createDate.split("T")[0]));
+      setFilteredUsers(filtered);
+      setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    }
+ // Recalculate total pages after filtering
+  };
+
+  const fillOnChart = (datesInRange) => {
+    //lay ngay trong tuan
+    const parseWeek = (weekStr, getLastDay = false) => {
+      const [year, week] = weekStr.split("-W").map(Number);
+      const firstDayOfYear = new Date(year, 0, 1);
+      const daysOffset = (week - 1) * 7 - firstDayOfYear.getDay() + (firstDayOfYear.getDay() <= 1 ? 1 : -6);
+      const firstDayOfWeek = new Date(year, 0, firstDayOfYear.getDate() + daysOffset+1);
+  
+      if (getLastDay) {
+        firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+      }
+      return firstDayOfWeek;
+    }; 
+
+if (user) {
+  switch (timeType) {
+    case "day":
       const userCountByDate = datesInRange.reduce((acc, date) => {
         const count = user.filter((u) => u.createDate.split("T")[0] === date).length;
         acc[date] = count;
         return acc;
       }, {});
       setUserChart(userCountByDate);
+      console.warn(userChart); 
+      break;
+      case "week":
+        const userCountByWeek = datesInRange.reduce((acc, week) => {
+          const startOfWeek = parseWeek(week);        // Ngày đầu tuần
+          const endOfWeek = parseWeek(week, true);    // Ngày cuối tuần
+    
+          // Đếm số lượng user có createDate nằm trong tuần này
+          const count = user.filter((u) => {
+            const createDate = new Date(u.createDate.split("T")[0]); // Giả sử createDate là chuỗi ngày
+            return createDate >= startOfWeek && createDate <= endOfWeek;
+          }).length;
+    
+          acc[week] = count;
+          return acc;
+        }, {});
+    
+        setUserChart(userCountByWeek);
+        break;
+    case "month":
+
+      break;
+
     };
-  
-    const paginate = (pageNumber) => {
-      if (pageNumber >= 1 && pageNumber <= totalPages) {
-        setCurrentPage(pageNumber);
-      }
+}
+
+  }
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+  const paginateUsers = () => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return filteredUsers.slice(startIndex, endIndex);
+  };
+
+  const createChartData = () => {
+    // Nếu userChart không có dữ liệu, sử dụng giá trị mặc định
+    const labels =
+      Object.keys(userChart || {}).length > 0
+        ? Object.keys(userChart)
+        : ["No Data"];
+    const data =
+      Object.values(userChart || {}).length > 0
+        ? Object.values(userChart)
+        : [0];
+
+    return {
+      labels: labels, // Nhãn (labels) sẽ là "No Data" nếu không có dữ liệu
+      datasets: [
+        {
+          label: "Track",
+          data: data, // Dữ liệu (data) sẽ là [0] nếu không có dữ liệu
+          borderColor: "rgba(75, 192, 192, 1)", // Màu viền
+          backgroundColor: "rgba(75, 192, 192, 0.2)", // Màu nền
+          fill: true, // Có nền hay không
+        },
+      ],
     };
-    const paginateUsers = () => {
-      const startIndex = (currentPage - 1) * rowsPerPage;
-      const endIndex = startIndex + rowsPerPage;
-      return filteredUsers.slice(startIndex, endIndex);
-    };
-  
-    const createChartData = () => {
-      if (!userChart) return { labels: [], datasets: [] };
-      const labels = Object.keys(userChart);
-      const data = Object.values(userChart);
-      return {
-        labels: labels,
-        datasets: [
-          {
-            label: "User Registrations",
-            data: data,
-            borderColor: "rgba(75, 192, 192, 1)",
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            fill: true,
-          },
-        ],
-      };
-    };
+  };
     return (
       <div>
         <div className="container-fluid">
+        {/*chose time type */}
+        <div className="row">
+          <div className="col-4">
+            <div className="mt-3">
+              <label className="form-label">Chọn loại thời gian</label>
+              <select className="form-control" onChange={handleTimeTypeChange}>
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+            
+              </select>
+            </div>
+          </div>
+        </div>
+
           <div className="row">
-            <div className="col-4">
-              <form>
+          <div className="col-4">
+            {/* chose day */}
+            {timeType === "day" && (
+       
                 <div className="mt-3">
                   <label className="form-label">Chose Day</label>
                   <div className="d-flex">
@@ -171,14 +363,77 @@ function StaticTrack() {
                       className="form-control"
                       placeholder="To"
                       value={endDate}
-                      onChange={(e) => handleDayChange(startDate, e.target.value)}
+                      onChange={(e) =>
+                        handleDayChange(startDate, e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+
+            )}
+
+            {/* chose Week */}
+            {timeType === "week" && (
+              <form>
+                <div className="mt-3">
+                  <label className="form-label">Chose week</label>
+                  <div className="d-flex">
+                    <input
+                      type="week"
+                      className="form-control"
+                      placeholder="From"
+                      value={startWeek}
+                      onChange={(e) =>
+                        handleWeekChange(e.target.value, endWeek)
+                      }
+                    />
+                    -
+                    <input
+                      type="week"
+                      className="form-control"
+                      placeholder="To"
+                      value={endWeek}
+                      onChange={(e) =>
+                        handleWeekChange(startWeek, e.target.value)
+                      }
                     />
                   </div>
                 </div>
               </form>
-            </div>
-            <div className="col-3">
+            )}
+
+            {/* chose Month */}
+            {/* {timeType === "month" && (
               <form>
+                <div className="mt-3">
+                  <label className="form-label">Chose month</label>
+                  <div className="d-flex">
+                    <input
+                      type="month"
+                      className="form-control"
+                      placeholder="From"
+                      value={startMonth}
+                      onChange={(e) =>
+                        handleMonthChange(e.target.value, endMonth)
+                      }
+                    />
+                    -
+                    <input
+                      type="month"
+                      className="form-control"
+                      placeholder="To"
+                      value={endMonth}
+                      onChange={(e) =>
+                        handleMonthChange(startMonth, e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+              </form>
+            )} */}
+          </div>
+            <div className="col-3">
+             
               <div className="mt-3">
                 <label className="form-label">New Track on</label>
                 <div className="d-flex">
@@ -190,13 +445,13 @@ function StaticTrack() {
                   />
                   <button
                     className="btn btn-primary"
-                    onClick={(e) => handlTodayUser(e)}
+                    onClick={() => handlTodayUser(user)}
                   >
                     Today
                   </button>
                 </div>
               </div>
-                </form>
+           
            
                 </div>
                 <div className="col-3">
@@ -204,11 +459,18 @@ function StaticTrack() {
               <label className="form-label">Statical with</label>
               <div className="d-flex">
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary m-2"
                   onClick={(e) => handleMostFollowed(e)}
                 >
                   Most Like
                 </button>
+
+                {/* <button
+                  className="btn btn-primary m-2"
+                  onClick={(e) => handleTrackGenre(e)}
+                >
+                  Track By Genre
+                </button> */}
               </div>
             </div>
           </div>
@@ -247,7 +509,10 @@ function StaticTrack() {
                   Create Date
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
-                 Like
+                  Like
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                  Comments
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
                     Action
@@ -266,6 +531,7 @@ function StaticTrack() {
                       <td>{user.genreName}</td>
                       <td>{user.createDate.split("T")[0]}</td>
                       <td>{user.likes.length > 0 ? user.likes : "0"}</td>
+                      <td>{user.comments.length > 0 ? user.comments : "0"}</td>
                       <td>
                         <Link
                           className="btn btn-primary"

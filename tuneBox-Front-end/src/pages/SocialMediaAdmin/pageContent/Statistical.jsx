@@ -1,50 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Line } from 'react-chartjs-2';
-import { getRevenueBeforeCurrently, getRevenueCurrently } from '../../../service/EcommerceStatistical';
 
 const Statistical = () => {
-
-    const [currentRevenue, setCurrentRevenue] = useState({});
-    const [previousRevenue, setPreviousRevenue] = useState({});
-    const navigate = useNavigate();
-
-    // revenue by day or between days
-    const [selectedDate, setSelectedDate] = useState('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-
-    // revenue by week or between weeks
-    const [selectedWeek, setSelectedWeek] = useState('');
-    const [startDateWeek, setStartDateWeek] = useState('');
-    const [endDateWeek, setEndDateWeek] = useState('');
-
-    // revenue by month or between months
-    const [selectYearOfMonth, setSelectedYearOfMonth] = useState('');
-    const [selectedMonth, setSelectedMonth] = useState('');
-    const [startDateMonth, setStartDateMonth] = useState('');
-    const [endDateMonth, setEndDateMonth] = useState('');
-    const [months, setMonths] = useState([]);
-
-    // revenue by year or between years
-    const [selectedYear, setSelectedYear] = useState('');
-    const [startDateYear, setStartDateYear] = useState('');
-    const [endDateYear, setEndDateYear] = useState('');
-
-    // stattistical revenue currently and before
-    useEffect(() => {
-        const fetchRevenueData = async () => {
-            try {
-                const { data: current } = await getRevenueCurrently();
-                const { data: previous } = await getRevenueBeforeCurrently();
-                setCurrentRevenue(current);
-                setPreviousRevenue(previous);
-            } catch (error) {
-                console.error("Error fetching revenue data:", error);
-            }
-        };
-        fetchRevenueData();
-    }, []);
 
 
     const createChartData = (currentData, previousData, label) => ({
@@ -66,98 +24,6 @@ const Statistical = () => {
             }
         ]
     });
-
-    // search statistical revenue by day
-    const handleSubmitDay = (e) => {
-        e.preventDefault();
-        if (selectedDate) {
-            navigate(`/ecomadmin/Statistical/revenue-according-date/${selectedDate}`);
-        }
-    };
-
-    // search statistical revenue between days
-    const handleSubmitBetweenDates = (e) => {
-        e.preventDefault();
-        if (startDate && endDate) {
-            navigate(`/ecomadmin/Statistical/revenue-between-date/${startDate}/${endDate}`);
-        }
-    };
-
-    // search statistical revenue by week
-    const handleSingleDateSubmit = (e) => {
-        e.preventDefault();
-        if (selectedWeek) {
-            navigate(`/ecomadmin/Statistical/revenue-by-week/${selectedWeek}`);
-        }
-    };
-
-    // search statistical revenue between weeks
-    const handleBetweenDatesSubmit = (e) => {
-        e.preventDefault();
-        if (startDateWeek && endDateWeek) {
-            navigate(`/ecomadmin/Statistical/revenue-between-weeks/${startDateWeek}/${endDateWeek}`);
-        }
-    };
-
-    // calculate months in a year
-    const handleYearChange = (e) => {
-        const year = e.target.value;
-        setSelectedYearOfMonth(year);
-
-        const monthArray = [];
-        for (let i = 1; i <= 12; i++) {
-            monthArray.push({ value: i, label: `Month ${i}` });
-        }
-        setMonths(monthArray);
-    };
-
-    // search statistical revenue month
-    const handleSingleMonthSubmit = (e) => {
-        e.preventDefault();
-        if (selectYearOfMonth && selectedMonth) {
-            navigate(`/ecomadmin/Statistical/revenue-by-month/${selectYearOfMonth}/${selectedMonth}`);
-        }
-    };
-
-    // search statistical revenue between months
-    const handleBetweenMonthsSubmit = (e) => {
-        e.preventDefault();
-        if (selectYearOfMonth && startDateMonth && endDateMonth) {
-            navigate(`/ecomadmin/Statistical/revenue-between-months/${selectYearOfMonth}/${startDateMonth}/${endDateMonth}`);
-        }
-    };
-
-    // search statistical revenue year
-    const handleSingleYearSubmit = (e) => {
-        e.preventDefault();
-        if (selectedYear) {
-            navigate(`/ecomadmin/Statistical/revenue-by-year/${selectedYear}`);
-        }
-    };
-
-    // search statistical revenue between years
-    const handleBetweenYearsSubmit = (e) => {
-        e.preventDefault();
-        if (startDateYear && endDateYear) {
-            navigate(`/ecomadmin/Statistical/revenue-between-years/${startDateYear}/${endDateYear}`);
-        }
-    };
-
-    // statistical order 
-    const orderTypes = [
-        { type: 'unpaid', label: 'Unpaid' },
-        { type: 'paid', label: 'Paid' },
-        { type: 'confirmed', label: 'Confirmed' },
-        { type: 'delivered', label: 'Delivered' },
-        { type: 'delivering', label: 'Delivering' },
-        { type: 'canceled', label: 'Canceled' },
-        { type: 'cod', label: 'COD' },
-        { type: 'vnpay', label: 'VNPAY' },
-        { type: 'normal', label: 'Normal' },
-        { type: 'fast', label: 'Express' }
-    ];
-
-
     return (
         <div>
 
