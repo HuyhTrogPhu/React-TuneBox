@@ -30,10 +30,10 @@ const Introduce = () => {
             <div className="row">
               <div className="col-lg-6 col-12 mb-4 mb-lg-0 d-flex align-items-center">
                 <div className="services-info">
-                  <h2 className="text-white mb-4">Khám phá thế giới âm nhạc không giới hạn</h2>
-                  <p className="text-white fontchu">Tại TuneBox, bạn có thể chia sẻ, khám phá và thưởng thức những bản nhạc yêu thích, cũng như tạo nên những playlist cá nhân theo sở thích.</p>
+                  <h2 className="text-white mb-4">Explore the unlimited world of music</h2>
+                  <p className="text-white fontchu">At TuneBox, you can share, discover and enjoy your favorite music, as well as create personal playlists according to your preferences.</p>
                   <p className="text-white">
-                    <Link to={'/login'} className="btn custom-btn smoothscroll">Bắt đầu</Link>
+                    <Link to={'/login'} className="btn custom-btn smoothscroll">Started</Link>
                   </p>
                 </div>
               </div>
@@ -55,8 +55,8 @@ const Introduce = () => {
           <div className="container">
             <div className="row">
               <div className="col-12 text-center" style={{ marginTop: 30 }}>
-                <h2 className=" mb-4 fontchu">Sáng tạo và chia sẽ âm nhạc</h2>
-                <p className="fontchu ">Với cộng đồng đa dạng và tính năng tương tác phong phú, TuneBox mang đến cho bạn một trải nghiệm âm nhạc tuyệt vời và không gian để thể hiện cá tính âm nhạc của riêng bạn.</p>
+                <h2 className=" mb-4 fontchu">Create and share music</h2>
+                <p className="fontchu ">With a diverse community and rich interactive features, TuneBox gives you a great music experience and space to express your own musical personality.</p>
               </div>
             </div>
             <div className="row">
@@ -68,7 +68,7 @@ const Introduce = () => {
           <div className="container">
             <div className="row">
               <div className="col-12 text-center">
-                <h2 className="text-white mb-4">Âm nhạc đến với mọi người</h2>
+                <h2 className="text-white mb-4">Music comes to everyone</h2>
                 <div className="table-responsive">
                   <img src={images.nen3} alt='nen3' className="about-image img-fluid" style={{ width: '100%' }} />
                 </div>

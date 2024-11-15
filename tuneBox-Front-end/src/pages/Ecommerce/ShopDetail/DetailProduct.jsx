@@ -8,6 +8,10 @@ import { getInstrumentById } from "../../../service/EcommerceHome";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { addToLocalCart, getLocalCart } from "../../../service/CartService";
+
+import { useTranslation } from "react-i18next";
+import '../../../i18n/i18n'
+
 import Swal from "sweetalert2";
 import { Audio } from "react-loader-spinner";
 
@@ -17,7 +21,7 @@ const DetailProduct = () => {
   const [instrument, setInstrument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const { t } = useTranslation();
   const [relatedInstrument, setRelatedInstrumet] = useState([]); // state related instrument by category id and brand id
 
   const [quantity, setQuantity] = useState(1); // state lưa số lượng sản phẩm
@@ -76,12 +80,11 @@ const DetailProduct = () => {
   }, [id, location.state]);
 
   // Hiển thị loading hoặc lỗi nếu có
-  if (loading) return <p>Đang tải sản phẩm...</p>;
+  if (loading) return <p>{t('dnote3')}</p>;
   if (error) return <p>{error}</p>;
 
   // Nếu không có sản phẩm, hiển thị thông báo 404
-  if (!instrument)
-    return <p>Sản phẩm không tồn tại hoặc không thể tìm thấy.</p>;
+  if (!instrument) return <p>{t('dnote4')}.</p>;
 
   const handleDecrement = () => {
     if (quantity > 1) {
@@ -95,10 +98,10 @@ const DetailProduct = () => {
       setQuantity(quantity + 1);
     } else {
       Swal.fire({
-        title: "Error!",
-        text: `You cannot increase the quantity beyond available stock (${instrument.quantity}).`,
-        icon: "error",
-        confirmButtonText: "OK",
+        title: t('error'),
+        text: t('dnote5') ,
+        icon: 'error',
+        confirmButtonText: 'OK',
         customClass: {
           confirmButton: "btn btn-primary",
         },
@@ -115,10 +118,10 @@ const DetailProduct = () => {
       setQuantity(value);
     } else if (value > instrument.quantity) {
       Swal.fire({
-        title: "Error!",
-        text: `You cannot enter more than ${instrument.quantity} items.`,
-        icon: "error",
-        confirmButtonText: "OK",
+        title: t('error'),
+        text: t('dnote5') ,
+        icon: 'error',
+        confirmButtonText: 'OK',
         customClass: {
           confirmButton: "btn btn-primary",
         },
@@ -140,9 +143,9 @@ const DetailProduct = () => {
 
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return "Out of stock";
-    if (quantity > 0 && quantity <= 5) return "Almost out of stock";
-    return "In stock";
+    if (quantity === 0) return  t('hethang');
+    if (quantity > 0 && quantity <= 5) return t('saphhet');
+    return t('conhang');
   };
 
   const handleAddToCart = async () => {
@@ -154,10 +157,10 @@ const DetailProduct = () => {
 
       // Hiển thị thông báo không thể thêm sản phẩm vào giỏ hàng
       Swal.fire({
-        title: "Error!",
-        text: "This product is out of stock, please choose another product!",
-        icon: "error",
-        confirmButtonText: "OK",
+        title: t('error'),
+        text: t('dnote6') ,
+        icon: 'error',
+        confirmButtonText: 'OK',
         customClass: {
           confirmButton: "btn btn-primary",
         },
@@ -174,10 +177,10 @@ const DetailProduct = () => {
 
       // Sử dụng SweetAlert2 để hiển thị thông báo
       Swal.fire({
-        title: "Success!",
-        text: "The product has been added to the cart.",
-        icon: "success",
-        confirmButtonText: "OK",
+        title: t('succes'),
+        text: t('dnote2') ,
+        icon: 'success',
+        confirmButtonText: 'OK',
         customClass: {
           confirmButton: "btn btn-primary",
         },
@@ -198,8 +201,8 @@ const DetailProduct = () => {
 
   return (
     <div>
-      <div className="container">
-        <div className="content">
+      <div className="container" style={{marginTop: '100px'}}>
+        <div className="content"> 
           {/* Instrument image */}
           <div className="row">
             <h3 className="text-uppercase">{instrument.name}</h3>
@@ -220,14 +223,11 @@ const DetailProduct = () => {
             {/* Instrument content */}
             <div className="col-6">
               <div className="mt-5">
-                <h3>About the product</h3>
+                <h3>{t('about')}</h3>
                 <div className="gioiThieu mt-4 p-3">
                   <p>{instrument.description}</p>
                 </div>
-                <h3>About the product</h3>
-                <div className="gioiThieu mt-4 p-3">
-                  <p>{instrument.description}</p>
-                </div>
+                
               </div>
             </div>
             <div className="col-5">
@@ -241,15 +241,8 @@ const DetailProduct = () => {
                   <div className="row">
                     {/* Quantity */}
                     <div className="col-lg-5 col-md-5 col-sm 12 d-flex mt-4">
-                      <div>
-                        <strong>Qty:</strong>
-                      </div>
-                      <button
-                        className="btn btn-prev"
-                        onClick={handleDecrement}
-                      >
-                        <strong>-</strong>
-                      </button>
+                      <div><strong>{t('qty')}</strong></div>
+                      <button className="btn btn-prev" onClick={handleDecrement}><strong>-</strong></button>
                       <input
                         type="number"
                         value={quantity}
@@ -268,17 +261,9 @@ const DetailProduct = () => {
                     {/* Brand */}
                     <div className="col-lg-5 col-md-5 col-sm 12">
                       <div className="instrument-brand">
-                        <img
-                          src={instrument.brand.brandImage}
-                          alt={instrument.brand.name}
-                        />
-                        <span
-                          onClick={() => handleBrandClick(instrument.brand)}
-                        >
-                          <a href="">
-                            Similar products{" "}
-                            <i className="fa-solid fa-arrow-right"></i>
-                          </a>
+                        <img src={instrument.brand.brandImage} alt={instrument.brand.name} />
+                        <span onClick={() => handleBrandClick(instrument.brand)}>
+                          <a href="">{t('brandsame')}<i className="fa-solid fa-arrow-right"></i></a>
                         </span>
                       </div>
                     </div>
@@ -286,12 +271,8 @@ const DetailProduct = () => {
 
                   {/* Add to cart */}
                   <div className="btn-cart mt-4">
-                    <button
-                      className="add-to-cart"
-                      onClick={handleAddToCart}
-                      disabled={isAddingToCart}
-                    >
-                      {!isAddingToCart ? "Add to cart" : null}
+                    <button className="add-to-cart" onClick={handleAddToCart} disabled={isAddingToCart}>
+                      {!isAddingToCart ? t('dnote7') : null}
                     </button>
                     {isAddingToCart && (
                       <div className="loader-overlay">
@@ -313,7 +294,7 @@ const DetailProduct = () => {
                 <div className="service">
                   <div className="buy-service">
                     <i className="fa-solid fa-cart-shopping"></i>
-                    <span className="ms-2">Buy now, pay later</span>
+                    <span className="ms-2">{t('but')}</span>
                   </div>
                   <div className="product-service">
                     <i className="fa-solid fa-box"></i>
@@ -324,7 +305,14 @@ const DetailProduct = () => {
                   </div>
                   <div className="ship-service">
                     <i className="fa-solid fa-truck-fast"></i>
-                    <span className="ms-2">Free shipping on all orders</span>
+                    <span className="ms-2">{t('ship')}</span>
+                  </div>
+                  <div className="ship-service">
+                    <i
+                      className="fa-solid fa-share"
+                      onClick={handleShareToFeed}
+                    ></i>
+                    <span className="ms-2">Share</span>
                   </div>
                   <div className="ship-service">
                     <i

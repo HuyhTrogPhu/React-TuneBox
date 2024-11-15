@@ -78,24 +78,11 @@ const TrackDetail = () => {
         <Waveform audioUrl={trackDetails.trackFile} track={trackDetails} />
       </div>
 
-      {/* Nút hành động */}
-      <div className="row mb-4">
-        <div className="col-md-2">
-          <button className="btn btn-danger w-100">Ban/UnBan</button>
-        </div>
-        <div className="col-md-2"></div>
-      </div>
+
 
       {/* Thống kê */}
       <div className="row mb-4 text-center">
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-body">
-              <h6>Total Plays</h6>
-              <h4>{trackDetails.totalPlays}</h4>
-            </div>
-          </div>
-        </div>
+        
         <div className="col-md-4">
           <div className="card">
             <div className="card-body">

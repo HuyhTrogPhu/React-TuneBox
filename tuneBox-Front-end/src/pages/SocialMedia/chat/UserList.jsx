@@ -2,17 +2,23 @@ import React from "react";
 
 const UserList = ({ users, setActiveUser, activeUser }) => {
   return (
-    <div className="users-list">
+    <div className="user-list">
       {users.map((user) => (
         <div
           key={user.id}
-          className={`user-item ${activeUser && activeUser.id === user.id ? 'active' : ''}`}
+          className={`user-item ${activeUser?.id === user.id ? 'active' : ''}`}
           onClick={() => setActiveUser(user)}
         >
-          <div className="user-avatar">{user.username.charAt(0).toUpperCase()}</div>
-          <div className="user-info">
-            <div className="user-name">{user.username}</div>
-            <div className="user-last-message">{user.lastMessage || "Nhấn để bắt đầu trò chuyện"}</div>
+          <div className="user-avatar">
+            {user.avatar ? (
+              <img src={user.avatar} alt={user.username} className="avatar-image" />
+            ) : (
+              user.username.charAt(0).toUpperCase()
+            )}
+          </div>
+          <div className="user-details">
+            <span className="user-name">{user.nickName || user.username}</span>
+            {/* Thêm các thông tin khác nếu cần */}
           </div>
         </div>
       ))}

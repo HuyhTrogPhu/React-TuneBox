@@ -133,7 +133,7 @@ const StatisticalBrand = () => {
                   <td style={{ textAlign: 'center' }}><img src={brand.image} alt="" style={{ width: '50px' }} /></td>
                   <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{brand.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
@@ -165,7 +165,7 @@ const StatisticalBrand = () => {
                   <td style={{ textAlign: 'center' }}><img src={brand.image} alt="" style={{ width: '50px' }} /></td>
                   <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{brand.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
@@ -197,7 +197,7 @@ const StatisticalBrand = () => {
                   <td style={{ textAlign: 'center' }}><img src={brand.image} alt="" style={{ width: '50px' }} /></td>
                   <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                   <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                  <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{brand.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
                   <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
@@ -236,7 +236,7 @@ const StatisticalBrand = () => {
                     </td>
                     <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                     <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                    <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.costPrice.toLocaleString('vi')} VND</td>
                     <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
                     <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
                     <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
@@ -270,7 +270,7 @@ const StatisticalBrand = () => {
                     </td>
                     <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                     <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                    <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.costPrice.toLocaleString('vi')} VND</td>
                     <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
                     <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
                     <td style={{ textAlign: 'center' }}>{brand.quantity}</td>
@@ -304,7 +304,7 @@ const StatisticalBrand = () => {
                     </td>
                     <td style={{ textAlign: 'center' }}>{brand.instrumentName}</td>
                     <td style={{ textAlign: 'center' }}>{brand.brandName}</td>
-                    <td style={{ textAlign: 'center' }}>{brand.costPrice}</td>
+                    <td style={{ textAlign: 'center' }}>{brand.costPrice.toLocaleString('vi')} VND</td>
                     <td style={{ textAlign: 'center' }}>{brand.quantity + brand.totalSold}</td>
                     <td style={{ textAlign: 'center' }}>{brand.totalSold}</td>
                     <td style={{ textAlign: 'center' }}>{brand.quantity}</td>

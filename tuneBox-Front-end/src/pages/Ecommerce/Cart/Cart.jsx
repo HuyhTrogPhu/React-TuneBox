@@ -4,7 +4,11 @@ import Benefits from "../../../components/Benefits/Benefits";
 import { useEffect, useState } from "react";
 import { removeFromLocalCart } from "../../../service/CartService";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
+import '../../../i18n/i18n'
 const Cart = () => {
+
+  const { t } = useTranslation();
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
   const fetchCartItems = () => {
@@ -50,28 +54,30 @@ const updateQuantity = (instrumentId, newQuantity) => {
   }
 };
 
-  const handleCheckout = () => {
-    if (cartItems.length === 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Please add products to cart!',
-        confirmButtonText: 'OK'
-      });
-    } else {
-      navigate("/checkOut");
-    }
-  };
+const handleCheckout = () => {
+
+
+  if (cartItems.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: t('cart_warning'), // Sử dụng t() để dịch chuỗi
+      confirmButtonText: t('ok_button') // Dịch nút "OK"
+    });
+  } else {
+    navigate("/checkOut");
+  }
+};
 
   return (
     <div>
-      <div className="container">
+      <div className="container mt-5">
         <hr className="hr-100" />
         <nav aria-label="breadcrumb">
           <ol className="breadcrumb" style={{ marginLeft: 70 }}>
             <li className="breadcrumb-item">
-              <Link to={"/Ecommerce"}>Home</Link>
+              <Link to={"/Ecommerce"}>{t('homeTitle')}</Link>
             </li>
-            <li className="breadcrumb-item active" aria-current="page">Cart</li>
+            <li className="breadcrumb-item active" aria-current="page">{t('cartTitle')}</li>
           </ol>
         </nav>
         <hr className="hr-100" />
@@ -87,12 +93,12 @@ const updateQuantity = (instrumentId, newQuantity) => {
                           <div className="col-lg-8">
                             <div className="p-5">
                               <div className="d-flex justify-content-between align-items-center mb-5">
-                                <h1 className="fw-bold mb-0" style={{fontSize: '30px'}}>Shopping Cart</h1>
-                                <h6 className="mb-0 text-muted">{cartItems.length} items</h6>
+                                <h1 className="fw-bold mb-0" style={{fontSize: '30px'}}>{t('titleBig')}</h1>
+                                <h6 className="mb-0 text-muted">{cartItems.length} {t('items')}</h6>
                               </div>
                               <hr className="hr-100" />
                               {cartItems.length === 0 ? (
-                                <p>Your shopping cart is empty.</p>
+                                <p>{t('textinCart')} </p>
                               ) : (
                                 cartItems.map((item) => (
                                   <div className="row mb-4 d-flex justify-content-between align-items-center" key={item.instrumentId}>
@@ -139,7 +145,7 @@ const updateQuantity = (instrumentId, newQuantity) => {
                               <div className="pt-5">
                                 <h6 className="mb-0">
                                   <Link to={{ pathname: `/Shop` }} className="text-body">
-                                    <i className="fas fa-long-arrow-alt-left me-2"  />Back to shop
+                                    <i className="fas fa-long-arrow-alt-left me-2"  />{t('backToShop')}
                                   </Link>
                                 </h6>
                               </div>
@@ -149,11 +155,11 @@ const updateQuantity = (instrumentId, newQuantity) => {
                             <div className="p-5">
                           
                               <div className="d-flex justify-content-between mb-5">
-                                <h5 className="text-uppercase" style={{fontSize: '20px'}}>Total price</h5>
+                                <h5 className="text-uppercase" style={{fontSize: '20px'}}>{t('titleBig2')}</h5>
                                 <h5 style={{fontSize: '20px'}}>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h5>
                               </div>
 
-                              <button type="button" className="btn btn-dark btn-block btn-lg" onClick={handleCheckout}>Check out</button>
+                              <button type="button" className="btn btn-dark btn-block btn-lg" onClick={handleCheckout}>{t('checkout')}</button>
                             </div>
                           </div>
                         </div>

@@ -10,11 +10,13 @@ import Footer2 from '../../../components/Footer/Footer2'
 import Benefit from '../../../components/Benefits/Benefits'
 import MenuShop from '../../../components/MenuShop/MenuShop'
 
+
 const Home = () => {
+
   return (
     <div>
 
-      <div className='app-container'>
+      <div className='app-container' style={{marginTop: '100px'}}>
         <MenuShop/>
         <Carousel />
         <Instroduce />

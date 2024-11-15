@@ -6,6 +6,8 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 
 const Chat = () => {
   const [users, setUsers] = useState([]);
@@ -20,37 +22,25 @@ const Chat = () => {
   const clientRef = useRef(null);
   const [attachment, setAttachment] = useState(null);
   const jwtToken = localStorage.getItem("jwtToken"); // Get JWT token
+  const [isConnected, setIsConnected] = useState(false);
+  const reconnectTimeoutRef = useRef(null);
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState("");
+  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
   const reconnectOptions = {
     maxAttempts: 5,
     interval: 1000,
   };
 
-  const fetchUsers = useCallback(async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/user", {
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        withCredentials: true,
-      });
-      const users = Array.isArray(response.data) ? response.data : [];
-      const filteredUsers = users.filter((user) => user.id !== currentUserId);
-      setUsers(filteredUsers);
-    } catch (error) {
-      console.error("Error fetching users:", error.response?.data || error);
-    }
-  }, [currentUserId, jwtToken]);
+  const messagePollingRef = useRef(null);
+  const userPollingRef = useRef(null);
 
-  const fetchMessages = useCallback(async () => {
-    if (!activeUser) return;
-
-    // Kiểm tra cache trước
-    const cachedMessages = localStorage.getItem(
-      `messages_${currentUserId}_${activeUser.id}`
-    );
-    if (cachedMessages) {
-      setMessages(JSON.parse(cachedMessages));
-    }
+  // Polling function messages
+  const pollMessages = useCallback(async () => {
+    if (!activeUser || !currentUserId) return;
 
     try {
       const response = await axios.get(
@@ -63,22 +53,50 @@ const Chat = () => {
         }
       );
 
-      const messagesWithAttachments = response.data.map((msg) => ({
+      const newMessages = response.data.map((msg) => ({
         ...msg,
         attachments: Array.isArray(msg.attachments) ? msg.attachments : [],
       }));
 
-      setMessages(messagesWithAttachments);
-
-      // Cập nhật cache
-      localStorage.setItem(
-        `messages_${currentUserId}_${activeUser.id}`,
-        JSON.stringify(messagesWithAttachments)
-      );
+      // So sánh với messages hiện tại để xem có cập nhật không
+      if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
+        setMessages(newMessages);
+        scrollToBottom();
+      }
     } catch (error) {
-      console.error("Error fetching messages:", error.response?.data || error);
+      console.error("Error polling messages:", error);
     }
-  }, [activeUser, currentUserId]);
+  }, [activeUser, currentUserId, jwtToken, messages]);
+
+  // Polling function users
+  const pollUsers = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/messages/friends?userId=${currentUserId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      const friendsList = Array.isArray(response.data) ? response.data : [];
+      const formattedUsers = friendsList.map((friend) => ({
+        id: friend.id,
+        username: friend.username,
+        nickName: friend.nickName,
+        avatar: friend.avatar,
+      }));
+
+      // So sánh với users hiện tại để xem có cập nhật không
+      if (JSON.stringify(formattedUsers) !== JSON.stringify(users)) {
+        setUsers(formattedUsers);
+      }
+    } catch (error) {
+      console.error("Error polling users:", error);
+    }
+  }, [currentUserId, jwtToken, users]);
 
   const onMessageReceived = useCallback(
     (message) => {
@@ -126,78 +144,105 @@ const Chat = () => {
     [activeUser, currentUserId]
   );
 
-  useEffect(() => {
+  const connectWebSocket = useCallback(() => {
+    if (clientRef.current?.active) return;
+
     const client = new Client({
       webSocketFactory: () => {
         const socket = new SockJS("http://localhost:8080/ws");
-        // Thêm event listeners để debug
-        socket.onopen = () => console.log("SockJS connection opened");
-        socket.onclose = () => console.log("SockJS connection closed");
-        socket.onerror = (error) => console.log("SockJS error:", error);
+        socket.onopen = () => {
+          console.log("WebSocket connected");
+          setIsConnected(true);
+        };
+        socket.onclose = () => {
+          console.log("WebSocket disconnected");
+          setIsConnected(false);
+          // Thử kết nối lại sau 5 giây
+          if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+          }
+          reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000);
+        };
         return socket;
       },
       connectHeaders: {
         Authorization: `Bearer ${jwtToken}`,
       },
-      reconnectDelay: reconnectOptions.reconnectDelay,
-      maxReconnectAttempts: reconnectOptions.maxReconnectAttempts,
-      onReconnect: () => {
-        console.log("Attempting to reconnect...");
-        // Resend cached messages if needed
-      },
       debug: (str) => {
         console.log(str);
       },
+      reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
     });
 
     client.onConnect = () => {
-      console.log("Connected to STOMP");
+      setIsConnected(true);
       client.subscribe(
         `/user/${currentUserId}/queue/messages`,
-        onMessageReceived,
+        (message) => {
+          const newMessage = JSON.parse(message.body);
+          handleNewMessage(newMessage);
+          // Trigger immediate polls when receiving new message
+          pollMessages();
+          pollUsers();
+        },
         {
-          Authorization: `Bearer ${jwtToken}`, // Thêm header cho subscription
+          Authorization: `Bearer ${jwtToken}`,
         }
       );
     };
 
     client.onStompError = (frame) => {
-      console.error("Broker reported error: " + frame.headers["message"]);
-      console.error("Additional details: " + frame.body);
+      console.error("STOMP error:", frame);
+      setIsConnected(false);
     };
 
     client.activate();
     clientRef.current = client;
+  }, [currentUserId, jwtToken, pollMessages, pollUsers]);
 
-    if (jwtToken) {
-      client.activate();
-      clientRef.current = client;
-    }
+  const handleNewMessage = useCallback((newMessage) => {
+    const messageWithAttachments = {
+      ...newMessage,
+      attachments: Array.isArray(newMessage.attachments)
+        ? newMessage.attachments
+        : [],
+    };
+
+    setMessages((prevMessages) => {
+      // Kiểm tra xem tin nhắn đã tồn tại chưa
+      const messageExists = prevMessages.some(
+        (msg) => msg.id === messageWithAttachments.id
+      );
+      if (messageExists) return prevMessages;
+      return [...prevMessages, messageWithAttachments];
+    });
+  }, []);
+
+  useEffect(() => {
+    connectWebSocket();
+
+    // Set up polling intervals
+    messagePollingRef.current = setInterval(pollMessages, 1000);
+    userPollingRef.current = setInterval(pollUsers, 1000);
 
     return () => {
-      if (client.active) {
-        client.deactivate();
+      // Cleanup
+      if (clientRef.current?.active) {
+        clientRef.current.deactivate();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (messagePollingRef.current) {
+        clearInterval(messagePollingRef.current);
+      }
+      if (userPollingRef.current) {
+        clearInterval(userPollingRef.current);
       }
     };
-  }, [currentUserId, onMessageReceived, jwtToken]);
-
-  useEffect(() => {
-    fetchUsers();
-
-    const storedActiveUser = localStorage.getItem("activeUser");
-    if (storedActiveUser) {
-      setActiveUser(JSON.parse(storedActiveUser));
-    }
-  }, [fetchUsers]);
-
-  useEffect(() => {
-    if (activeUser) {
-      setMessages([]);
-      fetchMessages();
-    }
-  }, [activeUser, fetchMessages]);
+  }, [connectWebSocket, pollMessages, pollUsers]);
 
   useEffect(() => {
     scrollToBottom();
@@ -208,9 +253,17 @@ const Chat = () => {
     if (!newMessage.trim() && !attachment) return;
     if (!activeUser) return;
 
+    if (uploadError) {
+      alert(uploadError);
+      return;
+    }
+
     try {
       let attachments = [];
       if (attachment) {
+        setIsUploading(true);
+        setUploadProgress(0);
+
         console.log("Uploading attachment:", attachment);
         const formData = new FormData();
         formData.append("file", attachment);
@@ -223,6 +276,12 @@ const Chat = () => {
               Authorization: `Bearer ${jwtToken}`,
               "Content-Type": "multipart/form-data",
             },
+            onUploadProgress: (progressEvent) => {
+              const progress = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              );
+              setUploadProgress(progress);
+            },
           }
         );
 
@@ -234,7 +293,6 @@ const Chat = () => {
           mimeType: uploadResponse.data.type,
           size: parseInt(uploadResponse.data.size),
         });
-
         console.log("Processed attachment:", attachments[0]);
       }
 
@@ -266,14 +324,10 @@ const Chat = () => {
 
         console.log("Adding local message:", localMessage);
 
-        setMessages((prevMessages) => {
-          const newMessages = [...prevMessages, localMessage];
-          console.log("Updated messages state:", newMessages);
-          return newMessages;
-        });
-
+        setMessages((prevMessages) => [...prevMessages, localMessage]);
         setNewMessage("");
         setAttachment(null);
+        setUploadError("");
 
         const fileInput = document.getElementById("file-input");
         if (fileInput) {
@@ -284,8 +338,10 @@ const Chat = () => {
       }
     } catch (error) {
       console.error("Lỗi khi gửi tin nhắn:", error);
-      console.error("Error details:", error.response?.data || error);
-      alert("Có lỗi xảy ra khi gửi tin nhắn hoặc file");
+      setUploadError("Có lỗi xảy ra khi tải file lên. Vui lòng thử lại.");
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -303,12 +359,19 @@ const Chat = () => {
     setActiveUser(user);
     localStorage.setItem("activeUser", JSON.stringify(user));
     setMessages([]);
-    fetchMessages();
+    pollMessages();
   };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    setAttachment(file); // Lưu file vào state
+    if (file && file.size > MAX_FILE_SIZE) {
+      setUploadError("File quá lớn. Vui lòng chọn file nhỏ hơn 100MB");
+      setAttachment(null);
+      event.target.value = "";
+      return;
+    }
+    setUploadError("");
+    setAttachment(file);
   };
 
   const renderMessageContent = (content) => {
@@ -360,7 +423,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="z">
+    <div className="z pt-5 mt-5">
       <div className="messenger-container">
         <div className="messenger-sidebar">
           <div className="messenger-header">
@@ -377,12 +440,18 @@ const Chat = () => {
             <>
               <div className="messenger-chat-header">
                 <div className="user-avatar">
-                  {activeUser?.username
-                    ? activeUser.username.charAt(0).toUpperCase()
-                    : "?"}
+                  {activeUser.avatar ? (
+                    <img
+                      src={activeUser.avatar}
+                      alt={activeUser.username}
+                      className="avatar-image"
+                    />
+                  ) : (
+                    activeUser.username.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <div className="user-info">
-                  <span className="user-name">{activeUser.username}</span>
+                  <span className="user-name">{activeUser.nickName}</span>
                   <span className="user-status">Active Now</span>
                 </div>
               </div>
@@ -481,14 +550,36 @@ const Chat = () => {
                   style={{ display: "none" }}
                   onChange={handleFileChange}
                 />
+                {uploadError && (
+                  <Alert variant="destructive" className="mb-2">
+                    <AlertDescription>{uploadError}</AlertDescription>
+                  </Alert>
+                )}
+                {isUploading && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">
+                      Đang tải lên... {uploadProgress}%
+                    </span>
+                  </div>
+                )}
                 <input
                   type="text"
                   placeholder="Aa"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && !isUploading && handleSendMessage()
+                  }
+                  disabled={isUploading}
                 />
-                <button onClick={handleSendMessage}>Send</button>
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isUploading}
+                  className={isUploading ? "opacity-50 cursor-not-allowed" : ""}
+                >
+                  Send
+                </button>
               </div>
             </>
           ) : (

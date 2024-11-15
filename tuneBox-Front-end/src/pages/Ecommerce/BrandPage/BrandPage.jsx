@@ -51,7 +51,7 @@ const BrandPage = () => {
 
   return (
     <div>
-      <div className='container'>
+      <div className='container mt-5'>
         <div className='fullBrand mt-4'>
           <ul className='listBrand'>
             <li

@@ -4,13 +4,13 @@ import { images } from "../../../assets/images/images";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../css/User.css"
+import "../css/User.css";
 import {
   LoadUserDetail,
   LoadUserTrack,
   LoadUser,
-  LoadAllPost,
   LoadUserAlbums,
+  LoadUserPlayList,
 } from "../../../service/SocialMediaAdminService";
 const UserDetail = () => {
   const navigate = useNavigate();
@@ -21,6 +21,7 @@ const UserDetail = () => {
   const [postCount, setPostCount] = useState(0);
   const [userTrack, setUserTrack] = useState([]);
   const [userAlbums, setUserAlbums] = useState([]);
+  const [userPlayLists, setPlayLists] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const UserDetail = () => {
       const responseUserDetail = await LoadUserDetail(id);
       if (responseUserDetail.status) {
         setUserDetail(responseUserDetail.data);
-        setInforUser(responseUserDetail.dataInformation);
+        setInforUser(responseUserDetail.data.userInformation);
       }
 
       // Gọi API của user
@@ -46,46 +47,69 @@ const UserDetail = () => {
         setUserAlbums(responseUserAlbum.data);
       }
 
+      // Gọi API của PlayList user
+      const responseUserPlayList = await LoadUserPlayList(id);
+      console.log("user PlayList:", responseUserPlayList.data);
+      if (responseUserPlayList.status) {
+        setPlayLists(responseUserPlayList.data);
+      }
+
       // Gọi API của track user
       const responseUserTrack = await LoadUserTrack(id);
       console.log("user track:", responseUserTrack);
       setUserTrack(responseUserTrack.data);
 
-      // Đếm số post
-      const allPosts = await LoadAllPost(id);
-      const userId = parseInt(id);
-      const userPosts = allPosts.data.filter((post) => post.userId === userId);
-      console.log("User posts:", userPosts);
-      setPostCount(userPosts.length);
+
     };
 
     fetchData();
     setLoading(false);
-  }, [id]);
+  }, []);
 
   if (loading) {
-    return <div>Loading...</div>; 
-      }
+    return <div>Loading...</div>;
+  }
   return (
     <div className="container-fluid">
       <div className="row vh-100">
         {/* Left Sidebar (User Info) */}
+
         <div className="col-lg-3 bg-light p-4 d-flex flex-column align-items-center bg-secondary-subtle text-start">
-          <img
-            src="/src/UserImages/Avatar/avt.jpg"
-            alt="User Avatar"
-            className="avatar img-fluid rounded-circle mb-4"
-            style={{ width: "150px", height: "150px" }}
-          />
+          {userDetail && userDetail.userInformation ? (
+            <img
+              src={userDetail.userInformation.avatar}
+              alt="User Avatar"
+              className="avatar img-fluid rounded-circle mb-4"
+              style={{ width: "150px", height: "150px" }}
+            />
+          ) : (
+            <img
+              src=""
+              alt="No Avatar Available"
+              className="avatar img-fluid rounded-circle mb-4"
+              style={{
+                width: "150px",
+                height: "150px",
+                backgroundColor: "#f0f0f0",
+              }}
+            />
+          )}
           <h4>User information</h4>
-          
-          {console.log(userDetail)}
-          {console.log(userInfor)}
-          <h4 className="">Username: {userInfor.userName}</h4>
-          <h4>Email: {userInfor.email}</h4>
-          <h4>Create date :{userInfor.createDate}</h4>
-          <h4></h4>
-          <button className="btn btn-danger w-75 my-2">Ban/UnBan</button>
+
+          {console.log("userdetail", userDetail)}
+          {console.warn("userinfor", userInfor)}
+          <div class="content-start">
+            <label class="d-block fw-bold">Username</label>
+            <label class="d-block mb-2">{userInfor.name}</label>
+
+            <label class="d-block fw-bold">Email</label>
+            <label class="d-block mb-2">{userDetail.email}</label>
+
+            <label class="d-block fw-bold">Create Date</label>
+            <label class="d-block mb-2">{userDetail.createDate}</label>
+          </div>
+
+      
         </div>
 
         {/* Right Side (Tracks, Albums, Playlists) */}
@@ -105,15 +129,13 @@ const UserDetail = () => {
             <div className="col-4">
               <div className="stats-box p-3 border rounded">
                 <h5>Total Likes</h5>
-                <h2>{Array.isArray(user.likes) ? user.likes.length : 0}</h2>
+                <h2>{userDetail.likeCount}</h2>
               </div>
             </div>
             <div className="col-4">
               <div className="stats-box p-3 border rounded">
                 <h5>Total Comments</h5>
-                <h2>
-                  {Array.isArray(user.comments) ? user.comments.length : 0}
-                </h2>
+                <h2>{userDetail.commentCount}</h2>
               </div>
             </div>
           </div>
@@ -187,10 +209,14 @@ const UserDetail = () => {
                           </div>
                         </div>
                         <div className="album-right">
-                          <button className="btn btn-danger"
-                           onClick={() =>
-                            navigate(`/socialadmin/AlbumDetail/${track.id}`)
-                          }>Views</button>
+                          <button
+                            className="btn btn-danger"
+                            onClick={() =>
+                              navigate(`/socialadmin/AlbumDetail/${album.id}`)
+                            }
+                          >
+                            Views
+                          </button>
                         </div>
                       </div>
                     ))
@@ -201,26 +227,26 @@ const UserDetail = () => {
                   <div className="album-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light border rounded">
                     <div className="album-left d-flex align-items-center">
                       <div className="album-thumbnail me-3">
-                       
-                          <img src={userAlbums.albumImage} alt="album img" />
-                      
+                        <img src={userAlbums.albumImage} alt="album img" />
                       </div>
                       <div className="album-info">
                         <h5 className="album-title mb-1">
                           {userAlbums.title || "No Title Available"}
                         </h5>
                         <p className="album-details mb-0">
-                          {`Tracks: ${
-                            userAlbums.tracks?.length || 0
-                          }`}
+                          {`Tracks: ${userAlbums.tracks?.length || 0}`}
                         </p>
                       </div>
                     </div>
                     <div className="album-right">
-                      <button className="btn btn-danger"
-                      onClick={() =>
-                        navigate(`/socialadmin/AlbumDetail/${userAlbums.id}`)
-                      }>Views</button>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() =>
+                          navigate(`/socialadmin/AlbumDetail/${userAlbums.id}`)
+                        }
+                      >
+                        Views
+                      </button>
                     </div>
                   </div>
                 )}
@@ -228,21 +254,90 @@ const UserDetail = () => {
             </div>
 
             <div className="col-md-6">
-              <h4>All Playlists</h4>
-              <div className="list-item p-3 mb-3 bg-light border">
-                <div className="d-flex justify-content-between">
-                  <div>
-                    <p>
-                      <strong>Name playlist</strong>
-                    </p>
-                    <p>Name user</p>
+              {/* bat dau cua PlaylistDetail */}
+              <div className="album-container">
+                {console.log(userAlbums)}
+                <h4>All PlayLists</h4>
+                {Array.isArray(userPlayLists) ? (
+                  userPlayLists.length > 0 ? (
+                    userPlayLists.map((album, index) => (
+                      <div
+                        key={index}
+                        className="album-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light border rounded"
+                      >
+                        <div className="album-left d-flex align-items-center">
+                          <div className="album-thumbnail me-3">
+                            <img src={album.imagePlaylist} alt="album img" />
+                            <button className="btn btn-dark play-button">
+                              <img
+                                src={userPlayLists.imagePlaylist}
+                                alt="album img"
+                              />
+                              <i className="fa fa-play"></i>
+                            </button>
+                          </div>
+                          <div className="album-info">
+                            <h5 className="album-title mb-1">
+                              {album.title || "No Title Available"}
+                            </h5>
+                            <p className="album-details mb-0">
+                              {`Tracks: ${album.tracks?.length || 0} `}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="album-right">
+                          <button
+                            className="btn btn-danger"
+                            onClick={() =>
+                              navigate(
+                                `/socialadmin/PlaylistDetail/${album.id}`
+                              )
+                            }
+                          >
+                            Views
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No Albums available</p>
+                  )
+                ) : (
+                  <div
+                    className="album-item d-flex justify-content
+                  -between align-items-center p-3 mb-3 bg-light border rounded"
+                  >
+                    <div className="album-left d-flex align-items-center">
+                      <div className="album-thumbnail me-3">
+                        <img
+                          src={userPlayLists.imagePlaylist}
+                          alt="album img"
+                        />
+                      </div>
+                      <div className="album-info">
+                        <h5 className="album-title mb-1">
+                          {userPlayLists.title || "No Title Available"}
+                        </h5>
+                        <p className="album-details mb-0">
+                          {`Tracks: ${userPlayLists.tracks?.length || 0}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="album-right">
+                      <button
+                        className="btn btn-danger"
+                        onClick={() =>
+                          navigate(
+                            `/socialadmin/PlaylistDetail/${userAlbums.id}`
+                          )
+                        }
+                      >
+                        Views
+                      </button>
+                    </div>
                   </div>
-                  <div className="text-end">
-                    <button className="btn btn-danger">Views</button>
-                  </div>
-                </div>
+                )}
               </div>
-              {/* Add more playlists as needed */}
             </div>
           </div>
         </div>
