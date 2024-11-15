@@ -629,7 +629,7 @@ const CheckOut = () => {
                             {/* Total item */}
                            
                             <div className='total-item d-flex'>
-                            <h5>{t('c21')}</h5>
+                            <h5 className='col-5 text-start'  >{t('c21')}</h5>
                                 <h5 className='col-7 text-end'>{cartItems.length}</h5>
                             </div>
 
@@ -641,14 +641,11 @@ const CheckOut = () => {
 
                             {/* Delivery fee */}
                             <div className='fee d-flex'>
-                            <h5>{t('c42')}</h5>
+                            <h5 className='col-5 text-start'> {t('c42')}</h5>
                                 <h5 className='col-7 text-end'>{deliveryFee.toLocaleString('vi')} VND</h5>
                             </div>
 
-                            <div className='subtotal d-flex'>
-                            <h5>{t('c42')}</h5>
-                                <h5 className='col-7 text-end' style={{color: '#E94F37'}}>{(deliveryFee + totalPrice).toLocaleString('vi')} VND</h5>
-                            </div>
+                 
 
                             {/* Sum total */}
                             <div className='sum d-flexC'>
