@@ -16,6 +16,7 @@ import {
   SwipeableListItem,
   SwipeAction,
 } from "react-swipeable-list";
+import { useNavigate } from "react-router-dom";
 import "react-swipeable-list/dist/styles.css";
 import { Audio } from 'react-loader-spinner'
 import { useTranslation } from "react-i18next";

@@ -1,94 +1,115 @@
 import React, { useEffect, useState } from "react";
-import { images } from "../../../assets/images/images";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
+import { Link } from "react-router-dom";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
-  LoadTrack,
-  LoadTrackReport,
-  LoadTrackReportDetail,
-  DeniedRPTrack,
-  ApproveRPTrack
+  LoadTrack
 } from "../../../service/SocialMediaAdminService";
-import { height } from "@mui/system";
 const Track = () => {
-  const [AllUser, setAllUser] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
   const [currentPage, setCurrentPage] = useState(1);
-  const [NewUser, setNewUser] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [postCount, setPostCount] = useState(0);
-  const [Report, setReport] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [modalData, setModalData] = useState(null);
- 
-  const usersPerPage = 5;
-  const navigate = useNavigate();
-  const fetchData = async () => {
-    const responseLoadAllUser = await LoadTrack();
-    if (responseLoadAllUser.status) {
-      setAllUser(responseLoadAllUser.data);
-    }
-  
-    const responseLoadAllReport = await LoadTrackReport();
-    if (responseLoadAllReport.status) {
-      setReport(responseLoadAllReport.data);
-    }
-  };
-  useEffect(() => {
-    const lastFiveUsers = AllUser.slice(-5);
-    setNewUser(lastFiveUsers);
-  }, [AllUser]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [onDay, setOnDate] = useState();
+  const rowsPerPage = 7;
 
-  //count cho table all user
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  //loc danh sach all user
-  const filteredUsers = AllUser.filter((user) =>
-    user.userName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  //lay ra user da tim kiem
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
-
-  const handleShowModal = async (id) => {
-    try {
-      // Lấy dữ liệu từ API theo id
-      const response = await LoadTrackReportDetail(id);
-      setModalData(response.data); // Lưu dữ liệu vào state
-      setShowModal(true); // Hiển thị modal
-    } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu:", error);
-    }
-  };
   useEffect(() => {
-    fetchData();
+    fetchUsers();   
   }, []);
-  const handleCloseModal = () => setShowModal(false);
-  const handleDenied =async (id) =>{
-    const Denied = await DeniedRPTrack(id);
-    
-    if (Denied.status) {
-      setShowModal(false);
-      fetchData(); // Gọi lại fetchData để cập nhật dữ liệu
+
+  const fetchUsers = async () => {
+    try {
+      const response = await LoadTrack();
+      setUsers(response.data);
+      setFilteredUsers(response.data);
+      console.log(users);
+      setTotalPages(Math.ceil(response.data.length / rowsPerPage));
+      handlTodayUser(response.data);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
     }
-    
-  }
-  const handleApprove = async (id) =>{
-    const Approve = await ApproveRPTrack(id);
+  };
+  const handleOnday = (Day) => {
+    event.preventDefault();
+    const filtered = users.filter((user) => user.createDate === Day);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+    filterUsers(Day,Day);
+
+  };
+
+  const handleKeywordChange = (e) => {
+    setKeyword(e.target.value);
+    filterUsers(e.target.value, startDate, endDate, endDate);
+  };
+  const handleDayChange = (from, to) => {
+    setStartDate(from);
+    setEndDate(to);
+    filterUsers(keyword, from, to);
+  };
+
+  const handlTodayUser = (data) => {
+    if (!data) return; 
+    const today = new Date().toISOString().split('T')[0]; 
+    console.log(today);
+    const filtered = data.filter(user => user.createDate.split('T')[0] === today);
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage));
+  };
   
-    if (Approve.status) {
-      setShowModal(false);
-      fetchData(); // Gọi lại fetchData để cập nhật dữ liệu
+
+  const filterUsers = async (searchKeyword, fromDate, toDate) => {
+    let filtered = users;
+    if (searchKeyword) {
+      filtered = filtered.filter(
+        (user) =>
+          user.name.includes(searchKeyword)
+        
+      );
     }
-  }
+    if (fromDate && toDate) {
+      filtered = filtered.filter(user => user.createDate.split('T')[0] >= fromDate && user.createDate.split('T')[0] <= toDate);
+    }
+
+    setFilteredUsers(filtered);
+    setTotalPages(Math.ceil(filtered.length / rowsPerPage)); // Recalculate total pages after filtering
+  };
+
+  const paginateUsers = () => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return filteredUsers.slice(startIndex, endIndex);
+  };
+
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+    // Hàm xuất Excel
+    const exportToExcel = () => {
+      const ws = XLSX.utils.json_to_sheet(filteredUsers);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Customers");
+      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const data = new Blob([excelBuffer], { type: EXCEL_TYPE });
+      saveAs(data, "customers.xlsx");
+    };
+  
+    const EXCEL_TYPE =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+    const EXCEL_EXTENSION = ".xlsx";
+  
   return (
     <div className="container mt-4">
       <div className="row">
         {/* New Users */}
-        <div className="col-md-6" style={{width : '100%'}}>
+        <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
               <h5 className="text-light">New Track</h5>
@@ -132,7 +153,7 @@ const Track = () => {
         </div>
 
         {/* Featured Users */}
-        <div className="col-md-6" style={{width : '100%'}}>
+        <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
               <h5 className="text-light">All Track</h5>
@@ -142,79 +163,67 @@ const Track = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by Track name"
+                  value={keyword}
+                  onChange={handleKeywordChange}
                 />
-                <button className="btn btn-secondary" style={{ marginTop: 10 }}>
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                </button>
               </div>
-              <div>
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>createDate</th>
-                      <th>Total Likes</th>
-                      <th>Total Comments</th>
-                      <th>Description</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentUsers.map((user) => (
-                      <tr key={user.id}>
-                        <td>{user.name}</td>
-                        <td>{user.createDate}</td>
-                        <td>{user.likes.length}</td>
-                        <td>{user.comments.length}</td>
-                        <td>{user.description}</td>
-                        <td>
-                          <button
-                            className="btn btn-danger"
-                            onClick={() =>
-                              navigate(`/socialadmin/TrackDetail/${user.id}`)
-                            }
-                          >
-                            Views
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <nav>
-                  <ul className="pagination">
-                    {pageNumbers.map((page) => (
-                      <li
-                        key={page}
-                        className={`page-item ${
-                          page === currentPage ? "active" : ""
-                        }`}
-                      >
-                        <button
-                          onClick={() => setCurrentPage(page)}
-                          className="page-link"
-                        >
-                          {page}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
+            </form>
+          </div>
+
+          {/* Total day filter */}
+          <div className="col-4">
+            <form>
+              <div className="mt-3">
+                <label className="form-label">Chose Day</label>
+                <div className="d-flex">
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="From"
+                    value={startDate}
+                    onChange={(e) => handleDayChange(e.target.value, endDate)}
+                  />
+                  -
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="To"
+                    value={endDate}
+                    onChange={(e) => handleDayChange(startDate, e.target.value)}
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+          {/* Total order count filter */}
+          <div className="col-3">
+          <div className="mt-3">
+              <label className="form-label">New Album on</label>
+              <input
+                type="date"
+                className="form-control m-2"
+                value={onDay}
+                onChange={(e) => handleOnday(e.target.value)}
+              />
+              <div className="d-flex m-2">
+                <button
+                  className="btn btn-primary"
+                  onClick={(e) => handlTodayUser(users)}
+                >
+                  Today
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
       <div className="row">
         {/* All Users */}
 
         {/* Report */}
         {console.log(Report)}
-        <div className="col-md-6" style={{width : '100%'}}>
+        <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header bg-dark text-white">
               <h5 className="text-light">Report</h5>
@@ -248,78 +257,58 @@ const Track = () => {
               </table>
 
             </div>
+
+            {/* Pagination */}
+            <div className="">
+              <nav aria-label="Page navigation example">
+                <ul className="pagination justify-content-center text-center">
+                  <li
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => paginate(currentPage - 1)}
+                      aria-label="Previous"
+                    >
+                      <span aria-hidden="true">«</span>
+                    </button>
+                  </li>
+                  {[...Array(totalPages).keys()].map((number) => (
+                    <li
+                      key={number + 1}
+                      className={`page-item ${
+                        currentPage === number + 1 ? "active" : ""
+                      }`}
+                    >
+                      <button
+                        onClick={() => paginate(number + 1)}
+                        className="page-link"
+                      >
+                        {number + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => paginate(currentPage + 1)}
+                      aria-label="Next"
+                    >
+                      <span aria-hidden="true">»</span>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
           </div>
         </div>
       </div>
-      {showModal && (
-                <div
-                  className="modal fade show"
-                  style={{ display: "block" }}
-                  tabIndex="-1"
-                  aria-labelledby="exampleModalLabel"
-                  aria-hidden="true"
-                >
-                  <div className="modal-dialog">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">
-                          Chi tiết Report
-                        </h5>
-                        <button
-                          type="button"
-                          className="btn-close"
-                          onClick={handleCloseModal}
-                          aria-label="Close"
-                        ></button>
-                      </div>
-                      <div className="modal-body">
-                        {modalData ? (
-                          <>
-                            <p>Track Name: {modalData.track.name}</p>
-                            <p>Status: {modalData.status}</p>
-                            <p>Report created day: {modalData.createDate}</p>
-                            <p>Reson: {modalData.reason}</p>
-                            
-                          </>
-                        ) : (
-                          <p>In loading process...</p>
-                        )}
-                      </div>
-                      <div className="modal-footer">
-                      <button
-                            className="btn btn-info"
-                            onClick={() =>
-                              navigate(`/socialadmin/TrackDetail/${modalData.track.id}`)
-                            }
-                          >
-                            Views Track Detail
-                          </button>
-                      <button
-                          type="button"
-                          className="btn btn-danger"
-                          onClick={() =>handleApprove(modalData.id)}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={() =>handleDenied(modalData.id)}
-                        >
-                          Denied
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={handleCloseModal}
-                        >
-                          Close
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
     </div>
   );
 };

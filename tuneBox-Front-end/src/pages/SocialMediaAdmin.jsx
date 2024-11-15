@@ -1,8 +1,6 @@
 import React from "react";
 import { images } from "../../src/assets/images/images";
-import "./SocialMediaAdmin/css/sidebar.css";
-import '../pages/SocialMediaAdmin/pageContent/SideBar';
-import '../pages/SocialMediaAdmin/pageContent/TopBar';
+
 import PlaylistDetail from "./SocialMediaAdmin/pageContent/PlaylistDetail";
 import AlbumDetail from "./SocialMediaAdmin/pageContent/AlbumDetail";
 import PostDetail from "./SocialMediaAdmin/pageContent/PostDetail";
@@ -12,18 +10,23 @@ import Posts from "./SocialMediaAdmin/pageContent/Posts";
 import DashBoard from "./SocialMediaAdmin/pageContent/DashBoard";
 import Users from "./SocialMediaAdmin/pageContent/Users";
 import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
-import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
 import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
 import Track from "./SocialMediaAdmin/pageContent/Track";
 import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";
 import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
+import StatisticalUser from "./SocialMediaAdmin/Statistical/StaticUser";
+import StaticAlbum from "./SocialMediaAdmin/Statistical/StaticAlbum";
+import StaticPlayList from "./SocialMediaAdmin/Statistical/StaticPlayList";
+import StaticTrack from "./SocialMediaAdmin/Statistical/StaticTrack";
+
+
 const SocialMediaAdmin = () => {
   return (
     <div>
       <div className="container-fluid">
         <div className="row">
           {/* Sidebar */}
-          <div className="sidebar col-lg-2 col-md-3 vh-100">
+          <div className="sidebar21 col-lg-2 col-md-3 vh-100">
             {/* Logo */}
             <div className="logo p-3">
               <a href="#">
@@ -32,7 +35,7 @@ const SocialMediaAdmin = () => {
             </div>
 
             {/* Menu */}
-            <div className="menus">
+            <div className="menu21">
               <ul className="list-unstyled">
                 <li className="p-3">
                   <i className="fa-solid fa-house" />
@@ -47,7 +50,7 @@ const SocialMediaAdmin = () => {
                   </Link>
                 </li>
                 <li className="p-3">
-                  <i className="fa-brands  fa-itunes-note" />
+                <i class="fa-brands fa-itunes-note"></i>
                   <Link to={"/socialadmin/Track"} className="text-white">
                     Track
                   </Link>
@@ -73,10 +76,12 @@ const SocialMediaAdmin = () => {
                 </li>
                 <li className="p-3">
                   <i className="fa-solid fa-chart-simple" />
-                  <Link to={"/socialadmin/statistical"} className="text-white">
-                    Statistical
+                  <Link to={"/socialadmin/Statistical"} className="text-white">
+                  Statistical
                   </Link>
                 </li>
+
+                
               </ul>
             </div>
           </div>
@@ -123,9 +128,14 @@ const SocialMediaAdmin = () => {
               <Route path='albums' element={<Albums/>} />
               <Route path='Track' element={<Track/>} />
               <Route path='playlists' element={<Playlists/>} />
-              <Route path='statistical' element={<Statistical/>} />
-      
-             
+              
+              
+              <Route path='Statistical' element={<Statistical/>} />
+              <Route path='Statistical/UserStatic' element={<StatisticalUser/>} />
+              <Route path='Statistical/StaticAlbum' element={<StaticAlbum/>} />
+              <Route path='Statistical/StaticPlayList' element={<StaticPlayList/>} />
+              <Route path='Statistical/StaticTrack' element={<StaticTrack/>} />
+              
               <Route path='posts' element={<Posts/>} />
               <Route path='dashboard' element={<DashBoard/>} />
               <Route path='users' element={<Users/>} />
@@ -134,8 +144,6 @@ const SocialMediaAdmin = () => {
               <Route path='PlaylistDetail/:id' element={<PlaylistDetail/>} />
               <Route path='postdetail/:id' element={<PostDetail/>} />
               <Route path='AlbumDetail/:id' element={<AlbumDetail/>} />
-              <Route path='report' element={<ReportManagement/>} />
-              <Route path='statistical' element={<Statistical/>}/>
               </Routes>
             </div>
           </div>
