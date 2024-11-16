@@ -180,7 +180,7 @@ const StatisticalOrder = () => {
                                     <td style={{ textAlign: 'center' }}>{order.orderDate}</td>
                                     <td style={{ textAlign: 'center' }}>{order.deliveryDate}</td>
                                     <td style={{ textAlign: 'center' }}>{order.phone}</td>
-                                    <td style={{ textAlign: 'center' }}>{order.totalPrice}</td>
+                                    <td style={{ textAlign: 'center' }}>{order.totalPrice.toLocaleString('vi')} VND</td>
                                     <td style={{ textAlign: 'center' }}>{order.totalItems}</td>
                                     <td style={{ textAlign: 'center' }}>{order.paymentMethod}</td>
                                     <td style={{ textAlign: 'center' }}>{order.status}</td>

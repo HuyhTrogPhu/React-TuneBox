@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Activity, BarChart2, PieChart as PieChartIcon } from 'lucide-react';
+import MetricsChart from './MetricsChart';
 
 const StatisticalUser = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const StatisticalUser = () => {
         <Button 
           variant="outline" 
           className="flex items-center gap-2"
-          onClick={() => navigate('/statistical')}
+          onClick={() => navigate('/socialadmin/statistical')}
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
@@ -55,7 +56,9 @@ const StatisticalUser = () => {
         </h1>
       </div>
 
-      {/* Key Metrics */}
+      <MetricsChart userData={userData} />
+
+       {/*  
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardContent className="p-6">
@@ -91,6 +94,8 @@ const StatisticalUser = () => {
           </CardContent>
         </Card>
       </div>
+      */}
+
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

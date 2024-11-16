@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { images } from "../../../../assets/images/images"; // Giữ nguyên import images
+import React, { useState, useEffect } from "react";
+import { Toast } from "react-bootstrap"; // Import Toast để hiển thị thông báo
 import Cookies from "js-cookie";
-import axios from 'axios';
+import axios from "axios";
 
 const ShareTrackModal = ({ trackId, isOpen, onClose }) => {
   const [receivers, setReceivers] = useState([]);
   const [selectedReceiver, setSelectedReceiver] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState(''); // Quản lý thông báo toast
+  const [showToast, setShowToast] = useState(false); // Quản lý trạng thái hiển thị toast
   const userId = Cookies.get("userId");
-  console.log("User ID from Cookie:", userId);
+
   useEffect(() => {
     if (isOpen && userId) {
       fetchReceivers();
@@ -19,11 +21,11 @@ const ShareTrackModal = ({ trackId, isOpen, onClose }) => {
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:8080/api/share/users/receivers`, {
-        params: { senderId: userId },
+        params: { userId: userId },
       });
       setReceivers(response.data);
     } catch (error) {
-      console.error('Error fetching receivers:', error);
+      console.error("Error fetching receivers:", error);
     } finally {
       setLoading(false);
     }
@@ -31,31 +33,43 @@ const ShareTrackModal = ({ trackId, isOpen, onClose }) => {
 
   const handleShare = async () => {
     if (!selectedReceiver) {
-      alert('Please select a user to share with');
+      setToastMessage('Please select a user to share with');
+      setShowToast(true);
       return;
     }
 
     try {
-      const response = await axios.post(`http://localhost:8080/api/share/track`, null, {
-        params: { senderId: userId, receiverId: selectedReceiver, trackId },
-      });
+      const response = await axios.post(
+        `http://localhost:8080/api/share/track`,
+        null,
+        {
+          params: { senderId: userId, receiverId: selectedReceiver, trackId },
+        }
+      );
 
       if (response.status === 200) {
-        alert('Track shared successfully!');
-        onClose();
+        setToastMessage("Track shared successfully!");
+        setShowToast(true); // Hiển thị toast
+        setTimeout(() => onClose(), 1000); // Đóng modal sau khi toast hiển thị
       } else {
-        alert('Failed to share track');
+        setToastMessage("Failed to share track");
+        setShowToast(true);
       }
     } catch (error) {
-      console.error('Error sharing track:', error);
-      alert('Error sharing track');
+      console.error("Error sharing track:", error);
+      setToastMessage("Error sharing track");
+      setShowToast(true);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <div
+      className="modal show d-block"
+      tabIndex="-1"
+      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+    >
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
@@ -70,16 +84,21 @@ const ShareTrackModal = ({ trackId, isOpen, onClose }) => {
                 {receivers.map((receiver) => (
                   <button
                     key={receiver.id}
-                    className={`list-group-item list-group-item-action d-flex align-items-center ${selectedReceiver === receiver.id ? 'active' : ''}`}
+                    className={`list-group-item list-group-item-action d-flex align-items-center ${
+                      selectedReceiver === receiver.id ? "active" : ""
+                    }`}
                     onClick={() => setSelectedReceiver(receiver.id)}
                   >
                     <img
-                      src={images.avt}
+                      src={receiver.avatar}
                       alt="Avatar"
                       className="rounded-circle me-2"
-                      style={{ width: '40px', height: '40px' }}
+                      style={{ width: "40px", height: "40px" }}
                     />
-                    <span>{receiver.nickname}</span>
+                    <div>
+                      <div>{receiver.nickName}</div>
+                      <div className="text-danger">@{receiver.username}</div>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -100,6 +119,15 @@ const ShareTrackModal = ({ trackId, isOpen, onClose }) => {
           </div>
         </div>
       </div>
+      <Toast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        delay={3000}
+        autohide
+        style={{ position: "fixed", top: 20, right: 20 }}
+      >
+        <Toast.Body>{toastMessage}</Toast.Body>
+      </Toast>
     </div>
   );
 };

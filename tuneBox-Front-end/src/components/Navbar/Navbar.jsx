@@ -18,9 +18,12 @@ import {
 } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
 import { Audio } from 'react-loader-spinner'
+import { useTranslation } from "react-i18next";
+import '../../i18n/i18n'
 import axios from "axios";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [newTrackName, setTrackName] = useState("");
   const [newTrackImage, setTrackImage] = useState(null);
   const [newTrackFile, setTrackFile] = useState(null);
@@ -329,7 +332,7 @@ const Navbar = () => {
         >
           <span className="text-decoration-none">
             <img alt="icon-home" src={images.home} className="icon" />
-            <b> Feed</b>
+            <b> {t('feed')}</b>
           </span>
         </button>
 
@@ -340,7 +343,7 @@ const Navbar = () => {
         >
           <span>
             <img alt="icon-loa" src={images.speaker} width="35" className="icon" />
-            <b> Shop</b>
+            <b> {t('shop')}</b>
           </span>
         </button>
       </div>
@@ -350,7 +353,7 @@ const Navbar = () => {
         <div>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder={t('search')}
             className="search-input"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)} // Cập nhật state khi người dùng nhập
@@ -423,12 +426,12 @@ const Navbar = () => {
                     </SwipeableListItem>
                   ))
                 ) : (
-                  <li className="no-notification">There are no announcements.</li>
+                  <li className="no-notification">{t('notification')}</li>
                 )}
               </SwipeableList>
 
               <button onClick={handleDeleteAllReadNotifications(userId)} className="delete-all-read">
-                Delete all viewed notifications
+              {t('delete')}
               </button>
             </div>
           )}
@@ -476,11 +479,11 @@ const Navbar = () => {
               className="dropdown-item"
               onClick={() => handleDropdownClick()}
             >
-              Profile
+              {t('profile')}
             </button>
 
             <button className="dropdown-item" onClick={handleLogout}>
-              Log Out
+            {t('logout')}
             </button>
           </div>
         )}
@@ -492,7 +495,7 @@ const Navbar = () => {
           data-bs-target="#addTrackModal"
           onClick={handleOpenModal}
         >
-          Create
+          {t('create')}
         </button>
 
         {/* Track AI */}

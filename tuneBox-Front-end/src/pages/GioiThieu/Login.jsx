@@ -23,12 +23,12 @@ const Login = () => {
     setError('');
 
     if (!userNameOrEmail) {
-      setError('Vui lòng nhập tên tài khoản hoặc email.');
+      setError('Please enter account name or email.');
       return;
     }
   
     if (!password) {
-      setError('Vui lòng nhập mật khẩu.');
+      setError('Please enter your password.');
       return;
     }
   
@@ -143,7 +143,7 @@ const handleGoogleFailure = () => {
           <div className="row">
             <div className="col-lg-6 mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
-                <h2 className="text-center mb-4">Đăng nhập</h2>
+                <h2 className="text-center mb-4">Log in</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
                   {loading && (
@@ -163,19 +163,19 @@ const handleGoogleFailure = () => {
                     </div>
                   )}
                   <div className="row">
-                    <h6>Tên đăng nhập hoặc email</h6>
-                    <div className="col-lg-12" style={{ marginTop: -30 }}>
+                    <h6>Please enter account name or email.</h6>
+                    <div className="col-12">
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Nhập tên đăng nhập hoặc email"
+                        placeholder="Please enter account name or email."
                         value={userNameOrEmail}
                         onChange={(e) => setUserNameOrEmail(e.target.value)}
                       />
                     </div>
                   </div>
                   <div className="row" style={{ marginTop: -30 }}>
-                    <h6>Mật khẩu</h6>
+                    <h6>Password</h6>
                     <div className="col-lg-12" style={{ marginTop: -30 }}>
                       <input
                         type="password"
@@ -187,16 +187,16 @@ const handleGoogleFailure = () => {
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-10 col-8 mx-auto">
-                    <button type="submit" className="form-control">Đăng nhập</button>
+                    <button type="submit" className="form-control">Log in</button>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 80 }}>
-                    <span className="text-center">Bạn chưa có tài khoản?
-                      <Link to={'/register'}><b>Đăng kí ngay.</b></Link>
+                    <span className="text-center">Don't have an account yet?
+                      <Link to={'/register'}><b>Register now.</b></Link>
                     </span>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 20 }}>
                     <Link to="/forgot-password" className="text-primary">
-                      <b>Quên mật khẩu?</b>
+                      <b>Forgot password?</b>
                     </Link>
                   </div>
                   <div className="col-lg-12 d-flex align-items-center justify-content-center" style={{ marginTop: 20 }}>

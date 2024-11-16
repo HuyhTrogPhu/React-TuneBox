@@ -10,11 +10,14 @@ import { images } from "../../../assets/images/images.js";
 import { useNavigate } from 'react-router-dom';
 import { Audio } from 'react-loader-spinner'
 const GHN_API_KEY = 'f6a2324b-895f-11ef-a76b-8ef8cf9ed7dc';
+
+import { useTranslation } from "react-i18next";
+import '../../../i18n/i18n'
 const CheckOut = () => {
     // const [userId, setUserId] = useState('');
     const [user, setUser] = useState({});
     const [cartItems, setCartItems] = useState([]);
-
+    const { t } = useTranslation();
     const userId = Cookies.get("userId");
     console.log("User ID từ cookie:", userId);
     const [errors, setErrors] = useState('');
@@ -250,101 +253,99 @@ const CheckOut = () => {
         if (!validateForm()) {
             return;
         }
-
-        // Kiểm tra thông tin đầu vào
+    
         if (!userId || cartItems.length === 0 || !selectedProvince || !selectedDistrict || !selectedWard || !houseNumber) {
-            Swal.fire('Notification', 'Please fill in all information before ordering!', 'error');
+            Swal.fire(
+                t('c24'), // 'Notification'
+                t('c25'), // 'Please fill in all information before ordering!'
+                'error'
+            );
             return;
         }
-
-        // Xác định trạng thái thanh toán dựa trên phương thức thanh toán đã chọn
+    
         const paymentStatus = paymentMethod === 'VNPAY' ? 'Paid' : 'Not Paid';
-
+    
         const orderData = {
-            userId: userId,
+            userId,
             orderDate: new Date().toISOString(),
             deliveryDate: null,
             totalPrice: totalPrice + deliveryFee,
             tax: 5.0,
             totalItem: cartItems.length,
-            paymentMethod: paymentMethod,
+            paymentMethod,
             status: 'Pending',
-            phoneNumber: phoneNumber,
+            phoneNumber,
             address: `${houseNumber}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`,
-            shippingMethod: shippingMethod,
-            paymentStatus: paymentStatus,
+            shippingMethod,
+            paymentStatus,
             orderDetails: cartItems.map(item => ({
                 quantity: item.quantity,
                 instrumentId: item.instrumentId,
             })),
         };
-
+    
         console.log("Order Data:", JSON.stringify(orderData, null, 2));
-
+    
         try {
-            // Gọi API tạo đơn hàng dựa trên phương thức thanh toán
             setIsLoading(true);
             let response;
             if (paymentMethod === 'VNPAY') {
                 response = await axios.post('http://localhost:8080/customer/checkout/create_payment', orderData, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
                 });
-
-
-                // Đảm bảo rằng đơn hàng đã được lưu ở đây
+    
                 if (response.data && response.data.url) {
                     Swal.fire({
-                        title: 'Request payment',
-                        text: 'You will be redirected to the VNPay payment page!',
+                        title: t('c26'), // 'Request payment'
+                        text: t('c27'),  // 'You will be redirected to the VNPay payment page!'
                         icon: 'info',
                     }).then(() => {
-                        window.location.href = response.data.url; // Chuyển hướng đến đường dẫn VNPay
+                        window.location.href = response.data.url;
                     });
                 } else {
                     Swal.fire({
-                        title: 'Error',
-                        text: 'Did not receive payment URL from VNPay. Please try again.',
+                        title: t('c28'), // 'Error'
+                        text: t('c29'),  // 'Did not receive payment URL from VNPay. Please try again.'
                         icon: 'error',
                     });
                 }
             } else {
                 response = await axios.post('http://localhost:8080/customer/checkout/create', orderData, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
                 });
-
-
+    
                 Swal.fire({
-                    title: 'Success',
-                    text: 'Your order has been placed successfully!',
+                    title: t('c30'), // 'Success'
+                    text: t('c31'),  // 'Your order has been placed successfully!'
                     icon: 'success',
                     showCancelButton: true,
-                    confirmButtonText: 'View invoice',
-                    cancelButtonText: 'Close',
+                    confirmButtonText: t('c32'), // 'View invoice'
+                    cancelButtonText: t('c33'),  // 'Close'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        getOrderDetails(response.data.orderId); // Lấy orderId từ response
+                        getOrderDetails(response.data.orderId);
                     } else {
                         navigate('/shop');
                     }
                 });
             }
-
-            // Reset giỏ hàng
+    
             localStorage.removeItem('cart');
             setCartItems([]);
         } catch (error) {
             console.error('Error creating order:', error.response ? error.response.data : error.message);
-            Swal.fire('Error', 'An error occurred while placing the order. Please try again.', 'error');
+            Swal.fire(
+                t('c28'), // 'Error'
+                t('c34'), // 'An error occurred while placing the order. Please try again.'
+                'error'
+            );
         } finally {
-            setIsLoading(false);// Kết thúc hiển thị biểu tượng xoay
+            setIsLoading(false);
         }
     };
+    
 
 
 
@@ -354,26 +355,27 @@ const CheckOut = () => {
         try {
             const response = await axios.get(`http://localhost:8080/customer/checkout/getOrderById/${orderId}`);
             const orderDetails = response.data;
-
-            // Hiển thị thông tin chi tiết hóa đơn kèm đường link đến trang chi tiết
+    
             Swal.fire({
-                title: 'Invoice Information',
-                html: `<p>Order code: ${orderDetails.orderId}</p>
-                       <p>Total value: ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
-                       <p>Order date: ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
-                       <p>Status: ${orderDetails.status}</p>
-                       <p>Address: ${orderDetails.address}</p>
-                       <p><a href="http://localhost:3000/orderDetail/${orderDetails.orderId}" target="_blank">View Detailed Invoice</a></p>`,
+                title: t('c35'), // 'Invoice Information'
+                html: `<p>${t('c36')} ${orderDetails.orderId}</p>
+                       <p>${t('c37')} ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
+                       <p>${t('c38')} ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
+                       <p>${t('c39')} ${orderDetails.status}</p>
+                       <p>${t('c40')} ${orderDetails.address}</p>
+                       <p><a href="http://localhost:3000/orderDetail/${orderDetails.orderId}" target="_blank">${t('c32')}</a></p>`,
                 icon: 'info',
-                confirmButtonText: 'Close',
+                confirmButtonText: t('c33'), // 'Close'
             });
-
         } catch (error) {
             console.error('Error fetching order details:', error.response ? error.response.data : error.message);
-            Swal.fire('Error', 'Unable to get invoice details. Please try again.', 'error');
+            Swal.fire(
+                t('c28'), // 'Error'
+                t('c41'), // 'Unable to get invoice details. Please try again.'
+                'error'
+            );
         }
     };
-
 
 
     return (
@@ -393,10 +395,10 @@ const CheckOut = () => {
                     <div className='order-infor col-lg-6 col-md-6 col-sm-12 ps-5 pe-5'>
                         {/* Information user */}
                         <div className='user-infor'>
-                            <h1 className='text-center'>Shipping information</h1>
+                            <h1>{t('c1')}</h1>
                             <form>
                                 <div className='mt-3'>
-                                    <label className='form-label'>Email:</label>
+                                    <label className='form-label'>{t('c2')}</label>
                                     <input
                                         type="email"
                                         className='form-control'
@@ -405,7 +407,7 @@ const CheckOut = () => {
                                     />
                                 </div>
                                 <div className='mt-3'>
-                                    <label className='form-label'>Name:</label>
+                                    <label className='form-label'>{t('c3')}</label>
                                     <input
                                         type="text"
                                         className='form-control'
@@ -414,7 +416,7 @@ const CheckOut = () => {
                                     />
                                 </div>
                                 <div className='mt-3'>
-                                    <label className='form-label'>Phone number:</label>
+                                    <label className='form-label'>{t('c4')}</label>
                                     <input
                                         type="text"
                                         className={`form-control ${errors.phoneNumber ? 'is-invalid' : ''}`}
@@ -430,16 +432,16 @@ const CheckOut = () => {
                         {/* Order information (Giao hàng) */}
                         <div className='order-infor'>
 
-                            <h1>Delivery address</h1>
+                            <h1>{t('c5')}</h1>
 
                             <div className='mt-3'>
-                                <label className='form-label'>Nation:</label>
+                                <label className='form-label'>{t('c6')}</label>
                                 <input type="text" className='form-control' defaultValue={'Việt Nam'} disabled />
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>Province/City</label>
+                                <label className='form-label'>{t('c7')}</label>
                                 <select onChange={handleProvinceChange} className='form-select'>
-                                    <option value="">Select Province/City</option>
+                                    <option value="">{t('c10')}</option>
                                     {provinces.map(province => (
                                         <option key={province.ProvinceID} value={province.ProvinceID}>
                                             {province.ProvinceName}
@@ -448,9 +450,9 @@ const CheckOut = () => {
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>District</label>
+                                <label className='form-label'>{t('c8')}</label>
                                 <select onChange={handleDistrictChange} className='form-select'>
-                                    <option value="">Select district</option>
+                                    <option value="">{t('c11')}</option>
                                     {districts.map(district => (
                                         <option key={district.DistrictID} value={district.DistrictID}>
                                             {district.DistrictName}
@@ -459,9 +461,9 @@ const CheckOut = () => {
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <label className=''>Ward, Commune</label>
+                                <label className=''>{t('c9')}</label>
                                 <select className='form-select' onChange={handleWardChange}>
-                                    <option value="">Select Ward/Commune</option>
+                                    <option value="">{t('c12')}</option>
                                     {wards.map(ward => (
                                         <option key={ward.WardCode} value={ward.WardCode}>
                                             {ward.WardName}
@@ -471,7 +473,7 @@ const CheckOut = () => {
 
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>House number:</label>
+                                <label className='form-label'>{t('c13')}</label>
                                 <input
                                     type="text"
                                     className='form-control'
@@ -482,7 +484,7 @@ const CheckOut = () => {
                         </div>
 
                         {/* shipping method */}
-                        <h1 style={{ fontSize: '22px' }}>Delivery Method</h1>
+                        <h1 style={{ fontSize: '22px' }}>{t('c14')}</h1>
                         <div className='mt-3'>
                             <input
                                 type="radio"
@@ -493,7 +495,7 @@ const CheckOut = () => {
                                 onChange={() => handleShippingChange('Normal')}
                                 className="me-2"  // thêm khoảng cách giữa radio và label
                             />
-                            <label htmlFor="normal">Regular Delivery</label>
+                            <label htmlFor="normal">{t('c15')}</label>
                         </div>
                         <div className='mt-3'>
                             <input
@@ -501,11 +503,11 @@ const CheckOut = () => {
                                 id="fast"
                                 name="shipping"
                                 value="fast"  // Cập nhật giá trị 'value' cho đúng
-                                checked={shippingMethod === 'Fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
-                                onChange={() => handleShippingChange('Fast')}
+                                checked={shippingMethod === 'fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
+                                onChange={() => handleShippingChange('fast')}
                                 className="me-2"
                             />
-                            <label htmlFor="fast">Fast Delivery</label>
+                            <label htmlFor="fast">{t('c16')}</label>
                         </div>
 
 
@@ -513,7 +515,7 @@ const CheckOut = () => {
 
                         {/* Pay method */}
                         <div className='pay-method'>
-                            <h1>Payment method</h1>
+                            <h1>{t('c17')}</h1>
                             <div className="accordion" id="accordionExample">
                                 <div className="accordion-item">
                                     <h2 className="accordion-header">
@@ -536,7 +538,7 @@ const CheckOut = () => {
                                     </h2>
                                     <div className={`accordion-collapse collapse ${paymentMethod === 'COD' ? 'show' : ''}`}>
                                         <div className="accordion-body">
-                                            <p>After clicking "Pay", you will receive the goods and pay directly with our delivery staff.</p>
+                                            <p>{t('c18')}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -561,7 +563,7 @@ const CheckOut = () => {
                                     </h2>
                                     <div className={`accordion-collapse collapse ${paymentMethod === 'VNPAY' ? 'show' : ''}`}>
                                         <div className="accordion-body">
-                                            <p>After clicking "Pay", you will be forwarded to the payment page using VNPAY.</p>
+                                            <p>{t('c19')}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -570,7 +572,8 @@ const CheckOut = () => {
 
                         {/* Checkout */}
                         <div className='checkout'>
-                            <button className='btn pay' onClick={handleSubmitOrder}>Pay</button>
+                            <button className='btn border' onClick={handleSubmitOrder}>{t('c20')}</button>
+
                         </div>
                         {isLoading && (
                             <div style={{
@@ -602,7 +605,7 @@ const CheckOut = () => {
                         <div className='cart-container'>
                             <div className='cart-item'>
                                 {cartItems.length === 0 ? (
-                                    <p>Your shopping cart is empty.</p>
+                                      <p>{t('no')}</p>
                                 ) : (
                                     cartItems.map((item) => (
                                         <div className='item-cart d-flex' key={item.id}>
@@ -624,32 +627,30 @@ const CheckOut = () => {
                             </div>
 
                             {/* Total item */}
+                           
                             <div className='total-item d-flex'>
-                                <h5 className='col-5 text-start'>Total items:</h5>
+                            <h5 className='col-5 text-start'  >{t('c21')}</h5>
                                 <h5 className='col-7 text-end'>{cartItems.length}</h5>
                             </div>
 
                             {/* Total price */}
                             <div className='total-price d-flex'>
-                                <h5 className='col-5 text-start'>Total price:</h5>
+                                <h5 className='col-5 text-start'>{t('c22')}</h5>
                                 <h5 className='col-7 text-end'>{totalPrice.toLocaleString('vi')} VND</h5>
                             </div>
 
                             {/* Delivery fee */}
                             <div className='fee d-flex'>
-                                <h5 className='col-5 text-start'>Delivery fee:</h5>
+                            <h5 className='col-5 text-start'> {t('c42')}</h5>
                                 <h5 className='col-7 text-end'>{deliveryFee.toLocaleString('vi')} VND</h5>
                             </div>
 
-                            <div className='subtotal d-flex'>
-                                <h5 className='col-5 text-start'>Subtotal:</h5>
-                                <h5 className='col-7 text-end' style={{color: '#E94F37'}}>{(deliveryFee + totalPrice).toLocaleString('vi')} VND</h5>
-                            </div>
+                 
 
                             {/* Sum total */}
-                            <div className='sum d-flex'>
-                                <h4 className='col-4 text-start fs-4'>Total order value:</h4>
-                                <strong className='col-8 text-end' style={{ fontSize: '26px' }}>{(totalPrice + deliveryFee).toLocaleString('vi')} VND</strong>
+                            <div className='sum d-flexC'>
+                            <h3>{t('c23')}</h3>
+                                <strong style={{ fontSize: '30px' }}>{(totalPrice + deliveryFee).toLocaleString('vi')} VND</strong>
                             </div>
                         </div>
 

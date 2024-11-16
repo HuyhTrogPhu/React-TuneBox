@@ -10,7 +10,9 @@ import Footer2 from '../../../components/Footer/Footer2'
 import Benefit from '../../../components/Benefits/Benefits'
 import MenuShop from '../../../components/MenuShop/MenuShop'
 
+
 const Home = () => {
+
   return (
     <div>
 

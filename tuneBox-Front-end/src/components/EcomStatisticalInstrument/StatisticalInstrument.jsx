@@ -142,7 +142,7 @@ const StatisticalInstrument = () => {
                     <img src={instrument.image} alt="" style={{ width: '50px' }} />
                   </td>
                   <td style={{ textAlign: 'center' }}>{instrument.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{instrument.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{instrument.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity + instrument.totalSold}</td>
                   <th style={{ textAlign: 'center' }}>{instrument.totalSold}</th>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity}</td>
@@ -174,7 +174,7 @@ const StatisticalInstrument = () => {
                     <img src={instrument.image} alt="" style={{ width: '50px' }} />
                   </td>
                   <td style={{ textAlign: 'center' }}>{instrument.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{instrument.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{instrument.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity + instrument.totalSold}</td>
                   <th style={{ textAlign: 'center' }}>{instrument.totalSold}</th>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity}</td>
@@ -206,7 +206,7 @@ const StatisticalInstrument = () => {
                     <img src={instrument.image} alt="" style={{ width: '50px' }} />
                   </td>
                   <td style={{ textAlign: 'center' }}>{instrument.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{instrument.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{instrument.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity + instrument.totalSold}</td>
                   <th style={{ textAlign: 'center' }}>{instrument.totalSold}</th>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity}</td>
@@ -245,7 +245,7 @@ const StatisticalInstrument = () => {
                     <img src={instrument.image} alt="" style={{ width: '50px' }} />
                   </td>
                   <td style={{ textAlign: 'center' }}>{instrument.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{instrument.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{instrument.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity + instrument.totalSold}</td>
                   <th style={{ textAlign: 'center' }}>{instrument.totalSold}</th>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity}</td>
@@ -277,7 +277,7 @@ const StatisticalInstrument = () => {
                     <img src={instrument.image} alt="" style={{ width: '50px' }} />
                   </td>
                   <td style={{ textAlign: 'center' }}>{instrument.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{instrument.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{instrument.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity + instrument.totalSold}</td>
                   <th style={{ textAlign: 'center' }}>{instrument.totalSold}</th>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity}</td>
@@ -309,7 +309,7 @@ const StatisticalInstrument = () => {
                     <img src={instrument.image} alt="" style={{ width: '50px' }} />
                   </td>
                   <td style={{ textAlign: 'center' }}>{instrument.instrumentName}</td>
-                  <td style={{ textAlign: 'center' }}>{instrument.costPrice}</td>
+                  <td style={{ textAlign: 'center' }}>{instrument.costPrice.toLocaleString('vi')} VND</td>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity + instrument.totalSold}</td>
                   <th style={{ textAlign: 'center' }}>{instrument.totalSold}</th>
                   <td style={{ textAlign: 'center' }}>{instrument.quantity}</td>

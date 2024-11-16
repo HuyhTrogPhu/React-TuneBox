@@ -182,59 +182,68 @@ const Track = () => {
   return (
     <div>
       {/* get all track */}
-      {tracks.map(
-        (track) =>
-          !track.status && (
-            <div key={track.id} className="post-header-track">
-              <img
-                src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}
-                className="avatar_small"
-                alt="Avatar"
-              />
+      <div className="post-header-Track position-relative m-5 mt-0">
+        {tracks.map(
+          (track) =>
+            !track.status && (
+              <div key={track.id} className="post-header-track">
+                <img
+                  src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}
+                  className="avatar_small"
+                  alt="Avatar"
+                />
 
-              <div className="info">
-                <Link
-                  to={{
-                    pathname: `/track/${track.id}`,
-                    state: { track },
-                  }}
-                >
-                  <div className="name">{track.name || "Unknown Track"}</div>
-                </Link>
-                <div className="author">
-                  {track.userName || "Unknown userName"}
+                <div className="info">
+                  <Link
+                    to={{
+                      pathname: `/track/${track.id}`,
+                      state: { track },
+                    }}
+                  >
+                    <div className="name">{track.name || "Unknown Track"}</div>
+                  </Link>
+                  <div className="author">
+                    {track.userName || "Unknown userName"}
+                  </div>
                 </div>
-              </div>
 
-              <div className="btn-group" style={{ marginLeft: 25 }}>
-                <button
-                  className="btn dropdown-toggle no-border"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                ></button>
-                <ul className="dropdown-menu dropdown-menu-lg-end">
-                  <li>
-                    <a
-                      className="dropdown-item"
-                      onClick={() => handleEditClick(track)}
-                    >
-                      Edit
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="dropdown-item"
-                      onClick={() => deleteTrack(track.id)}
-                    >
-                      Delete
-                    </a>
-                  </li>
-                </ul>
+                {String(track.userId) === String(userId) ? (
+                  <div className="btn-group" style={{ marginLeft: 25 }}>
+                    <button
+                      className="btn dropdown-toggle no-border"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    ></button>
+                    <ul className="dropdown-menu dropdown-menu-lg-end">
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          onClick={() => handleEditClick(track)}
+                        >
+                          Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          onClick={() => deleteTrack(track.id)}
+                        >
+                          Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  <button
+                    className="fa-regular fa-flag btn-report position-absolute top-8 end-0 me-4 border-0"
+                    onClick={() => handleReport(album.id, "album")}
+                  ></button>
+                )}
               </div>
-            </div>
-          )
-      )}
+            )
+        )}
+      </div>
 
       {/* Modal for editing track */}
       <div
