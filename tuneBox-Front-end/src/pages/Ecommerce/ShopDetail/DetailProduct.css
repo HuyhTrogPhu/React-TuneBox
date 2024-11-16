@@ -210,3 +210,24 @@ hr {
   background-color: rgba(255, 255, 255, 0.8); /* Tạo nền mờ nếu cần */
   z-index: 1000; /* Đảm bảo nó nằm trên các phần khác */
 }
+
+/* share */
+.share-message {
+  font-size: 15px;
+  padding: 5px;
+  background-color: #E94F37;
+  border-radius: 5px;
+  border: none !important;
+  color: #fff;
+  font-weight: 600;
+}
+
+.share-post {
+  font-size: 15px;
+  padding: 5px;
+  background-color: #E94F37;
+  border-radius: 5px;
+  border: none !important;
+  color: #fff;
+  font-weight: 600;
+}

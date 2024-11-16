@@ -1097,7 +1097,7 @@ const HomeFeed = () => {
     navigate("/feed", {
       state: {
         sharedData: null, // Xóa sharedData
-        activeComponent: "track", // Xác định lại thành phần cần hiển thị
+        activeComponent: "post", // Xác định lại thành phần cần hiển thị
       },
     });
   };
