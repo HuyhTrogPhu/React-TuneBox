@@ -137,7 +137,7 @@ const BrandDetail = () => {
           <hr className='hr-1001' />
         </div>
 
-        <div className="content">
+        <div className="">
           <div className="row">
             {/* filter */}
             <div className="col-3 phamloai">

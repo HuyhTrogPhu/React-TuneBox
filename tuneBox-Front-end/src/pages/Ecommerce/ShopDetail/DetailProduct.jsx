@@ -306,36 +306,36 @@ const DetailProduct = () => {
                     <i className="fa-solid fa-truck-fast"></i>
                     <span className="ms-2">{t('ship')}</span>
                   </div>
-                  <div className="mt-3"> 
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => setIsShareModalOpen(true)}
-                  >
-                    <i
-                      type="button"
-                      style={{ fontSize: "20px", color: "white" }}
-                      className="fa-solid fa-share"
-                    ></i> Share via message
-                  </button>
-                  <ShareProductModal
-                    productId={id}
-                    isOpen={isShareModalOpen}
-                    onClose={() => setIsShareModalOpen(false)}
-                  />
+                  <div className="mt-3">
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => setIsShareModalOpen(true)}
+                    >
+                      <i
+                        type="button"
+                        style={{ fontSize: "20px", color: "white" }}
+                        className="fa-solid fa-share"
+                      ></i> Share via message
+                    </button>
+                    <ShareProductModal
+                      productId={id}
+                      isOpen={isShareModalOpen}
+                      onClose={() => setIsShareModalOpen(false)}
+                    />
                   </div>
-                  
+
 
                   <div className="ship-service btn btn-primary">
                     <i
                       className="fa-solid fa-share"
                       onClick={handleShareToFeed}
-                    ></i>
-                    <span className="ms-2">Share via post </span>
+                    > <span className="ms-2">Share via post </span></i>
+
                   </div>
                 </div>
 
                 {/* Related products */}
-             
+
               </div>
             </div>
           </div>
