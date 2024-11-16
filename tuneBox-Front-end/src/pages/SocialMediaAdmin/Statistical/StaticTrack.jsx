@@ -403,11 +403,11 @@ if (user) {
             )}
 
             {/* chose Month */}
-            {/* {timeType === "month" && (
+            {timeType === "month" && (
               <form>
                 <div className="mt-3">
                   <label className="form-label">Chose month</label>
-                  <div className="d-flex">
+                  <div className="d-flex">  
                     <input
                       type="month"
                       className="form-control"
@@ -430,7 +430,7 @@ if (user) {
                   </div>
                 </div>
               </form>
-            )} */}
+            )}
           </div>
             <div className="col-3">
              

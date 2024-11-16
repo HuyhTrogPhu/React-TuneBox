@@ -82,8 +82,7 @@ const Statistical = () => {
                     </div>
 
                 </section>
-
-
+                
 
             </div>
         </div>

@@ -55,12 +55,12 @@ const Footer2 = () => {
             </div>
           </div>
           {/* Ngôn ngữ */}
-          <div className="language-switcher mt-4">
+          <div className="language-switcher mt-5">
             <button onClick={() => handleLanguageChange('en')} disabled={language === 'en'}>
-              English
+             <p style={{color: 'white'}}>English</p> 
             </button>
             <button onClick={() => handleLanguageChange('vi')} disabled={language === 'vi'}>
-              Tiếng Việt
+               <p style={{color: 'white'}}>Tiếng Việt</p>
             </button>
           </div>
         </div>

@@ -6,6 +6,7 @@ import Footer2 from '../../../components/Footer/Footer2';
 import Cookies from "js-cookie";
 import { getUserById } from '../../../service/CheckoutService';
 import Swal from 'sweetalert2';
+import { images } from "../../../assets/images/images.js";
 import { useNavigate } from 'react-router-dom';
 import { Audio } from 'react-loader-spinner'
 const GHN_API_KEY = 'f6a2324b-895f-11ef-a76b-8ef8cf9ed7dc';
@@ -379,10 +380,19 @@ const CheckOut = () => {
 
     return (
         <div>
-            <div className='container-fluid mt-5' style={{ padding: '50px 100px 50px 100px' }}>
+            <div className='container-fluid'
+                style={{
+                    padding: '150px 80px 80px 0'
+                    // margin: '50px 100px 50px 100px',
+                    // marginTop: '100px',
+                    // backgroundImage: `url(${images.backg})`,
+                    // backgroundSize: "cover",
+                    // backgroundPosition: "center",
+                }}>
                 <div className='row d-flex justify-content-between'>
+                    <h3 className='text-center mb-5' style={{ color: '#e94f37' }}>Check Out</h3>
                     {/* Order content bên trái */}
-                    <div className='order-infor col-lg-6 col-md-6 col-sm-12'>
+                    <div className='order-infor col-lg-6 col-md-6 col-sm-12 ps-5 pe-5'>
                         {/* Information user */}
                         <div className='user-infor'>
                             <h1>{t('c1')}</h1>
@@ -591,44 +601,55 @@ const CheckOut = () => {
 
                     {/* Order content bên phải */}
                     <div className='shopping-cart col-lg-6 col-md-6 col-sm-12'>
+                        <h6 className='text-center'>Review your cart</h6>
                         <div className='cart-container'>
-                            {cartItems.length === 0 ? (
-                                <p>{t('no')}</p>
-                            ) : (
-                                cartItems.map((item) => (
-                                    <div className='item-cart d-flex' key={item.id}>
-                                        <div className='instrument-image col-2'>
-                                            <img src={item.image} alt={item.name} />
+                            <div className='cart-item'>
+                                {cartItems.length === 0 ? (
+                                      <p>{t('no')}</p>
+                                ) : (
+                                    cartItems.map((item) => (
+                                        <div className='item-cart d-flex' key={item.id}>
+                                            <div className='instrument-image col-2'>
+                                                <img src={item.image} alt={item.name} />
+                                            </div>
+                                            <div className='instrument-name col-5'>
+                                                <p>{item.name}</p>
+                                            </div>
+                                            <div className='instrument-price col-4'>
+                                                <p>{(item.costPrice).toLocaleString('vi')} VND</p>
+                                            </div>
+                                            <div className='instrument-quantity col-1'>
+                                                <p>{item.quantity}X</p>
+                                            </div>
                                         </div>
-                                        <div className='instrument-name col-7'>
-                                            <p>{item.name}</p>
-                                        </div>
-
-                                    </div>
-                                ))
-                            )}
+                                    ))
+                                )}
+                            </div>
 
                             {/* Total item */}
-                            <div className='total-item d-flexC' >
-                                <h5>{t('c21')}</h5>
-                                <p  >{cartItems.length} items</p>
+                           
+                            <div className='total-item d-flex'>
+                            <h5 className='col-5 text-start'  >{t('c21')}</h5>
+                                <h5 className='col-7 text-end'>{cartItems.length}</h5>
                             </div>
 
                             {/* Total price */}
-                            <div className='total-price d-flexC'>
-                                <h5>{t('c22')}</h5>
-                                <p>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                            <div className='total-price d-flex'>
+                                <h5 className='col-5 text-start'>{t('c22')}</h5>
+                                <h5 className='col-7 text-end'>{totalPrice.toLocaleString('vi')} VND</h5>
                             </div>
 
-                            {/* Tax */}
-                            <div className='tax d-flexC'>
-                                <h5>{t('c42')}</h5>
-                                <p>{deliveryFee.toLocaleString('vi')} VND</p>
+                            {/* Delivery fee */}
+                            <div className='fee d-flex'>
+                            <h5 className='col-5 text-start'> {t('c42')}</h5>
+                                <h5 className='col-7 text-end'>{deliveryFee.toLocaleString('vi')} VND</h5>
                             </div>
+
+                 
 
                             {/* Sum total */}
                             <div className='sum d-flexC'>
-                                <h3>{t('c23')}</h3>
+                            <h3>{t('c23')}</h3>
                                 <strong style={{ fontSize: '30px' }}>{(totalPrice + deliveryFee).toLocaleString('vi')} VND</strong>
                             </div>
                         </div>

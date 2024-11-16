@@ -143,7 +143,7 @@ const handleGoogleFailure = () => {
           <div className="row">
             <div className="col-lg-6 mx-auto">
               <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleLogin}>
-                <h2 className="text-center mb-4">Đăng nhập</h2>
+                <h2 className="text-center mb-4">Log in</h2>
                 <div className="ticket-form-body">
                   {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
                   {loading && (
@@ -199,7 +199,7 @@ const handleGoogleFailure = () => {
                       <b>Forgot password?</b>
                     </Link>
                   </div>
-                  <div className="col-lg-6 d-flex justify-content-center" style={{ marginTop: 20 }}>
+                  <div className="col-lg-12 d-flex align-items-center justify-content-center" style={{ marginTop: 20 }}>
                   <GoogleLogin
                       onSuccess={handleGoogleLogin}
                       onFailure={handleGoogleFailure}

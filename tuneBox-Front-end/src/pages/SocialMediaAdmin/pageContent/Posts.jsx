@@ -53,6 +53,7 @@ const Posts = () => {
     baseURL: "http://localhost:8080/api",
     headers: {
       "Content-Type": "application/json",
+      
     },
   });
 
@@ -117,18 +118,18 @@ const Posts = () => {
         if (!formattedDate) {
           throw new Error("Please enter a valid specific date");
         }
-        fetchRePort(null, null, reportedSpecificDate);
+        fetchReports(null, null, reportedSpecificDate);
       } else if (reportedStartDate && reportedEndDate) {
         if (!validateDateRange(reportedStartDate, reportedEndDate)) {
           throw new Error("End date must be after start date");
         }
-        fetchRePort(reportedStartDate, reportedEndDate, null);
+        fetchRePorts(reportedStartDate, reportedEndDate, null);
       } else if (
         !reportedSpecificDate &&
         (!reportedStartDate || !reportedEndDate)
       ) {
         // If no dates are selected, fetch all reports
-        fetchRePort();
+        fetchRePorts();
       } else {
         throw new Error(
           "Please select either a specific date or both start and end dates"

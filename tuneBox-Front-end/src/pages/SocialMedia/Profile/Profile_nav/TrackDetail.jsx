@@ -401,8 +401,8 @@ function Trackdetail() {
   // Nếu không có track, hiển thị thông báo không tìm thấy
   if (!track) return <p>Track không tồn tại hoặc không thể tìm thấy.</p>;
 
-  return ( 
-    <div className="trackDetail" style={{marginTop: '50px'}}>
+  return (
+    <div className="trackDetail" style={{marginTop: '100px'}}>
       <div className="row">
         {/* tìm kiếm track của người dùng */}
         <div className="col-3 pt-5 p-5">
@@ -801,14 +801,6 @@ function Trackdetail() {
                             <div className="author">
                               {relatedTrack.userName || "Unknown userName"}
                             </div>
-                          </div>
-                          <div className="btn-group" style={{ marginLeft: 25 }}>
-                            <button
-                              className="btn dropdown-toggle no-border"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            ></button>
                           </div>
                         </div>
                       )

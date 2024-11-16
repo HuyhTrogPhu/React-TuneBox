@@ -309,7 +309,7 @@ const AlbumDetail = () => {
   if (!album) return <div className="p-4">No album data found</div>;
 
   return (
-    <div className="content-audio">
+    <div className="content-audio" style={{marginTop: '100px'}}>
       <div className="music-background">
         <div className="title-detail">{/* <p>Playlist</p> */}</div>
         <div className="note">&#9835;</div>

@@ -1,16 +1,15 @@
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import "./DetailProduct.css";
-import { images } from "../../../assets/images/images";
 import Footer2 from "../../../components/Footer/Footer2";
 import Benefits from "../../../components/Benefits/Benefits";
 import { getInstrumentById } from "../../../service/EcommerceHome";
-import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
-import { addToLocalCart, getLocalCart } from "../../../service/CartService";
+import { addToLocalCart } from "../../../service/CartService";
 
 import { useTranslation } from "react-i18next";
-import "../../../i18n/i18n";
+import '../../../i18n/i18n'
+import ShareProductModal from "../../SocialMedia/Profile/Profile_nav/ShareProductModal";
 
 import Swal from "sweetalert2";
 import { Audio } from "react-loader-spinner";
@@ -30,6 +29,7 @@ const DetailProduct = () => {
   const navigate = useNavigate();
 
   const [cartItems, setCartItems] = useState({});
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // share sanpham sang feed
   const handleShareToFeed = () => {
@@ -98,10 +98,10 @@ const DetailProduct = () => {
       setQuantity(quantity + 1);
     } else {
       Swal.fire({
-        title: t("error"),
-        text: t("dnote5"),
-        icon: "error",
-        confirmButtonText: "OK",
+        title: t('error'),
+        text: t('dnote5'),
+        icon: 'error',
+        confirmButtonText: 'OK',
         customClass: {
           confirmButton: "btn btn-primary",
         },
@@ -118,10 +118,10 @@ const DetailProduct = () => {
       setQuantity(value);
     } else if (value > instrument.quantity) {
       Swal.fire({
-        title: t("error"),
-        text: t("dnote5"),
-        icon: "error",
-        confirmButtonText: "OK",
+        title: t('error'),
+        text: t('dnote5'),
+        icon: 'error',
+        confirmButtonText: 'OK',
         customClass: {
           confirmButton: "btn btn-primary",
         },
@@ -143,9 +143,9 @@ const DetailProduct = () => {
 
   // Hàm để xác định trạng thái hàng hóa
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return t("hethang");
-    if (quantity > 0 && quantity <= 5) return t("saphhet");
-    return t("conhang");
+    if (quantity === 0) return t('hethang');
+    if (quantity > 0 && quantity <= 5) return t('saphhet');
+    return t('conhang');
   };
 
   const handleAddToCart = async () => {
@@ -157,10 +157,10 @@ const DetailProduct = () => {
 
       // Hiển thị thông báo không thể thêm sản phẩm vào giỏ hàng
       Swal.fire({
-        title: t("error"),
-        text: t("dnote6"),
-        icon: "error",
-        confirmButtonText: "OK",
+        title: t('error'),
+        text: t('dnote6'),
+        icon: 'error',
+        confirmButtonText: 'OK',
         customClass: {
           confirmButton: "btn btn-primary",
         },
@@ -177,10 +177,10 @@ const DetailProduct = () => {
 
       // Sử dụng SweetAlert2 để hiển thị thông báo
       Swal.fire({
-        title: t("succes"),
-        text: t("dnote2"),
-        icon: "success",
-        confirmButtonText: "OK",
+        title: t('succes'),
+        text: t('dnote2'),
+        icon: 'success',
+        confirmButtonText: 'OK',
         customClass: {
           confirmButton: "btn btn-primary",
         },
@@ -201,8 +201,8 @@ const DetailProduct = () => {
 
   return (
     <div>
-      <div className="container" style={{ marginTop: "100px" }}>
-        <div className="content">
+      <div className="container" style={{ marginTop: '100px' }}>
+        <div className="content" style={{ width: '100%' }}>
           {/* Instrument image */}
           <div className="row">
             <h3 className="text-uppercase">{instrument.name}</h3>
@@ -227,6 +227,7 @@ const DetailProduct = () => {
                 <div className="gioiThieu mt-4 p-3">
                   <p>{instrument.description}</p>
                 </div>
+
               </div>
             </div>
             <div className="col-5">
@@ -325,110 +326,36 @@ const DetailProduct = () => {
                     <i className="fa-solid fa-truck-fast"></i>
                     <span className="ms-2">{t("ship")}</span>
                   </div>
-                  <div className="ship-service">
-                    <i
-                      className="fa-solid fa-share"
-                      onClick={handleShareToFeed}
-                    ></i>
-                    <span className="ms-2">Share</span>
+                  <div className="mt-3">
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => setIsShareModalOpen(true)}
+                    >
+                      <i
+                        type="button"
+                        style={{ fontSize: "20px", color: "white" }}
+                        className="fa-solid fa-share"
+                      ></i> Share via message
+                    </button>
+                    <ShareProductModal
+                      productId={id}
+                      isOpen={isShareModalOpen}
+                      onClose={() => setIsShareModalOpen(false)}
+                    />
                   </div>
-                  <div className="ship-service">
+
+
+                  <div className="ship-service btn btn-primary">
                     <i
                       className="fa-solid fa-share"
                       onClick={handleShareToFeed}
-                    ></i>
-                    <span className="ms-2">Share</span>
+                    > <span className="ms-2">Share via post </span></i>
+
                   </div>
                 </div>
 
                 {/* Related products */}
-                <div className="carousel slide" id="carouselExample">
-                  <h3>Related instruments</h3>
-                  <div className="carousel-inner">
-                    {/* Chia relatedInstrument thành các nhóm, mỗi nhóm có 2 sản phẩm */}
-                    {relatedInstrument
-                      .reduce((acc, _, index) => {
-                        if (index % 2 === 0) {
-                          acc.push(relatedInstrument.slice(index, index + 2));
-                        }
-                        return acc;
-                      }, [])
-                      .map((group, groupIndex) => (
-                        <div
-                          className={`carousel-item ${
-                            groupIndex === 0 ? "active" : ""
-                          }`}
-                          key={groupIndex}
-                        >
-                          <div className="row">
-                            {group.map((ins) => (
-                              <div className="col-md-6" key={ins.id}>
-                                <Link
-                                  to={{
-                                    pathname: `/DetailProduct/${ins.id}`,
-                                    state: { ins },
-                                  }}
-                                  className="card-link"
-                                >
-                                  <div
-                                    className="card"
-                                    style={{
-                                      width: "100%",
-                                      border: "none",
-                                      cursor: "pointer",
-                                    }}
-                                  >
-                                    <div className="card-img-wrapper">
-                                      <img
-                                        src={ins.image}
-                                        className="card-img-top"
-                                        alt={ins.name}
-                                      />
-                                    </div>
-                                    <div className="card-body text-center">
-                                      <p className="card-title">{ins.name}</p>
-                                      <p className="card-price">
-                                        {ins.costPrice.toLocaleString()}đ
-                                      </p>
-                                      <p className="card-status">
-                                        {getStockStatus(ins.quantity)}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </Link>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
 
-                  {/* Carousel controls */}
-                  <button
-                    className="carousel-control-prev"
-                    data-bs-slide="prev"
-                    data-bs-target="#carouselExample"
-                    type="button"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="carousel-control-prev-icon"
-                    />
-                    <span className="visually-hidden">Previous</span>
-                  </button>
-                  <button
-                    className="carousel-control-next"
-                    data-bs-slide="next"
-                    data-bs-target="#carouselExample"
-                    type="button"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="carousel-control-next-icon"
-                    />
-                    <span className="visually-hidden">Next</span>
-                  </button>
-                </div>
               </div>
             </div>
           </div>

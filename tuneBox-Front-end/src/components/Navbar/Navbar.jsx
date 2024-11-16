@@ -303,6 +303,15 @@ const Navbar = () => {
     }
   };
 
+  // handle dropdown profile 
+  const handleDropdownClick = () => {
+    if (userId) {
+      navigate("/profileUser");
+    } else {
+      navigate("/login");
+    }
+  };
+
 
   return (
     <header className="navbar-container ">
@@ -454,6 +463,7 @@ const Navbar = () => {
             alt="avatar-user"
             src={avatarUrl}
             className="avatar-user"
+            style={{objectFit: 'cover'}}
             onClick={handleAvatarClick}
             onMouseEnter={handleMouseEnter}
           />
@@ -467,7 +477,7 @@ const Navbar = () => {
           >
             <button
               className="dropdown-item"
-              onClick={() => navigate("/profileUser")}
+              onClick={() => handleDropdownClick()}
             >
               {t('profile')}
             </button>
@@ -489,12 +499,12 @@ const Navbar = () => {
         </button>
 
         {/* Track AI */}
-        <button
+        {/* <button
           className="track-ai ms-4"
           onClick={handleTrackAiClick}
         >
           Track AI
-        </button>
+        </button> */}
       </div>
 
       {/* start modal add */}

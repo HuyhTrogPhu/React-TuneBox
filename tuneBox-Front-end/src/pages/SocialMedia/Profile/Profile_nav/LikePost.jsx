@@ -264,7 +264,7 @@ const LikePost = () => {
   if (error) return <div>Error loading liked items</div>;
 
   return (
-    <div className="likePost mt-5">
+    <div className="likePost " style={{marginTop: '100px'}}>
       <ToastContainer />
       <h1 className="search-results-title text-center mb-5">Liked Post</h1>
       <div className="row container-fluid">
