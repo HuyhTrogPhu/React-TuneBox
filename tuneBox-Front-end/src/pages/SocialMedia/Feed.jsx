@@ -1199,7 +1199,7 @@ const HomeFeed = () => {
 
 
           {/* Main content */}
-          <div className="col-6 content">
+          <div className="col-6 content-feed">
             {/* Nav tab link */}
             <div className="row nav-link-feed mt-4">
               <ul className="d-flex justify-content-center">

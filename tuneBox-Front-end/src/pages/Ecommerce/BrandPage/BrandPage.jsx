@@ -51,8 +51,9 @@ const BrandPage = () => {
 
   return (
     <div>
-      <div className='container'>
+      <div className='p-5' style={{marginTop: '100px', width: '100%'}}>
         <div className='fullBrand mt-4'>
+          <h3 className='text-center mb-4'>Brand</h3>
           <ul className='listBrand'>
             <li
               key="All"
@@ -76,6 +77,7 @@ const BrandPage = () => {
             })}
           </ul>
         </div>
+        <hr style={{width: '100%'}}/>
 
         {/* Danh sách thương hiệu theo chữ cái */}
         {selectedLetter === 'All'

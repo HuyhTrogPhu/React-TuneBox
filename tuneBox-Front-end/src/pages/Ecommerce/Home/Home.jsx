@@ -14,7 +14,7 @@ const Home = () => {
   return (
     <div>
 
-      <div className='app-container'>
+      <div className='app-container' style={{marginTop: '100px'}}>
         <MenuShop/>
         <Carousel />
         <Instroduce />

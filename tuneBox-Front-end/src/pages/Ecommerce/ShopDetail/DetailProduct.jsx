@@ -184,7 +184,7 @@ const DetailProduct = () => {
 
   return (
     <div>
-      <div className="container">
+      <div className="container" style={{marginTop: '100px'}}>
         <div className="content" style={{width: '100%'}}>
           {/* Instrument image */}
           <div className="row">
@@ -202,10 +202,6 @@ const DetailProduct = () => {
             {/* Instrument content */}
             <div className="col-6">
               <div className="mt-5">
-                <h3>About the product</h3>
-                <div className="gioiThieu mt-4 p-3">
-                  <p>{instrument.description}</p>
-                </div>
                 <h3>About the product</h3>
                 <div className="gioiThieu mt-4 p-3">
                   <p>{instrument.description}</p>

@@ -19,6 +19,8 @@ const BrandDetail = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
+  const [sortByPrice, setSortByPrice] = useState('asc');
+  const [sortByName, setSortByName] = useState('desc');
 
   const brandId = brand.id;
   useEffect(() => {
@@ -53,13 +55,47 @@ const BrandDetail = () => {
   };
 
   const sortInstruments = (instrumentsToSort) => {
-    return instrumentsToSort.sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.costPrice - b.costPrice;
-      } else {
-        return b.costPrice - a.costPrice;
-      }
-    });
+    let sorted = [...instrumentsToSort];
+
+    // Chỉ sắp xếp theo giá nếu được chọn
+    if (sortByPrice) {
+      sorted = sorted.sort((a, b) => {
+        return sortByPrice === 'asc' ? a.costPrice - b.costPrice : b.costPrice - a.costPrice;
+      });
+    }
+
+    // Chỉ sắp xếp theo tên nếu được chọn
+    if (sortByName) {
+      sorted = sorted.sort((a, b) => {
+        return sortByName === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+      });
+    }
+
+    return sorted;
+  };
+
+  const handleSort = (order) => {
+    switch (order) {
+      case 'priceAsc':
+        setSortByPrice('asc');
+        setSortByName('');  // Clear name sorting
+        break;
+      case 'priceDesc':
+        setSortByPrice('desc');
+        setSortByName('');  // Clear name sorting
+        break;
+      case 'nameAsc':
+        setSortByPrice('');  // Clear price sorting
+        setSortByName('asc');
+        break;
+      case 'nameDesc':
+        setSortByPrice('');  // Clear price sorting
+        setSortByName('desc');
+        break;
+      default:
+        setSortByPrice('');
+        setSortByName('');
+    }
   };
 
   const getCurrentInstruments = () => {
@@ -81,7 +117,7 @@ const BrandDetail = () => {
 
   return (
     <div>
-      <div className="container">
+      <div className="container" style={{marginTop: '100px'}}>
         <div>
           <div className="gioithieu1">
             <div className="grid-container">
@@ -148,22 +184,16 @@ const BrandDetail = () => {
 
             <div className="col-9 mt-3">
               <div className="row">
-                <div className='col-9'>Total product</div>
-                <div className="col-3">
-                  <div className="custom-dropdown">
-                    <button className="btn custom-dropdown-toggle btn-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Sắp xếp
-                    </button>
-                    <ul className="custom-dropdown-menu">
-                      <li>
-                        <button className="btn custom-dropdown-item" onClick={() => { setSortOrder('asc'); setCurrentPage(1); }}>Giá thấp nhất</button>
-                      </li>
-                      <li>
-                        <button className="btn custom-dropdown-item" onClick={() => { setSortOrder('desc'); setCurrentPage(1); }}>Giá cao nhất</button>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+                <div className='col-9'>Total product: <strong>{currentInstruments.length} instrument</strong></div>
+                <div className='col-3'>
+                <select className="form-select" onChange={(e) => handleSort(e.target.value)}>
+                  <option value="">Default</option>
+                  <option value="priceAsc">Price: Low to high</option>
+                  <option value="priceDesc">Price: High to low</option>
+                  <option value="nameAsc">Name: A to Z</option>
+                  <option value="nameDesc">Name: Z to A</option>
+                </select>
+              </div>
 
               </div>
 
