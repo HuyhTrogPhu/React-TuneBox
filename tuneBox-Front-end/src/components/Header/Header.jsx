@@ -60,12 +60,12 @@ const Header = () => {
         >
           <li>
             <a className="dropdown-item" href="#">
-              Profile
+            {('profile')}
             </a>
           </li>
           <li>
-            <a className="dropdown-item" href="#" > 
-              Log Out
+            <a className="dropdown-item" href="#">
+            {('log_out')}
             </a>
           </li>
         </ul>

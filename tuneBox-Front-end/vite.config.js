@@ -1,8 +1,13 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path'; // Import module path
 
 export default defineConfig({
   plugins: [react()],
+  
+  define: {
+    global: 'globalThis', // Định nghĩa global
+  },
   server: {
     port: 3000,
     proxy: {
@@ -12,10 +17,15 @@ export default defineConfig({
         secure: false,
       },
       "/api": {
-        target: "https://thongtindoanhnghiep.co",
+        target: "https://localhost:8080",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        secure: false,
       },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'), // Cấu hình alias
     },
   },
 });

@@ -17,7 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import CSS cho Toastify
 import { images } from "../../../../assets/images/images";
 import { useNavigate } from "react-router-dom";
-
+import { Audio } from "react-loader-spinner";
 const AlbumNew = () => {
   const navigate = useNavigate();
   const userId = Cookies.get("userId");
@@ -39,10 +39,9 @@ const AlbumNew = () => {
   const [selectedType, setSelectedType] = useState(""); // lưu ID của album style được chọn
 
   const [tracks, setTracks] = useState([]); //List track của user
-
+  const [isLoading, setIsLoading] = useState(false);
   const [addedTracks, setAddedTracks] = useState([]); // List track đã thêm vào album
 
-  // const [loading, setLoading] = useState(true);  //  trạng thái chờ
   const [errors, setErrors] = useState({
     title: "",
     description: "",
@@ -117,6 +116,7 @@ const AlbumNew = () => {
     // e.preventDefault();
 
     if (validateForm()) {
+      setIsLoading(true);
       const formData = new FormData();
 
       // Append basic information
@@ -168,6 +168,8 @@ const AlbumNew = () => {
           error.response?.data?.message ||
           "Failed to create album. Please try again.";
         toast.error(errorMessage);
+      } finally {
+        setIsLoading(false); // Tắt loading sau khi hoàn thành
       }
     }
   };
@@ -267,6 +269,7 @@ const AlbumNew = () => {
   return (
     <div className="container">
       <ToastContainer />
+
       {/* Header */}
       <div className="header">
         <h2 className="header-title mb-4">New Album</h2>
@@ -308,6 +311,7 @@ const AlbumNew = () => {
                   >
                     Back
                   </Button>
+                  +
                   <Box sx={{ flex: "1 1 auto" }} />
                   <Button
                     onClick={
@@ -315,8 +319,38 @@ const AlbumNew = () => {
                         ? handleAddAlbum
                         : handleNext
                     }
+                    disabled={isLoading} // Vô hiệu hóa nút khi đang loading
                   >
-                    {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                    {isLoading ? (
+                      <div
+                        style={{
+                          position: "fixed",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: "rgba(255, 255, 255, 0.8)", // Nền mờ
+                          zIndex: 9999,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Audio
+                          height="80"
+                          width="80"
+                          radius="9"
+                          color="#e94f37"
+                          ariaLabel="three-dots-loading"
+                          wrapperStyle
+                          wrapperClass
+                        />
+                      </div>
+                    ) : activeStep === steps.length - 1 ? (
+                      "Finish"
+                    ) : (
+                      "Next"
+                    )}
                   </Button>
                 </Box>
               </React.Fragment>

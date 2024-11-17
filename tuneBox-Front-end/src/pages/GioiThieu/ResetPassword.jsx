@@ -1,106 +1,119 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'; // Thêm useNavigate để điều hướng
+import Swal from 'sweetalert2'; // Nhập SweetAlert2
 import Footer2 from '../../components/Footer/Footer2';
+import Header2 from '../../components/Navbar/Header2';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams.get('token'); // Lấy token từ URL
+  const navigate = useNavigate(); // Khai báo useNavigate
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      setMessage("Mật khẩu và xác nhận mật khẩu không khớp.");
+  const handleResetPassword = async (e) => {
+    e.preventDefault(); // Ngăn chặn hành động mặc định của form
+  
+    if (!token) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: "Invalid token",
+      });
       return;
     }
-    try {
-      await axios.post('http://localhost:8080/User/reset-password', {
-        token,
-        newPassword,
+  
+    if (!newPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: "New password cannot be blank.",
       });
-      setMessage('Mật khẩu đã được đặt lại thành công.');
+      return;
+    }
+  
+    try {
+  
+      const response = await axios.post(`http://localhost:8080/user/reset-password?token=${token}&newPassword=${newPassword}`);
+
+      // Kiểm tra phản hồi từ server
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: "Password has been changed successfully! Please log in.",
+        }).then(() => {
+          navigate('/login'); // Điều hướng về trang đăng nhập
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: "An error occurred while changing the password.",
+        });
+      }
     } catch (error) {
-      setMessage('Đã có lỗi xảy ra. Vui lòng thử lại.');
+      if (error.response) {
+        console.log("Error response:", error.response); // Log chi tiết
+        console.log("Error data:", error.response.data); // Log dữ liệu lỗi
+        const errorMessage = error.response.data.message || "An unknown error has occurred.";
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: "A network error has occurred. Please try again later.",
+        });
+      }
     }
   };
-
-  // Inline styles
-  const containerStyle = {
-    maxWidth: '400px',
-    margin: '0 auto',
-    padding: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '10px',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#f9f9f9',
-  };
-
-  const labelStyle = {
-    display: 'block',
-    marginBottom: '8px',
-    fontWeight: 'bold',
-    color: '#555',
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: '8px',
-    marginBottom: '12px',
-    border: '1px solid #ddd',
-    borderRadius: '5px',
-  };
-
-  const buttonStyle = {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '16px',
-  };
-
-  const messageStyle = {
-    marginTop: '10px',
-    textAlign: 'center',
-    color: 'red',
-  };
+  
 
   return (
     <div>
-    {/* <Header2 /> */}
-    <div style={containerStyle}>
-      <h2>Đặt lại mật khẩu</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label style={labelStyle}>Mật khẩu mới:</label>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-            style={inputStyle}
-          />
+      <Header2 />
+      <section className="ticket-section section-padding">
+        <div className="section-overlay" />
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 col-10 mx-auto">
+              <form className="custom-form ticket-form mb-5 mb-lg-0" onSubmit={handleResetPassword}>
+                <h2 className="text-center mb-4">Reset Password</h2>
+                <div className="ticket-form-body">
+                  <div className="row">
+                    <h6>Enter a new password</h6>
+                    <div className="col-lg-12" style={{ marginTop: -30 }}>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="form-control"
+                        placeholder="New Password"
+                      />
+                    </div>
+                  </div>
+                  <div className="col-lg-4 col-md-10 col-8 mx-auto">
+                    <button type="submit" className="form-control">
+                      Next
+                    </button>
+                  </div>
+                  <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 80 }}>
+                    <span className="text-center">
+                      Did you remember your password?
+                      <Link to={'/login'}><b> Sign in now.</b></Link>
+                    </span>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-        <div>
-          <label style={labelStyle}>Xác nhận mật khẩu:</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            style={inputStyle}
-          />
-        </div>
-        <button type="submit" style={buttonStyle}>Đặt lại mật khẩu</button>
-        <div style={messageStyle}>{message}</div>
-      </form>
-    </div>
-    {/* <Footer2/> */}
+      </section>
+      <Footer2 />
     </div>
   );
 };

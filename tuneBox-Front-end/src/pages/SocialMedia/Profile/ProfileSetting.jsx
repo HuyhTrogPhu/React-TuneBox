@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../../assets/images/images";
 import "../../../pages/SocialMedia/Profile/css/setting.css";
+// import { fetchDataUser } from "./js/ProfileJS";
+// import Cookies from 'js-cookie';
 import Profile from "../../../components/Profile/Profile";
-import Account from "../../../components/Account/Account";
-import CustomerOrder from "../../../components/CustomerOrder/CustomerOrder";
+import Account from "../../../components/Account/Account"
+import CustomerOrder from "../../../components/CustomerOrder/CustomerOrder"
 
 const ProfileSetting = () => {
   // State để quản lý component đang được hiển thị
@@ -16,7 +18,7 @@ const ProfileSetting = () => {
   
 
   return (
-    <div className="">
+    <div className="profile-setting" style={{marginTop: '100px'}}>
       <div className="row">
         <aside className="col-sm-3">
           <div className="d-flex flex-column flex-shrink-0 p-3">

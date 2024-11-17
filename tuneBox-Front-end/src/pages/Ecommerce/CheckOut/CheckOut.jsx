@@ -6,14 +6,18 @@ import Footer2 from '../../../components/Footer/Footer2';
 import Cookies from "js-cookie";
 import { getUserById } from '../../../service/CheckoutService';
 import Swal from 'sweetalert2';
+import { images } from "../../../assets/images/images.js";
 import { useNavigate } from 'react-router-dom';
 import { Audio } from 'react-loader-spinner'
 const GHN_API_KEY = 'f6a2324b-895f-11ef-a76b-8ef8cf9ed7dc';
+
+import { useTranslation } from "react-i18next";
+import '../../../i18n/i18n'
 const CheckOut = () => {
     // const [userId, setUserId] = useState('');
     const [user, setUser] = useState({});
     const [cartItems, setCartItems] = useState([]);
-
+    const { t } = useTranslation();
     const userId = Cookies.get("userId");
     console.log("User ID từ cookie:", userId);
     const [errors, setErrors] = useState('');
@@ -44,12 +48,13 @@ const CheckOut = () => {
     const validateForm = () => {
         let valid = true;
         const errorsCopy = { ...errors };
-
+    
         // Kiểm tra số điện thoại
         if (phoneNumber) {
-            const phoneRegex = /^[0-9]{10,11}$/; // Chỉ cho phép 10 đến 11 chữ số
+            // Kiểm tra số điện thoại bắt đầu bằng 0 và có độ dài từ 10 đến 11 chữ số
+            const phoneRegex = /^0[0-9]{9,10}$/; // Đảm bảo số điện thoại bắt đầu bằng 0 và có từ 10 đến 11 chữ số
             if (!phoneRegex.test(phoneNumber)) {
-                errorsCopy.phoneNumber = 'Invalid phone number';
+                errorsCopy.phoneNumber = 'Phone number must start with 0 and have 10 to 11 digits';
                 valid = false;
             } else {
                 errorsCopy.phoneNumber = ''; // Không có lỗi
@@ -58,10 +63,11 @@ const CheckOut = () => {
             errorsCopy.phoneNumber = 'Please enter phone number';
             valid = false;
         }
-
+    
         setErrors(errorsCopy);
         return valid;
     };
+    
 
 
     // Get user information khi userId có giá trị
@@ -249,101 +255,99 @@ const CheckOut = () => {
         if (!validateForm()) {
             return;
         }
-
-        // Kiểm tra thông tin đầu vào
+    
         if (!userId || cartItems.length === 0 || !selectedProvince || !selectedDistrict || !selectedWard || !houseNumber) {
-            Swal.fire('Notification', 'Please fill in all information before ordering!', 'error');
+            Swal.fire(
+                t('c24'), // 'Notification'
+                t('c25'), // 'Please fill in all information before ordering!'
+                'error'
+            );
             return;
         }
-
-        // Xác định trạng thái thanh toán dựa trên phương thức thanh toán đã chọn
+    
         const paymentStatus = paymentMethod === 'VNPAY' ? 'Paid' : 'Not Paid';
-
+    
         const orderData = {
-            userId: userId,
+            userId,
             orderDate: new Date().toISOString(),
             deliveryDate: null,
             totalPrice: totalPrice + deliveryFee,
             tax: 5.0,
             totalItem: cartItems.length,
-            paymentMethod: paymentMethod,
+            paymentMethod,
             status: 'Pending',
-            phoneNumber: phoneNumber,
+            phoneNumber,
             address: `${houseNumber}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`,
-            shippingMethod: shippingMethod,
-            paymentStatus: paymentStatus,
+            shippingMethod,
+            paymentStatus,
             orderDetails: cartItems.map(item => ({
                 quantity: item.quantity,
                 instrumentId: item.instrumentId,
             })),
         };
-
+    
         console.log("Order Data:", JSON.stringify(orderData, null, 2));
-
+    
         try {
-            // Gọi API tạo đơn hàng dựa trên phương thức thanh toán
             setIsLoading(true);
             let response;
             if (paymentMethod === 'VNPAY') {
                 response = await axios.post('http://localhost:8080/customer/checkout/create_payment', orderData, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
                 });
-
-
-                // Đảm bảo rằng đơn hàng đã được lưu ở đây
+    
                 if (response.data && response.data.url) {
                     Swal.fire({
-                        title: 'Request payment',
-                        text: 'You will be redirected to the VNPay payment page!',
+                        title: t('c26'), // 'Request payment'
+                        text: t('c27'),  // 'You will be redirected to the VNPay payment page!'
                         icon: 'info',
                     }).then(() => {
-                        window.location.href = response.data.url; // Chuyển hướng đến đường dẫn VNPay
+                        window.location.href = response.data.url;
                     });
                 } else {
                     Swal.fire({
-                        title: 'Error',
-                        text: 'Did not receive payment URL from VNPay. Please try again.',
+                        title: t('c28'), // 'Error'
+                        text: t('c29'),  // 'Did not receive payment URL from VNPay. Please try again.'
                         icon: 'error',
                     });
                 }
             } else {
                 response = await axios.post('http://localhost:8080/customer/checkout/create', orderData, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
                 });
-
-
+    
                 Swal.fire({
-title: 'Success',
-                    text: 'Your order has been placed successfully!',
+                    title: t('c30'), // 'Success'
+                    text: t('c31'),  // 'Your order has been placed successfully!'
                     icon: 'success',
                     showCancelButton: true,
-                    confirmButtonText: 'View invoice',
-                    cancelButtonText: 'Close',
+                    confirmButtonText: t('c32'), // 'View invoice'
+                    cancelButtonText: t('c33'),  // 'Close'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        getOrderDetails(response.data.orderId); // Lấy orderId từ response
+                        getOrderDetails(response.data.orderId);
                     } else {
                         navigate('/shop');
                     }
                 });
             }
-
-            // Reset giỏ hàng
+    
             localStorage.removeItem('cart');
             setCartItems([]);
         } catch (error) {
             console.error('Error creating order:', error.response ? error.response.data : error.message);
-            Swal.fire('Error', 'An error occurred while placing the order. Please try again.', 'error');
+            Swal.fire(
+                t('c28'), // 'Error'
+                t('c34'), // 'An error occurred while placing the order. Please try again.'
+                'error'
+            );
         } finally {
-            setIsLoading(false);// Kết thúc hiển thị biểu tượng xoay
+            setIsLoading(false);
         }
     };
+    
 
 
 
@@ -353,40 +357,50 @@ title: 'Success',
         try {
             const response = await axios.get(`http://localhost:8080/customer/checkout/getOrderById/${orderId}`);
             const orderDetails = response.data;
-
-            // Hiển thị thông tin chi tiết hóa đơn kèm đường link đến trang chi tiết
+    
             Swal.fire({
-                title: 'Invoice Information',
-                html: `<p>Order code: ${orderDetails.orderId}</p>
-                       <p>Total value: ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
-                       <p>Order date: ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
-                       <p>Status: ${orderDetails.status}</p>
-                       <p>Address: ${orderDetails.address}</p>
-                       <p><a href="http://localhost:3000/orderDetail/${orderDetails.orderId}" target="_blank">View Detailed Invoice</a></p>`,
+                title: t('c35'), // 'Invoice Information'
+                html: `<p>${t('c36')} ${orderDetails.orderId}</p>
+                       <p>${t('c37')} ${(orderDetails.totalPrice).toLocaleString('vi')} VND</p>
+                       <p>${t('c38')} ${new Date(orderDetails.orderDate).toLocaleString('vi')}</p>
+                       <p>${t('c39')} ${orderDetails.status}</p>
+                       <p>${t('c40')} ${orderDetails.address}</p>
+                       <p><a href="http://localhost:3000/orderDetail/${orderDetails.orderId}" target="_blank">${t('c32')}</a></p>`,
                 icon: 'info',
-                confirmButtonText: 'Close',
+                confirmButtonText: t('c33'), // 'Close'
             });
-
         } catch (error) {
             console.error('Error fetching order details:', error.response ? error.response.data : error.message);
-            Swal.fire('Error', 'Unable to get invoice details. Please try again.', 'error');
+            Swal.fire(
+                t('c28'), // 'Error'
+                t('c41'), // 'Unable to get invoice details. Please try again.'
+                'error'
+            );
         }
     };
 
 
-
     return (
         <div>
-            <div className='container-fluid' style={{ padding: '50px 100px 50px 100px' }}>
+            <div className='container-fluid'
+                style={{
+                    padding: '150px 80px 80px 0'
+                    // margin: '50px 100px 50px 100px',
+                    // marginTop: '100px',
+                    // backgroundImage: `url(${images.backg})`,
+                    // backgroundSize: "cover",
+                    // backgroundPosition: "center",
+                }}>
                 <div className='row d-flex justify-content-between'>
+                    <h3 className='text-center mb-5' style={{ color: '#e94f37' }}>Check Out</h3>
                     {/* Order content bên trái */}
-                    <div className='order-infor col-lg-6 col-md-6 col-sm-12'>
+                    <div className='order-infor col-lg-6 col-md-6 col-sm-12 ps-5 pe-5'>
                         {/* Information user */}
                         <div className='user-infor'>
-                            <h1>Customer information</h1>
+                            <h1>{t('c1')}</h1>
                             <form>
                                 <div className='mt-3'>
-                                    <label className='form-label'>Email:</label>
+                                    <label className='form-label'>{t('c2')}</label>
                                     <input
                                         type="email"
                                         className='form-control'
@@ -395,7 +409,7 @@ title: 'Success',
                                     />
                                 </div>
                                 <div className='mt-3'>
-                                    <label className='form-label'>Name:</label>
+                                    <label className='form-label'>{t('c3')}</label>
                                     <input
                                         type="text"
                                         className='form-control'
@@ -404,7 +418,7 @@ title: 'Success',
                                     />
                                 </div>
                                 <div className='mt-3'>
-                                    <label className='form-label'>Phone number:</label>
+                                    <label className='form-label'>{t('c4')}</label>
                                     <input
                                         type="text"
                                         className={`form-control ${errors.phoneNumber ? 'is-invalid' : ''}`}
@@ -420,16 +434,16 @@ title: 'Success',
                         {/* Order information (Giao hàng) */}
                         <div className='order-infor'>
 
-                            <h1>Delivery address</h1>
+                            <h1>{t('c5')}</h1>
 
                             <div className='mt-3'>
-                                <label className='form-label'>Nation:</label>
+                                <label className='form-label'>{t('c6')}</label>
                                 <input type="text" className='form-control' defaultValue={'Việt Nam'} disabled />
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>Province/City</label>
+                                <label className='form-label'>{t('c7')}</label>
                                 <select onChange={handleProvinceChange} className='form-select'>
-                                    <option value="">Select Province/City</option>
+                                    <option value="">{t('c10')}</option>
                                     {provinces.map(province => (
                                         <option key={province.ProvinceID} value={province.ProvinceID}>
                                             {province.ProvinceName}
@@ -438,9 +452,9 @@ title: 'Success',
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>District</label>
+                                <label className='form-label'>{t('c8')}</label>
                                 <select onChange={handleDistrictChange} className='form-select'>
-                                    <option value="">Select district</option>
+                                    <option value="">{t('c11')}</option>
                                     {districts.map(district => (
                                         <option key={district.DistrictID} value={district.DistrictID}>
                                             {district.DistrictName}
@@ -449,9 +463,9 @@ title: 'Success',
                                 </select>
                             </div>
                             <div className='mt-3'>
-                                <label className=''>Ward, Commune</label>
+                                <label className=''>{t('c9')}</label>
                                 <select className='form-select' onChange={handleWardChange}>
-                                    <option value="">Select Ward/Commune</option>
+                                    <option value="">{t('c12')}</option>
                                     {wards.map(ward => (
                                         <option key={ward.WardCode} value={ward.WardCode}>
                                             {ward.WardName}
@@ -461,7 +475,7 @@ title: 'Success',
 
                             </div>
                             <div className='mt-3'>
-                                <label className='form-label'>House number:</label>
+                                <label className='form-label'>{t('c13')}</label>
                                 <input
                                     type="text"
                                     className='form-control'
@@ -472,7 +486,7 @@ title: 'Success',
                         </div>
 
                         {/* shipping method */}
-                        <h1 style={{ fontSize: '22px' }}>Delivery Method</h1>
+                        <h1 style={{ fontSize: '22px' }}>{t('c14')}</h1>
                         <div className='mt-3'>
                             <input
                                 type="radio"
@@ -483,7 +497,7 @@ title: 'Success',
                                 onChange={() => handleShippingChange('Normal')}
                                 className="me-2"  // thêm khoảng cách giữa radio và label
                             />
-                            <label htmlFor="normal">Regular Delivery</label>
+                            <label htmlFor="normal">{t('c15')}</label>
                         </div>
                         <div className='mt-3'>
                             <input
@@ -491,11 +505,11 @@ title: 'Success',
                                 id="fast"
                                 name="shipping"
                                 value="fast"  // Cập nhật giá trị 'value' cho đúng
-                                checked={shippingMethod === 'Fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
-                                onChange={() => handleShippingChange('Fast')}
+                                checked={shippingMethod === 'fast'}  // Điều kiện checked nên là 'fast' thay vì 'ghn'
+                                onChange={() => handleShippingChange('fast')}
                                 className="me-2"
                             />
-                            <label htmlFor="fast">Fast Delivery</label>
+                            <label htmlFor="fast">{t('c16')}</label>
                         </div>
 
 
@@ -503,7 +517,7 @@ title: 'Success',
 
                         {/* Pay method */}
                         <div className='pay-method'>
-                            <h1>Payment method</h1>
+                            <h1>{t('c17')}</h1>
                             <div className="accordion" id="accordionExample">
                                 <div className="accordion-item">
                                     <h2 className="accordion-header">
@@ -526,7 +540,7 @@ title: 'Success',
                                     </h2>
                                     <div className={`accordion-collapse collapse ${paymentMethod === 'COD' ? 'show' : ''}`}>
                                         <div className="accordion-body">
-                                            <p>After clicking "Pay", you will receive the goods and pay directly with our delivery staff.</p>
+                                            <p>{t('c18')}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -551,7 +565,7 @@ title: 'Success',
                                     </h2>
                                     <div className={`accordion-collapse collapse ${paymentMethod === 'VNPAY' ? 'show' : ''}`}>
                                         <div className="accordion-body">
-                                            <p>After clicking "Pay", you will be forwarded to the payment page using VNPAY.</p>
+                                            <p>{t('c19')}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -560,7 +574,7 @@ title: 'Success',
 
                         {/* Checkout */}
                         <div className='checkout'>
-                            <button className='btn border' onClick={handleSubmitOrder}>Pay</button>
+                            <button className='btn border' onClick={handleSubmitOrder}>{t('c20')}</button>
 
                         </div>
                         {isLoading && (
@@ -589,44 +603,55 @@ title: 'Success',
 
                     {/* Order content bên phải */}
                     <div className='shopping-cart col-lg-6 col-md-6 col-sm-12'>
+                        <h6 className='text-center'>Review your cart</h6>
                         <div className='cart-container'>
-                            {cartItems.length === 0 ? (
-                                <p>Your shopping cart is empty.</p>
-                            ) : (
-                                cartItems.map((item) => (
-                                    <div className='item-cart d-flex' key={item.id}>
-                                        <div className='instrument-image col-2'>
-                                            <img src={item.image} alt={item.name} />
+                            <div className='cart-item'>
+                                {cartItems.length === 0 ? (
+                                      <p>{t('no')}</p>
+                                ) : (
+                                    cartItems.map((item) => (
+                                        <div className='item-cart d-flex' key={item.id}>
+                                            <div className='instrument-image col-2'>
+                                                <img src={item.image} alt={item.name} />
+                                            </div>
+                                            <div className='instrument-name col-5'>
+                                                <p>{item.name}</p>
+                                            </div>
+                                            <div className='instrument-price col-4'>
+                                                <p>{(item.costPrice).toLocaleString('vi')} VND</p>
+                                            </div>
+                                            <div className='instrument-quantity col-1'>
+                                                <p>{item.quantity}X</p>
+                                            </div>
                                         </div>
-                                        <div className='instrument-name col-7'>
-                                            <p>{item.name}</p>
-                                        </div>
-
-                                    </div>
-                                ))
-                            )}
+                                    ))
+                                )}
+                            </div>
 
                             {/* Total item */}
+                           
                             <div className='total-item d-flex'>
-                                <h5>Total items:</h5>
-                                <p>{cartItems.length} items</p>
+                            <h5 className='col-5 text-start'  >{t('c21')}</h5>
+                                <h5 className='col-7 text-end'>{cartItems.length}</h5>
                             </div>
 
                             {/* Total price */}
                             <div className='total-price d-flex'>
-                                <h5>Total price:</h5>
-                                <p>{totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                <h5 className='col-5 text-start'>{t('c22')}</h5>
+                                <h5 className='col-7 text-end'>{totalPrice.toLocaleString('vi')} VND</h5>
                             </div>
 
-                            {/* Tax */}
-                            <div className='tax d-flex'>
-                                <h5>Delivery fee:</h5>
-                                <p>{deliveryFee.toLocaleString('vi')} VND</p>
+                            {/* Delivery fee */}
+                            <div className='fee d-flex'>
+                            <h5 className='col-5 text-start'> {t('c42')}</h5>
+                                <h5 className='col-7 text-end'>{deliveryFee.toLocaleString('vi')} VND</h5>
                             </div>
+
+                 
 
                             {/* Sum total */}
-                            <div className='sum d-flex'>
-                                <h3>Total order value</h3>
+                            <div className='sum d-flexC'>
+                            <h3>{t('c23')}</h3>
                                 <strong style={{ fontSize: '30px' }}>{(totalPrice + deliveryFee).toLocaleString('vi')} VND</strong>
                             </div>
                         </div>

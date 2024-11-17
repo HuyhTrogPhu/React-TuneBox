@@ -18,6 +18,8 @@ import {
 } from "../../../../service/likeTrackServiceCus";
 import Cookies from "js-cookie";
 import { getUserInfo } from "../../../../service/UserService";
+import ShareAlbumModal from "./ShareAlbumModal";
+import { Link } from "react-router-dom";
 
 const AlbumDetail = () => {
   const { id } = useParams();
@@ -40,8 +42,11 @@ const AlbumDetail = () => {
   const [userNamePlaylist, setUserName] = useState("");
   const [userImg, setUserImg] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [IDTrack, setIDTrack] = useState("");
 
   const [listAlbums, setListAlbums] = useState([]);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     fetchListAlbum();
@@ -53,16 +58,8 @@ const AlbumDetail = () => {
     try {
       const albumsResponse = await getAlbumsByUserId(userId);
 
-      setListAlbums(albumsResponse || []);
-
-      // Đếm số lượng album có status là false
-      const inactiveAlbumsCount = albumsResponse.filter(
-        (album) => album.status === false
-      ).length;
-      console.log(
-        "Number of inactive albums (status = false):",
-        inactiveAlbumsCount
-      );
+      setListAlbums(albumsResponse);
+      console.log("fetchListAlbum: ", albumsResponse);
     } catch (error) {
       console.error("Error fetching Albums:", error);
     } finally {
@@ -129,7 +126,16 @@ const AlbumDetail = () => {
       const trackPromises = trackIds.map((id) => getTrackById(id));
       const trackResults = await Promise.all(trackPromises);
       console.log("Track Results: ", trackResults);
-      setTrackDetails(trackResults.map((result) => result.data));
+
+      // lọc các track có status là false
+      const inactiveTracks = trackResults
+        .map((result) => result.data)
+        .filter((track) => track.status === false);
+
+      console.log("Track false: ", inactiveTracks);
+
+      setTrackDetails(inactiveTracks);
+
       console.log("Track detail: ", trackResults[0].data.name);
       // Tính toán thời gian cho từng track
       const durations = await Promise.all(
@@ -138,6 +144,7 @@ const AlbumDetail = () => {
           return duration;
         })
       );
+
       setTrackDurations(durations);
     } catch (error) {
       console.error("Error fetching track details:", error);
@@ -203,6 +210,7 @@ const AlbumDetail = () => {
     }
 
     // Cập nhật thông tin bài hát mới
+    setIDTrack(trackDetails[index]?.id);
     setCurrentTrackIndex(index);
     setCurrentTrackName(trackDetails[index]?.name);
     setCurrentImageTrack(trackDetails[index].imageTrack);
@@ -291,12 +299,17 @@ const AlbumDetail = () => {
     });
   };
 
+  const handleRandomTrack = () => {
+    const randomIndex = Math.floor(Math.random() * trackDetails.length);
+    handleTrackChange(randomIndex); // Gọi hàm phát bài theo chỉ số ngẫu nhiên
+  };
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
   if (!album) return <div className="p-4">No album data found</div>;
 
   return (
-    <div className="content-audio">
+    <div className="content-audio" style={{marginTop: '100px'}}>
       <div className="music-background">
         <div className="title-detail">{/* <p>Playlist</p> */}</div>
         <div className="note">&#9835;</div>
@@ -310,9 +323,9 @@ const AlbumDetail = () => {
         <div className="note">&#9835;</div>
         <div className="note">&#9839;</div>
         <ToastContainer position="top-right" />
-        <div className="" style={{ marginLeft: "140px" }}>
+        <div className="" style={{ marginLeft: "140px", marginRight: "140px" }}>
           <div className="row">
-            <div className="col-9">
+            <div className="">
               <div className="album-info">
                 <div className="album-info-cover">
                   <div className="album-info-img">
@@ -358,7 +371,7 @@ const AlbumDetail = () => {
                 <div className="album-info-actions">
                   <div>
                     <button
-                      className="btn text-muted"
+                      className="btn text-mutedA"
                       onClick={() => handleLikeALbum(album.id)}
                     >
                       {likesCount}
@@ -369,13 +382,21 @@ const AlbumDetail = () => {
                         style={{ cursor: "pointer", fontSize: "20px" }}
                       ></i>
                     </button>
-                    <button className="btn">
+                    <button
+                      className="btn"
+                      onClick={() => setIsShareModalOpen(true)}
+                    >
                       <i
                         type="button"
                         style={{ fontSize: "20px", color: "white" }}
                         className="fa-solid fa-share"
                       ></i>
                     </button>
+                    <ShareAlbumModal
+                      albumId={album.id}
+                      isOpen={isShareModalOpen}
+                      onClose={() => setIsShareModalOpen(false)}
+                    />
                   </div>
                   <div className="default">
                     <div className="btn-group" style={{ marginLeft: 25 }}>
@@ -401,7 +422,7 @@ const AlbumDetail = () => {
               <div className="album-track">
                 <div className="list-track">
                   {/* Hiển thị danh sách track đã thêm */}
-                  <table className="table">
+                  <table className="tableA">
                     <thead>
                       <tr>
                         <th>#</th>
@@ -412,65 +433,41 @@ const AlbumDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {trackDetails.map((track, index) => (
-                        <tr
-                          key={track.id}
-                          className={
-                            currentTrackIndex === index ? "current-track" : ""
-                          }
-                        >
-                          <td>{index + 1}</td>
-                          <td>{track.name}</td>
-                          <td>{track.description}</td>
-                          <td>
-                            {trackDurations[index]
-                              ? formatDuration(trackDurations[index])
-                              : "Loading..."}
-                          </td>
-                          <td>
-                            <button
-                              className="player-track-button custom-button"
-                              onClick={() => handleTrackChange(index)}
-                            >
-                              <i
-                                className={`fa-solid ${
-                                  playingTrackIndex === index && isPlaying
-                                    ? "fa-pause"
-                                    : "fa-play"
-                                }`}
-                              ></i>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {trackDetails
+                        .filter((track) => track.status !== true) // Lọc bỏ các track có status = true
+                        .map((track, index) => (
+                          <tr
+                            key={track.id}
+                            className={
+                              currentTrackIndex === index ? "current-track" : ""
+                            }
+                          >
+                            <td>{index + 1}</td>
+                            <td>{track.name}</td>
+                            <td>{track.description}</td>
+                            <td>
+                              {trackDurations[index]
+                                ? formatDuration(trackDurations[index])
+                                : "Loading..."}
+                            </td>
+                            <td>
+                              <button
+                                className="player-track-button custom-button"
+                                onClick={() => handleTrackChange(index)}
+                              >
+                                <i
+                                  className={`fa-solid ${
+                                    playingTrackIndex === index && isPlaying
+                                      ? "fa-pause"
+                                      : "fa-play"
+                                  }`}
+                                ></i>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
-                </div>
-              </div>
-            </div>
-            <div className="col-3">
-              <div className="orther">Orther</div>
-              <div>
-                {isLoading && <p>Loading...</p>}
-                <div className="playlist-container">
-                  {listAlbums.slice(0, 4).map(
-                    (playlist, index) =>
-                      !playlist.status && (
-                        <div key={index} className="card text-bg-dark">
-                          <img
-                            src={
-                              playlist.imagePlaylist ||
-                              "/src/assets/images/nai.jpg"
-                            }
-                            className="card-img"
-                            alt={playlist.title || "Playlist image"}
-                          />
-                          <div className="card-img-overlay">
-                            <p className="card-text">{playlist.title}</p>
-                          </div>
-                        </div>
-                      )
-                  )}
                 </div>
               </div>
             </div>
@@ -489,7 +486,23 @@ const AlbumDetail = () => {
                   }`}
                   alt="Track Image"
                 />
-                {currentTrackName || "No song selected"}
+                {trackDetails[currentTrackIndex]?.status ? (
+                  <span
+                    onClick={() => alert("Track no longer exists!.")}
+                    style={{ cursor: "not-allowed", color: "grey" }}
+                  >
+                    {currentTrackName || "No song selected"}
+                  </span>
+                ) : (
+                  <Link
+                    to={{
+                      pathname: `/track/${IDTrack}`,
+                      state: { IDTrack },
+                    }}
+                  >
+                    {currentTrackName || "No song selected"}
+                  </Link>
+                )}
               </p>
             </div>
             <div className="col-1">
@@ -512,7 +525,7 @@ const AlbumDetail = () => {
                     fontSize: "20px",
                     margin: "0 15px",
                   }}
-                  // onClick={handleRandomTrack}
+                  onClick={handleRandomTrack}
                 ></button>
                 <button
                   className="fa-solid fa-arrow-right custom-button"
@@ -548,28 +561,7 @@ const AlbumDetail = () => {
                 Your browser does not support the audio tag.
               </audio>
             </div>
-            <div className="col-2">
-              <div className="ms-5 mt-1">
-                <button className="btn">
-                  <i
-                    className={`fa-solid fa-heart`}
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "20px",
-                      padding: "10px",
-                      color: "white",
-                    }}
-                  ></i>
-                </button>
-                <button className="btn">
-                  <i
-                    type="button"
-                    style={{ fontSize: "20px", color: "white" }}
-                    className="fa-solid fa-share mt-1"
-                  ></i>
-                </button>
-              </div>
-            </div>
+            <div className="col-2"></div>
           </div>
         </div>
       </div>

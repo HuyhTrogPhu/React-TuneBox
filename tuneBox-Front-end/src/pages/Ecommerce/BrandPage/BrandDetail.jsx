@@ -81,7 +81,7 @@ const BrandDetail = () => {
 
   return (
     <div>
-      <div className="container">
+      <div className="container" style={{marginTop: '100px'}}>
         <div>
           <div className="gioithieu1">
             <div className="grid-container">
@@ -101,7 +101,7 @@ const BrandDetail = () => {
           <hr className='hr-1001' />
         </div>
 
-        <div className="content">
+        <div className="">
           <div className="row">
             {/* filter */}
             <div className="col-3 phamloai">

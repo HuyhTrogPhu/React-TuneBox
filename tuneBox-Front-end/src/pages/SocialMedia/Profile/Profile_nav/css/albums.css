@@ -1,120 +1,128 @@
+.albums {
+  margin-top: 100px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
 
 .btn-container {
-    display: flex;
-    justify-content: space-between; /* Giãn đều khoảng cách giữa các thành phần */
-    align-items: center;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  
-  /* Nút New nằm bên trái */
-  .btn-new {
-    background-color: #343a40;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  /* Container chứa input search và nút Search nằm bên phải */
-  .search-container {
-    display: flex;
-    gap: 10px; /* Khoảng cách giữa input search và nút Search */
-    align-items: center;
-  }
-  
-  /* Input search */
-  .search-input {
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-  }
-  
-  /* Nút Search */
-  .btn-search {
-    background-color:  #32383d;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  /* Hiệu ứng hover cho các nút */
-  .btn-new:hover, .btn-search:hover {
-    background-color:#576369;
-  }
-  
+  display: flex;
+  justify-content: space-between;
+  /* Giãn đều khoảng cách giữa các thành phần */
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* Nút New nằm bên trái */
+.btn-new {
+  background-color: #343a40;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Container chứa input search và nút Search nằm bên phải */
+.search-container {
+  display: flex;
+  gap: 10px;
+  /* Khoảng cách giữa input search và nút Search */
+  align-items: center;
+}
+
+/* Input search */
+.search-input {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+}
+
+/* Nút Search */
+.btn-search {
+  background-color: #32383d;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Hiệu ứng hover cho các nút */
+.btn-new:hover,
+.btn-search:hover {
+  background-color: #E94F37;
+}
+
 
 .album-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    padding: 3px;
-    border-radius: 25px;
-    background-color: #e7e5e5;
-    padding: 5px 20px;
-  }
-  
-  .album-item > div:first-child {
-    padding: 5px;
-    margin-right: 20px;
-  }
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 3px;
+  border-radius: 25px;
+  background-color: #e7e5e5;
+  padding: 5px 20px;
+}
 
-  .album-item img{
-    width: 65px;
-    height: 65px;
-  }
+.album-item>div:first-child {
+  padding: 5px;
+  margin-right: 20px;
+}
 
-  .album-item:hover {
-    background-color:  #e9ebec;
-  }
-  
-  .info {
-    flex: 1;
-    flex-direction: column;
-  }
-  
-  .title {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .style {
-    color: grey;
-    margin-top: 5px;
-    font-size: 15px;
-  }
+.album-item img {
+  width: 65px;
+  height: 65px;
+}
 
-  .tracks{
-    color: grey;
-    margin-top: 5px;
-    margin-right: 5px;
-    font-size: 13px;
-  }
+.album-item:hover {
+  background-color: #e9ebec;
+}
 
-  .likes{
-    color: grey;
-    margin-top: 5px;
-    font-size: 13px;
-  }
-  
-  .albums-list{
-    margin-bottom: 10px;
-    padding: 10px;
-    background-color: white;
-    border: none; /* Bỏ tất cả border */
-    border-left: 1px solid rgb(187, 186, 186); 
-    border-right: 1px solid rgb(187, 186, 186); 
-  }
+.info {
+  flex: 1;
+  flex-direction: column;
+}
 
-  .post-header-albums{
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 25px;
-  }
+.title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.style {
+  color: grey;
+  margin-top: 5px;
+  font-size: 15px;
+}
+
+.tracks {
+  color: grey;
+  margin-top: 5px;
+  margin-right: 5px;
+  font-size: 13px;
+}
+
+.likes {
+  color: grey;
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.albums-list {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: white;
+  border: none;
+  /* Bỏ tất cả border */
+}
+
+.post-header-albums {
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 25px;
+}
+
 /* Dropdown Menu */
 .dropdown .dropdown-menu {
   background-color: white;
@@ -140,4 +148,65 @@
   color: #333;
 }
 
-  
+.side-content ul {
+  padding: 0;
+}
+
+.side-item {
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.side-item:hover {
+  background-color: #E94F37;
+}
+
+.side-item:hover a {
+  color: white;
+}
+
+
+.side-content {
+  display: flex;
+  width: 100%;
+}
+
+.albums-left {
+  position: sticky;
+  top: 100px; 
+  width: 25%;
+  border-right: 1px solid gray;
+  max-height: calc(100vh - 100px); 
+  overflow-y: auto; 
+  background-color: #f8f9fa;
+  padding-left: 50px !important;
+  box-sizing: border-box;
+}
+
+.albums-right {
+  position: sticky;
+  top: 100px; 
+  width: 25%;
+  max-height: calc(100vh - 100px); 
+  overflow-y: auto;
+  background-color: #f8f9fa;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Main Content */
+.albums-list {
+  width: 50%;
+  padding: 20px;
+}
+
+
+
+/* Ẩn thanh cuộn trên Chrome, Safari và Edge */
+.albums-left::-webkit-scrollbar,
+.albums-right::-webkit-scrollbar {
+  display: none;
+}

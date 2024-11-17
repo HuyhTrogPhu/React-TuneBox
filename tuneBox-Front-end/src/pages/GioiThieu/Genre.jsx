@@ -21,6 +21,7 @@ const Genre = () => {
   const [genre, setGenre] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
 
   const fetchGenre = async () => {
     try {
@@ -32,7 +33,7 @@ const Genre = () => {
       console.log("Error fetching genre", error);
     }
   };
-  
+
 
   useEffect(() => {
     fetchGenre();
@@ -42,7 +43,7 @@ const Genre = () => {
   const filteredGenres = genre.filter((g) =>
     g.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
+
 
   const handleGenreClick = (id) => {
     setSelectedGenre((prev) => {
@@ -55,6 +56,15 @@ const Genre = () => {
   };
 
   const handleNext = () => {
+
+    if (selectedGenre.length === 0) {
+      setError("Please select at least one genre.");
+      return;
+    }
+
+    setError("");
+
+
     const formData = location.state || {};
     formData.genres = selectedGenre; // Cập nhật genres
     navigate('/welcome', { state: formData }); // Chuyển đến trang welcome với formData
@@ -90,15 +100,22 @@ const Genre = () => {
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Bạn yêu thích thể loại nhạc nào?</h3>
+                  <div className="text-center">
+                    {error && (
+                      <div style={{ marginTop: 10, color: 'red', textAlign: 'center' }}>
+                        {error}
+                      </div>
+                    )}
+                  </div>
+                  <h3>What genre of music do you love?</h3>
                   <p>
-                    Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
-                    nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
-                    cải thiện trải nghiệm TuneBox của bạn.
+                    Whether you're a musician or a fan, we want it all
+                    hear your opinion. Introduce yourself and help us
+                    Improve your TuneBox experience.
                   </p>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm thể loại nhạc"
+                    placeholder="Search..."
                     className="search-bar"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -115,8 +132,10 @@ const Genre = () => {
                       </div>
                     ))}
                   </div>
-                  <button className="btn" onClick={handleNext}>
-                    Tiếp tục
+                  <button className="btn"
+                    style={{ backgroundColor: '#E94F37' }}
+                    onClick={handleNext}>
+                    Continue
                   </button>
                 </div>
               </div>

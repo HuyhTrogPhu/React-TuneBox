@@ -22,6 +22,7 @@ import { listTalents } from "../../service/LoginService.js";
 const Talent = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [error, setError] = useState("");
 
   const [talentData, setTalentData] = useState([]);
   const [selectedTalent, setSelectedTalent] = useState([]);
@@ -59,6 +60,12 @@ const Talent = () => {
   };
 
   const handleNext = () => {
+
+    if (selectedTalent.length === 0) {
+      setError("Please select at least one talent");
+      return;
+    }
+
     formData.talents = selectedTalent; // Cập nhật talents
     navigate('/genre', { state: formData }); // Chuyển đến trang genre với formData
   };
@@ -93,15 +100,22 @@ const Talent = () => {
             <div className="row">
               <div className="col-lg-6 col-10 mx-auto">
                 <div className="form-container fontchu">
-                  <h3>Sở trường của bạn là gì?</h3>
+                  <div className="text-center">
+                    {error && (
+                      <div style={{ marginTop: 10, color: 'red', textAlign: 'center' }}>
+                        {error}
+                      </div>
+                    )}
+                  </div>
+                  <h3>What is your forte?</h3>
                   <p>
-                    Cho dù bạn là nhạc sĩ hay người hâm mộ, chúng tôi đều muốn
-                    nghe ý kiến của bạn. Giới thiệu bản thân và giúp chúng tôi
-                    cải thiện trải nghiệm TuneBox của bạn.
+                    Whether you're a musician or a fan, we want it all
+                    hear your opinion. Introduce yourself and help us
+                    Improve your TuneBox experience.
                   </p>
                   <input
                     type="text"
-                    placeholder="Tìm kiếm sở trường..."
+                    placeholder="Search..."
                     className="search-bar"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -113,7 +127,7 @@ const Talent = () => {
                           className={`talent-by-button ${selectedTalent.includes(talent.id)
                             ? "selected"
                             : ""
-                          }`}
+                            }`}
                           onClick={() => handleTalentClick(talent.id)}
                         >
                           {talent.name}
@@ -121,8 +135,10 @@ const Talent = () => {
                       </div>
                     ))}
                   </div>
-                  <button className="btn" onClick={handleNext}>
-                    Tiếp tục
+                  <button className="btn"
+                    style={{ backgroundColor: '#E94F37' }}
+                    onClick={handleNext}>
+                    Continue
                   </button>
                 </div>
               </div>
@@ -136,3 +152,4 @@ const Talent = () => {
 };
 
 export default Talent;
+

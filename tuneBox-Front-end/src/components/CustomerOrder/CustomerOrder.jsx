@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import { getOrdersByUserId } from '../../service/UserService';
+import { getOrdersByUserId, updateOrderStatus } from '../../service/CheckoutService';
+import { useNavigate } from 'react-router-dom';
 
 const CustomerOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -11,7 +12,7 @@ const CustomerOrder = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [ordersPerPage] = useState(5); // Orders per page
   const userIdCookie = Cookies.get('userId');
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -25,6 +26,31 @@ const CustomerOrder = () => {
       console.error('Failed to fetch orders', error);
     }
   };
+  const handleCancelOrder = async (orderId) => { 
+    try {
+      const newStatus = "Canceled"; // Trạng thái mới là "Canceled"
+      const deliveryDate = null; // Cập nhật giá trị nếu cần, hoặc để null nếu không thay đổi
+      const paymentStatus = "Canceled"; // Cập nhật giá trị nếu cần, hoặc để nguyên nếu không thay đổi
+  
+      // Gọi API cập nhật trạng thái đơn hàng
+      await updateOrderStatus(orderId, newStatus, deliveryDate, paymentStatus); 
+  
+      // Cập nhật trạng thái trong state để giao diện thay đổi
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+      setFilteredOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error('Failed to cancel order', error);
+    }
+  };
+  
 
   const handleSearchDate = (e) => {
     e.preventDefault();
@@ -43,6 +69,10 @@ const CustomerOrder = () => {
     });
     setFilteredOrders(filtered);
     setCurrentPage(1); // Reset to first page
+  };
+
+  const handleViewDetails = (orderId) => {
+    navigate(`/orderDetail/${orderId}`); // Điều hướng tới trang chi tiết của hóa đơn
   };
 
   // Logic for pagination
@@ -127,18 +157,20 @@ const CustomerOrder = () => {
                 <td style={{ textAlign: "center" }}>{order.totalItem}</td>
                 <td style={{ textAlign: "center" }}>{order.paymentMethod}</td>
                 <td style={{ textAlign: "center" }}>{order.shippingMethod}</td>
+           
+                <td style={{ textAlign: "center" }}>
+                  {order.paymentStatus}
+                </td>
                 <td style={{ textAlign: "center" }}>{order.status}</td>
                 <td style={{ textAlign: "center" }}>
-                  <select value={order.status} className="form-select">
-                    <option value="Wait for confirmation">Wait for confirmation</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Delivering">Delivering</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Canceled">Canceled</option>
-                  </select>
-                </td>
-                <td>
-                  <button className="btn btn-link">View</button>
+                  {order.status === "Pending" ? (
+                    <button className="btn btn-danger" onClick={() => handleCancelOrder(order.id)}>
+                      Cancel Order
+                    </button>
+                  ) : (
+                    <span style={{ color: 'gray' }}>Canceled</span>
+                  )}
+                  <button className="btn btn-link" style={{textDecoration: 'none', color: '#e94f37'}}  onClick={() => handleViewDetails(order.id)}>View Details</button>
                 </td>
               </tr>
             ))}

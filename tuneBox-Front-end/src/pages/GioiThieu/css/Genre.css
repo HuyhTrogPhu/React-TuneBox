@@ -1,4 +1,4 @@
-.genre-by-button {
+.genre-button {
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     padding: 10px;
@@ -9,7 +9,7 @@
     transition: background-color 0.3s ease;
   }
   
-  .genre-by-button.selected {
+  .genre-button.selected {
     background-color: #E94F37; /* Màu nền khi được chọn */
     color: white;
     border-color: #000; /* Màu viền khi được chọn */

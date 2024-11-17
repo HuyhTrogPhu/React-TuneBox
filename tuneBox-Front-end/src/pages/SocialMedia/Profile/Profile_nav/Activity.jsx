@@ -13,7 +13,10 @@ import { images } from "../../../../assets/images/images";
 import Picker from '@emoji-mart/react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import Swal from 'sweetalert2';
+import { useTranslation } from "react-i18next";
+import '../../../../i18n/i18n';
+import { getUserInfo } from "../../../../service/UserService";
 
 const Activity = () => {
   const [postContent, setPostContent] = useState("");
@@ -39,7 +42,7 @@ const Activity = () => {
 
   const [selectedPostId, setSelectedPostId] = useState(null);
   const selectedPost = posts.find((post) => post.id === selectedPostId);
-
+  const { t } = useTranslation();
   const [isUploading, setIsUploading] = useState(false);
 
   const [reportType, setReportType] = useState('');
@@ -48,7 +51,7 @@ const Activity = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
 
-  
+
 
   const handleLike = async (postId) => {
     try {
@@ -146,77 +149,91 @@ const Activity = () => {
 
     // Lấy token từ localStorage hoặc nơi bạn lưu trữ
     const token = localStorage.getItem('jwtToken');
+    console.log("Token:", token); // In ra token để kiểm tra
+
+    if (!token) {
+      console.error("Token not found - redirecting to login");
+      // Xử lý chuyển hướng đến trang đăng nhập nếu cần
+      return;
+    }
 
     try {
-        const response = await axios.get(
-            `http://localhost:8080/api/posts/user/${targetUserId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                withCredentials: true,
-            }
-        );
-
-        console.log(response.data); // Kiểm tra dữ liệu nhận được
-
-        const sortedPosts = response.data.sort((a, b) => {
-            const dateA = new Date(a.createdAt);
-            const dateB = new Date(b.createdAt);
-            return dateB - dateA; // Sắp xếp từ mới đến cũ
-        });
-
-        // Lấy comments và likes cho từng post
-        const postsWithDetails = await Promise.all(
-            sortedPosts.map(async (post) => {
-                const commentsResponse = await axios.get(
-                    `http://localhost:8080/api/comments/post/${post.id}`
-                );
-
-                const commentsWithReplies = await Promise.all(
-                    commentsResponse.data.map(async (comment) => {
-                        const repliesResponse = await axios.get(
-                            `http://localhost:8080/api/replies/comment/${comment.id}`
-                        );
-                        return { ...comment, replies: repliesResponse.data }; // Kết hợp replies vào comment
-                    })
-                );
-
-                // Lấy số lượng likes cho từng bài viết
-                const likeCountResponse = await axios.get(
-                    `http://localhost:8080/api/likes/post/${post.id}/count`
-                );
-
-                // Kiểm tra xem user đã like bài viết này chưa
-                const userLikeResponse = await axios.get(
-                    `http://localhost:8080/api/likes/post/${post.id}/user/${userId}`
-                );
-
-                const liked = userLikeResponse.data; // true nếu user đã like, false nếu chưa
-
-                return {
-                    ...post,
-                    comments: commentsWithReplies,
-                    likeCount: likeCountResponse.data, // Thêm số lượng likes vào bài viết
-                    liked: liked, // Thêm trạng thái like
-                    is_hidden: post.hidden, // Đảm bảo sử dụng đúng thuộc tính hidden
-                };
-            })
-        );
-
-        setPosts(postsWithDetails);
-    } catch (error) {
-        if (error.response && error.response.status === 401) {
-            console.error("Unauthorized access - redirecting to login");
-            // Xử lý thêm nếu cần, ví dụ chuyển hướng về trang đăng nhập
-        } else {
-            console.error("Error fetching user posts:", error);
+      const response = await axios.get(
+        `http://localhost:8080/api/posts/user/${targetUserId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
         }
+      );
+
+      console.log("Response Data:", response.data); // Kiểm tra dữ liệu nhận được
+
+      const sortedPosts = response.data.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        return dateB - dateA; // Sắp xếp từ mới đến cũ
+      });
+
+      const postsWithDetails = await Promise.all(
+        sortedPosts.map(async (post) => {
+          const commentsResponse = await axios.get(
+            `http://localhost:8080/api/comments/post/${post.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+          );
+
+          const commentsWithReplies = await Promise.all(
+            commentsResponse.data.map(async (comment) => {
+              const repliesResponse = await axios.get(
+                `http://localhost:8080/api/replies/comment/${comment.id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              }
+              );
+              return { ...comment, replies: repliesResponse.data };
+            })
+          );
+
+          const likeCountResponse = await axios.get(
+            `http://localhost:8080/api/likes/post/${post.id}/count`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+          );
+
+          const userLikeResponse = await axios.get(
+            `http://localhost:8080/api/likes/post/${post.id}/user/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+          );
+
+          const liked = userLikeResponse.data;
+
+          return {
+            ...post,
+            comments: commentsWithReplies,
+            likeCount: likeCountResponse.data,
+            liked: liked,
+            is_hidden: post.hidden,
+          };
+        })
+      );
+
+      setPosts(postsWithDetails);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        console.error("Unauthorized access - redirecting to login");
+        // Xử lý thêm nếu cần, ví dụ chuyển hướng về trang đăng nhập
+      } else {
+        console.error("Error fetching user posts:", error);
+      }
     }
-};
- useEffect(() => {
+  };
+
+  useEffect(() => {
     fetchPosts();
   }, [userId, id]);
+
   const handleSubmitPost = async () => {
     const formData = new FormData();
     formData.append("content", postContent || "");
@@ -259,21 +276,39 @@ const Activity = () => {
     }
   };
   const handleDeletePost = async (postId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this post?"
-    );
-    if (!confirmDelete) return;
 
+    const result = await Swal.fire({
+      title: t('confirmDeleteTitle'), // Dịch tiêu đề
+      text: t('confirmDeleteText'), // Dịch văn bản
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: t('a19'),
+      cancelButtonText: t('p15'),
+    });
+  
+    if (!result.isConfirmed) return; // Nếu người dùng không xác nhận, dừng lại
+  
     try {
+      // Gọi API để xóa bài viết
       await axios.delete(`http://localhost:8080/api/posts/${postId}`, {
         withCredentials: true,
       });
+      
+      // Thông báo xóa thành công
+      Swal.fire({
+        title: t('deleteSuccess'), // Dịch thông báo thành công
+        icon: 'success',
+      });
+  
+      // Fetch lại các bài viết
       fetchPosts();
     } catch (error) {
-      console.error(
-        "Error deleting post:",
-        error.response?.data || error.message
-      );
+      console.error('Error deleting post:', error);
+      // Thông báo xóa thất bại
+      Swal.fire({
+        title: t('deleteFailed'), // Dịch thông báo thất bại
+        icon: 'error',
+      });
     }
   };
   const handleEditPost = (post) => {
@@ -557,7 +592,6 @@ const Activity = () => {
       setShowEmojiPicker(false); // Đóng bảng emoji nếu nhấp bên ngoài
     }
   };
-  
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -566,130 +600,158 @@ const Activity = () => {
     };
   }, []);
 
-    // report post 
-    const handleReport = (id, type) => {
-      console.log('ID to report:', id); // Kiểm tra giá trị ID
-      console.log('Type to report:', type); // Kiểm tra giá trị type
-      setReportId(id);
-      setReportType(type);
-      setShowReportModal(true);
-    };
-    const handleSubmit = () => {
-      console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
-  
-      if (!ReportId || !reportType) {
-        setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
-        return;
-      }
-  
-      // Gọi hàm submitReport với các giá trị đúng
-      submitReport(currentUserId, ReportId, reportType, reportReason);
-    };
-  
-    const submitReport = async (userId, reportId, reportType, reason) => {
-      try {
-        const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
-  
-        const reportExists = await checkReportExists(userId, reportId, reportType);
-        if (reportExists) {
-          setReportMessage("Bạn đã báo cáo nội dung này rồi.");
-          toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
-        } else {
-          const reportData = {
-            userId: userId,
-            postId: reportType === 'post' ? reportId : null,
-            trackId: reportType === 'track' ? reportId : null,
-            albumId: reportType === 'album' ? reportId : null,
-            type: reportType,
-            reason: reason
-          };
-  
-          const response = await axios.post('http://localhost:8080/api/reports', reportData, {
-            withCredentials: true,
-            headers: {
-              Authorization: `Bearer ${token}` // Thêm JWT token vào header
-            }
-          });
-  
-          console.log('Report submitted successfully:', response.data);
-          setReportMessage("Báo cáo đã được gửi thành công.");
-          toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
-          setShowReportModal(false);
-        }
-      } catch (error) {
-        console.error("Lỗi khi tạo báo cáo:", error);
-        if (error.response && error.response.status === 401) {
-          navigate('/login?error=true');
-        } else {
-          setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
-          toast.error("Đã có lỗi xảy ra khi gửi báo cáo."); // Hiển thị toast thông báo lỗi
-        }
-      }
-    };
-    const checkReportExists = async (userId, reportId, reportType) => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/reports/check`, {
-          params: {
-            userId: userId,
-            postId: reportType === 'post' ? reportId : null,
-            trackId: reportType === 'track' ? reportId : null,
-            albumId: reportType === 'album' ? reportId : null,
-            type: reportType,
-          },
-          withCredentials: true,
-        });
-        console.log('Check report response:', response.data);
-        return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
-      } catch (error) {
-        console.error('Error checking report:', error);
-        return false;
-      }
-    };
-  
-
-    // ẩn hiện post
-    const toggleHiddenState = async (postId) => {
-      const token = localStorage.getItem('jwtToken');
-      
-      if (!token) {
-          console.error("No JWT token found");
-          toast.error("You need to be logged in to toggle post visibility.");
-          return;
-      }
-  
-      try {
-          const response = await axios.put(
-              `http://localhost:8080/api/posts/${postId}/toggle-visibility`, 
-              {}, 
-              { headers: { Authorization: `Bearer ${token}` } }
-          );
-  
-          if (response.status === 200) {
-              const { isHidden } = response.data;
-              toast.success("Post visibility toggled successfully!");
-  
-              // Cập nhật trạng thái is_hidden của bài viết trong state
-              setPosts((prevPosts) =>
-                prevPosts.map((post) =>
-                  post.id === postId ? { ...post, is_hidden: isHidden } : post
-                )
-              );
-          }
-      } catch (error) {
-          console.error("Error toggling post visibility:", error);
-          toast.error("Failed to toggle post visibility. Please try again.");
-      }
+  // report post 
+  const handleReport = (id, type) => {
+    console.log('ID to report:', id); // Kiểm tra giá trị ID
+    console.log('Type to report:', type); // Kiểm tra giá trị type
+    setReportId(id);
+    setReportType(type);
+    setShowReportModal(true);
   };
+  const handleSubmit = () => {
+    console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
+
+    if (!ReportId || !reportType) {
+      setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
+      return;
+    }
+
+    // Gọi hàm submitReport với các giá trị đúng
+    submitReport(userId, ReportId, reportType, reportReason);
+  };
+
+  const submitReport = async (userId, reportId, reportType, reason) => {
+    try {
+      const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
+
+      const reportExists = await checkReportExists(userId, reportId, reportType);
+      if (reportExists) {
+        setReportMessage("Bạn đã báo cáo nội dung này rồi.");
+        toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
+      } else {
+        const reportData = {
+          userId: userId,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,
+          reason: reason
+        };
+
+        const response = await axios.post('http://localhost:8080/api/reports', reportData, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}` // Thêm JWT token vào header
+          }
+        });
+
+        console.log('Report submitted successfully:', response.data);
+        setReportMessage("Báo cáo đã được gửi thành công.");
+        toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
+        setShowReportModal(false);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tạo báo cáo:", error);
+      if (error.response && error.response.status === 401) {
+        navigate('/login?error=true');
+      } else {
+        setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
+        toast.error("Đã có lỗi xảy ra khi gửi báo cáo."); // Hiển thị toast thông báo lỗi
+      }
+    }
+  };
+  const checkReportExists = async (userId, reportId, reportType) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/reports/check`, {
+        params: {
+          userId: userId,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,
+        },
+        withCredentials: true,
+      });
+      console.log('Check report response:', response.data);
+      return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
+    } catch (error) {
+      console.error('Error checking report:', error);
+      return false;
+    }
+  };
+
+
+  // ẩn hiện post
+  const toggleHiddenState = async (postId) => {
+ 
   
+    const token = localStorage.getItem('jwtToken');
+  
+    if (!token) {
+      console.error("No JWT token found");
+      toast.error(t("loginRequired")); 
+      return;
+    }
+  
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/api/posts/${postId}/toggle-visibility`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+  
+      if (response.status === 200) {
+        const { isHidden } = response.data;
+        toast.success(t("visibilityToggledSuccess"));
+  
+        // Cập nhật trạng thái is_hidden của bài viết trong state
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId ? { ...post, is_hidden: isHidden } : post
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error toggling post visibility:", error);
+      toast.error(t("visibilityToggleFailed"));
+    }
+  };
+  const reasons = [
+    t('offensiveContent'),
+    t('copyrightViolation'),
+    t('spamOrScam'),
+    t('other')
+  ];
+
+  const [userData, setUserData] = useState({});
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (userId) {
+        try {
+          const userData = await getUserInfo(userId);
+          setUserData(userData);
+        } catch (error) {
+          console.error("Error fetching user", error);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [userId]);
+
+
   return (
     <div>
-            <ToastContainer />
+      <ToastContainer />
 
       {/* Nút tạo bài */}
       <div className="container mt-2 mb-5">
         <div className="row align-items-center">
           <div className="col-auto post-header">
-            <img src={images.ava} className="avatar_small" alt="avatar" />
+          <img
+                    src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+                    alt="User avatar"
+                  />
           </div>
           <div className="col">
             <button
@@ -702,7 +764,7 @@ const Activity = () => {
                 height: 50,
               }}
             >
-              Bạn đang nghĩ gì vậy?
+              {t('p9')}
             </button>
           </div>
         </div>
@@ -717,10 +779,11 @@ const Activity = () => {
         <div className="modal-content">
           <div>
             <div className="post-header">
-              <img src={images.ava} className="avatar_small" alt="Avatar" />
-              <div>
-                <div className="name">Phạm Xuân Trường</div>
-                <div className="time">Posting to Feed</div>
+            <img
+                  src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                />              <div>
+                  <div className="name">{userData.name}</div>
+                  <div className="time">{t('f10')}</div>
               </div>
               <button
                 id="close-modal"
@@ -733,22 +796,22 @@ const Activity = () => {
                 id="post-textarea"
                 className="form-control"
                 rows={3}
-                placeholder="Write your post here..."
+                placeholder={t('p11')}
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
               />
               <div className="row mt-3">
                 <div className="col text-start">
-                <input
-  type="file"
-  id="file-input" // Thêm id này
-  multiple
-  onChange={(e) => {
-    const files = Array.from(e.target.files);
-    setPostImages(files);
-    setPostImageUrls(files.map(file => URL.createObjectURL(file)));
-  }}
-/>
+                  <input
+                    type="file"
+                    id="file-input" // Thêm id này
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files);
+                      setPostImages(files);
+                      setPostImageUrls(files.map(file => URL.createObjectURL(file)));
+                    }}
+                  />
                 </div>
                 <div className="col text-end">
                   <button
@@ -757,7 +820,7 @@ const Activity = () => {
                     className="btn btn-secondary"
                     onClick={handleSubmitPost}
                   >
-                    Post
+                    {t('p12')}
                   </button>
                 </div>
                 {/* Hiển thị ảnh đã chọn */}
@@ -768,28 +831,28 @@ const Activity = () => {
                     ))}
                   </div>
                 )}
-                      {/* Hiển thị spinner nếu đang tải lên */}
-      {isUploading && (
-        <div className="d-flex justify-content-center mt-3">
-          <div className="spinner-border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <span className="ms-2">Creating your post...</span>
-        </div>
-      )}
+                {/* Hiển thị spinner nếu đang tải lên */}
+                {isUploading && (
+                  <div className="d-flex justify-content-center mt-3">
+                    <div className="spinner-border" role="status">
+                      <span className="visually-hidden">{t('a1')}</span>
+                    </div>
+                    <span className="ms-2">{t('a2')}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-            {/* Modal báo cáo */}
-            <ToastContainer />
+      {/* Modal báo cáo */}
+      <ToastContainer />
       {showReportModal && (
         <div className="modal fade show" style={{ display: 'block' }} role="dialog">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Báo cáo nội dung</h5>
+                <h5 className="modal-title">{t('a3')}</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -804,10 +867,10 @@ const Activity = () => {
               </div>
               <div className="modal-body">
                 {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
-                <h6>Chọn lý do báo cáo:</h6>
+                <h6>{t('a4')}</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
-                    <label className="d-block" key={reason}>
+                  {reasons.map((reason, index) => (
+                    <label className="d-block" key={index}>
                       <input
                         type="radio"
                         name="reportReason"
@@ -819,7 +882,7 @@ const Activity = () => {
                 </div>
                 <textarea
                   className="form-control mt-2"
-                  placeholder="Nhập lý do báo cáo"
+                  placeholder={t('a5')}
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
                   style={{ resize: 'none' }}
@@ -827,10 +890,10 @@ const Activity = () => {
               </div>
               <div className="modal-footer">
                 <button
-                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  onClick={() => submitReport(userId, ReportId, reportType, reportReason)}
                   className="btn btn-primary"
                 >
-                  Báo cáo
+                  {t('a6')}
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -840,7 +903,7 @@ const Activity = () => {
                     setReportMessage(""); // Reset thông báo
                   }}
                 >
-                  Đóng
+                  {t('p15')}
                 </button>
               </div>
 
@@ -861,7 +924,7 @@ const Activity = () => {
                 <div className="modal-dialog">
                   <div className="modal-content">
                     <div className="modal-header">
-                      <h1 className="modal-title fs-5" id="exampleModalLabel">Comments</h1>
+                      <h1 className="modal-title fs-5" id="exampleModalLabel">{t('a7')}</h1>
                       <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
@@ -896,7 +959,7 @@ const Activity = () => {
                                             className="btn btn-primary mt-2"
                                             onClick={() => handleUpdateComment(comment.id, selectedPost.id)}
                                           >
-                                            Save
+                                            {t('p16')}
                                           </button>
                                           <button
                                             className="btn btn-secondary mt-2 ms-2"
@@ -905,7 +968,7 @@ const Activity = () => {
                                               setEditingCommentContent("");
                                             }}
                                           >
-                                            Cancel
+                                            {t('p15')}
                                           </button>
                                         </div>
                                       ) : (
@@ -932,7 +995,7 @@ const Activity = () => {
                                                 setEditingCommentContent(comment.content);
                                               }}
                                             >
-                                              Edit
+                                              {t('a8')}
                                             </button>
                                           </li>
                                           {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
@@ -941,7 +1004,7 @@ const Activity = () => {
                                               className="dropdown-item"
                                               onClick={() => handleDeleteComment(comment.id, selectedPost.id)}
                                             >
-                                              Delete
+                                              {t('a9')}
                                             </button>
                                           </li>
                                         </ul>
@@ -950,7 +1013,7 @@ const Activity = () => {
 
                                     {/* Nút trả lời cho bình luận bậc 2 */}
                                     <button className="btn btn-link mt-2" onClick={() => handleReplyClick(comment)}>
-                                      Reply
+                                      {t('a10')}
                                     </button>
 
                                     {/* Input trả lời cho bình luận bậc 2 */}
@@ -1003,7 +1066,7 @@ const Activity = () => {
                                                         className="btn btn-primary mt-2"
                                                         onClick={() => handleUpdateReply(reply.id)}
                                                       >
-                                                        Save
+                                                        {t('p16')}
                                                       </button>
                                                       <button
                                                         className="btn btn-secondary mt-2 ms-2"
@@ -1012,7 +1075,7 @@ const Activity = () => {
                                                           setEditingReplyContent("");
                                                         }}
                                                       >
-                                                        Cancel
+                                                        {t('p15')}
                                                       </button>
                                                     </div>
                                                   ) : (
@@ -1023,7 +1086,7 @@ const Activity = () => {
 
                                                   {/* Nút trả lời cho reply bậc 2 */}
                                                   <button className="btn btn-link" onClick={() => handleReplyClick(reply)}>
-                                                    Reply
+                                                    {t('a10')}
                                                   </button>
                                                   {/* Dropdown cho reply bậc 2 */}
                                                   {String(reply.userId) === String(userId) && (
@@ -1046,7 +1109,7 @@ const Activity = () => {
                                                               setEditingReplyContent(reply.content);
                                                             }}
                                                           >
-                                                            Edit
+                                                            {t('a8')}
                                                           </button>
                                                         </li>
                                                         <li>
@@ -1054,7 +1117,7 @@ const Activity = () => {
                                                             className="dropdown-item"
                                                             onClick={() => handleDeleteReply(reply.id)}
                                                           >
-                                                            Delete
+                                                            {t('a9')}
                                                           </button>
                                                         </li>
                                                       </ul>
@@ -1067,7 +1130,7 @@ const Activity = () => {
                                                       <textarea
                                                         className="reply-input mt-2 form-control"
                                                         rows={1}
-                                                        placeholder="Write a reply..."
+                                                        placeholder={t('a11')}
                                                         value={replyContent[reply.id] || ""}
                                                         onChange={(e) => handleReplyChange(reply.id, e.target.value)}
                                                       />
@@ -1083,12 +1146,12 @@ const Activity = () => {
                                           ))}
                                           {/* Nút để ẩn các phản hồi */}
                                           <button className="btn btn-link" onClick={() => handleToggleReplies(comment.id)}>
-                                            Hide replies
+                                            {t('a12')}
                                           </button>
                                         </>
                                       ) : (
                                         <button className="btn btn-link" onClick={() => handleToggleReplies(comment.id)}>
-                                          View all replies
+                                          {t('a13')}
                                         </button>
                                       )}
                                     </div>
@@ -1101,12 +1164,12 @@ const Activity = () => {
                           {/* Hiển thị nút xem thêm bình luận */}
                           {selectedPost.comments.length > 3 && (
                             <button className="btn btn-link" onClick={() => handleToggleComments(selectedPost.id)}>
-                              {showAllComments[selectedPost.id] ? "View less comments" : "View all comments"}
+                              {showAllComments[selectedPost.id] ? t('viewLess') : t('viewAll')}
                             </button>
                           )}
                         </div>
                       ) : (
-                        <p>No comments available</p>
+                        <p>{t('a14')}</p>
                       )}
                       {/* Phần bình luận */}
                       <div className="comment-section d-flex mt-4">
@@ -1114,7 +1177,7 @@ const Activity = () => {
                           className="comment-input"
                           style={{ resize: "none" }}
                           rows={1}
-                          placeholder="Write a comment..."
+                          placeholder={t('a15')}
                           value={commentContent[post.id] || ""}
                           onChange={(e) => handleCommentChange(selectedPost.id, e.target.value)}
                         />
@@ -1130,7 +1193,7 @@ const Activity = () => {
                             }} />
                             {/* Nút để đóng bảng emoji */}
                             <button onClick={() => setShowEmojiPicker(false)} className="btn btn-link">
-                              Close
+                              {t('a16')}
                             </button>
                           </div>
                         )}
@@ -1151,74 +1214,73 @@ const Activity = () => {
               </div>
               {/* Phần tiêu đề bài viết */}
               <div key={post.id} className="post-header position-relative">
-          <button
-            type="button"
-            className="btn"
-            onClick={() => handleAvatarClick(post)}
-            aria-label="Avatar"
-          >
-            <img
-              src={post.avatar}
-              className="avatar_small"
-              alt="Avatar"
-            />
-          </button>
-          <div>
-            <div className="name">
-              {post.userNickname || "Unknown User"}
-            </div>
-            <div className="time">
-              {post.createdAt && !isNaN(new Date(post.createdAt).getTime())
-                ? format(new Date(post.createdAt), "hh:mm a, dd MMM yyyy")
-                : "Invalid date"}
-              {post.edited && <span className="edited-notice"> (Edited)</span>}
-            </div>
-            <div>
-            {post.is_hidden ? <span className="hidden-notice"> (Bài viết đã được ẩn)</span> : ""}
-            </div>
-          </div>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => handleAvatarClick(post)}
+                  aria-label="Avatar"
+                >
+                  <img
+                    src={post.avatar}
+                    className="avatar_small"
+                    alt="Avatar"
+                  />
+                </button>
+                <div>
+                  <div className="name">
+                    {post.userNickname || "Unknown User"}
+                  </div>
+                  <div className="time">
+                    {post.createdAt && !isNaN(new Date(post.createdAt).getTime())
+                      ? format(new Date(post.createdAt), "hh:mm a, dd MMM yyyy")
+                      : t('invalidDate')}
+                    {post.edited && <span className="edited-notice"> {t('edited')}</span>}
+                  </div>
+                  <div>
+                  {post.is_hidden && <span className="hidden-notice"> {t('hiddenPost')}</span>}
+                  </div>
+                </div>
 
-          {/* Dropdown cho bài viết */}
-          {String(post.userId) === String(userId) ? (
-            <div className="dropdown position-absolute top-0 end-0">
-              <button
-                className="btn btn-options dropdown-toggle"
-                type="button"
-                id={`dropdownMenuButton-${post.id}`}
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                ...
-              </button>
-              <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${post.id}`}>
-                <li>
-                  <button className="dropdown-item" onClick={() => handleEditPost(post)}>
-                    <i className="fa-solid fa-pen-to-square"></i>Edit
-                  </button>
-                </li>
-                <li>
-                  <button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>
-                    <i className="fa-solid fa-trash"></i>Delete
-                  </button>
-                </li>
-                <li>
+                {/* Dropdown cho bài viết */}
+                {String(post.userId) === String(userId) ? (
+                  <div className="dropdown position-absolute top-0 end-0">
+                    <button
+                      className="btn btn-options dropdown-toggle"
+                      type="button"
+                      id={`dropdownMenuButton-${post.id}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      ...
+                    </button>
+                    <ul className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${post.id}`}>
+                      <li>
+                        <button className="dropdown-item" onClick={() => handleEditPost(post)}>
+                          <i className="fa-solid fa-pen-to-square"></i> {t('a8')}
+                        </button>
+                      </li>
+                      <li>
+                        <button className="dropdown-item" onClick={() => handleDeletePost(post.id)}>
+                          <i className="fa-solid fa-trash"></i> {t('a9')}
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => toggleHiddenState(post.id)}
+                        >
+                          <i className="fa-solid fa-eye-slash"></i> {post.is_hidden ? t('showPost') : t('hidePost')}
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
                   <button
-                    className="dropdown-item"
-                    onClick={() => toggleHiddenState(post.id)}
-                  >
-                    <i className="fa-solid fa-eye-slash"></i>
-                    {post.is_hidden ? " Hiện bài viết" : " Ẩn bài viết "}
-                  </button>
-                </li>
-              </ul>
-            </div>
-          ) : (
-            <button
-            className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border-0"
-            onClick={() => handleReport(post.id, 'post')}
-          ></button>
-          )}
-        </div>
+                    className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border-0"
+                    onClick={() => handleReport(post.id, 'post')}
+                  ></button>
+                )}
+              </div>
               {/* Nội dung bài viết */}
               <div className="post-content">{post.content}</div>
               {/* Hiển thị hình ảnh dưới dạng carousel */}
@@ -1237,11 +1299,11 @@ const Activity = () => {
                   </div>
                   <button className="carousel-control-prev" type="button" data-bs-target={`#carousel-${post.id}`} data-bs-slide="prev">
                     <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span className="visually-hidden">Previous</span>
+                    <span className="visually-hidden">{t('a17')}</span>
                   </button>
                   <button className="carousel-control-next" type="button" data-bs-target={`#carousel-${post.id}`} data-bs-slide="next">
                     <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span className="visually-hidden">Next</span>
+                    <span className="visually-hidden">{t('18')}</span>
                   </button>
                 </div>
               )}
