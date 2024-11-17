@@ -21,14 +21,9 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (!userNameOrEmail) {
-      setError('Please enter account name or email.');
-      return;
-    }
   
-    if (!password) {
-      setError('Please enter your password.');
+    if (!userNameOrEmail || !password) {
+      setError('Please enter account name, email, and password.');
       return;
     }
   
@@ -37,19 +32,28 @@ const Login = () => {
       email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
       password,
     };
-
+  
     try {
       setLoading(true);
       const response = await login(userDto);
       const userId = response.userId;
-
+  
       if (userId) {
+        // Set Cookie
         const expires = new Date();
         expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);
         document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
+  
+        // Lấy giỏ hàng từ server
+        const cartResponse = await axios.get(`http://localhost:8080/customer/cart/${userId}`);
+        const cart = cartResponse.data.items || [];
+  
+        // Lưu vào LocalStorage
+        localStorage.setItem("cart", JSON.stringify(cart));
+  
         setTimeout(() => {
           setLoading(false);
-          navigate('/'); 
+          navigate('/');
         }, 1000);
       } else {
         setLoading(false);
@@ -64,6 +68,7 @@ const Login = () => {
       }
     }
   };
+  
 
   useEffect(() => {
     /* Khởi tạo Google Sign-In */
