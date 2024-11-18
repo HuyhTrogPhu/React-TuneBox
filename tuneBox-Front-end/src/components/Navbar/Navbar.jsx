@@ -180,6 +180,18 @@ const Navbar = () => {
   // log-out
   const handleLogout = async () => {
     try {
+      const userId = Cookies.get("userId"); // Lấy userId từ Cookie
+      const cart = JSON.parse(localStorage.getItem("cart")) || []; // Lấy giỏ hàng từ LocalStorage
+  
+      if (userId && cart.length > 0) {
+        // Gửi giỏ hàng lên server
+        await axios.post(`http://localhost:8080/customer/cart/${userId}`, { items: cart });
+      }
+  
+      // Xóa giỏ hàng khỏi LocalStorage
+      localStorage.removeItem("cart");
+  
+      // Logout API
       await logout();
       Cookies.remove("userId");
       setAvatarUrl(images.logoTuneBox);
@@ -188,6 +200,7 @@ const Navbar = () => {
       console.error("Error logging out:", error);
     }
   };
+  
 
   const handleAvatarClick = () => {
     if (userId) {

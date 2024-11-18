@@ -25,7 +25,7 @@ const SignUp = () => {
     return "";
   };
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = (e) => {
     e.preventDefault();
     const validationError = validateForm();
     if (validationError) {
@@ -46,7 +46,6 @@ const SignUp = () => {
 
     navigate("/userInfor", { state: formData });
   };
-
   
   useEffect(() => {
     /* Khởi tạo Google Sign-In */
