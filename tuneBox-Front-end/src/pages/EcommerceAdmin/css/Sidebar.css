@@ -45,12 +45,12 @@ a {
     text-decoration: none;
 }
 
-.sidebar .menu li a:active,
-.sidebar .menu li a:hover,
-.sidebar .menu li a:focus {
+.sidebar-ecommerce .menu-ecommerce li a:active,
+.sidebar-ecommerce .menu-ecommerce li a:hover,
+.sidebar-ecommerce .menu-ecommerce li a:focus {
     color: #ffffff;
 }
 
-.sidebar .menu li i {
-    margin-right: 10px;
+.sidebar-ecommerce .menu-ecommerce li i {
+    margin-right: 20px;
 }

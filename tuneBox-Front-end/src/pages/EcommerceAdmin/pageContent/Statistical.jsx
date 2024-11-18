@@ -226,7 +226,7 @@ const Statistical = () => {
                             </div>
                             <div className=' col-4 search-of-day '>
                                 {/* Search to day */}
-                                <div className='border rounded p-2' style={{ backgroundColor: '#5158bb' }}>
+                                <div className='border rounded p-2' style={{ backgroundColor: '#fff', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
                                     <h6 className='p-0 fs-5 text-center'>Revenue by day</h6>
                                     <form onSubmit={handleSubmitDay} className='pe-3 ps-3'>
                                         <div className='mt-3'>
@@ -244,7 +244,7 @@ const Statistical = () => {
                                     </form>
                                 </div>
                                 {/* Search between day */}
-                                <div className='border rounded p-2 mt-4' style={{ backgroundColor: '#5158bb' }}>
+                                <div className='border rounded p-2 mt-4' style={{ backgroundColor: '#fff', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
                                     <h6 className='p-0 fs-5 text-center'>Revenue between days</h6>
                                     <form onSubmit={handleSubmitBetweenDates} className="pe-5 ps-5">
                                         <div className='mt-3'>
@@ -287,7 +287,7 @@ const Statistical = () => {
                             </div>
                             <div className='col-4'>
                                 {/* Statistical Revenue By Week */}
-                                <div className='rounded p-3 border' style={{ backgroundColor: '#5158bb' }}>
+                                <div className='rounded p-3 border' style={{ backgroundColor: '#fff', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
                                     <h6 className='p-0 fs-5 text-center'>Revenue by week</h6>
                                     <form onSubmit={handleSingleDateSubmit} className='pe-3 ps-3'>
                                         <div className='mt-3'>
@@ -305,7 +305,7 @@ const Statistical = () => {
                                     </form>
                                 </div>
                                 {/* Statistical Revenue Between Weeks */}
-                                <div className='border rounded mt-4 p-2' style={{ backgroundColor: '#5158bb' }}>
+                                <div className='border rounded mt-4 p-2' style={{ backgroundColor: '#fff', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
                                     <h6 className='p-0 fs-5 text-center'>Revenue between weeks</h6>
                                     <form onSubmit={handleBetweenDatesSubmit} className='pe-3 ps-3'>
                                         <div className='mt-3'>
@@ -348,7 +348,7 @@ const Statistical = () => {
                             </div>
                             <div className='col-4 mt-5'>
                                 {/* Search by month */}
-                                <div className='border rounded mt-4 p-2' style={{ backgroundColor: '#5158bb' }}>
+                                <div className='border rounded mt-4 p-2' style={{ backgroundColor: '#fff', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
                                     <h6 className='p-0 fs-5 text-center'>Revenue by month</h6>
                                     <form onSubmit={handleSingleMonthSubmit} className='pe-3 ps-3'>
                                         <div className='mt-3'>
@@ -381,7 +381,7 @@ const Statistical = () => {
                                 </div>
 
                                 {/* Statistical Revenue Between Months */}
-                                <div className='border rounded p-2 mt-4' style={{ backgroundColor: '#5158bb' }}>
+                                <div className='border rounded p-2 mt-4' style={{ backgroundColor: '#fff', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
                                     <h6 className='text-center p-0 fs-5'>Revenue between months</h6>
                                     <form onSubmit={handleBetweenMonthsSubmit} className='pe-3 ps-3'>
                                         <div className='mt-3'>
@@ -444,7 +444,7 @@ const Statistical = () => {
                             </div>
                             <div className='col-4'>
                                 {/* Search by year */}
-                                <div className='border rounded p-2 mt-4' style={{ backgroundColor: '#5158bb' }}>
+                                <div className='border rounded p-2 mt-4' style={{ backgroundColor: '#fff', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
                                     <h6 className='text-center fs-5 p-0'>Revenue by year</h6>
                                     <form onSubmit={handleSingleYearSubmit} className='pe-3 ps-3'>
                                         <div className='mt-3'>
@@ -464,7 +464,7 @@ const Statistical = () => {
                                 </div>
 
                                 {/* Statistical Revenue Between Years */}
-                                <div className='border rounded p-2 mt-4' style={{ backgroundColor: '#5158bb' }}>
+                                <div className='border rounded p-2 mt-4' style={{ backgroundColor: '#fff', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
                                     <h6 className='text-center fs-5 p-0'>Revenue between years</h6>
                                     <form onSubmit={handleBetweenYearsSubmit} className='pe-3 ps-3'>
                                         <div className='mt-3'>
@@ -501,7 +501,7 @@ const Statistical = () => {
                 {/* Revenue statistical currently */}
                 <section className='row mt-5 d-flex align-items-center justify-content-center'>
                     <div className='col-5 statistical-currently rounded d-flex align-items-center'>
-                        <Link to={'/ecomadmin/Statistical/revenue-currently'} style={{width: '100%'}}>
+                        <Link to={'/ecomadmin/Statistical/revenue-currently'} style={{ width: '100%' }}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-2 m-0 d-flex justify-content-center align-items-center'>
                                     <i className="fa-solid fa-money-bill" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
@@ -518,7 +518,7 @@ const Statistical = () => {
                 {/* Statistical shop */}
                 <section className='row mt-5 d-flex justify-content-center gap-3'>
                     <div className='col-4 statistical-product rounded d-flex align-items-center'>
-                        <Link to={'/ecomadmin/Statistical/statistical-instrument'} style={{width: '100%'}}>
+                        <Link to={'/ecomadmin/Statistical/statistical-instrument'} style={{ width: '100%' }}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
                                     <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
@@ -530,7 +530,7 @@ const Statistical = () => {
                         </Link>
                     </div>
                     <div className='col-4 statistical-product rounded d-flex align-items-center'>
-                        <Link to={'/ecomadmin/Statistical/statistical-brand'} style={{width: '100%'}}>
+                        <Link to={'/ecomadmin/Statistical/statistical-brand'} style={{ width: '100%' }}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
                                     <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
@@ -542,7 +542,7 @@ const Statistical = () => {
                         </Link>
                     </div>
                     <div className='col-4 statistical-product rounded d-flex align-items-center'>
-                        <Link to={'/ecomadmin/Statistical/statistical-category'} style={{width: '100%'}}>
+                        <Link to={'/ecomadmin/Statistical/statistical-category'} style={{ width: '100%' }}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
                                     <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
@@ -554,13 +554,13 @@ const Statistical = () => {
                         </Link>
                     </div>
                 </section>
-                                            
+
                 <hr style={{ width: '100%' }} />
                 {/* Statistical order */}
                 <section className='row mt-5 d-flex justify-content-between gap-3'>
                     {orderTypes.map(order => (
                         <div key={order.type} className='col-2 d-flex align-items-stretch'>
-                            <Link to={`/ecomadmin/Statistical/statistical-order/${order.type}`} className='statistical-bill rounded d-flex align-items-center p-2'  style={{width: '100%'}}>
+                            <Link to={`/ecomadmin/Statistical/statistical-order/${order.type}`} className='statistical-bill rounded d-flex align-items-center p-2' style={{ width: '100%' }}>
                                 <div className='row w-100 align-items-center m-0'>
                                     <div className='col-2 m-0 d-flex justify-content-center align-items-center'>
                                         <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>

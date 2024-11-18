@@ -406,7 +406,7 @@ function Trackdetail() {
       <div className="row">
         {/* tìm kiếm track của người dùng */}
         <div className="col-3 pt-5 p-5">
-          <div className="orther">{track.userName}`s tracks</div>
+          <div className="orther">{track.userName} tracks</div>
           <div className="search-container mb-5">
             <input
               type="text"
