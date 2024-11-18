@@ -202,8 +202,7 @@ const CategoryPageDetail = () => {
 
   return (
     <div>
-
-      <div className='container'>
+      <div className='container' style={{marginTop: '100px'}}>
         <div className='gioithieu1'>
           <div className='grid-container'>
             <div className='grid-item image'>
@@ -227,9 +226,6 @@ const CategoryPageDetail = () => {
           {/* filter */}
           <div className='col-3 phamloai'>
             <div className="accordion" id="accordionExample">
-
-              
-
 
               <div className="accordion-item">
                 <h2 className="accordion-header">
@@ -269,17 +265,13 @@ const CategoryPageDetail = () => {
                 </div>
               </div>
 
-
-
-
-
             </div>
           </div>
 
           <div className='col-9 mt-3'>
             {/* Sort */}
             <div className="row">
-              <div className='col-9'>Total product</div>
+              <div className='col-9'>Total product: <strong>{currentInstruments.length} instrument</strong></div>
 
               <div className='col-3'>
                 <select className="form-select" onChange={(e) => handleSort(e.target.value)}>
@@ -289,8 +281,6 @@ const CategoryPageDetail = () => {
                   <option value="nameAsc">Name: A to Z</option>
                   <option value="nameDesc">Name: Z to A</option>
                 </select>
-
-
               </div>
             </div>
 

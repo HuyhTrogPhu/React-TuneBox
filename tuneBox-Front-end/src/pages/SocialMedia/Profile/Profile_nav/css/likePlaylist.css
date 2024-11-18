@@ -1,0 +1,47 @@
+.playlist {
+    margin-top: 100px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.side-content {
+    display: flex;
+    width: 100%;
+  }
+  
+  .playlist-left {
+    position: sticky;
+    top: 100px; 
+    width: 25%;
+    border-right: 1px solid gray;
+    max-height: calc(100vh - 100px); 
+    overflow-y: auto; 
+    background-color: #f8f9fa;
+    padding-left: 50px !important;
+    box-sizing: border-box;
+  }
+  
+  .playlist-right {
+    position: sticky;
+    top: 100px; 
+    width: 25%;
+    max-height: calc(100vh - 100px); 
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  /* Main Content */
+  .playlist-content {
+    width: 50%;
+    padding: 20px;
+  }
+  
+  
+  
+  /* Ẩn thanh cuộn trên Chrome, Safari và Edge */
+  .playlist-left::-webkit-scrollbar,
+  .playlist-right::-webkit-scrollbar {
+    display: none;
+  }

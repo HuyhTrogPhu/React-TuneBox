@@ -180,6 +180,18 @@ const Navbar = () => {
   // log-out
   const handleLogout = async () => {
     try {
+      const userId = Cookies.get("userId"); // Lấy userId từ Cookie
+      const cart = JSON.parse(localStorage.getItem("cart")) || []; // Lấy giỏ hàng từ LocalStorage
+  
+      if (userId && cart.length > 0) {
+        // Gửi giỏ hàng lên server
+        await axios.post(`http://localhost:8080/customer/cart/${userId}`, { items: cart });
+      }
+  
+      // Xóa giỏ hàng khỏi LocalStorage
+      localStorage.removeItem("cart");
+  
+      // Logout API
       await logout();
       Cookies.remove("userId");
       setAvatarUrl(images.logoTuneBox);
@@ -188,6 +200,7 @@ const Navbar = () => {
       console.error("Error logging out:", error);
     }
   };
+  
 
   const handleAvatarClick = () => {
     if (userId) {
@@ -300,6 +313,15 @@ const Navbar = () => {
       getAllGenre(); // gọi getAllGenre trước khi mở modal
       const modal = new window.bootstrap.Modal(document.getElementById("addTrackModal"));
       modal.show();
+    }
+  };
+
+  // handle dropdown profile 
+  const handleDropdownClick = () => {
+    if (userId) {
+      navigate("/profileUser");
+    } else {
+      navigate("/login");
     }
   };
 
@@ -454,6 +476,7 @@ const Navbar = () => {
             alt="avatar-user"
             src={avatarUrl}
             className="avatar-user"
+            style={{objectFit: 'cover'}}
             onClick={handleAvatarClick}
             onMouseEnter={handleMouseEnter}
           />
@@ -467,7 +490,7 @@ const Navbar = () => {
           >
             <button
               className="dropdown-item"
-              onClick={() => navigate("/profileUser")}
+              onClick={() => handleDropdownClick()}
             >
               {t('profile')}
             </button>
@@ -489,12 +512,12 @@ const Navbar = () => {
         </button>
 
         {/* Track AI */}
-        <button
+        {/* <button
           className="track-ai ms-4"
           onClick={handleTrackAiClick}
         >
           Track AI
-        </button>
+        </button> */}
       </div>
 
       {/* start modal add */}

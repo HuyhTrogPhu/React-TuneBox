@@ -1,7 +1,9 @@
 .feed-container {
+    display: flex;
     padding: 0;
     margin-top: 70px;
     box-sizing: border-box;
+    background-color: #e5e5e5;
     /* background-image: linear-gradient(120deg, #f6d365 0%, #fda085 100%); */
 }
 
@@ -10,7 +12,7 @@
     background-color: #fff;
     padding-bottom: 20px;
     border-radius: 10px;
-    box-shadow: rgba(233, 79, 55, 0.25) 0px 13px 27px -5px, rgba(233, 79, 55, 0.25) 0px 8px 16px -8px;
+    box-shadow: rgba(96, 67, 63, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
 }
 
 .feed-avatar {
@@ -29,10 +31,11 @@
     position: absolute;
     top: 100px;
     background-color: #fff;
+    object-fit: cover;
 }
 
 .feed-information {
-    margin-top: 10  0px;
+    margin-top: 100px;
 }
 
 .feed-information p {
@@ -40,13 +43,14 @@
 }
 
 .feed-information .feed-username {
-    font-size: 18px;
+    font-size: 25px;
     padding: 0;
 }
 
 .feed-information .feed-name {
     font-size: 18px;
-    padding: 10px 0 0 0;
+    padding: 0;
+    margin: 0;
 }
 
 .feed-information .feed-following {
@@ -76,7 +80,7 @@
     background-color: #fff;
     padding: 20px !important;
     border-radius: 10px;
-    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
+    box-shadow: rgba(96, 67, 63, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
 }
 
 .list-unstyled a {
@@ -93,7 +97,7 @@
     background-color: #fff;
     padding: 20px !important;
     border-radius: 10px;
-    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
+    box-shadow: rgba(96, 67, 63, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
 
 }
 
@@ -101,7 +105,8 @@
     background-color: #fff;
     margin-top: 0;
     border-radius: 10px;
-    box-shadow: rgba(233, 79, 55, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
+    box-shadow: rgba(96, 67, 63, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
+
 }
 
 .nav-link-feed {
@@ -111,7 +116,7 @@
 .nav-link-feed .feed-link {
     font-size: 20px;
     font-weight: 600;
-    color: #ffffff !important;
+    color: #000 !important;
 }
 
 .nav-link-feed .feed-link a {
@@ -131,4 +136,45 @@
 .feed-link.active {
     color: #E94F37 !important;
     font-weight: bold;
+}
+
+.feed-content {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar.content-left {
+    position: sticky;
+    top: 100px; 
+    width: 25%;
+    max-height: calc(100vh - 100px); 
+    overflow-y: auto; 
+    background-color: #f8f9fa;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.sidebar.content-right {
+    position: sticky;
+    top: 100px; 
+    width: 25%;
+    max-height: calc(100vh - 100px); 
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Main Content */
+.content-feed {
+    width: 50%;
+    padding: 20px;
+}
+
+
+
+/* Ẩn thanh cuộn trên Chrome, Safari và Edge */
+.sidebar.content-left::-webkit-scrollbar,
+.sidebar.content-right::-webkit-scrollbar {
+    display: none;
 }

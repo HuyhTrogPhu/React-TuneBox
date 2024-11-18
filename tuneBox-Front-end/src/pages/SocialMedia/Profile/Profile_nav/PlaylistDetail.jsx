@@ -4,8 +4,8 @@ import {
   removeTrackFromPlaylist,
   getPlaylistByUserId,
 } from "../../../../service/PlaylistServiceCus";
-import { getTrackById } from "../../../../service/TrackServiceCus"; 
-import "./css/albumDetail.css";
+import { getTrackById } from "../../../../service/TrackServiceCus"; // Nhập khẩu hàm này
+import "./css/playlistDetail.css";
 import Cookies from "js-cookie";
 import { images } from "../../../../assets/images/images";
 import { useParams } from "react-router-dom";
@@ -330,6 +330,16 @@ const PlayListDetail = () => {
         <div className="note">&#9834;</div>
         <div className="note">&#9835;</div>
         <div className="note">&#9839;</div>
+        <div className="note">&#9835;</div>
+        <div className="note">&#9833;</div>
+        <div className="note">&#9839;</div>
+        <div className="note">&#9834;</div>
+        <div className="note">&#9835;</div>
+        <div className="note">&#9839;</div>
+        <div className="note">&#9833;</div>
+        <div className="note">&#9834;</div>
+        <div className="note">&#9835;</div>
+        <div className="note">&#9839;</div>
         <ToastContainer position="top-right" />
         <div className="" style={{ marginLeft: "140px" }}>
           <div className="row">
@@ -347,11 +357,10 @@ const PlayListDetail = () => {
                       onClick={togglePlayPause}
                     >
                       <i
-                        className={`fa-solid fa-signal music-wave-icon ${
-                          playingTrackIndex === currentTrackIndex && isPlaying
+                        className={`fa-solid fa-signal music-wave-icon ${playingTrackIndex === currentTrackIndex && isPlaying
                             ? "playing"
                             : ""
-                        }`}
+                          }`}
                       ></i>
                     </button>
                   </div>
@@ -374,9 +383,9 @@ const PlayListDetail = () => {
                     </div>
                   </div>
                   <div className="animation">
-                    {animationData && (
+                    {/* {animationData && (
                       <Lottie animationData={animationData} loop={true} />
-                    )}
+                    )} */}
                   </div>
                 </div>
                 <div className="album-info-actions">
@@ -387,9 +396,8 @@ const PlayListDetail = () => {
                     >
                       {likesCount}
                       <i
-                        className={`fa-solid fa-heart ${
-                          statusliked ? "text-danger" : "text-muted"
-                        }`}
+                        className={`fa-solid fa-heart ${statusliked ? "text-danger" : "text-muted"
+                          }`}
                         style={{ cursor: "pointer", fontSize: "20px" }}
                       ></i>
                     </button>
@@ -434,7 +442,7 @@ const PlayListDetail = () => {
               <div className="album-track">
                 <div className="list-track">
                   {/* Hiển thị danh sách track đã thêm */}
-                  <table className="table">
+                  <table className="tableA">
                     <thead>
                       <tr>
                         <th>#</th>
@@ -449,9 +457,8 @@ const PlayListDetail = () => {
                       {trackDetails.map((track, index) => (
                         <tr
                           key={track.id}
-                          className={`${track.status ? "track-disabled" : ""} ${
-                            currentTrackIndex === index ? "current-track" : ""
-                          }`}
+                          className={`${track.status ? "track-disabled" : ""} ${currentTrackIndex === index ? "current-track" : ""
+                            }`}
                           style={{ opacity: track.status ? 0.5 : 1 }} // Làm mờ track nếu có status = true
                         >
                           <td>{index + 1}</td>
@@ -473,11 +480,10 @@ const PlayListDetail = () => {
                                 disabled={track.status} // Disable nút phát nếu track bị vô hiệu hóa
                               >
                                 <i
-                                  className={`fa-solid ${
-                                    playingTrackIndex === index && isPlaying
+                                  className={`fa-solid ${playingTrackIndex === index && isPlaying
                                       ? "fa-pause"
                                       : "fa-play"
-                                  }`}
+                                    }`}
                                 ></i>
                               </button>
                             )}
@@ -499,29 +505,35 @@ const PlayListDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="col-3">
-              <div className="orther">Orther playlist</div>
+            <div className="col-3 mt-5">
+              <div className="other mb-3">Other</div>
               <div>
                 {isLoading && <p>Loading...</p>}
                 <div className="playlist-container">
-                  {allplaylists
-                    .filter((list) => list.id !== playlist.id && !list.status)
-                    .slice(0, 3) // Lấy 3 playlist đầu tiên
-                    .map((playlist, index) => (
-                      <div key={index} className="card-orther text-bg-dark">
-                        <img
-                          src={
-                            playlist.imagePlaylist ||
-                            "/src/assets/images/nai.jpg"
-                          }
-                          className="card-orther-img"
-                          alt={playlist.title || "Playlist image"}
-                        />
-                        <div className="card-img-overlay">
-                          <div>{playlist.title}</div>
-                        </div>
-                      </div>
-                    ))}
+
+                  {allplaylists.slice(0, 4).map(
+                    (playlist, index) =>
+                      !playlist.status && (
+                        <Link to={{
+                          pathname: `/playlist/${playlist.id}`,
+                          state: { playlist },
+                        }}>
+                          <div key={index} className="card other-playlist">
+                            <img
+                              src={
+                                playlist.imagePlaylist ||
+                                "/src/assets/images/nai.jpg"
+                              }
+                              className="card-img"
+                              alt={playlist.title || "Playlist image"}
+                            />
+                            <h6 className="playlist-text">{playlist.title}</h6>
+                          </div>
+                        </Link>
+
+
+                      )
+                  )}
                 </div>
               </div>
             </div>
@@ -535,9 +547,8 @@ const PlayListDetail = () => {
               <p className="title-audio">
                 <img
                   src={currentImageTrack || playlist.imagePlaylist}
-                  className={`ImageTrack-audio ${
-                    isPlaying ? "rotating-image" : ""
-                  }`}
+                  className={`ImageTrack-audio ${isPlaying ? "rotating-image" : ""
+                    }`}
                   alt="Track Image"
                 />
 
@@ -622,7 +633,9 @@ const PlayListDetail = () => {
                 Your browser does not support the audio tag.
               </audio>
             </div>
-            <div className="col-2"></div>
+            <div className="col-2">
+
+            </div>
           </div>
         </div>
       </div>

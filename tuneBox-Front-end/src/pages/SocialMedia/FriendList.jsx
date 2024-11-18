@@ -42,7 +42,7 @@ const FriendList = () => {
     }
 
     return (
-        <div className="container mt-5">
+        <div className="container"  style={{marginTop: '100px'}}>
             <h3 className="text-center mb-4">Friend List</h3>
             <div className="row d-flex justify-content-center">
                 {friends.map(friend => (

@@ -163,7 +163,7 @@ const LikePlaylists = () => {
 
   // dele end
   return (
-    <div className="playlist mt-5">
+    <div className="playlist " style={{marginTop: '100px'}}>
       <ToastContainer />
       <h1 className="search-results-title text-center mb-5">Liked PlayList</h1>
       <div className="row container-fluid">

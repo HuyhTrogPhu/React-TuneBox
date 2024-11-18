@@ -166,7 +166,7 @@ const Shop = () => {
 
   return (
     <div>
-      <div className='container mt-5'>
+      <div className='container' style={{marginTop: '100px'}}>
         <div className="content">
           <div className="row">
             <div className="col-3 phamloai">

@@ -46,7 +46,6 @@ const SignUp = () => {
 
     navigate("/userInfor", { state: formData });
   };
-
   
   useEffect(() => {
     /* Khởi tạo Google Sign-In */

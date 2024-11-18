@@ -42,6 +42,7 @@ import StatisticalOrder from '../components/EcomStatisticalOrder/StatisticalOrde
 import StatisticalBrand from '../components/EcomStatisticalBrand/StatisticalBrand';
 import StatisticalCategory from '../components/EcomStatisticalCategory/StatisticalCategory';
 import { getRevenueCurrently } from '../service/EcommerceStatistical';
+import '../pages/EcommerceAdmin/css/Sidebar.css';
 
 const EcommerceAdmin = () => {
 
@@ -76,21 +77,21 @@ const EcommerceAdmin = () => {
   return (
     <div>
       <div className="row">
-        <div className="sidebar21 col-lg-2 col-md-3 vh-100">
+        <div className="sidebar-ecommerce col-lg-2 col-md-3 vh-100">
           {/* Logo */}
           <div className="logo p-3">
-            <a href="#" style={{}}>
+            <Link to={"/ecomadmin"}>
               <img src={images.logoAdmin} alt="" width="100%" style={{ paddingLeft: '50px' }} />
-            </a>
+            </Link>
           </div>
           {/* Menu */}
-          <div className="menu21">
-            <ul className="list-unstyled ">
+          <div className="menu-ecommerce">
+            <ul className="">
               <li className="p-3">
                 <i className="fa-solid fa-house" />
-                <a href="/ecomadmin" className="text-white">
+                <Link to={"/ecomadmin"} className="text-white">
                   Dashboard
-                </a>
+                </Link>
               </li>
               <li className="p-3">
                 <i className="fa-solid fa-user" />

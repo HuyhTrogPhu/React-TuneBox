@@ -423,11 +423,11 @@ const Chat = () => {
   };
 
   return (
-    <div className="z pt-5 mt-5">
+    <div className="z pt-5" style={{marginTop: '20px'}}>
       <div className="messenger-container">
         <div className="messenger-sidebar">
-          <div className="messenger-header">
-            <h4>Chats TuneBox</h4>
+          <div className="messenger-header" style={{backgroundColor: '#E94F37'}}>
+            <h4>Chat TuneBox</h4>
           </div>
           <UserList
             users={users}

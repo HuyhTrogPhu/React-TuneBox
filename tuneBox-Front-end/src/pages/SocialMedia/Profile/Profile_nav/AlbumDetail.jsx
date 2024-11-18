@@ -309,9 +309,19 @@ const AlbumDetail = () => {
   if (!album) return <div className="p-4">No album data found</div>;
 
   return (
-    <div className="content-audio">
+    <div className="content-audio" style={{marginTop: '100px'}}>
       <div className="music-background">
         <div className="title-detail">{/* <p>Playlist</p> */}</div>
+        <div className="note">&#9835;</div>
+        <div className="note">&#9833;</div>
+        <div className="note">&#9839;</div>
+        <div className="note">&#9834;</div>
+        <div className="note">&#9835;</div>
+        <div className="note">&#9839;</div>
+        <div className="note">&#9833;</div>
+        <div className="note">&#9834;</div>
+        <div className="note">&#9835;</div>
+        <div className="note">&#9839;</div>
         <div className="note">&#9835;</div>
         <div className="note">&#9833;</div>
         <div className="note">&#9839;</div>
@@ -326,6 +336,7 @@ const AlbumDetail = () => {
         <div className="" style={{ marginLeft: "140px", marginRight: "140px" }}>
           <div className="row">
             <div className="">
+              {/* Albums infor */}
               <div className="album-info">
                 <div className="album-info-cover">
                   <div className="album-info-img">
@@ -351,21 +362,21 @@ const AlbumDetail = () => {
                     <div className="album-name">{album.title}</div>
                     <div className="author">
                       <img src={userImg} className="user-ava"></img>
-                      {userNamePlaylist || "Gia Nhu"}
+                     Artist: {userNamePlaylist || "Gia Nhu"}
                     </div>
                     <div className="album-description">
-                      {album.description || "No description available."}
+                      Description: {album.description || "No description available."}
                     </div>
                     <div className="album-information">
                       <div className="info-date">
-                        {album.createDate || "Date not available"}
+                        Create at: {album.createDate || "Date not available"}
                       </div>
                     </div>
                   </div>
                   <div className="animation">
-                    {animationData && (
+                    {/* {animationData && (
                       <Lottie animationData={animationData} loop={true} />
-                    )}
+                    )} */}
                   </div>
                 </div>
                 <div className="album-info-actions">
@@ -374,12 +385,12 @@ const AlbumDetail = () => {
                       className="btn text-mutedA"
                       onClick={() => handleLikeALbum(album.id)}
                     >
-                      {likesCount}
+                      {likesCount} 
                       <i
                         className={`fa-solid fa-heart ${
                           statusliked ? "text-danger" : "text-muted"
                         }`}
-                        style={{ cursor: "pointer", fontSize: "20px" }}
+                        style={{ cursor: "pointer", fontSize: "20px"}}
                       ></i>
                     </button>
                     <button
@@ -388,7 +399,7 @@ const AlbumDetail = () => {
                     >
                       <i
                         type="button"
-                        style={{ fontSize: "20px", color: "white" }}
+                        style={{ fontSize: "20px", color: "#E94F37", }}
                         className="fa-solid fa-share"
                       ></i>
                     </button>
@@ -422,7 +433,7 @@ const AlbumDetail = () => {
               <div className="album-track">
                 <div className="list-track">
                   {/* Hiển thị danh sách track đã thêm */}
-                  <table className="tableA">
+                  <table className="tableA table-striped">
                     <thead>
                       <tr>
                         <th>#</th>
@@ -432,7 +443,7 @@ const AlbumDetail = () => {
                         <th>Actions</th> {/* Thêm cột cho hành động phát */}
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="table-group-divider">
                       {trackDetails
                         .filter((track) => track.status !== true) // Lọc bỏ các track có status = true
                         .map((track, index) => (

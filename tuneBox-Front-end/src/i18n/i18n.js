@@ -427,7 +427,7 @@ const resources = {
       "c31": "Đơn hàng của bạn đã được đặt thành công!",
       "c32": "Xem hóa đơn",
       "c33": "Đóng",
-      "c34": "Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại.",
+      "c34": "Đã có lỗi khi gửi yêu cầu thông tin mua hàng đến với hệ thống! Vui lòng giảm số lượng sản phẩm!",
       "c35": "Thông tin hóa đơn",
       "c36": "Mã đơn hàng:",
       "c37": "Tổng giá trị:",
