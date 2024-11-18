@@ -28,8 +28,8 @@ const PlaylistDetail = () => {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   //loc danh sach all user
   console.log(PlayList);
-  const filteredUsers = PlayList.tracks
-    ? PlayList.track.filter((user) =>
+  const filteredUsers = PlayList
+    ? PlayList.filter((user) =>
         user.name
       )
     : [];

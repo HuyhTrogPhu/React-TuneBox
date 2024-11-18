@@ -25,7 +25,7 @@ const SignUp = () => {
     return "";
   };
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = (e) => {
     e.preventDefault();
     const validationError = validateForm();
     if (validationError) {
@@ -33,21 +33,18 @@ const SignUp = () => {
       return;
     }
 
-    try {
-      const formData = { userName, email, password };
-      const response = await axios.post('http://localhost:8080/user/register', formData);
+    const formData = {
+      userName: userName,
+      email: email,
+      password: password,
+      name: null,
+      avatar: null,
+      inspiredBys: [],
+      talents: [],
+      genres: [],
+    };
 
-      if (response.status === 200) {
-        Swal.fire("Success", "Registration successful", "success");
-        navigate('/userInfor');
-      }
-    } catch (err) {
-      if (err.response && err.response.data) {
-        setError(err.response.data);
-      } else {
-        setError("An error occurred while registering. Please try again later.");
-      }
-    }
+    navigate("/userInfor", { state: formData });
   };
 
   
@@ -73,7 +70,7 @@ const SignUp = () => {
     const user = jwtDecode(credential);
     const userName = user.email.split('@')[0];
 
-    try {
+    try { 
         const res = await axios.post('http://localhost:8080/api/auth/google', { idToken: credential });
         const { token, userExists } = res.data;
 

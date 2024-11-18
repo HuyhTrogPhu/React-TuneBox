@@ -19,6 +19,7 @@ import StaticAlbum from "./SocialMediaAdmin/Statistical/StaticAlbum";
 import StaticPlayList from "./SocialMediaAdmin/Statistical/StaticPlayList";
 import StaticTrack from "./SocialMediaAdmin/Statistical/StaticTrack";
 import StatisticalPost from "./SocialMediaAdmin/pageContent/statisticalPost/StatisticalPost";
+import Report from "./SocialMediaAdmin/pageContent/Report";
 
 const SocialMediaAdmin = () => {
   return (
@@ -72,6 +73,13 @@ const SocialMediaAdmin = () => {
                   
                   <Link to={"/socialadmin/posts"} className="text-white">
                     Post
+                  </Link>
+                </li>
+                <li className="p-3">
+                  <i className="fa-solid fa-newspaper" />
+                  
+                  <Link to={"/socialadmin/Report"} className="text-white">
+                  Report
                   </Link>
                 </li>
                 <li className="p-3">
@@ -129,7 +137,7 @@ const SocialMediaAdmin = () => {
               <Route path='Track' element={<Track/>} />
               <Route path='playlists' element={<Playlists/>} />
               
-              
+              <Route path='Report' element={<Report/>} />
               <Route path='Statistical' element={<Statistical/>} />
               <Route path='Statistical/UserStatic' element={<StatisticalUser/>} />
               <Route path='Statistical/StaticAlbum' element={<StaticAlbum/>} />
