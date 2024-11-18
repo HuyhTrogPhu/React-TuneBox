@@ -45,7 +45,7 @@ export const login = async (userDto) => {
 export const loginWithGoogle = async (idToken) => {
   const response = await axios.get(`${REST_API_BASE_URL}/oauth2/success`, {
     headers: {
-      'Authorization': `Bearer ${idToken}`, // Gửi idToken trong header Authorization
+      'Authorization': `Bearer ${idToken}`, 
     },
     withCredentials: true,
   });
