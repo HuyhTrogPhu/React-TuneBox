@@ -285,21 +285,21 @@ const Activity = () => {
       confirmButtonText: t('a19'),
       cancelButtonText: t('p15'),
     });
-  
+
     if (!result.isConfirmed) return; // Nếu người dùng không xác nhận, dừng lại
-  
+
     try {
       // Gọi API để xóa bài viết
       await axios.delete(`http://localhost:8080/api/posts/${postId}`, {
         withCredentials: true,
       });
-      
+
       // Thông báo xóa thành công
       Swal.fire({
         title: t('deleteSuccess'), // Dịch thông báo thành công
         icon: 'success',
       });
-  
+
       // Fetch lại các bài viết
       fetchPosts();
     } catch (error) {
@@ -683,27 +683,27 @@ const Activity = () => {
 
   // ẩn hiện post
   const toggleHiddenState = async (postId) => {
- 
-  
+
+
     const token = localStorage.getItem('jwtToken');
-  
+
     if (!token) {
       console.error("No JWT token found");
-      toast.error(t("loginRequired")); 
+      toast.error(t("loginRequired"));
       return;
     }
-  
+
     try {
       const response = await axios.put(
         `http://localhost:8080/api/posts/${postId}/toggle-visibility`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       if (response.status === 200) {
         const { isHidden } = response.data;
         toast.success(t("visibilityToggledSuccess"));
-  
+
         // Cập nhật trạng thái is_hidden của bài viết trong state
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -745,13 +745,13 @@ const Activity = () => {
       <ToastContainer />
 
       {/* Nút tạo bài */}
-      <div className="container mt-2 mb-5">
+      <div className="container mt-2 mb-5" style={{ boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px' }}>
         <div className="row align-items-center">
           <div className="col-auto post-header">
-          <img
-                    src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
-                    alt="User avatar"
-                  />
+            <img
+              src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+              alt="User avatar"
+            />
           </div>
           <div className="col">
             <button
@@ -774,16 +774,16 @@ const Activity = () => {
       <div
         id="post-modal"
         className="modal-overlay"
-        style={{ display: "none" }}
+        style={{ display: "none", }}
       >
         <div className="modal-content">
           <div>
             <div className="post-header">
-            <img
-                  src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
-                />              <div>
-                  <div className="name">{userData.name}</div>
-                  <div className="time">{t('f10')}</div>
+              <img
+                src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+              />              <div>
+                <div className="name">{userData.name}</div>
+                <div className="time">{t('f10')}</div>
               </div>
               <button
                 id="close-modal"
@@ -1237,7 +1237,7 @@ const Activity = () => {
                     {post.edited && <span className="edited-notice"> {t('edited')}</span>}
                   </div>
                   <div>
-                  {post.is_hidden && <span className="hidden-notice"> {t('hiddenPost')}</span>}
+                    {post.is_hidden && <span className="hidden-notice"> {t('hiddenPost')}</span>}
                   </div>
                 </div>
 

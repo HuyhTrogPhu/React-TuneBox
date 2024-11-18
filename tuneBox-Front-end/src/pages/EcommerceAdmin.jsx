@@ -42,7 +42,8 @@ import StatisticalOrder from '../components/EcomStatisticalOrder/StatisticalOrde
 import StatisticalBrand from '../components/EcomStatisticalBrand/StatisticalBrand';
 import StatisticalCategory from '../components/EcomStatisticalCategory/StatisticalCategory';
 import { getRevenueCurrently } from '../service/EcommerceStatistical';
-import './SocialMediaAdmin/css/sidebar.css'
+import '../pages/EcommerceAdmin/css/Sidebar.css';
+
 const EcommerceAdmin = () => {
 
   const [revenueData, setRevenueData] = useState({

@@ -13,7 +13,7 @@ a {
     text-decoration: none;
 }
 
-.sidebar {
+.sidebar-ecommerce {
     background-color: #011627;
     min-height: 100vh; 
     height: auto; 
@@ -23,24 +23,24 @@ a {
     overflow-x: hidden;
 }
 
-.sidebar .logo {
+.sidebar-ecommerce .logo {
     padding: 10px;
     text-align: center;
 }
 
-.sidebar .menu ul {
+.sidebar-ecommerce .menu-ecommerce ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.sidebar .menu li {
+.sidebar-ecommerce .menu-ecommerce li {
     padding: 15px;
     margin-left: 20px;
     color: #e94f37;
 }
 
-.sidebar .menu li a {
+.sidebar-ecommerce .menu li a {
     color: #e94f37;
     text-decoration: none;
 }

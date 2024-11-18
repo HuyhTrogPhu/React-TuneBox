@@ -15,12 +15,13 @@
 
 /* Nút New nằm bên trái */
 .btn-new {
-  background-color: #343a40;
-  color: white;
+  background-color: #fff;
+  color: #E94F37;
   padding: 8px 16px;
-  border: none;
+  border: 1px solid #E94F37;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 700;
 }
 
 /* Container chứa input search và nút Search nằm bên phải */
@@ -41,18 +42,20 @@
 
 /* Nút Search */
 .btn-search {
-  background-color: #32383d;
-  color: white;
+  background-color: #fff;
+  color: #E94F37;
   padding: 8px 16px;
-  border: none;
+  border: 1px solid #E94F37;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 700;
 }
 
 /* Hiệu ứng hover cho các nút */
 .btn-new:hover,
 .btn-search:hover {
   background-color: #E94F37;
+  color: #fff;
 }
 
 
