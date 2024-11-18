@@ -25,7 +25,7 @@ const SignUp = () => {
     return "";
   };
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     const validationError = validateForm();
     if (validationError) {
@@ -33,18 +33,23 @@ const SignUp = () => {
       return;
     }
 
-    const formData = {
-      userName: userName,
-      email: email,
-      password: password,
-      name: null,
-      avatar: null,
-      inspiredBys: [],
-      talents: [],
-      genres: [],
-    };
+    try {
+      //kiểm tra đăng ký
+      const response = await axios.get('http://localhost:8080/user/check-signUp', {
+        params: { userName, email, password }
+      });
 
-    navigate("/userInfor", { state: formData });
+      if (response.status === 200) {
+        const formData = { userName, email, password, name: null, avatar: null, inspiredBys: [], talents: [], genres: [] };
+        navigate('/userInfor', { state: formData });
+      }
+    } catch (err) {
+      if (err.response && err.response.data) {
+        setError(err.response.data);  // Hiển thị lỗi từ server
+      } else {
+        setError("An error occurred while registering. Please try again later.");
+      }
+    }
   };
   
   useEffect(() => {
