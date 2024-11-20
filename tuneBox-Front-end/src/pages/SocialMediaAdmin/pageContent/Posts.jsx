@@ -9,13 +9,15 @@ import {
   EyeOff,
   Eye,
   XCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Alert, AlertDescription } from "../../../components/ui/Alert";
 
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { toast } from "react-toastify";
-
+  
 const Posts = () => {
   //xu ly phan thong bao cho dissmiss va resolve
   const [stompClient, setStompClient] = useState(null);
@@ -49,8 +51,14 @@ const Posts = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [dismissReason, setDismissReason] = useState("");
 
+  // Pagination states
+  const [allPostsPage, setAllPostsPage] = useState(0);
+  const [reportedPostsPage, setReportedPostsPage] = useState(0);
+  const [reportedPostsTotalPages, setReportedPostsTotalPages] = useState(0);
+  const [allPostsTotalPages, setAllPostsTotalPages] = useState(0);
+
   const api = axios.create({
-    baseURL: "http://localhost:8080/api",
+    baseURL: "http://localhost:8082/admin/posts",
     headers: {
       "Content-Type": "application/json",
     },
@@ -117,18 +125,18 @@ const Posts = () => {
         if (!formattedDate) {
           throw new Error("Please enter a valid specific date");
         }
-        fetchRePort(null, null, reportedSpecificDate);
+        fetchReports(null, null, reportedSpecificDate);
       } else if (reportedStartDate && reportedEndDate) {
         if (!validateDateRange(reportedStartDate, reportedEndDate)) {
           throw new Error("End date must be after start date");
         }
-        fetchRePort(reportedStartDate, reportedEndDate, null);
+        fetchReports(reportedStartDate, reportedEndDate, null);
       } else if (
         !reportedSpecificDate &&
         (!reportedStartDate || !reportedEndDate)
       ) {
         // If no dates are selected, fetch all reports
-        fetchRePort();
+        fetchReports();
       } else {
         throw new Error(
           "Please select either a specific date or both start and end dates"
@@ -138,6 +146,7 @@ const Posts = () => {
       setErrorMessage(error.message);
     }
   };
+  //fetch cac phan con lai
   const fetchData = async () => {
     try {
       const [
@@ -146,9 +155,13 @@ const Posts = () => {
         // reportedResponse,
         trendingResponse,
       ] = await Promise.all([
+        //fetch count total post
         axios.get("http://localhost:8082/admin/posts/total"),
+        //fetch new post
         axios.get("http://localhost:8082/admin/posts/new"),
         // axios.get("http://localhost:8080/api/reports/pending"),
+
+        //fetch trending post
         axios.get("http://localhost:8082/social-statistical/trending-posts"),
       ]);
 
@@ -164,73 +177,80 @@ const Posts = () => {
       );
     }
   };
-
-  const fetchPosts = async (startDate, endDate, specificDate) => {
+  //fetch all post
+  const fetchPosts = async (page = 0) => {
     try {
-      let url = "http://localhost:8082/admin/posts";
+      let url = `http://localhost:8082/admin/posts?page=${page}&size=10`;
       const params = new URLSearchParams();
 
-      if (specificDate) {
-        params.append("specificDate", specificDate);
-      } else if (startDate && endDate) {
-        params.append("startDate", startDate);
-        params.append("endDate", endDate);
+      if (allPostsSpecificDate) {
+        params.append("specificDate", allPostsSpecificDate);
+      } else if (allPostsStartDate && allPostsEndDate) {
+        params.append("startDate", allPostsStartDate);
+        params.append("endDate", allPostsEndDate);
       }
 
       if (params.toString()) {
-        url += `?${params.toString()}`;
+        url += `&${params.toString()}`;
       }
 
       const response = await axios.get(url);
-      setAllPosts(response.data);
+      setAllPosts(response.data.content);
+      setAllPostsTotalPages(response.data.totalPages);
     } catch (error) {
-      const errorMsg =
-        error.response?.data?.message ||
-        "Error fetching filtered posts. Please try again.";
-      console.error("Error fetching filtered posts:", error);
-      setErrorMessage(errorMsg);
+      console.error("Error fetching posts:", error);
+      toast.error("Error fetching posts. Please try again.");
     }
   };
-  const fetchReports = async () => {
+
+  //fetch all reports
+  const fetchReports = async (page = 0) => {
     try {
-      let url = "/reports/pending";
-      const params = {};
-  
+      let url = `http://localhost:8082/admin/posts/pending?page=${page}&size=10`;
+      const params = new URLSearchParams();
+
       if (reportedSpecificDate) {
-        params.specificDate = formatDateForAPI(reportedSpecificDate);
+        params.append("specificDate", reportedSpecificDate);
       } else if (reportedStartDate && reportedEndDate) {
-        params.startDate = formatDateForAPI(reportedStartDate);
-        params.endDate = formatDateForAPI(reportedEndDate);
+        params.append("startDate", reportedStartDate);
+        params.append("endDate", reportedEndDate);
       }
-  
-      const response = await api.get(url, { params });
-      setReportedPosts(response.data);
+
+      if (params.toString()) {
+        url += `&${params.toString()}`;
+      }
+
+      const response = await axios.get(url);
+      setReportedPosts(response.data.content);
+      setReportedPostsTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Error fetching reports:", error);
-  
-      let errorMessage = "Không thể tải danh sách báo cáo.";
-  
-      if (error.response) {
-        // Lỗi phía server
-        if (error.response.status === 400) {
-          errorMessage = "Ngày không hợp lệ. Vui lòng kiểm tra lại.";
-        } else {
-          errorMessage = error.response.data?.message || "Lỗi máy chủ.";
-        }
-      } else if (error.request) {
-        // Lỗi kết nối đến server
-        errorMessage = "Không thể kết nối đến máy chủ.";
-      }
-  
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 5000,
-      });
-  
-      setReportedPosts([]); // Clear reported posts on error
+      toast.error("Error fetching reports. Please try again.");
     }
   };
-  
+
+  const PaginationControls = ({ currentPage, totalPages, onPageChange }) => (
+    <div className="flex items-center justify-center gap-2 mt-4">
+      <button
+        className="btn btn-sm btn-outline-primary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 0}
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+      <span className="mx-2">
+        Page {currentPage + 1} of {totalPages}
+      </span>
+      <button
+        className="btn btn-sm btn-outline-primary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages - 1}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    </div>
+  );
+
   // Xu ly thong bao
   const displayNotification = (notification) => {
     switch (notification.type) {
@@ -253,15 +273,25 @@ const Posts = () => {
 
   useEffect(() => {
     fetchData();
-    fetchPosts();
-    fetchReports();
+    // fetchPosts();
+    // fetchReports();
   }, []);
+
+  useEffect(() => {
+    fetchPosts(allPostsPage);
+  }, [allPostsPage, allPostsSpecificDate, allPostsStartDate, allPostsEndDate]);
+
+  useEffect(() => {
+    fetchReports(reportedPostsPage);
+  }, [
+    reportedPostsPage,
+    reportedSpecificDate,
+    reportedStartDate,
+    reportedEndDate,
+  ]);
 
   // Search handlers
   const handleSearchNewPosts = (e) => setSearchNewPosts(e.target.value);
-  const handleSearchAllPosts = (e) => setSearchAllPosts(e.target.value);
-  const handleSearchReportedPosts = (e) =>
-    setSearchReportedPosts(e.target.value);
 
   const handleSearchTrendingPosts = (e) =>
     setSearchTrendingPosts(e.target.value);
@@ -318,37 +348,43 @@ const Posts = () => {
         toast.error("Không tìm thấy thông tin báo cáo");
         return;
       }
-  
+
       const postId = report.post?.postId;
       if (!postId) {
         toast.error("Không tìm thấy ID bài viết trong báo cáo");
         return;
       }
-  
+
       if (!dismissReason.trim()) {
         toast.error("Vui lòng nhập lý do từ chối báo cáo");
         return;
       }
-  
+
       // Lấy token từ localStorage
       const token = localStorage.getItem("jwtToken");
-      
+
       // Thêm token vào headers và chuyển reason thành query parameter
-      const response = await api.put(`/reports/${postId}/dismiss?reason=${encodeURIComponent(dismissReason)}`, null, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await api.put(
+        `/reports/${postId}/dismiss?reason=${encodeURIComponent(
+          dismissReason
+        )}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-  
+      );
+
       if (response.data) {
-        setSelectedReport(null); 
+        setSelectedReport(null);
         setDismissReason("");
         toast.success("Báo cáo đã được bỏ qua thành công");
         await fetchReports();
       }
     } catch (error) {
       console.error("Lỗi khi bỏ qua báo cáo:", error);
-      const errorMessage = 
+      const errorMessage =
         error.response?.data?.message ||
         "Không thể bỏ qua báo cáo. Vui lòng thử lại.";
       toast.error(errorMessage);
@@ -415,20 +451,6 @@ const Posts = () => {
     post.userName?.toLowerCase().includes(searchTrendingPosts.toLowerCase())
   );
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      PENDING: "bg-yellow-100 text-yellow-800",
-      RESOLVED: "bg-green-100 text-green-800",
-      DISMISSED: "bg-red-100 text-red-800",
-    };
-
-    return (
-      <span className={`px-2 py-1 rounded-full text-sm ${styles[status]}`}>
-        {status}
-      </span>
-    );
-  };
-
   return (
     <div className="container-fluid p-5">
       {/* Total Posts Card */}
@@ -445,7 +467,7 @@ const Posts = () => {
 
       {/* New Posts Table */}
       <div className="row mb-4">
-        <div className="col-lg-6">
+        <div className="col-12">
           <div className="card">
             <div className="card-header">
               <h5>New Posts</h5>
@@ -587,6 +609,11 @@ const Posts = () => {
                   </tbody>
                 </table>
               </div>
+              <PaginationControls
+                currentPage={allPostsPage}
+                totalPages={allPostsTotalPages}
+                onPageChange={setAllPostsPage}
+              />
             </div>
           </div>
         </div>
@@ -715,6 +742,11 @@ const Posts = () => {
                   </tbody>
                 </table>
               </div>
+              <PaginationControls
+                currentPage={reportedPostsPage}
+                totalPages={reportedPostsTotalPages}
+                onPageChange={setReportedPostsPage}
+              />
             </div>
           </div>
         </div>
