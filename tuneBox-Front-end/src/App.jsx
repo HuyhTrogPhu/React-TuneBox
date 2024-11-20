@@ -88,7 +88,7 @@ function App() {
         <div className="">
           <Routes>
             {/* Các route có Header */}
-            <Route element={<LayoutWithHeader />}>
+            <Route element={<LayoutWithHeader />} >
               <Route path="/*" element={<HomeFeed />} />
               <Route path="/HomeEcommerce" element={<Home />} />
               {/* Route cho Main Content */}

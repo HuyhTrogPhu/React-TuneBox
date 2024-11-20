@@ -231,6 +231,7 @@ const Posts = () => {
       setReportedPosts([]); // Clear reported posts on error
     }
   };
+  
   // Xu ly thong bao
   const displayNotification = (notification) => {
     switch (notification.type) {
