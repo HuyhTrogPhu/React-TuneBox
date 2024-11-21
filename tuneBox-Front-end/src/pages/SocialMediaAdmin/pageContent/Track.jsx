@@ -51,7 +51,9 @@ const Track = () => {
   const handleDayChange = (from, to) => {
     setStartDate(from);
     setEndDate(to);
-    filterUsers(keyword, from, to);
+       if (from && to) {
+      filterUsers(keyword, from, to);
+    }
   };
 
   const handlTodayUser = (data) => {
@@ -155,7 +157,7 @@ const Track = () => {
           {/* Total order count filter */}
           <div className="col-3">
           <div className="mt-3">
-              <label className="form-label">New Album on</label>
+              <label className="form-label">New Track on</label>
               <input
                 type="date"
                 className="form-control m-2"
@@ -189,9 +191,7 @@ const Track = () => {
                   <th style={{ textAlign: "center" }} scope="col">
                     Genre
                   </th>
-                  <th style={{ textAlign: "center" }} scope="col">
-                   Status
-                  </th>
+
                   <th style={{ textAlign: "center" }} scope="col">
                     User Name
                   </th>
@@ -218,7 +218,7 @@ const Track = () => {
                     </th>
                     <td>{user.name}</td>
                     <td>{user.genreName}</td>
-                    <td>{user.status ? "Active" : "Unactive"}</td>
+
                     <td>{user.userName}</td>
                     <td>{user.likes>0 ? user.likes.length : "0"}</td>
                     <td>{user.comments>0 ? user.comments.length : "0"}</td>

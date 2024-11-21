@@ -45,7 +45,7 @@ const Track = () => {
       const sortedTrack = response.data.sort(
         (a, b) => new Date(b.createDate) - new Date(a.createDate)
       ); // Sap xep track
-      setTracks(sortedTrack); // Luu track vao state
+        setTracks(sortedTrack); // Luu track vao state
       console.log(response.data);
     } catch (error) {
       console.error(
@@ -185,7 +185,7 @@ const Track = () => {
       <div className="post-header-Track position-relative m-5 mt-0">
         {tracks.map(
           (track) =>
-            !track.status && (
+            track.status && (
               <div key={track.id} className="post-header-track">
                 <img
                   src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}

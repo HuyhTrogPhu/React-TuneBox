@@ -12,6 +12,10 @@ import {
   LoadUserAlbums,
   LoadUserPlayList,
 } from "../../../service/SocialMediaAdminService";
+import PlaylistTable from "./Table/PlaylistTable";
+import AlbumTable from "./Table/AlbumTable";
+import TrackTable from "./Table/TrackTable";
+
 const UserDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -38,6 +42,7 @@ const UserDetail = () => {
       console.log("user:", responseUser);
       if (responseUser.status) {
         setUser(responseUser.data);
+        setUserTrack(responseUser.data.tracks);
       }
 
       // Gọi API của Album user
@@ -53,13 +58,6 @@ const UserDetail = () => {
       if (responseUserPlayList.status) {
         setPlayLists(responseUserPlayList.data);
       }
-
-      // Gọi API của track user
-      const responseUserTrack = await LoadUserTrack(id);
-      console.log("user track:", responseUserTrack);
-      setUserTrack(responseUserTrack.data);
-
-
     };
 
     fetchData();
@@ -107,9 +105,63 @@ const UserDetail = () => {
 
             <label class="d-block fw-bold">Create Date</label>
             <label class="d-block mb-2">{userDetail.createDate}</label>
-          </div>
 
-      
+            <label class="d-block fw-bold">Location</label>
+            <label class="d-block mb-2">
+              {userDetail.location || "No Data"}
+            </label>
+
+            <label className="d-block fw-bold">Genre</label>
+            <label className="d-block mb-2">
+              {userDetail.genre && userDetail.genre.length > 0 ? (
+                userDetail.genre.map((gdata, index) => (
+                  <span
+                    key={index}
+                    className="badge rounded-pill text-bg-warning"
+                  >
+                    {gdata.name}
+                  </span>
+                ))
+              ) : (
+                <span>No Data</span>
+              )}
+            </label>
+
+            <label className="d-block fw-bold">Inspired By</label>
+            <label className="d-block mb-2">
+              {userDetail.inspiredBy && userDetail.inspiredBy.length > 0 ? (
+                userDetail.inspiredBy.map((gdata, index) => (
+                  <span
+                    key={index}
+                    className="badge rounded-pill text-bg-warning"
+                  >
+                    {gdata.name}
+                  </span>
+                ))
+              ) : (
+                <span>No Data</span>
+              )}
+            </label>
+
+            <label className="d-block fw-bold">Talent</label>
+            <label className="d-block mb-2">
+              {userDetail.talent && userDetail.talent.length > 0 ? (
+                userDetail.talent.map((gdata, index) => (
+                  <span
+                    key={index}
+                    className="badge rounded-pill text-bg-warning"
+                  >
+                    {gdata.name}
+                  </span>
+                ))
+              ) : (
+                <span>No Data</span>
+              )}
+            </label>
+
+            <label class="d-block fw-bold">About</label>
+            <label class="d-block mb-2">{userDetail.about || "No Data"}</label>
+          </div>
         </div>
 
         {/* Right Side (Tracks, Albums, Playlists) */}
@@ -140,206 +192,9 @@ const UserDetail = () => {
             </div>
           </div>
 
-          <div className="row">
-            <div className="col-md-6">
-              {/*bat dau cua track */}
-              <div className="track-container">
-                <h4>All Tracks</h4>
-                {Array.isArray(userTrack) && userTrack.length > 0 ? (
-                  userTrack.map((track, index) => (
-                    <div
-                      key={index}
-                      className="track-item d-flex justify-content-between p-3 mb-3 bg-light border"
-                    >
-                      <div className="track-info">
-                        <h5 className="track-name mb-2">{track.name}</h5>
-                        <p className="track-user">
-                          Creator: {track.userName || "Unknown"}
-                        </p>
-                      </div>
-
-                      <div className="track-views d-flex align-items-center">
-                        <button
-                          className="btn btn-danger"
-                          onClick={() =>
-                            navigate(`/socialadmin/TrackDetail/${track.id}`)
-                          }
-                        >
-                          Views
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p>No tracks available</p>
-                )}
-              </div>
-            </div>
-
-            <div className="col-md-6">
-              {/* bat dau cua albums */}
-              <div className="album-container">
-                {console.log(userAlbums)}
-                <h4>All Albums</h4>
-                {Array.isArray(userAlbums) ? (
-                  userAlbums.length > 0 ? (
-                    userAlbums.map((album, index) => (
-                      <div
-                        key={index}
-                        className="album-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light border rounded"
-                      >
-                        <div className="album-left d-flex align-items-center">
-                          <div className="album-thumbnail me-3">
-                            <img src={album.albumImage} alt="album img" />
-                            <button className="btn btn-dark play-button">
-                              <img
-                                src={userAlbums.albumImage}
-                                alt="album img"
-                              />
-                              <i className="fa fa-play"></i>
-                            </button>
-                          </div>
-                          <div className="album-info">
-                            <h5 className="album-title mb-1">
-                              {album.title || "No Title Available"}
-                            </h5>
-                            <p className="album-details mb-0">
-                              {`Tracks: ${album.tracks?.length || 0} `}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="album-right">
-                          <button
-                            className="btn btn-danger"
-                            onClick={() =>
-                              navigate(`/socialadmin/AlbumDetail/${album.id}`)
-                            }
-                          >
-                            Views
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No Albums available</p>
-                  )
-                ) : (
-                  <div className="album-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light border rounded">
-                    <div className="album-left d-flex align-items-center">
-                      <div className="album-thumbnail me-3">
-                        <img src={userAlbums.albumImage} alt="album img" />
-                      </div>
-                      <div className="album-info">
-                        <h5 className="album-title mb-1">
-                          {userAlbums.title || "No Title Available"}
-                        </h5>
-                        <p className="album-details mb-0">
-                          {`Tracks: ${userAlbums.tracks?.length || 0}`}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="album-right">
-                      <button
-                        className="btn btn-danger"
-                        onClick={() =>
-                          navigate(`/socialadmin/AlbumDetail/${userAlbums.id}`)
-                        }
-                      >
-                        Views
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="col-md-6">
-              {/* bat dau cua PlaylistDetail */}
-              <div className="album-container">
-                {console.log(userAlbums)}
-                <h4>All PlayLists</h4>
-                {Array.isArray(userPlayLists) ? (
-                  userPlayLists.length > 0 ? (
-                    userPlayLists.map((album, index) => (
-                      <div
-                        key={index}
-                        className="album-item d-flex justify-content-between align-items-center p-3 mb-3 bg-light border rounded"
-                      >
-                        <div className="album-left d-flex align-items-center">
-                          <div className="album-thumbnail me-3">
-                            <img src={album.imagePlaylist} alt="album img" />
-                            <button className="btn btn-dark play-button">
-                              <img
-                                src={userPlayLists.imagePlaylist}
-                                alt="album img"
-                              />
-                              <i className="fa fa-play"></i>
-                            </button>
-                          </div>
-                          <div className="album-info">
-                            <h5 className="album-title mb-1">
-                              {album.title || "No Title Available"}
-                            </h5>
-                            <p className="album-details mb-0">
-                              {`Tracks: ${album.tracks?.length || 0} `}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="album-right">
-                          <button
-                            className="btn btn-danger"
-                            onClick={() =>
-                              navigate(
-                                `/socialadmin/PlaylistDetail/${album.id}`
-                              )
-                            }
-                          >
-                            Views
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No Albums available</p>
-                  )
-                ) : (
-                  <div
-                    className="album-item d-flex justify-content
-                  -between align-items-center p-3 mb-3 bg-light border rounded"
-                  >
-                    <div className="album-left d-flex align-items-center">
-                      <div className="album-thumbnail me-3">
-                        <img
-                          src={userPlayLists.imagePlaylist}
-                          alt="album img"
-                        />
-                      </div>
-                      <div className="album-info">
-                        <h5 className="album-title mb-1">
-                          {userPlayLists.title || "No Title Available"}
-                        </h5>
-                        <p className="album-details mb-0">
-                          {`Tracks: ${userPlayLists.tracks?.length || 0}`}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="album-right">
-                      <button
-                        className="btn btn-danger"
-                        onClick={() =>
-                          navigate(
-                            `/socialadmin/PlaylistDetail/${userAlbums.id}`
-                          )
-                        }
-                      >
-                        Views
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <TrackTable userTrack={userTrack} />
+          <AlbumTable userAlbums={userAlbums} />
+          <PlaylistTable userPlayLists={userPlayLists} />
         </div>
       </div>
     </div>

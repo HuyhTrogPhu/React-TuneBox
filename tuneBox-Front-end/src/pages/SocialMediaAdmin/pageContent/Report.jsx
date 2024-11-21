@@ -7,54 +7,57 @@ import {
   DeniedRP,
   ApproveRP,
   LoadReportDetail,
+  LoadTrackById,
+  LoadAlbumsById,
+  LoadReportByTrackId,
+  LoadReportByAlbumId,
 } from "../../../service/SocialMediaAdminService";
 import "../css/card.css";
 const Report = () => {
   const [ReportTrack, setReportTrack] = useState([]);
+  const [ReportTrackDetail, setReportTrackDetail] = useState([]);
   const [ReportPost, setReportPost] = useState([]);
   const [ReportAlbum, setReportAlbum] = useState([]);
+  const [ReportAlbumDetail, setReportAlbumDetail] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showModalAlbum, setShowModalAlbum] = useState(false);
- 
+
   const [modalData, setModalData] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0); // Trạng thái trang hiện tại
+  const [currentPage, setCurrentPage] = useState(0); 
+  const [currentTrackPage, setCurrentTrackPage] = useState(0);
+  const [currentAlbumPage, setCurrentAlbumPage] = useState(0);
+
+  
   const [pageSize, setPageSize] = useState(5); // Kích thước trang
-  const [totalPagesReport, setTotalPagesReport] = useState(0); 
+  const [totalPagesReport, setTotalPagesReport] = useState(0);
   const [totalPagesAlbum, setTotalPagesAlbumt] = useState(0);
   const navigate = useNavigate();
   const fetchData = async () => {
-    //rp post
-    const responseLoadAllPostReport = await LoadPostReport(
-      currentPage,
-      pageSize
-    );
-    if (responseLoadAllPostReport.status) {
-      setReportPost(responseLoadAllPostReport.data);
-      setTotalPagesReport(responseLoadAllPostReport.totalPages);
-    }
+
     //rp Album
     const responseLoadAllAlbumReport = await LoadAlbumReport(
-      currentPage,
+      currentAlbumPage,
       pageSize
     );
     if (responseLoadAllAlbumReport.status) {
       setReportAlbum(responseLoadAllAlbumReport.data);
-      setTotalPagesAlbumt(responseLoadAllPostReport.totalPages);
+      setTotalPagesAlbumt(responseLoadAllAlbumReport.totalPages);
     }
 
     //rp Track
     const responseLoadAllTrackReport = await LoadTrackReport(
-      currentPage,
+      currentTrackPage,
       pageSize
     );
     if (responseLoadAllTrackReport.status) {
       setReportTrack(responseLoadAllTrackReport.data);
+      setTotalPagesReport(responseLoadAllTrackReport.totalPages);
     }
   };
   // goi Api
   useEffect(() => {
     fetchData();
-  }, [currentPage, pageSize]);
+  }, [currentTrackPage,currentAlbumPage, pageSize]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -63,8 +66,10 @@ const Report = () => {
   const handleShowModalTrack = async (id) => {
     try {
       // Lấy dữ liệu từ API theo id
-      const response = await LoadReportDetail(id);
+      const response = await LoadTrackById(id);
       setModalData(response.data);
+      const responseDetail = await LoadReportByTrackId(id);
+      setReportTrackDetail(responseDetail.data);
       setShowModal(true);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
@@ -73,35 +78,62 @@ const Report = () => {
   const handleShowModalAlbum = async (id) => {
     try {
       // Lấy dữ liệu từ API theo id
-      const response = await LoadReportDetail(id);
+      const response = await LoadAlbumsById(id);
       setModalData(response.data);
+      const responseDetail = await LoadReportByAlbumId(id);
+      setReportAlbumDetail(responseDetail.data);
       setShowModalAlbum(true);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
     }
   };
-  const handleCloseModal = () => {setShowModal(false);setShowModalAlbum(false);}
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setShowModalAlbum(false);
+  };
+
   const handleDenied = async (id) => {
     const Denied = await DeniedRP(id);
-    if (Denied.status) {
-      setShowModal(false);
-      setShowModalAlbum(false);
-      fetchData();
-    }
+    console.warn(Denied);
+    handleCloseModal();
+    fetchData();
   };
+
   const handleApprove = async (id) => {
     const Approve = await ApproveRP(id);
-    if (Approve.status) {
-      setShowModal(false);
-      setShowModalAlbum(false);
-      fetchData();
-    }
+    console.warn(Approve);
+    handleCloseModal();
+    fetchData();
   };
+
+  const countReportsByTrack = (reportData) => {
+    return reportData.reduce((acc, report) => {
+      const { trackId } = report;
+      if (!acc[trackId]) {
+        acc[trackId] = 0;
+      }
+      acc[trackId]++;
+      return acc;
+    }, {});
+  };
+  const countReportsByAlbum = (reportData) => {
+    return reportData.reduce((acc, report) => {
+      const { albumId } = report;
+      if (!acc[albumId]) {
+        acc[albumId] = 0;
+      }
+      acc[albumId]++;
+      return acc;
+    }, {});
+  };
+  const trackReportCounts = countReportsByTrack(ReportTrack);
+  const albumReportCounts = countReportsByAlbum(ReportAlbum);
+  
   return (
     <div>
       <div className="row">
         <div className="col-md-6">
-          <div className=" mb-4 no-hover" >
+          <div className="card mb-4 no-hover">
             <div className="card-header bg-dark text-white">
               <h5 className="text-light">Report Track</h5>
             </div>
@@ -110,21 +142,25 @@ const Report = () => {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Report Date</th>
-                    <th>Status</th>
+                    <th>Report Number</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ReportTrack.map((rp) => (
-                    <tr key={rp.id}>
-                      <td>{rp.trackName}</td>
-                      <td>{rp.createDate}</td>
-                      <td>{rp.status}</td>
+                  {ReportTrack.reduce((acc, report) => {
+                    if (!acc.some((item) => item.trackId === report.trackId)) {
+                      acc.push(report);
+                    }
+                    return acc;
+                  }, []).map((track) => (
+                    <tr key={track.trackId}>
+                      <td>{track.trackName}</td>
+                      <td>{trackReportCounts[track.trackId]}</td>
+
                       <td>
                         <button
                           className="btn btn-danger"
-                          onClick={() => handleShowModalTrack(rp.id)}
+                          onClick={() => handleShowModalTrack(track.trackId)}
                         >
                           Views
                         </button>
@@ -157,7 +193,7 @@ const Report = () => {
                       }`}
                     >
                       <button
-                        onClick={() => paginate(number + 1)}
+                        onClick={() => handlePageChange(number + 1)}
                         className="page-link"
                       >
                         {number + 1}
@@ -171,7 +207,7 @@ const Report = () => {
                   >
                     <button
                       className="page-link"
-                      onClick={() => paginate(currentPage + 1)}
+                      onClick={() => handlePageChange(currentPage + 1)}
                       aria-label="Next"
                     >
                       <span aria-hidden="true">»</span>
@@ -184,7 +220,7 @@ const Report = () => {
         </div>
 
         <div className="col-md-6">
-          <div className=" mb-4 no-hover" >
+          <div className="card mb-4 no-hover">
             <div className="card-header bg-dark text-white">
               <h5 className="text-light">Report Album</h5>
             </div>
@@ -192,22 +228,26 @@ const Report = () => {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Report Date</th>
-                    <th>Status</th>
+                  <th>Name</th>
+                    <th>Report Number</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ReportAlbum.map((rp) => (
-                    <tr key={rp.id}>
-                      <td>{rp.albumName}</td>
-                      <td>{rp.createDate}</td>
-                      <td>{rp.status}</td>
+                  {ReportAlbum.reduce((acc, report) => {
+                    if (!acc.some((item) => item.albumId === report.albumId)) {
+                      acc.push(report);
+                    }
+                    return acc;
+                  }, []).map((album) => (
+                    <tr key={album.albumId}>
+                      <td>{album.albumName}</td>
+                      <td>{albumReportCounts[album.albumId]}</td>
+
                       <td>
                         <button
                           className="btn btn-danger"
-                          onClick={() => handleShowModalAlbum(rp.id)}
+                          onClick={() => handleShowModalAlbum(album.albumId)}
                         >
                           Views
                         </button>
@@ -226,13 +266,13 @@ const Report = () => {
                   >
                     <button
                       className="page-link"
-                      onClick={() => paginate(currentPage - 1)}
+                      onClick={() => handlePageChange(currentPage - 1)}
                       aria-label="Previous"
                     >
                       <span aria-hidden="true">«</span>
                     </button>
                   </li>
-                  {[...Array(totalPagesReport).keys()].map((number) => (
+                  {[...Array(totalPagesAlbum).keys()].map((number) => (
                     <li
                       key={number + 1}
                       className={`page-item ${
@@ -240,7 +280,7 @@ const Report = () => {
                       }`}
                     >
                       <button
-                        onClick={() => paginate(number + 1)}
+                        onClick={() => handlePageChange(number + 1)}
                         className="page-link"
                       >
                         {number + 1}
@@ -276,11 +316,11 @@ const Report = () => {
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
         >
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-xl">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title" id="exampleModalLabel">
-                  Chi tiết Report
+                  Track reported detail
                 </h5>
                 <button
                   type="button"
@@ -290,12 +330,64 @@ const Report = () => {
                 ></button>
               </div>
               <div className="modal-body">
+                {console.log(modalData)}
                 {modalData ? (
                   <>
-                    <p>Track Name: {modalData.trackName}</p>
-                    <p>Status: {modalData.status}</p>
-                    <p>Report created day: {modalData.createDate}</p>
-                    <p>Reason: {modalData.reason}</p>
+                    <p>Track Name: {modalData.name}</p>
+                    <p>
+                      Report created day: {modalData.createDate.split("T")[0]}
+                    </p>
+                    <p>User Name: {modalData.userName}</p>
+                    <p>Genre Name: {modalData.genreName}</p>
+                    <p>
+                      Status:{" "}
+                      {ReportTrackDetail.some(
+                        (track) => track.status === "RESOLVED"
+                      )
+                        ? "RESOLVED"
+                        : "DISMISSED"}
+                    </p>
+                    {/* table */}
+                    {console.table(ReportTrackDetail)}
+
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>createDate</th>
+                          <th>reason</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ReportTrackDetail.map((track) => (
+                          <tr key={track.id}>
+                            <td>{track.createDate}</td>
+                            <td>{track.reason}</td>
+                            <td>{track.status}</td>
+                            <td>
+                              {/* Flexbox to align buttons in one row */}
+                              <div className="d-flex justify-content-between gap-1">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger"
+                                  onClick={() => handleApprove(track.id)}
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={() => handleDenied(track.id)}
+                                >
+                                  Denied
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </>
                 ) : (
                   <p>Loading...</p>
@@ -310,20 +402,7 @@ const Report = () => {
                 >
                   View Track Detail
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => handleApprove(modalData.id)}
-                >
-                  Approve
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => handleDenied(modalData.id)}
-                >
-                  Denied
-                </button>
+
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -337,7 +416,7 @@ const Report = () => {
         </div>
       )}
 
-{showModalAlbum && (
+      {showModalAlbum && (
         <div
           className="modal fade show"
           style={{ display: "block" }}
@@ -345,11 +424,11 @@ const Report = () => {
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
         >
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-xl">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title" id="exampleModalLabel">
-                  Chi tiết Report
+                  Album reported detail
                 </h5>
                 <button
                   type="button"
@@ -359,12 +438,64 @@ const Report = () => {
                 ></button>
               </div>
               <div className="modal-body">
+                {console.log(modalData)}
                 {modalData ? (
                   <>
-                    <p>Album Name: {modalData.albumName }</p>
-                    <p>Status: {modalData.status}</p>
-                    <p>Report created day: {modalData.createDate}</p>
-                    <p>Reason: {modalData.reason}</p>
+                    <p>Album Name: {modalData.title}</p>
+                    <p>
+                      Report created day: {modalData.createDate.split("T")[0]}
+                    </p>
+                    <p>User Name: {modalData.creator}</p>
+                  
+                    <p>
+                      Status:{" "}
+                      {ReportAlbumDetail.some(
+                        (track) => track.status === "RESOLVED"
+                      )
+                        ? "RESOLVED"
+                        : "DISMISSED"}
+                    </p>
+                    {/* table */}
+                    {console.table(ReportAlbumDetail)}
+
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>createDate</th>
+                          <th>reason</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ReportAlbumDetail.map((track) => (
+                          <tr key={track.id}>
+                            <td>{track.createDate}</td>
+                            <td>{track.reason}</td>
+                            <td>{track.status}</td>
+                            <td>
+                              {/* Flexbox to align buttons in one row */}
+                              <div className="d-flex justify-content-between gap-1">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger"
+                                  onClick={() => handleApprove(track.id)}
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={() => handleDenied(track.id)}
+                                >
+                                  Denied
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </>
                 ) : (
                   <p>Loading...</p>
@@ -379,20 +510,7 @@ const Report = () => {
                 >
                   View Album Detail
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => handleApprove(modalData.id)}
-                >
-                  Approve
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => handleDenied(modalData.id)}
-                >
-                  Denied
-                </button>
+
                 <button
                   type="button"
                   className="btn btn-secondary"
