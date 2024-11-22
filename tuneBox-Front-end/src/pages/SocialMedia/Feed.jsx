@@ -1118,7 +1118,7 @@ const HomeFeed = () => {
     navigate("/feed", {
       state: {
         sharedData: null, // Xóa sharedData
-        activeComponent: "track", // Xác định lại thành phần cần hiển thị
+        activeComponent: "post", // Xác định lại thành phần cần hiển thị
       },
     });
   };
@@ -1252,7 +1252,7 @@ const HomeFeed = () => {
           </div>
 
           {/* Main content */}
-          <div className="col-6 content">
+          <div className="col-6 content-feed">
             {/* Nav tab link */}
             <div className="row nav-link-feed mt-4">
               <ul className="d-flex justify-content-center">

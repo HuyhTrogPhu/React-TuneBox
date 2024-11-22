@@ -180,10 +180,10 @@ export const LoadAlbum = async () => {
 };
 
 //load all Track<Report>
-export const LoadTrackReport = async () => {
+export const LoadTrackReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getTrackReport`,
+      `http://localhost:8082/SocialAdmin/static/getTrackReport?page=${page}&size=${size}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -192,11 +192,11 @@ export const LoadTrackReport = async () => {
     console.error("Error fetching user data:", error);
   }
 };
-//load all Track<Report>
-export const LoadPostReport = async () => {
+//load all Post<Report>
+export const LoadPostReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getPostReport`,
+      `http://localhost:8082/SocialAdmin/static/getPostReport?page=${page}&size=${size}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -205,11 +205,11 @@ export const LoadPostReport = async () => {
     console.error("Error fetching user data:", error);
   }
 };
-//load all Track<Report>
-export const LoadAlbumReport = async () => {
+//load all Album<Report>
+export const LoadAlbumReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getAlbumReport`,
+      `http://localhost:8082/SocialAdmin/static/getAlbumReport?page=${page}&size=${size}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -221,8 +221,7 @@ export const LoadAlbumReport = async () => {
 //load Report
 export const LoadReportDetail = async (id) => {
   try {
-    const response = await axios.get(
-      `http://localhost:8082/SocialAdmin/static/getReport/${id}`,
+    const response = await axios.get(`http://localhost:8082/SocialAdmin/static/getReport/${id}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -232,11 +231,11 @@ export const LoadReportDetail = async (id) => {
   }
 };
 
-//load Track<Report>
+//DeniedRP
 export const DeniedRP = async (id) => {
   try {
     const response = await axios.put(
-      `http://localhost:8082/SocialAdmin/static/DeniedRPTrack/${id}`,
+      `http://localhost:8082/SocialAdmin/static/DeniedRP/${id}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -246,11 +245,11 @@ export const DeniedRP = async (id) => {
   }
 };
 
-//load Track<Report>
+//ApproveRP
 export const ApproveRP = async (id) => {
   try {
     const response = await axios.put(
-      `http://localhost:8082/SocialAdmin/static/ApproveRPTrack/${id}`,
+      `http://localhost:8082/SocialAdmin/static/ApproveRP/${id}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -570,4 +569,3 @@ export const LoadAlbumForTable = async (startDate, endDate) => {
     throw error;
   }
 };
-

@@ -3,13 +3,13 @@ body{
 }
 
 .background {
-    height: 300px;
+    height: 450px !important;
     background-size: cover;
     background-position: center;
-    background-color:#1D1B20;
+    background-color:#333;
     cursor: pointer;
     position: relative;
-    border-radius: 30px;
+    border-radius: none !important;
 }
 .avatar {
     width: 180px !important;

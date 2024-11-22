@@ -21,14 +21,9 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (!userNameOrEmail) {
-      setError('Please enter account name or email.');
-      return;
-    }
   
-    if (!password) {
-      setError('Please enter your password.');
+    if (!userNameOrEmail || !password) {
+      setError('Please enter account name, email, and password.');
       return;
     }
   
@@ -37,19 +32,28 @@ const Login = () => {
       email: userNameOrEmail.includes('@') ? userNameOrEmail : null,
       password,
     };
-
+  
     try {
       setLoading(true);
       const response = await login(userDto);
       const userId = response.userId;
-
+  
       if (userId) {
+        // Set Cookie
         const expires = new Date();
         expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);
         document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
+  
+        // Lấy giỏ hàng từ server
+        const cartResponse = await axios.get(`http://localhost:8080/customer/cart/${userId}`);
+        const cart = cartResponse.data.items || [];
+  
+        // Lưu vào LocalStorage
+        localStorage.setItem("cart", JSON.stringify(cart));
+  
         setTimeout(() => {
           setLoading(false);
-          navigate('/'); 
+          navigate('/');
         }, 1000);
       } else {
         setLoading(false);
@@ -64,6 +68,7 @@ const Login = () => {
       }
     }
   };
+  
 
   useEffect(() => {
     /* Khởi tạo Google Sign-In */
@@ -80,56 +85,41 @@ const Login = () => {
   }, []);
 
   /* Hàm xử lý sau khi nhận token từ Google */
-const handleGoogleLogin = async (response) => {
-    const { credential } = response;  // Lấy token Google
-    const user = jwtDecode(credential);  // Giải mã token để lấy thông tin người dùng
+  const handleGoogleLogin = async (response) => {
+    const { credential } = response;
+    console.log("Credential from Google: ", credential);
 
-    const userName = user.email.split('@')[0];  // Tạo userName từ phần đầu của email
+    const user = jwtDecode(credential);
+    const userName = user.email.split('@')[0];
 
-    try {
+    try { 
         const res = await axios.post('http://localhost:8080/api/auth/google', { idToken: credential });
-        const token = res.data.token;  // Lấy token từ backend
-        const userId = res.data.userId;  // Lấy userId từ backend
-        const userExists = res.data.userExists;  // Kiểm tra xem người dùng đã tồn tại trong hệ thống chưa
+        const { token, userExists } = res.data;
 
-        console.log("JWT from backend:", token);
-        
-        if (token && userId) {
-            localStorage.setItem('jwtToken', token);  // Lưu token vào localStorage
+        localStorage.setItem('jwtToken', token);
 
-            // Thiết lập cookie userId với thời gian hết hạn là 24 giờ
-            const expires = new Date();
-            expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);  // 24 giờ
-            document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
+        if (res.status === 200) {
+            const formData = { 
+                userName, 
+                email: user.email, 
+                password: null,
+                name: user.name, 
+                avatar: user.picture || null, 
+                inspiredBys: [], 
+                talents: [], 
+                genres: [] 
+            };
 
-            // Nếu người dùng đã có tài khoản, chuyển hướng đến trang chủ '/'
             if (userExists) {
-                navigate('/');  // Điều hướng về trang chủ
+                navigate('/');  // Điều hướng người dùng hiện có tới trang chính
             } else {
-                // Nếu tài khoản chưa có, chuyển đến trang đăng ký /userInfor
-                navigate('/userInfor', {
-                    state: { 
-                        userName,
-                        email: user.email,
-                        password: null,
-                        name: user.name,
-                        avatar: user.picture || null,
-                        inspiredBys: [],
-                        talents: [],
-                        genres: []
-                    }
-                });
+                navigate('/userInfor', { state: formData });  // Điều hướng người dùng mới tới trang cập nhật thông tin
             }
-        } else {
-            setError('User ID không hợp lệ.');  // Nếu không có userId hoặc token, hiển thị thông báo lỗi
         }
     } catch (error) {
         console.error('Login failed', error);
-        setError('Đăng nhập thất bại. Vui lòng thử lại.');
     }
 };
-
-
 const handleGoogleFailure = () => {
   setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
 };

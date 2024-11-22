@@ -223,11 +223,10 @@ const DetailProduct = () => {
             {/* Instrument content */}
             <div className="col-6">
               <div className="mt-5">
-                <h3>{t("about")}</h3>
+                <h3>About the product</h3>
                 <div className="gioiThieu mt-4 p-3">
                   <p>{instrument.description}</p>
                 </div>
-
               </div>
             </div>
             <div className="col-5">
@@ -326,31 +325,30 @@ const DetailProduct = () => {
                     <i className="fa-solid fa-truck-fast"></i>
                     <span className="ms-2">{t("ship")}</span>
                   </div>
-                  <div className="mt-3">
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => setIsShareModalOpen(true)}
-                    >
-                      <i
-                        type="button"
-                        style={{ fontSize: "20px", color: "white" }}
-                        className="fa-solid fa-share"
-                      ></i> Share via message
-                    </button>
-                    <ShareProductModal
-                      productId={id}
-                      isOpen={isShareModalOpen}
-                      onClose={() => setIsShareModalOpen(false)}
-                    />
-                  </div>
 
-
-                  <div className="ship-service btn btn-primary">
-                    <i
-                      className="fa-solid fa-share"
-                      onClick={handleShareToFeed}
-                    > <span className="ms-2">Share via post </span></i>
-
+                  {/* Share */}
+                  <div className=" row d-flex align-items-center justify-content-center mt-4">
+                    {/* Share via message */}
+                    <div className="col-6">
+                      <button
+                        className="share-message"
+                        onClick={() => setIsShareModalOpen(true)}
+                      >
+                        <i className="fa-solid fa-share"></i> Share via message
+                      </button>
+                      <ShareProductModal
+                        productId={id}
+                        isOpen={isShareModalOpen}
+                        onClose={() => setIsShareModalOpen(false)}
+                      />
+                    </div>
+                    {/* Share via post */}
+                    <div className="col-6">
+                      <button className="share-post"
+                       onClick={handleShareToFeed}>
+                        <i className="fa-solid fa-share"> </i>Share via post
+                      </button>
+                    </div>
                   </div>
                 </div>
 

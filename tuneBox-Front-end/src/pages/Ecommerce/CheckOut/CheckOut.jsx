@@ -48,12 +48,13 @@ const CheckOut = () => {
     const validateForm = () => {
         let valid = true;
         const errorsCopy = { ...errors };
-
+    
         // Kiểm tra số điện thoại
         if (phoneNumber) {
-            const phoneRegex = /^[0-9]{10,11}$/; // Chỉ cho phép 10 đến 11 chữ số
+            // Kiểm tra số điện thoại bắt đầu bằng 0 và có độ dài từ 10 đến 11 chữ số
+            const phoneRegex = /^0[0-9]{9,10}$/; // Đảm bảo số điện thoại bắt đầu bằng 0 và có từ 10 đến 11 chữ số
             if (!phoneRegex.test(phoneNumber)) {
-                errorsCopy.phoneNumber = 'Invalid phone number';
+                errorsCopy.phoneNumber = 'Phone number must start with 0 and have 10 to 11 digits';
                 valid = false;
             } else {
                 errorsCopy.phoneNumber = ''; // Không có lỗi
@@ -62,10 +63,11 @@ const CheckOut = () => {
             errorsCopy.phoneNumber = 'Please enter phone number';
             valid = false;
         }
-
+    
         setErrors(errorsCopy);
         return valid;
     };
+    
 
 
     // Get user information khi userId có giá trị

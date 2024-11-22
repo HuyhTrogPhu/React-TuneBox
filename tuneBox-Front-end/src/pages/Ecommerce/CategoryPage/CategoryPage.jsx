@@ -31,9 +31,11 @@ function CategoryPage() {
 
   return (
     <div>
-       <div className="container">
+       <div className="container" style={{marginTop: '100px'}}>
   
         <div className="row p-5">
+          <h3 className='text-center'>Category</h3>
+          <hr />
           {categoryList.map((category) => (
             <div className="col-3 mt-5 category" key={category.id}>
               <div className="card" onClick={() => handleCategory(category)}>
