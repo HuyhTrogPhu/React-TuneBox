@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
+import React, { useState,useEffect  } from "react";
+import { Route, Routes, Outlet, useParams, useNavigate  } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -36,6 +36,7 @@ import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
 import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
 import PlayListDetail from "./pages/SocialMedia/Profile/Profile_nav/PlaylistDetail";
 import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
+import { AccountProvider } from "./pages/AccountContext";
 
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
@@ -47,7 +48,6 @@ import FriendList from "./pages/SocialMedia/FriendList";
 import FollowersPage from "./pages/SocialMedia/FollowersPage";
 import FollowingPage from "./pages/SocialMedia/FollowingPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-import { getUserRole, isUserRole } from './service/auth';
 import Chat from "./pages/SocialMedia/chat/chat";
 import FeedTrack from "./pages/SocialMedia/FeedTrack";
 import FeedPost from "./pages/SocialMedia/FeedPost";
@@ -78,13 +78,12 @@ function LayoutWithoutHeader() {
 }
 
 function App() {
-  const { orderId } = useParams();
-
   return (
+    <AccountProvider>
     <FollowProvider>
       {" "}
       {/* Đặt FollowProvider ở đây */}
-      <div>
+      <div>   
         <div className="">
           <Routes>
             {/* Các route có Header */}
@@ -169,6 +168,7 @@ function App() {
         </div>
       </div>
     </FollowProvider>
+    </AccountProvider>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './css/bootstrap.min.css';
 import './css/style.css';
@@ -9,18 +9,23 @@ import { Audio } from 'react-loader-spinner';
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import ReactModal from 'react-modal'; // Import React Modal
+
+// Set the app element for React Modal
+ReactModal.setAppElement('#root');
 
 const Login = () => {
   const [userNameOrEmail, setUserNameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isAccountBanned, setIsAccountBanned] = useState(false); // Để kiểm tra tài khoản bị ban
   const navigate = useNavigate();
-
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setIsAccountBanned(false); // Reset trạng thái tài khoản bị cấm
   
     if (!userNameOrEmail || !password) {
       setError('Please enter account name, email, and password.');
@@ -36,19 +41,22 @@ const Login = () => {
     try {
       setLoading(true);
       const response = await login(userDto);
-      const userId = response.userId;
+      console.log('API Response:', response);
   
-      if (userId) {
-        // Set Cookie
+      if (response.userId) {
+        if (response.status === 'BANNED') {
+          console.log('Account is banned.'); // Debug
+          setIsAccountBanned(true);
+          setLoading(false);
+          return;
+        }
+  
         const expires = new Date();
         expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);
-        document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
+        document.cookie = `userId=${response.userId}; expires=${expires.toUTCString()}; path=/`;
   
-        // Lấy giỏ hàng từ server
-        const cartResponse = await axios.get(`http://localhost:8080/customer/cart/${userId}`);
+        const cartResponse = await axios.get(`http://localhost:8080/customer/cart/${response.userId}`);
         const cart = cartResponse.data.items || [];
-  
-        // Lưu vào LocalStorage
         localStorage.setItem("cart", JSON.stringify(cart));
   
         setTimeout(() => {
@@ -56,35 +64,20 @@ const Login = () => {
           navigate('/');
         }, 1000);
       } else {
-        setLoading(false);
         setError('User ID không hợp lệ.');
       }
     } catch (error) {
       setLoading(false);
-      if (error.response && error.response.status === 401) {
-        setError('Thông tin đăng nhập không chính xác.');
-      } else {
-        setError('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+      console.log('Error:', error.response?.data || error.message); // Debug lỗi API
+      if (error.response?.data === 'ACCOUNT_BANNED') {
+        console.log('Banned account detected.'); // Debug
+        setIsAccountBanned(true);
+        return;
       }
+      setError('Thông tin đăng nhập không chính xác.');
     }
   };
   
-
-  useEffect(() => {
-    /* Khởi tạo Google Sign-In */
-    window.google.accounts.id.initialize({
-      client_id: '28392767205-kjh3koov94lcf8d2dhh83o15siro23m7.apps.googleusercontent.com', // Client ID từ Google API Console
-      callback: handleGoogleLogin,
-    });
-
-    /* Render button */
-    window.google.accounts.id.renderButton(
-      document.getElementById("googleSignInButton"),
-      { theme: "outline", size: "large" }  // Tùy chỉnh giao diện nút
-    );
-  }, []);
-
-  /* Hàm xử lý sau khi nhận token từ Google */
   const handleGoogleLogin = async (response) => {
     const { credential } = response;
     console.log("Credential from Google: ", credential);
@@ -92,37 +85,38 @@ const Login = () => {
     const user = jwtDecode(credential);
     const userName = user.email.split('@')[0];
 
-    try { 
-        const res = await axios.post('http://localhost:8080/api/auth/google', { idToken: credential });
-        const { token, userExists } = res.data;
+    try {
+      const res = await axios.post('http://localhost:8080/api/auth/google', { idToken: credential });
+      const { token, userExists } = res.data;
 
-        localStorage.setItem('jwtToken', token);
+      localStorage.setItem('jwtToken', token);
 
-        if (res.status === 200) {
-            const formData = { 
-                userName, 
-                email: user.email, 
-                password: null,
-                name: user.name, 
-                avatar: user.picture || null, 
-                inspiredBys: [], 
-                talents: [], 
-                genres: [] 
-            };
+      if (res.status === 200) {
+        const formData = {
+          userName,
+          email: user.email,
+          password: null,
+          name: user.name,
+          avatar: user.picture || null,
+          inspiredBys: [],
+          talents: [],
+          genres: []
+        };
 
-            if (userExists) {
-                navigate('/');  // Điều hướng người dùng hiện có tới trang chính
-            } else {
-                navigate('/userInfor', { state: formData });  // Điều hướng người dùng mới tới trang cập nhật thông tin
-            }
+        if (userExists) {
+          navigate('/');  // Điều hướng người dùng hiện có tới trang chính
+        } else {
+          navigate('/userInfor', { state: formData });  // Điều hướng người dùng mới tới trang cập nhật thông tin
         }
+      }
     } catch (error) {
-        console.error('Login failed', error);
+      console.error('Login failed', error);
     }
-};
-const handleGoogleFailure = () => {
-  setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
-};
+  };
+
+  const handleGoogleFailure = () => {
+    setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+  };
 
   return (
     <div>
@@ -143,7 +137,7 @@ const handleGoogleFailure = () => {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
                       zIndex: 9999,
                       display: 'flex',
                       justifyContent: 'center',
@@ -190,7 +184,7 @@ const handleGoogleFailure = () => {
                     </Link>
                   </div>
                   <div className="col-lg-12 d-flex align-items-center justify-content-center" style={{ marginTop: 20 }}>
-                  <GoogleLogin
+                    <GoogleLogin
                       onSuccess={handleGoogleLogin}
                       onFailure={handleGoogleFailure}
                       style={{ width: '100%' }}
@@ -202,9 +196,29 @@ const handleGoogleFailure = () => {
           </div>
         </div>
       </section>
+
+      {/* Modal thông báo tài khoản bị cấm */}
+      <ReactModal
+  isOpen={isAccountBanned}
+  onRequestClose={() => setIsAccountBanned(false)}
+  className="custom-modal-content"
+  overlayClassName="custom-modal-overlay"
+  contentLabel="Account Banned"
+>
+  <div>
+    <h3 className="custom-modal-header">Tài khoản bị cấm</h3>
+    <p className="custom-modal-body">Vui lòng liên hệ quản trị viên để được hỗ trợ.</p>
+    <button className="custom-modal-button" onClick={() => setIsAccountBanned(false)}>
+      Đóng
+    </button>
+  </div>
+</ReactModal>
+
+
       <Footer2 />
     </div>
   );
 };
 
 export default Login;
+  

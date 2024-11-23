@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { images } from "../../assets/images/images";
 import axios from "axios";
-import { format } from "date-fns";
 import Cookies from "js-cookie";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -12,11 +11,9 @@ import "./css/profile.css";
 import "./css/mxh/comment.css";
 import "./css/mxh/button.css";
 import "./css/mxh/feedUpdate.css";
-import { useParams, useNavigate, Navigate, Router, useLocation, Outlet } from "react-router-dom";
-import { Link, Routes, Route } from "react-router-dom";
+import { useParams, useNavigate, Navigate, Router, useLocation, Link } from "react-router-dom";
 import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
-import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
   addLike,
   checkUserLikeTrack,
@@ -35,9 +32,9 @@ import { getUserInfo } from "../../service/UserService";
 import FeedTrack from "./FeedTrack";
 import FeedPost from "./FeedPost";
 import { FollowContext } from "./Profile/FollowContext";
-
-
+import ReusableModal from "../../components/ThongBaoBan/ReusableModal";
 const HomeFeed = () => {
+  const [isAccountBanned, setIsAccountBanned] = useState(false); 
   const navigate = useNavigate();
   const location = useLocation();
   const { userId } = useParams();
@@ -130,9 +127,22 @@ const HomeFeed = () => {
       console.log("Error fetching genres:", error);
     }
   };
+  useEffect(() => {
+    console.log("setIsAccountBanned:", isAccountBanned); // In ra giá trị của isAccountBanned khi nó thay đổi
+  }, [isAccountBanned]); // Đảm bảo `isAccountBanned` được cập nhật sau khi gọi setState
 
   const fetchTracks = async () => {
     try {
+      const statusResponse = await axios.get(
+        `http://localhost:8080/user/check-status/${currentUserId}`,
+        { withCredentials: true }
+      );
+
+      // Kiểm tra nếu tài khoản bị khóa
+      if (statusResponse.data.isBanned) {
+        setIsAccountBanned(true); // Hiển thị modal nếu tài khoản bị cấm
+        return; // Dừng xử lý tiếp
+      }
       const response = await getAllTracks();
       setTracks(response);
       console.log("get all track: ", response);
@@ -142,14 +152,14 @@ const HomeFeed = () => {
         response.map(async (track) => {
           const liked = await checkUserLikeTrack(track.id, currentUserId);
           const count = await getLikesCountByTrackId(track.id);
-          console.log(
-            "userId:",
-            currentUserId,
-            "trackId:",
-            track.id,
-            "- likeStatus: ",
-            liked
-          );
+          // console.log(
+          //   "userId:",
+          //   currentUserId,
+          //   "trackId:",
+          //   track.id,
+          //   "- likeStatus: ",
+          //   liked
+          // );
           return { id: track.id, liked, count }; // Trả về id và trạng thái liked
         })
       );
@@ -163,8 +173,8 @@ const HomeFeed = () => {
       });
       setLikedTracks(updatedLikedTracks); // Cập nhật trạng thái likedTracks
       setCountLikedTracks(updatedCountTracks);
-      console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
-      console.log("Cập nhật trạng thái likedTracks: ", updatedCountTracks);
+      // console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
+      // console.log("Cập nhật trạng thái likedTracks: ", updatedCountTracks);
     } catch (error) {
       console.error("Error fetching all track:", error);
     }
@@ -355,8 +365,21 @@ const HomeFeed = () => {
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
     try {
+      // Gọi API kiểm tra trạng thái tài khoản
+      const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
+        withCredentials: true,
+      });
+
+      // Kiểm tra nếu tài khoản bị khóa
+      if (statusResponse.data.isBanned) {
+        // Hiển thị modal và xử lý đăng xuất
+        setIsAccountBanned(true); // Kích hoạt modal
+        return; // Dừng xử lý tiếp
+      }
+
+      // Nếu tài khoản không bị khóa, tiếp tục xử lý bài viết
       const response = await axios.get(`http://localhost:8080/api/posts/all`, {
-        params: { currentUserId }, // Truyền currentUserId vào request
+        params: { currentUserId },
         withCredentials: true,
       });
 
@@ -415,6 +438,7 @@ const HomeFeed = () => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
+
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
@@ -1102,12 +1126,17 @@ const HomeFeed = () => {
     });
   };
 
+  //Render
   return (
     <div>
+      <ReusableModal
+        isOpen={isAccountBanned}
+        onRequestClose={() => setIsAccountBanned(false)} // Đóng modal khi nhấn ngoài hoặc nút đóng
+      />
       <div className="feed-container p-0"
-      style={{
-        width: '100%',
-      }}
+        style={{
+          width: '100%',
+        }}
       >
         <ToastContainer />
         <div className="row feed-content">

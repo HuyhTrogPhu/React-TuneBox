@@ -1,31 +1,22 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef,useContext } from "react";
 import { images } from "../../assets/images/images";
 import axios from "axios";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
-import { Link, Routes, Route } from "react-router-dom";
+import { useParams, useNavigate} from "react-router-dom";
 import Picker from "@emoji-mart/react";
-import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
-import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
-import {
-  addLike,
-  checkUserLikeTrack,
-  removeLike,
-  getLikesCountByTrackId,
-} from "../../service/likeTrackServiceCus";
+
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import UsersToFollow from "./Profile/UsersToFollow";
-import {
-  getPlaylistByUserId,
-  getPlaylistById,
-  updatePlaylist,
-} from "../../service/PlaylistServiceCus";
+
 import { getUserInfo } from "../../service/UserService";
 import "./css/mxh/post.css";
+import { AccountContext } from "../AccountContext";
 
 const FeedPost = ({ sharedData, clearSharedData }) => {
+  const { setIsAccountBanned } = useContext(AccountContext);
+
   const navigate = useNavigate();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
@@ -112,19 +103,33 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/posts/all`, {
-        params: { currentUserId }, // Truyền currentUserId vào request
+      // Gọi API kiểm tra trạng thái tài khoản
+      const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
         withCredentials: true,
       });
-
+  
+      // Kiểm tra nếu tài khoản bị khóa
+      if (statusResponse.data.isBanned) {
+        // Hiển thị modal và xử lý đăng xuất
+        setIsAccountBanned(true); // Kích hoạt modal
+        return; // Dừng xử lý tiếp
+      }
+      console.log(setIsAccountBanned);
+  
+      // Nếu tài khoản không bị khóa, tiếp tục xử lý bài viết
+      const response = await axios.get(`http://localhost:8080/api/posts/all`, {
+        params: { currentUserId },
+        withCredentials: true,
+      });
+  
       console.log(response.data); // Kiểm tra dữ liệu nhận được
-
+  
       const sortedPosts = response.data.sort((a, b) => {
         const dateA = new Date(a.createdAt);
         const dateB = new Date(b.createdAt);
         return dateB - dateA; // Sắp xếp từ mới đến cũ
       });
-
+  
       // Lấy comments và replies cho từng post
       const postsWithCommentsAndLikes = await Promise.all(
         sortedPosts.map(async (post) => {
@@ -139,19 +144,19 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
               return { ...comment, replies: repliesResponse.data }; // Kết hợp replies vào comment
             })
           );
-
+  
           // Lấy số lượng likes cho từng bài viết
           const likeCountResponse = await axios.get(
             `http://localhost:8080/api/likes/post/${post.id}/count`
           );
-
+  
           // Kiểm tra xem user đã like bài viết này chưa
           const userLikeResponse = await axios.get(
             `http://localhost:8080/api/likes/post/${post.id}/user/${currentUserId}`
           );
-
+  
           const liked = userLikeResponse.data; // true nếu user đã like, false nếu chưa
-
+  
           return {
             ...post,
             comments: commentsWithReplies,
@@ -160,7 +165,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
           }; // Kết hợp comments và likeCount vào post
         })
       );
-
+  
       setPosts(postsWithCommentsAndLikes); // Cập nhật state với danh sách bài viết
       // Cập nhật trạng thái likes cho từng bài viết
       const updatedLikes = {};
@@ -172,6 +177,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
+  
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
