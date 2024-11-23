@@ -11,6 +11,8 @@ import {
   LoadUser,
   LoadUserAlbums,
   LoadUserPlayList,
+  banUser,
+  unbanUser
 } from "../../../service/SocialMediaAdminService";
 const UserDetail = () => {
   const navigate = useNavigate();
@@ -23,48 +25,71 @@ const UserDetail = () => {
   const [userAlbums, setUserAlbums] = useState([]);
   const [userPlayLists, setPlayLists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isBanned, setIsBanned] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Gọi API của userdetail
-      const responseUserDetail = await LoadUserDetail(id);
-      if (responseUserDetail.status) {
-        setUserDetail(responseUserDetail.data);
-        setInforUser(responseUserDetail.data.userInformation);
+      try {
+        // Gọi API của user
+        const responseUser = await LoadUser(id);
+        if (responseUser.status) {
+          setUser(responseUser.data);
+          setIsBanned(responseUser.data.status === "BANNED"); // Cập nhật trạng thái từ API LoadUser
+        }
+  
+        // Gọi API của userDetail
+        const responseUserDetail = await LoadUserDetail(id);
+        if (responseUserDetail.status) {
+          setUserDetail(responseUserDetail.data);
+          setInforUser(responseUserDetail.data.userInformation);
+        }
+  
+        // Các API khác (Albums, Playlists, Tracks)
+        const responseUserAlbum = await LoadUserAlbums(id);
+        if (responseUserAlbum.status) {
+          setUserAlbums(responseUserAlbum.data);
+        }
+  
+        const responseUserPlayList = await LoadUserPlayList(id);
+        if (responseUserPlayList.status) {
+          setPlayLists(responseUserPlayList.data);
+        }
+  
+        const responseUserTrack = await LoadUserTrack(id);
+        setUserTrack(responseUserTrack.data);
+  
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading user data:", error);
+        setLoading(false);
       }
-
-      // Gọi API của user
-      const responseUser = await LoadUser(id);
-      console.log("user:", responseUser);
-      if (responseUser.status) {
-        setUser(responseUser.data);
-      }
-
-      // Gọi API của Album user
-      const responseUserAlbum = await LoadUserAlbums(id);
-      console.log("user Album:", responseUserAlbum.data);
-      if (responseUserAlbum.status) {
-        setUserAlbums(responseUserAlbum.data);
-      }
-
-      // Gọi API của PlayList user
-      const responseUserPlayList = await LoadUserPlayList(id);
-      console.log("user PlayList:", responseUserPlayList.data);
-      if (responseUserPlayList.status) {
-        setPlayLists(responseUserPlayList.data);
-      }
-
-      // Gọi API của track user
-      const responseUserTrack = await LoadUserTrack(id);
-      console.log("user track:", responseUserTrack);
-      setUserTrack(responseUserTrack.data);
-
-
     };
-
+  
     fetchData();
-    setLoading(false);
-  }, []);
+  }, [id]);
+  
+
+  const handleBanUnban = async () => {
+    try {
+      if (isBanned) {
+        await unbanUser(id); // Gọi API mở khóa người dùng
+        alert("Người dùng đã được mở khóa.");
+      } else {
+        await banUser(id); // Gọi API khóa người dùng
+        alert("Người dùng đã bị khóa.");
+      }
+  
+      // Cập nhật lại trạng thái bằng cách gọi API LoadUser
+      const responseUser = await LoadUser(id);
+      if (responseUser.status) {
+        setIsBanned(responseUser.data.status === "BANNED");
+      }
+    } catch (error) {
+      console.error("Error updating user ban status:", error);
+      alert("Không thể cập nhật trạng thái người dùng.");
+    }
+  };
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -98,7 +123,7 @@ const UserDetail = () => {
 
           {console.log("userdetail", userDetail)}
           {console.warn("userinfor", userInfor)}
-          <div class="content-start">
+          <div className="content-start">
             <label class="d-block fw-bold">Username</label>
             <label class="d-block mb-2">{userInfor.name}</label>
 
@@ -109,7 +134,14 @@ const UserDetail = () => {
             <label class="d-block mb-2">{userDetail.createDate}</label>
           </div>
 
-      
+          <button
+  className={`btn ${isBanned ? "btn-success" : "btn-danger"} mt-4`}
+  onClick={handleBanUnban}
+>
+  {isBanned ? "Unban User" : "Ban User"}
+</button>
+
+
         </div>
 
         {/* Right Side (Tracks, Albums, Playlists) */}

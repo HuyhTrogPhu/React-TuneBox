@@ -1,13 +1,13 @@
 // src/components/ReusableModal.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactModal from 'react-modal';
-import { useNavigate } from 'react-router-dom'; // Sử dụng useNavigate thay cho useHistory
+import { useNavigate } from 'react-router-dom';
 import { logout } from "../../service/LoginService";
 import Cookies from "js-cookie";
+import axios from "axios";
 
 const ReusableModal = ({ isOpen, onRequestClose }) => {
-
-  const navigate = useNavigate(); // Dùng useNavigate để chuyển hướng
+  const navigate = useNavigate();
 
   // Hàm đăng xuất
   const handleLogout = async () => {
@@ -26,18 +26,24 @@ const ReusableModal = ({ isOpen, onRequestClose }) => {
       // Logout API
       await logout();
       Cookies.remove("userId");
-      navigate("/introduce");
     } catch (error) {
       console.error("Error logging out:", error);
     }
   };
-  
 
-  // Hàm đóng modal và đăng xuất
-  const handleCloseModal = () => {
-    handleLogout(); // Gọi hàm đăng xuất
-    onRequestClose(); // Đóng modal
+  // Hàm đóng modal và đăng xuất, sau đó chuyển hướng
+  const handleCloseModal = async () => {
+    await handleLogout(); // Đăng xuất trước
+    onRequestClose(); // Đóng modal 
+    navigate("/introduce"); // Chuyển hướng về trang /introduce
   };
+
+  // Chỉ đóng modal sau khi đã thực hiện xong các công việc trong handleLogout
+  useEffect(() => {
+    if (!isOpen) {
+      // Nếu modal đã được đóng (isOpen = false), đảm bảo sẽ không gọi onRequestClose thêm lần nữa
+    }
+  }, [isOpen]); // Theo dõi thay đổi của isOpen
 
   return (
     <ReactModal

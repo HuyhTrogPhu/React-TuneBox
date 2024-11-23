@@ -36,7 +36,8 @@ import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
 import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
 import PlayListDetail from "./pages/SocialMedia/Profile/Profile_nav/PlaylistDetail";
 import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
-import { AccountProvider } from "./pages/AccountContext";
+import { UserProvider,useUser  } from "./pages/UserContext";
+import ReusableModal from "./components/ThongBaoBan/ReusableModal";
 
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
@@ -69,7 +70,9 @@ function LayoutWithHeader() {
   );
 }
 
+
 function LayoutWithoutHeader() {
+  
   return (
     <>
       <Outlet /> {/* Chỉ render component con mà không có Header */}
@@ -77,10 +80,25 @@ function LayoutWithoutHeader() {
   );
 }
 
-function App() {
+function AppContent(){
+  const { isAccountBanned, loading } = useUser();
+  const [modalOpen, setModalOpen] = useState(isAccountBanned);  // Sử dụng state để điều khiển modal
+
+  const handleCloseModal = () => {
+    setModalOpen(false);  // Đóng modal khi gọi handleCloseModal
+  };
+
+  useEffect(() => {
+    if (isAccountBanned) {
+      setModalOpen(true);  // Mở modal nếu tài khoản bị cấm
+    }
+  }, [isAccountBanned]);  // Cập nhật khi isAccountBanned thay đổi
+
+  if (loading) return <div>Loading...</div>;
   return (
-    <AccountProvider>
-    <FollowProvider>
+    <div>
+      {modalOpen && <ReusableModal isOpen={modalOpen} onRequestClose={handleCloseModal} />}  {/* Truyền handleCloseModal vào onRequestClose */}
+      <FollowProvider>
       {" "}
       {/* Đặt FollowProvider ở đây */}
       <div>   
@@ -168,7 +186,17 @@ function App() {
         </div>
       </div>
     </FollowProvider>
-    </AccountProvider>
+    </div>
+
+  );
+
+}
+
+function App() {
+  return (
+    <UserProvider>
+      <AppContent />
+    </UserProvider>
   );
 }
 

@@ -1,11 +1,8 @@
-import React, { useEffect, useState,useContext } from "react";
-import { images } from "../../assets/images/images";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
-import { Link, Routes, Route } from "react-router-dom";
-import Picker from "@emoji-mart/react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
@@ -16,14 +13,11 @@ import {
 } from "../../service/likeTrackServiceCus";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import UsersToFollow from "./Profile/UsersToFollow";
 import {
   getPlaylistByUserId,
   getPlaylistById,
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
-import { getUserInfo } from "../../service/UserService";
-import { AccountContext } from "../AccountContext";
 
 const FeedTrack = () => {
   const navigate = useNavigate();

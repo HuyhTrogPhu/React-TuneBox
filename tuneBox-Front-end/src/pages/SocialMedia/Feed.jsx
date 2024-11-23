@@ -11,8 +11,7 @@ import "./css/profile.css";
 import "./css/mxh/comment.css";
 import "./css/mxh/button.css";
 import "./css/mxh/feedUpdate.css";
-import { useParams, useNavigate, Navigate, Router, useLocation, Link } from "react-router-dom";
-import Picker from "@emoji-mart/react";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import {
   addLike,
@@ -32,9 +31,7 @@ import { getUserInfo } from "../../service/UserService";
 import FeedTrack from "./FeedTrack";
 import FeedPost from "./FeedPost";
 import { FollowContext } from "./Profile/FollowContext";
-import ReusableModal from "../../components/ThongBaoBan/ReusableModal";
 const HomeFeed = () => {
-  const [isAccountBanned, setIsAccountBanned] = useState(false); 
   const navigate = useNavigate();
   const location = useLocation();
   const { userId } = useParams();
@@ -127,22 +124,10 @@ const HomeFeed = () => {
       console.log("Error fetching genres:", error);
     }
   };
-  useEffect(() => {
-    console.log("setIsAccountBanned:", isAccountBanned); // In ra giá trị của isAccountBanned khi nó thay đổi
-  }, [isAccountBanned]); // Đảm bảo `isAccountBanned` được cập nhật sau khi gọi setState
+
 
   const fetchTracks = async () => {
     try {
-      const statusResponse = await axios.get(
-        `http://localhost:8080/user/check-status/${currentUserId}`,
-        { withCredentials: true }
-      );
-
-      // Kiểm tra nếu tài khoản bị khóa
-      if (statusResponse.data.isBanned) {
-        setIsAccountBanned(true); // Hiển thị modal nếu tài khoản bị cấm
-        return; // Dừng xử lý tiếp
-      }
       const response = await getAllTracks();
       setTracks(response);
       console.log("get all track: ", response);
@@ -1126,13 +1111,10 @@ const HomeFeed = () => {
     });
   };
 
+
   //Render
   return (
     <div>
-      <ReusableModal
-        isOpen={isAccountBanned}
-        onRequestClose={() => setIsAccountBanned(false)} // Đóng modal khi nhấn ngoài hoặc nút đóng
-      />
       <div className="feed-container p-0"
         style={{
           width: '100%',

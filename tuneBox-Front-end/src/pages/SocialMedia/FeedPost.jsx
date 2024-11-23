@@ -12,10 +12,8 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { getUserInfo } from "../../service/UserService";
 import "./css/mxh/post.css";
-import { AccountContext } from "../AccountContext";
 
 const FeedPost = ({ sharedData, clearSharedData }) => {
-  const { setIsAccountBanned } = useContext(AccountContext);
 
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -58,6 +56,9 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   const tokenjwt = localStorage.getItem("jwtToken");
+
+  const [isAccountBanned, setIsAccountBanned] = useState(false); // Khai báo isAccountBanned
+
 
   //get avatar
   const [userData, setUserData] = useState({});
@@ -103,20 +104,20 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
     try {
-      // Gọi API kiểm tra trạng thái tài khoản
-      const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
-        withCredentials: true,
-      });
+        // Gọi API kiểm tra trạng thái tài khoản
+        const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
+          withCredentials: true,
+        });
   
-      // Kiểm tra nếu tài khoản bị khóa
-      if (statusResponse.data.isBanned) {
-        // Hiển thị modal và xử lý đăng xuất
-        setIsAccountBanned(true); // Kích hoạt modal
-        return; // Dừng xử lý tiếp
-      }
-      console.log(setIsAccountBanned);
-  
-      // Nếu tài khoản không bị khóa, tiếp tục xử lý bài viết
+        // Kiểm tra nếu tài khoản bị khóa
+        if (statusResponse.data.isBanned) {
+          console.log("statusResponse:",statusResponse.data.isBanned)
+          // Hiển thị modal và xử lý đăng xuất
+          setIsAccountBanned(true); // Kích hoạt modal
+          return; // Dừng xử lý tiếp
+        }
+        console.log("setIsAccountBanned:", isAccountBanned); // Đảm bảo `isAccountBanned` được cập nhật sau khi gọi setState
+
       const response = await axios.get(`http://localhost:8080/api/posts/all`, {
         params: { currentUserId },
         withCredentials: true,
