@@ -16,8 +16,8 @@ const Home = () => {
   return (
     <div>
 
-      <div className='app-container' style={{marginTop: '100px'}}>
-        <MenuShop/>
+      <div className='app-container' style={{padding: '80px 50px 50px 50px', backgroundColor: '#fff'}}>
+        {/* <MenuShop/> */}
         <Carousel />
         <Instroduce />
         <Brand />

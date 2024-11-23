@@ -98,7 +98,7 @@ const ProfileUser = () => {
 
   return (
     <div>
-      <div className="container p-0" style={{marginTop: '100px', backgroundColor: '#fff'}}>
+      <div className="" style={{paddingTop: '100px', backgroundColor: '#fff'}}>
         <ToastContainer />
         <div
           className="background container"

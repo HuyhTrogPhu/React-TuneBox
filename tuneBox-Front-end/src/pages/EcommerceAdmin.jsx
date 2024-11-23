@@ -43,6 +43,7 @@ import StatisticalBrand from '../components/EcomStatisticalBrand/StatisticalBran
 import StatisticalCategory from '../components/EcomStatisticalCategory/StatisticalCategory';
 import { getRevenueCurrently } from '../service/EcommerceStatistical';
 import '../pages/EcommerceAdmin/css/Sidebar.css';
+import Dashboard from './EcommerceAdmin/pageContent/DashBoard';
 
 const EcommerceAdmin = () => {
 
@@ -66,8 +67,8 @@ const EcommerceAdmin = () => {
       {
         label,
         data,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgb(233,79,55,1)',
+        backgroundColor: 'rgb(233,79,55,0.5)',
         fill: true,
         tension: 0.4,
       },
@@ -135,6 +136,8 @@ const EcommerceAdmin = () => {
         <div className="col-10">
           <Header />
           <Routes>
+            {/* Default Route for Dashboard */}
+            <Route index element={<Dashboard revenueData={revenueData}/>} />
             <Route path='Customer' element={<ManagerCustomer />} />
             <Route path="Customer/detail/:userId" element={<UserDetail />} />
 
@@ -180,7 +183,7 @@ const EcommerceAdmin = () => {
             <Route path='Instrument' element={<ManagerInstrument />} />
           </Routes>
 
-          
+
         </div>
       </div>
     </div>
