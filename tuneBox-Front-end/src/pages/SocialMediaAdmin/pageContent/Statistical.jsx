@@ -80,7 +80,18 @@ const Statistical = () => {
                             </div>
                         </Link>
                     </div>
-
+                    <div className='col-3 border rounded bg-white d-flex align-items-center' style={{ height: '100%' }}>
+                        <Link to={'/socialadmin/Statistical/StaticPost'}>
+                            <div className='row d-flex align-items-center'>
+                                <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
+                                    <i className="fa-solid fa-users" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
+                                </div>
+                                <div className='col-9 m-0'>
+                                    <h6 className='ps-0 pe-0'>Static Post</h6>
+                                </div>
+                            </div>
+                        </Link>
+                    </div>
                 </section>
                 
 

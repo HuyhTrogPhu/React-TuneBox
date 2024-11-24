@@ -26,7 +26,6 @@ body {
 
 .messenger-header {
   padding: 20px;
-  background: linear-gradient(135deg, #0084ff 0%, #0099ff 100%);
   color: white;
   font-size: 24px;
   font-weight: 600;
@@ -206,6 +205,7 @@ body {
   color: #65676b;
   font-size: 16px;
   font-weight: 500;
+  padding: 20px;
 }
 
 .users-list {

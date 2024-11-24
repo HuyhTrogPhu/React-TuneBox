@@ -595,4 +595,3 @@ export const LoadAlbumForTable = async (startDate, endDate) => {
     throw error;
   }
 };
-

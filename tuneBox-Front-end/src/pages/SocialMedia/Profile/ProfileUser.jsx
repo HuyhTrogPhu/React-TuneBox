@@ -98,10 +98,10 @@ const ProfileUser = () => {
 
   return (
     <div>
-      <div className="container mt-5">
+      <div className="container p-0" style={{marginTop: '100px', backgroundColor: '#fff'}}>
         <ToastContainer />
         <div
-          className="background border container"
+          className="background container"
           style={{
             backgroundImage: `url(${userData.background || "/src/UserImages/Background/default-bg.jpg"})`,
           }}
@@ -132,7 +132,7 @@ const ProfileUser = () => {
               </div>
               <div className="col text-end">
                 <Link to="/ProfileSetting">
-                  <button type="button" className="btn btn-secondary">
+                  <button type="button" style={{backgroundColor: '#E94F37'}} className="btn">
                     <img
                       src={images.pen}
                       width="20px"
@@ -209,12 +209,13 @@ const ProfileUser = () => {
           </aside>
 
           <div className="col-sm-9 d-flex flex-column">
-            <nav className="nav flex-column flex-md-row p-5">
+            <nav className="nav d-flex align-items-center justify-content-center mt-3">
               <Link to="activity" className="nav-link">{t('p8')}</Link>
               <Link to="track" className="nav-link">Track</Link>
               <Link to="albums" className="nav-link">Albums</Link>
               <Link to="playlists" className="nav-link">Playlists</Link>
               <Link to={`likepost/${userIdCookie}`} className="nav-link"></Link>
+              <hr style={{width: '100%'}}/>
             </nav>
 
             <div className="container">
@@ -230,7 +231,7 @@ const ProfileUser = () => {
           </div>
         </div>
 
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
+       <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
             <Modal.Title>{t('p13')}</Modal.Title>
           </Modal.Header>
