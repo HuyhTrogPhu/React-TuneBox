@@ -23,6 +23,7 @@ const Report = () => {
   const [showModalAlbum, setShowModalAlbum] = useState(false);
 
   const [modalData, setModalData] = useState(null);
+  const [modalDataAlbum, setModalDataAlbum] = useState(null);
   const [currentPage, setCurrentPage] = useState(0); 
   const [currentTrackPage, setCurrentTrackPage] = useState(0);
   const [currentAlbumPage, setCurrentAlbumPage] = useState(0);
@@ -77,9 +78,10 @@ const Report = () => {
   };
   const handleShowModalAlbum = async (id) => {
     try {
+      console.warn(id)
       // Lấy dữ liệu từ API theo id
       const response = await LoadAlbumsById(id);
-      setModalData(response.data);
+      setModalDataAlbum(response.dataAlbums);
       const responseDetail = await LoadReportByAlbumId(id);
       setReportAlbumDetail(responseDetail.data);
       setShowModalAlbum(true);
@@ -438,14 +440,14 @@ const Report = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {console.log(modalData)}
-                {modalData ? (
+                {console.log(modalDataAlbum)}
+                {modalDataAlbum ? (
                   <>
-                    <p>Album Name: {modalData.title}</p>
+                    <p>Album Name: {modalDataAlbum.title}</p>
                     <p>
-                      Report created day: {modalData.createDate.split("T")[0]}
+                      Report created day: {modalDataAlbum.createDate.split("T")[0]}
                     </p>
-                    <p>User Name: {modalData.creator}</p>
+                    <p>User Name: {modalDataAlbum.creator}</p>
                   
                     <p>
                       Status:{" "}
