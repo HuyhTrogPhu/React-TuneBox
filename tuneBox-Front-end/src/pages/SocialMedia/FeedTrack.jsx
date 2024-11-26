@@ -398,11 +398,12 @@ const FeedTrack = () => {
     <div>
       {/* Phần hiển thị track */}
       <div className="container p-0">
+        {console.warn(tracks)}
         {tracks.map((track) => {
           const createdAt = track.createDate
             ? new Date(track.createDate)
             : null;
-          if (track.status === false) {
+          if (track.status === true) {
             return (
               <div className="post border" key={track.id}>
                 {/* Tiêu đề */}

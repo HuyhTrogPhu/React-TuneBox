@@ -252,7 +252,7 @@ const Albums = () => {
           albums.map((album) => {
             console.log("albums.creator: ", album.creatorId);
 
-            if (album.status === false) {
+            if (album.status === true) {
               return (
                 <div key={album.id} className="album-item">
                   <img

@@ -212,7 +212,7 @@ function StaticTrack() {  const [startDate, setStartDate] = useState();
   };
   const handleMostFollowed = async () => {
     setChartType("bar");
-    const filtered = user.sort((a, b) => b.likes - a.likes);
+    const filtered = user.sort((a, b) => b.likes.length - a.likes.length);
     console.log("User:",user);
     console.log("Sorted:",filtered);
     setFilteredUsers(filtered);
@@ -222,7 +222,7 @@ function StaticTrack() {  const [startDate, setStartDate] = useState();
 
   const fillOnChartWithMostFollowed = (sortedUsers) => {
     const userCountByName = sortedUsers.slice(0, 10).reduce((acc, user) => {
-      acc[user.name] = user.likes;
+      acc[user.name] = user.likes.length;
       return acc;
     }, {});
     setUserChart(userCountByName);
@@ -530,8 +530,8 @@ if (user) {
                       <td>{user.userName}</td>
                       <td>{user.genreName}</td>
                       <td>{user.createDate.split("T")[0]}</td>
-                      <td>{user.likes.length > 0 ? user.likes : "0"}</td>
-                      <td>{user.comments.length > 0 ? user.comments : "0"}</td>
+                      <td>{user.likes.length > 0 ? user.likes.length : "0"}</td>
+                      <td>{user.comments.length > 0 ? user.comments.length : "0"}</td>
                       <td>
                         <Link
                           className="btn btn-primary"

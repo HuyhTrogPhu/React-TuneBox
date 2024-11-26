@@ -117,7 +117,7 @@ const PlaylistDetail = () => {
                           currentUsers.map((user) => (
                             <tr key={user.id}>
                               <td>{user.title}</td>
-                              <td>{user.createDate}</td>
+                              <td>{user.createDate.split("T")[0]}</td>
                               <td>{user.likeCount}</td> 
                               <td>{user.userNickname}</td>
                               <td>

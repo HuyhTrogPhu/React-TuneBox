@@ -311,7 +311,7 @@ const CategoryPageDetail = () => {
                         pathname: `/DetailProduct/${instrument.id}`,
                         state: { instrument }
                       }} className="card-link">
-                        <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                        <div className="card card2" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
                           <div className="card-img-wrapper">
                             <img
                               src={instrument.image}

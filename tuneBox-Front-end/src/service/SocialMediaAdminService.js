@@ -111,6 +111,32 @@ export const LoadTrackById = async (id) => {
     console.error("Error fetching user data:", error);
   }
 };
+//load rp by ID track
+export const LoadReportByTrackId = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getReportByTrack/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+export const LoadReportByAlbumId = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getReportByAlbum/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
 
 //load comment by TrackID
 export const LoadCommentByTrackID = async (id) => {
