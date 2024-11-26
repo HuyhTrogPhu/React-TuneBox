@@ -133,33 +133,46 @@ function Trackdetail() {
     checkLikeStatus();
   }, [track, userId]);
 
-  // Lấy danh sách comment của track
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const response = await getCommentsByTrack(id);
-        setComments(response); // Cập nhật danh sách bình luận
-        console.log("bình luận:", response);
-
-        // Duyệt qua từng bình luận để lấy replies
-        for (const comment of response) {
-          await fetchReplies(comment.id); // Gọi hàm fetchReplies cho từng comment
-
-          const avatar = await getAvatarUser(comment.userId);
-          console.log("avatar comment:", avatar);
-          setAvataCmt(avatar);
-        }
-      } catch (error) {
-        console.error("Lỗi khi lấy bình luận:", error);
-      }
-    };
-
-    fetchReplies();
     fetchComments();
+    fetchReplies();
+    fetchTrackByUserId();
   }, [id]);
+
+  const fetchComments = async () => {
+    try {
+      const response = await getCommentsByTrack(id);
+      console.log("bình luận:", response);
+
+      // Lấy replies và chỉ thêm avatar cho comments chính
+      const commentsWithAvatars = await Promise.all(
+        response.map(async (comment) => {
+          const replies = await fetchReplies(comment.id);
+          const avatar = await getAvatarUser(comment.userId);
+
+          // Gắn replies và avatar vào comment
+          return {
+            ...comment,
+            avatar, // Chỉ thêm avatar cho comment chính
+            replies, // Thêm replies vào comment
+          };
+        })
+      );
+
+      // Cập nhật state với danh sách comment đầy đủ
+      setComments(commentsWithAvatars);
+    } catch (error) {
+      console.error("Lỗi khi lấy bình luận:", error);
+    }
+  };
 
   // Thêm comment mới
   const handleAddComment = async () => {
+    // Kiểm tra dữ liệu rỗng
+    if (!newComment.trim()) {
+      alert("Vui lòng nhập nội dung bình luận.");
+      return;
+    }
     if (editingCommentId) {
       await handleUpdateComment(editingCommentId, newComment);
       setEditingCommentId(null);
@@ -175,13 +188,13 @@ function Trackdetail() {
         setNewComment(""); // Reset input bình luận
         const updatedComments = await getCommentsByTrack(id);
         setComments(updatedComments);
+
+        fetchComments();
+        fetchReplies();
       } catch (error) {
         console.error("Lỗi khi thêm bình luận:", error);
       }
     }
-
-    fetchReplies(commentId);
-    fetchComments();
   };
 
   // Xóa comment
@@ -244,6 +257,7 @@ function Trackdetail() {
         [commentId]: replies, // Cập nhật danh sách replies cho bình luận cụ thể
       }));
 
+      console.log("replies: ", replies);
       // Lấy avatar cho từng reply
       const avatarRepliesObj = {};
       for (const reply of replies) {
@@ -317,18 +331,17 @@ function Trackdetail() {
         ...prevState,
         [commentId]: "", // Xóa nội dung đã nhập
       }));
-
-      fetchReplies(commentId);
       fetchComments();
+      fetchReplies();
     } catch (error) {
       console.error("Lỗi khi thêm phản hồi:", error.message);
     }
   };
 
   // xóa replly
-  const handleDeleteReply = async (replyId, commentId) => {
+  const handleDeleteReply = async (replyId, userId, commentId) => {
     try {
-      await deleteReply(replyId);
+      await deleteReply(replyId, userId);
       fetchReplies(commentId); // Cập nhật lại danh sách reply sau khi xóa
     } catch (error) {
       console.error("Lỗi khi xóa reply:", error);
@@ -346,9 +359,9 @@ function Trackdetail() {
   const [listTrackByUserId, setlistTrackByUserId] = useState([]); // State luu track
   const fetchTrackByUserId = async () => {
     try {
-      if (!userId) throw new Error("User ID not found."); // Kiem tra userId
+      if (!track.userId) throw new Error("User ID not found."); // Kiem tra userId
       const response = await axios.get(
-        `http://localhost:8080/customer/tracks/user/${userId}`,
+        `http://localhost:8080/customer/tracks/user/${track.userId}`,
         {
           withCredentials: true,
         }
@@ -358,7 +371,7 @@ function Trackdetail() {
       ); // Sap xep track
       setlistTrackByUserId(sortedTrack); // Luu track vao state
       setFilteredTracks(sortedTrack); //ban đầu, filteredTracks bằng tất cả tracks
-      console.log(response.data);
+      console.log("List track", response.data);
     } catch (error) {
       console.error(
         "Error fetching Track:",
@@ -366,10 +379,6 @@ function Trackdetail() {
       ); // Log loi neu co
     }
   };
-  // Goi ham fetchTrack khi component duoc mount
-  useEffect(() => {
-    fetchTrackByUserId();
-  }, []);
 
   // search
   const [keyword, setKeyword] = useState("");
@@ -402,7 +411,7 @@ function Trackdetail() {
   if (!track) return <p>Track không tồn tại hoặc không thể tìm thấy.</p>;
 
   return (
-    <div className="trackDetail" style={{marginTop: '100px'}}>
+    <div className="trackDetail">
       <div className="row">
         {/* tìm kiếm track của người dùng */}
         <div className="col-3 pt-5 p-5">
@@ -531,7 +540,7 @@ function Trackdetail() {
                   className="avatar_small"
                 />
                 <div className="infor ms-3">
-                  <div className="info-author">@{track.userName}</div>
+                  <div className="info-author">@{track.userNickname}</div>
                   <div className="info-genre">Genre: {track.genreName}</div>
                   <p>{track.description}</p>
                 </div>
@@ -569,7 +578,7 @@ function Trackdetail() {
                           <div className="comment-content position-relative ">
                             <div className="d-flex align-items-start">
                               <img
-                                src={avataCmt}
+                                src={comment.avatar}
                                 alt=""
                                 width={50}
                                 height={50}
@@ -590,41 +599,47 @@ function Trackdetail() {
                             </div>
                             {/* Dropdown chỉnh sửa/xóa bình luận */}
                             <div className="dropdown position-absolute top-0 end-0">
-                              <div
-                                className="btn-group"
-                                style={{ marginLeft: 25 }}
-                              >
-                                <button
-                                  className="btn no-border"
-                                  type="button"
-                                  data-bs-toggle="dropdown"
-                                  aria-expanded="false"
-                                  style={{
-                                    backgroundColor: "transparent",
-                                  }}
-                                >
-                                  ...
-                                </button>
-                                <ul className="dropdown-menu dropdown-menu-lg-end">
-                                  <li>
-                                    <a
-                                      className="dropdown-item"
-                                      onClick={() => handleEditComment(comment)}
+                              <div className="dropdown position-absolute top-0 end-0">
+                                {String(comment.userId) === userId && (
+                                  <div
+                                    className="btn-group"
+                                    style={{ marginLeft: 25 }}
+                                  >
+                                    <button
+                                      className="btn no-border"
+                                      type="button"
+                                      data-bs-toggle="dropdown"
+                                      aria-expanded="false"
+                                      style={{
+                                        backgroundColor: "transparent",
+                                      }}
                                     >
-                                      Edit
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a
-                                      className="dropdown-item"
-                                      onClick={() =>
-                                        handleDeleteComment(comment.id)
-                                      }
-                                    >
-                                      Delete
-                                    </a>
-                                  </li>
-                                </ul>
+                                      ...
+                                    </button>
+                                    <ul className="dropdown-menu dropdown-menu-lg-end">
+                                      <li>
+                                        <a
+                                          className="dropdown-item"
+                                          onClick={() =>
+                                            handleEditComment(comment)
+                                          }
+                                        >
+                                          Edit
+                                        </a>
+                                      </li>
+                                      <li>
+                                        <a
+                                          className="dropdown-item"
+                                          onClick={() =>
+                                            handleDeleteComment(comment.id)
+                                          }
+                                        >
+                                          Delete
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                )}
                               </div>
                             </div>
                             {/* Nút trả lời */}
@@ -705,45 +720,52 @@ function Trackdetail() {
                                   <div>
                                     {/* Dropdown chỉnh sửa/xóa bình luận */}
                                     <div className="dropdown top-0 end-0">
-                                      <div
-                                        className="btn-group"
-                                        style={{ marginLeft: 25 }}
-                                      >
-                                        <button
-                                          className="btn dropdown-toggle no-border"
-                                          type="button"
-                                          data-bs-toggle="dropdown"
-                                          aria-expanded="false"
-                                        ></button>
-                                        <ul className="dropdown-menu dropdown-menu-lg-end">
-                                          <li>
-                                            <a
-                                              className="dropdown-item"
-                                              onClick={() =>
-                                                handleEditReply(
-                                                  reply.id,
-                                                  reply.content
-                                                )
-                                              }
-                                            >
-                                              Edit
-                                            </a>
-                                          </li>
-                                          <li>
-                                            <a
-                                              className="dropdown-item"
-                                              onClick={() =>
-                                                handleDeleteReply(
-                                                  reply.id,
-                                                  comment.id
-                                                )
-                                              }
-                                            >
-                                              Delete
-                                            </a>
-                                          </li>
-                                        </ul>
-                                      </div>
+                                      {String(reply.userId) === userId && (
+                                        <div
+                                          className="btn-group"
+                                          style={{ marginLeft: 25 }}
+                                        >
+                                          <button
+                                            className="btn no-border"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                            style={{
+                                              backgroundColor: "transparent",
+                                            }}
+                                          >
+                                            ...
+                                          </button>
+                                          <ul className="dropdown-menu dropdown-menu-lg-end">
+                                            <li>
+                                              <a
+                                                className="dropdown-item"
+                                                onClick={() =>
+                                                  handleEditReply(
+                                                    reply.id,
+                                                    reply.content
+                                                  )
+                                                }
+                                              >
+                                                Edit
+                                              </a>
+                                            </li>
+                                            <li>
+                                              <a
+                                                className="dropdown-item"
+                                                onClick={() =>
+                                                  handleDeleteReply(
+                                                    reply.id,
+                                                    comment.id
+                                                  )
+                                                }
+                                              >
+                                                Delete
+                                              </a>
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -801,6 +823,14 @@ function Trackdetail() {
                             <div className="author">
                               {relatedTrack.userName || "Unknown userName"}
                             </div>
+                          </div>
+                          <div className="btn-group" style={{ marginLeft: 25 }}>
+                            <button
+                              className="btn dropdown-toggle no-border"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            ></button>
                           </div>
                         </div>
                       )
