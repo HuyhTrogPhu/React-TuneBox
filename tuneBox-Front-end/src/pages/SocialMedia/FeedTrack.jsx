@@ -18,6 +18,8 @@ import {
   getPlaylistById,
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
+import { getUserInfo } from "../../service/UserService";
+import ShareTrackModal from "./Profile/Profile_nav/ShareTrackModal";
 
 const FeedTrack = () => {
   const navigate = useNavigate();
@@ -38,6 +40,9 @@ const FeedTrack = () => {
   const [ReportId, setReportId] = useState(null);
   const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
 
   useEffect(() => {
     fetchTracks();
@@ -523,6 +528,22 @@ const FeedTrack = () => {
 
                   {/* comment track -> trackDetail*/}
                   <div className="col-2 mt-2 text-center">
+                    <button
+                      className="btn"
+                      onClick={() => setIsShareModalOpen(true)}
+                    >
+                      <img
+                        src={images.share}
+                        className="btn-icon"
+                        alt="share"
+                      />
+                      Share
+                    </button>
+                    <ShareTrackModal
+                      trackId={track.id}
+                      isOpen={isShareModalOpen}
+                      onClose={() => setIsShareModalOpen(false)}
+                    />
                     <div className="d-flex justify-content-center align-items-center">
                       <Link
                         to={{

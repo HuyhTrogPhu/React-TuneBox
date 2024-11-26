@@ -13,6 +13,7 @@ import ShareProductModal from "../../SocialMedia/Profile/Profile_nav/ShareProduc
 
 import Swal from "sweetalert2";
 import { Audio } from "react-loader-spinner";
+import ShareProductModal from "../../SocialMedia/Profile/Profile_nav/ShareProductModal";
 
 const DetailProduct = () => {
   const { id } = useParams();
@@ -80,11 +81,11 @@ const DetailProduct = () => {
   }, [id, location.state]);
 
   // Hiển thị loading hoặc lỗi nếu có
-  if (loading) return <p>{t('dnote3')}</p>;
+  if (loading) return <p>{t("dnote3")}</p>;
   if (error) return <p>{error}</p>;
 
   // Nếu không có sản phẩm, hiển thị thông báo 404
-  if (!instrument) return <p>{t('dnote4')}.</p>;
+  if (!instrument) return <p>{t("dnote4")}.</p>;
 
   const handleDecrement = () => {
     if (quantity > 1) {
@@ -240,8 +241,15 @@ const DetailProduct = () => {
                   <div className="row">
                     {/* Quantity */}
                     <div className="col-lg-5 col-md-5 col-sm 12 d-flex mt-4">
-                      <div><strong>{t('qty')}</strong></div>
-                      <button className="btn btn-prev" onClick={handleDecrement}><strong>-</strong></button>
+                      <div>
+                        <strong>{t("qty")}</strong>
+                      </div>
+                      <button
+                        className="btn btn-prev"
+                        onClick={handleDecrement}
+                      >
+                        <strong>-</strong>
+                      </button>
                       <input
                         type="number"
                         value={quantity}
@@ -260,9 +268,17 @@ const DetailProduct = () => {
                     {/* Brand */}
                     <div className="col-lg-5 col-md-5 col-sm 12">
                       <div className="instrument-brand">
-                        <img src={instrument.brand.brandImage} alt={instrument.brand.name} />
-                        <span onClick={() => handleBrandClick(instrument.brand)}>
-                          <a href="">{t('brandsame')}<i className="fa-solid fa-arrow-right"></i></a>
+                        <img
+                          src={instrument.brand.brandImage}
+                          alt={instrument.brand.name}
+                        />
+                        <span
+                          onClick={() => handleBrandClick(instrument.brand)}
+                        >
+                          <a href="">
+                            {t("brandsame")}
+                            <i className="fa-solid fa-arrow-right"></i>
+                          </a>
                         </span>
                       </div>
                     </div>
@@ -270,8 +286,12 @@ const DetailProduct = () => {
 
                   {/* Add to cart */}
                   <div className="btn-cart mt-4">
-                    <button className="add-to-cart" onClick={handleAddToCart} disabled={isAddingToCart}>
-                      {!isAddingToCart ? t('dnote7') : null}
+                    <button
+                      className="add-to-cart"
+                      onClick={handleAddToCart}
+                      disabled={isAddingToCart}
+                    >
+                      {!isAddingToCart ? t("dnote7") : null}
                     </button>
                     {isAddingToCart && (
                       <div className="loader-overlay">
@@ -293,7 +313,7 @@ const DetailProduct = () => {
                 <div className="service">
                   <div className="buy-service">
                     <i className="fa-solid fa-cart-shopping"></i>
-                    <span className="ms-2">{t('but')}</span>
+                    <span className="ms-2">{t("but")}</span>
                   </div>
                   <div className="product-service">
                     <i className="fa-solid fa-box"></i>
@@ -304,7 +324,7 @@ const DetailProduct = () => {
                   </div>
                   <div className="ship-service">
                     <i className="fa-solid fa-truck-fast"></i>
-                    <span className="ms-2">{t('ship')}</span>
+                    <span className="ms-2">{t("ship")}</span>
                   </div>
 
                   {/* Share */}

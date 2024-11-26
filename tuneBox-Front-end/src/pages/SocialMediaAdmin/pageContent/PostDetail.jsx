@@ -1,207 +1,259 @@
 import React, { useEffect, useState } from "react";
-import { images } from "../../../assets/images/images";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Music, Users, ShoppingBag, Disc, Radio } from "lucide-react";
 
 const PostDetail = () => {
-  const { id } = useParams(); // Lấy ID từ URL
+  const { id } = useParams();
   const [post, setPost] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [userInfo, setUserInfo] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-
-  console.log("Post ID:", id); // Kiểm tra ID
 
   const fetchUserInfo = async () => {
     try {
       const response = await axios.get(
         `http://localhost:8082/admin/posts/search-info/${id}`
       );
-      console.log("User data:", response.data);
-      // Backend trả về UserInfoDto nên không cần map vào mảng
-      setUsers([{
-        userid: response.data.id,
-        userName: response.data.userName,
-        email: response.data.email, 
-        avatar: response.data.avatar,
-        joinDate: response.data.joinDate
-      }]); // Wrap trong array vì component đang map qua users
+      setUserInfo(response.data);
     } catch (error) {
-      console.error("Lỗi khi lấy thông tin người dùng:", error);
-      setErrorMessage("Không thể lấy thông tin người dùng.");
+      console.error("Error fetching user info:", error);
+      setErrorMessage("Cannot fetch user information.");
     }
   };
-  
-  // Hàm lấy chi tiết bài đăng
+
   const fetchPostDetail = async () => {
     try {
       const response = await axios.get(
         `http://localhost:8082/admin/posts/${id}`
       );
-      console.log("Post data:", response.data);
-      // Backend trả về PostDto nên set trực tiếp
       setPost({
         ...response.data,
-        images: response.data.images.map(img => ({
+        images: response.data.images.map((img) => ({
           ...img,
-          postImage: img.postImage // Không cần base64 vì backend đã trả về URL
-        }))
+          postImage: img.postImage,
+        })),
       });
     } catch (error) {
-      console.error("Lỗi khi lấy chi tiết bài đăng:", error);
-      setErrorMessage("Không thể lấy thông tin bài đăng.");
+      console.error("Error fetching post detail:", error);
+      setErrorMessage("Cannot fetch post details.");
     }
   };
-  
 
   useEffect(() => {
-    console.log("Post ID từ useParams:", id); // Log ID từ useParams
     if (id) {
-      // Gọi song song hai API
-      Promise.all([fetchPostDetail(), fetchUserInfo()])
-        .catch((error) => {
-          console.error("Lỗi khi gọi API:", error);
-          setErrorMessage("Không thể lấy dữ liệu.");
-        });
-    } else {
-      console.error("Post ID is not valid.");
+      Promise.all([fetchPostDetail(), fetchUserInfo()]).catch((error) => {
+        console.error("Error calling APIs:", error);
+        setErrorMessage("Cannot fetch data.");
+      });
     }
   }, [id]);
-  
 
   if (errorMessage) {
-    return <div>{errorMessage}</div>;
+    return (
+      <div className="alert alert-danger m-4" role="alert">
+        {errorMessage}
+      </div>
+    );
   }
 
-  if (!post) {
-    return <div>Loading...</div>;
+  if (!post || !userInfo) {
+    return (
+      <div className="d-flex justify-content-center m-4">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <div className="container-fluid ps-5">
-        <div className="row">
-        {users.map((user) => (
-            <div key={user.userid} className="col-lg-4 mb-4">
-              <div className="card position-relative text-center">
-                {/* User Image */}
-                <div
-                  className="position-absolute top-0 start-50 translate-middle"
-                  style={{ zIndex: 1 }}
-                >
-                  <img
-                    src={user.avatar} // Avatar từ API
-                    alt="User Avatar"
-                    className="rounded-circle border border-3 border-white"
-                    style={{ width: 150, height: 150, objectFit: "cover" }}
-                  />
-                </div>
-                {/* Card Body */}
-                <div className="card-body pt-5 mt-5">
-                  <div className="row">
-                    {/* User Info */}
-                    <div className="col-12 text-start">
-                      <h6 className="card-title">{user.userName}</h6> {/* User name */}
-                      <p className="card-text">Email: {user.email}</p> {/* Email */}
-                    </div>
-                    {/* Join Date */}
-                    <div className="col-12 mt-3">
-                      <p className="card-text">
-                        Join Date: {new Date(user.joinDate).toLocaleDateString("vi-VN")}
-                      </p>
-                    </div>
-                  </div>
-                  <a href="#" className="btn btn-danger mt-3">
-                    Ban/Unban
-                  </a>
-                </div>
+    <div className="container-fluid py-4">
+      <div className="row">
+        {/* User Profile Card */}
+        <div className="col-lg-5 mb-4">
+          <div className="card shadow-lg">
+            <div className="card-body text-center position-relative">
+              <div className="position-absolute top-0 start-50 translate-middle">
+                <img
+                  src={userInfo.avatar}
+                  alt="User Avatar"
+                  className="rounded-circle border border-4 border-white shadow"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    objectFit: "cover",
+                  }}
+                />
               </div>
-            </div>
-          ))}
 
+              <div className="pt-5 mt-5">
+                <h4 className="fw-bold mb-1">{userInfo.userName}</h4>
+                <p className="text-muted mb-3">{userInfo.email}</p>
 
-          <div className="col-lg-8 col-md-8">
-            {/* Statistical */}
-            <div className="row mb-4" style={{ marginTop: 100 }}>
-              {/* Total Likes */}
-              <div className="col-lg-4 mb-3">
-                <div className="card text-center bg-warning">
-                  <div className="card-body">
-                    <h5 className="card-title">Total Likes</h5>
-                    <p className="card-text display-6 " style={{ color: "blue" }}>{post.likeCount}</p> {/* Lượt thích */}
+                {/* Stats Grid */}
+                <div className="row g-3 mb-4">
+                  <div className="col-6">
+                    <div className="p-3 border rounded bg-light">
+                      <Users className="mb-2" />
+                      <h6 className="mb-1">Followers</h6>
+                      <h5 className="mb-0">{userInfo.followedUsers}</h5>
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div className="p-3 border rounded bg-light">
+                      <Users className="mb-2" />
+                      <h6 className="mb-1">Following</h6>
+                      <h5 className="mb-0">{userInfo.followingUsers}</h5>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="p-3 border rounded bg-light">
+                      <ShoppingBag className="mb-2" />
+                      <h6 className="mb-1">Orders</h6>
+                      <h5 className="mb-0">{userInfo.orderCount}</h5>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="p-3 border rounded bg-light">
+                      <Disc className="mb-2" />
+                      <h6 className="mb-1">Albums</h6>
+                      <h5 className="mb-0">{userInfo.albums}</h5>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="p-3 border rounded bg-light">
+                      <Radio className="mb-2" />
+                      <h6 className="mb-1">Tracks</h6>
+                      <h5 className="mb-0">{userInfo.tracks}</h5>
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/* Total Comments */}
-              <div className="col-lg-4 mb-3">
-                <div className="card text-center bg-success">
-                  <div className="card-body">
-                    <h5 className="card-title">Total Comments</h5>
-                    <p className="card-text display-6" style={{ color: "blue" }}>{post.commentCount}</p> {/* Lượt bình luận */}
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Track/Post */}
-            <div className="card shadow">
-              <div className="card-body p-4">
-                {/* Tiêu đề với font lớn và đậm */}
-                <h2
-                  className="fw-bold text-dark mb-4"
-                  style={{ fontSize: "2rem" }}
-                >
-                  {post.content} {/* Nội dung bài viết */}
-                </h2>
-                {/* Thêm tiêu đề cho nội dung */}
-                <h3 className="fw-bold mb-3">NỘI DUNG</h3> {/* Tiêu đề nội dung */}
-                {/* Nội dung bài viết với font size lớn hơn và màu đậm hơn */}
-                <p
-                  className="lead mb-4"
-                  style={{ fontSize: "1.1rem", color: "#333" }}
-                >
-                  {post.content} {/* Nội dung bài viết */}
-                </p>
-                {post.images && post.images.length > 0 && (
-                  <div className="mt-3">
-                    <h3 className="fw-bold mb-3">Hình Ảnh</h3>
-                    <div className="d-flex flex-wrap">
-                      {post.images.map((image, index) => (
-                        <img
-                          key={index}
-                          src={`data:image/jpeg;base64,${image.postImage}`} // Chuyển đổi thành data URL
-                          alt={`Image ${index + 1}`}
-                          className="img-thumbnail me-2 mb-2"
-                          style={{
-                            width: "150px",
-                            height: "150px",
-                            objectFit: "cover",
-                          }}
-                        />
+
+                {/* User Interests */}
+                <div className="text-start mb-4">
+                  <div className="mb-3">
+                    <h6 className="fw-bold mb-2">Inspired By</h6>
+                    <div className="d-flex flex-wrap gap-2">
+                      {userInfo.inspiredBy.map((item, index) => (
+                        <span key={index} className="badge bg-primary">
+                          {item}
+                        </span>
                       ))}
                     </div>
                   </div>
-                )}
-                {/* Thông tin về người đăng và thời gian */}
-                <div className="border-top pt-3">
-                  <p className="mb-2">
-                    <span className="fw-bold text-secondary">Đăng bởi: </span>
-                    <span className="fw-semibold text-primary">
-                      {post.userNickname} {/* Tên người đăng */}
-                    </span>
-                  </p>
+                  <div className="mb-3">
+                    <h6 className="fw-bold mb-2">Talents</h6>
+                    <div className="d-flex flex-wrap gap-2">
+                      {userInfo.talent.map((item, index) => (
+                        <span key={index} className="badge bg-success">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <h6 className="fw-bold mb-2">Genres</h6>
+                    <div className="d-flex flex-wrap gap-2">
+                      {userInfo.genre.map((item, index) => (
+                        <span key={index} className="badge bg-info">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
-                  <p className="mb-0">
-                    <span className="fw-bold text-secondary">
-                      Thời gian đăng:{" "}
-                    </span>
-                    <span className="fw-semibold">
-                      {new Date(post.createdAt).toLocaleDateString("vi-VN", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })} {/* Thời gian đăng */}
-                    </span>
-                  </p>
+                <p className="text-muted mb-3">
+                  Joined:{" "}
+                  {new Date(userInfo.joinDate).toLocaleDateString("vi-VN")}
+                </p>
+
+                <button className="btn btn-danger">Ban/Unban User</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Post Content */}
+        <div className="col-lg-7">
+          {/* Statistics Cards */}
+          <div className="row mb-4">
+            <div className="col-md-6">
+              <div className="card bg-warning bg-gradient shadow">
+                <div className="card-body text-center">
+                  <h5 className="card-title text-white mb-2">Total Likes</h5>
+                  <h2 className="display-4 text-white mb-0">
+                    {post.likeCount}
+                  </h2>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <div className="card bg-success bg-gradient shadow">
+                <div className="card-body text-center">
+                  <h5 className="card-title text-white mb-2">Total Comments</h5>
+                  <h2 className="display-4 text-white mb-0">
+                    {post.commentCount}
+                  </h2>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Post Content Card */}
+          <div className="card shadow">
+            <div className="card-body p-4">
+              <h2 className="fw-bold text-dark mb-4">Content</h2>
+              <div className="mb-4">
+                <h5 className="fw-bold text-secondary mb-3">Status</h5>
+                <p className="lead text-primary">{post.content}</p>
+              </div>
+
+              {post.images && post.images.length > 0 && (
+                <div className="mb-4">
+                  <h5 className="fw-bold text-secondary mb-3">Images</h5>
+                  <div className="row g-3">
+                    {post.images.map((image, index) => (
+                      <div key={index} className="col-md-4 col-sm-6">
+                        <img
+                          src={image.postImage} // Chỉnh sửa tại đây, sử dụng URL trực tiếp
+                          alt={`Post image ${index + 1}`}
+                          className="img-fluid rounded shadow-sm"
+                          style={{
+                            objectFit: "cover",
+                            height: "200px",
+                            width: "100%",
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="border-top pt-3">
+                <div className="row">
+                  <div className="col-md-6">
+                    <p className="mb-1">
+                      <span className="text-secondary">Posted by: </span>
+                      <span className="fw-bold text-primary">
+                        {post.userNickname}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="col-md-6 text-md-end">
+                    <p className="mb-1">
+                      <span className="text-secondary">Posted on: </span>
+                      <span className="fw-bold">
+                        {new Date(post.createdAt).toLocaleDateString("vi-VN", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
