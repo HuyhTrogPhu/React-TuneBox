@@ -1,5 +1,7 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
+const currentUserId = Cookies.get("userId");
 const REST_API_BASE_URL = "http://localhost:8080/customer/tracks";
 
 export const getTrackByUserId = (userId) =>
@@ -22,7 +24,10 @@ export const listGenre = () => axios.get(`${REST_API_BASE_URL}/getAllGenre`);
 
 export const getAllTracks = async () => {
   try {
-    const response = await axios.get(`${REST_API_BASE_URL}/allTrack`);
+    const response = await axios.get(`${REST_API_BASE_URL}/allTrack`,{
+      params: { currentUserId },
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching tracks:", error);
