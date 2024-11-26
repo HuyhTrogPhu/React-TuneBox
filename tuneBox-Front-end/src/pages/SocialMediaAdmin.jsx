@@ -21,7 +21,6 @@ import StaticAlbum from "./SocialMediaAdmin/Statistical/StaticAlbum";
 import StaticPlayList from "./SocialMediaAdmin/Statistical/StaticPlayList";
 import StaticTrack from "./SocialMediaAdmin/Statistical/StaticTrack";
 import StatisticalPost from "./SocialMediaAdmin/pageContent/statisticalPost/StatisticalPost";
-import Report from "./SocialMediaAdmin/pageContent/Report";
 
 const SocialMediaAdmin = () => {
   return (
