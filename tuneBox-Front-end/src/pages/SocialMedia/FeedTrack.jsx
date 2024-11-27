@@ -11,6 +11,7 @@ import {
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
+import { LoadTrackReport } from "../../service/SocialMediaAdminService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -74,8 +75,21 @@ const FeedTrack = () => {
       console.log("setIsAccountBanned:", isAccountBanned); // Đảm bảo `isAccountBanned` được cập nhật sau khi gọi setState
 
       const response = await getAllTracks();
-      setTracks(response);
+      const responseRp = await LoadTrackReport();
+      const dataRP = responseRp.data;
+      
+      const filteredTracks = response.filter(track => {
+        const report = dataRP.find(rp => rp.trackId === track.id);//search track trong rp API
+        return !report || report.status !== "RESOLVED";//loai ra RESOLVED va khong co rp API
+      });
+      
+
+      console.log(filteredTracks);
       console.log("get all track: ", response);
+      console.log("get all track Rp: ", dataRP);
+      console.log("get all track filltered: ", filteredTracks);
+
+      setTracks(filteredTracks);
 
       // ktra trạng thái like cho mỗi track
       const likedStatus = await Promise.all(
@@ -387,7 +401,6 @@ const FeedTrack = () => {
       navigate(`/profile/${post.userId}`);
     }
   };
-
 
   return (
     <div>

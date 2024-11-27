@@ -169,14 +169,13 @@ function AppContent(){
               {/* admin start */}
 
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
-              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
+              <Route element={<ProtectedRoute allowedRole="Ecomadmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
               <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
               <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
 
               {/* admin end */}
-              <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
             </Route>
           </Routes>
         </div>

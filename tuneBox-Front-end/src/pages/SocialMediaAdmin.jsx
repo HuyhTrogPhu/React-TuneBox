@@ -12,7 +12,7 @@ import Users from "./SocialMediaAdmin/pageContent/Users";
 import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
 import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
 import Track from "./SocialMediaAdmin/pageContent/Track";
-import Report from "./SocialMediaAdmin/pageContent/Report";
+
 import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
 import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";
 import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
@@ -76,6 +76,7 @@ const SocialMediaAdmin = () => {
                     Post
                   </Link>
                 </li>
+
                 <li className="p-3">
                   <i className="fa-solid fa-newspaper" />
                   
@@ -95,41 +96,7 @@ const SocialMediaAdmin = () => {
             </div>
           </div>
           <div className="col-lg-10 col-md-9 p-0">
-            {/* Topbar */}
-            <div className="topbar d-flex justify-content-end align-items-center p-3 bg-light border-bottom">
-              <div className="dropdown">
-                <a
-                  href="#"
-                  className="dropdown-toggle"
-                  id="userDropdown"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  User name
-                  <img
-                    src={images.karinaImage} 
-                    className="rounded-pill ms-2"
-                    alt="User Image"
-                    style={{ width: 30, height: 30 }}
-                  />
-                </a>
-                <ul
-                  className="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="userDropdown"
-                >
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Profile
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Log Out
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
+
             {/* Main Content */}
             <div className="container-fluid">
             <Routes>

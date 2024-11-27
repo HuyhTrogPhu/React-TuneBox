@@ -18,8 +18,8 @@ import {
   Router,
   useLocation,
   Outlet,
+  Link
 } from "react-router-dom";
-import { Link, Routes, Route } from "react-router-dom";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import {
   addLike,
@@ -39,7 +39,6 @@ import { getUserInfo } from "../../service/UserService";
 import FeedTrack from "./FeedTrack";
 import FeedPost from "./FeedPost";
 import { FollowContext } from "./Profile/FollowContext";
-
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -948,12 +947,13 @@ const HomeFeed = () => {
       } else {
         const reportData = {
           userId: userId,
-          postId: reportType === "post" ? reportId : null,
-          trackId: reportType === "track" ? reportId : null,
-          albumId: reportType === "album" ? reportId : null,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
           type: reportType,
           reason: reason,
         };
+        console.warn(reportData);
 
         const response = await axios.post(
           "http://localhost:8080/api/reports",
@@ -983,20 +983,17 @@ const HomeFeed = () => {
   };
   const checkReportExists = async (userId, reportId, reportType) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/reports/check`,
-        {
-          params: {
-            userId: userId,
-            postId: reportType === "post" ? reportId : null,
-            trackId: reportType === "track" ? reportId : null,
-            albumId: reportType === "album" ? reportId : null,
-            type: reportType,
-          },
-          withCredentials: true,
-        }
-      );
-      console.log("Check report response:", response.data);
+      const response = await axios.get(`http://localhost:8080/api/reports/check`, {
+        params: {
+          userId: userId,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,
+        },
+        withCredentials: true,
+      });
+      console.log('Check report response:', response.data);
       return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
     } catch (error) {
       console.error("Lỗi mạng:", error);
