@@ -346,6 +346,8 @@ function Trackdetail() {
     } catch (error) {
       console.error("Lỗi khi xóa reply:", error);
     }
+    fetchComments();
+    fetchReplies();
   };
 
   // Hàm kích hoạt chỉnh sửa
@@ -756,7 +758,7 @@ function Trackdetail() {
                                                 onClick={() =>
                                                   handleDeleteReply(
                                                     reply.id,
-                                                    comment.id
+                                                    userId
                                                   )
                                                 }
                                               >

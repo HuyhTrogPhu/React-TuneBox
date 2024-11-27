@@ -565,18 +565,25 @@ const HomeFeed = () => {
     setPostImages(files); // Cập nhật tệp ảnh
   };
   const handleSubmitPost = async () => {
+    // Kiểm tra nếu cả nội dung và ảnh đều không có
+    if ((!postContent || postContent.trim() === "") && postImages.length === 0) {
+      alert("Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh!");
+      return; // Ngăn không cho tiếp tục
+    }
+  
     const formData = new FormData();
-    formData.append("content", postContent || "");
+    formData.append("content", postContent || ""); // Nội dung mặc định là chuỗi rỗng nếu không có
     formData.append("userId", currentUserId);
-
+  
     postImages.forEach((image) => {
       formData.append("images", image);
     });
-
+  
     setIsUploading(true); // Bắt đầu quá trình tải lên
-
+  
     try {
       if (postId) {
+        // Cập nhật bài viết
         await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -584,6 +591,7 @@ const HomeFeed = () => {
           withCredentials: true,
         });
       } else {
+        // Tạo bài viết mới
         await axios.post("http://localhost:8080/api/posts", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -591,7 +599,7 @@ const HomeFeed = () => {
           withCredentials: true,
         });
       }
-
+  
       // Đóng modal và reset form
       document.getElementById("post-modal").style.display = "none";
       resetForm();
@@ -605,6 +613,8 @@ const HomeFeed = () => {
       setIsUploading(false); // Kết thúc quá trình tải lên
     }
   };
+  
+  
   // delete post
   const handleDeletePost = async (postId) => {
     const confirmDelete = window.confirm(
@@ -627,6 +637,10 @@ const HomeFeed = () => {
 
   // edit post
   const handleEditPost = (post) => {
+    if (!post.content || post.content.trim() === "") {
+      alert("Vui lòng nhập nội dung bài viết trước khi đăng!");
+      return; // dừng không cho làm tiếp vì trống rồi
+    }
     setPostContent(post.content);
     setPostImages(post.images);
     setPostId(post.id);
@@ -1486,20 +1500,40 @@ const HomeFeed = () => {
                   </div>
                 )}
                 <div className="row mt-3">
-                  <div className="col text-start">
-                    <input
-                      type="file"
-                      id="file-input"
-                      multiple
-                      onChange={(e) => {
-                        const files = Array.from(e.target.files);
-                        setPostImages(files);
-                        setPostImageUrls(
-                          files.map((file) => URL.createObjectURL(file))
-                        );
-                      }}
-                    />
-                  </div>
+                <div className="col text-start">
+  <input
+    type="file"
+    id="file-input"
+    multiple
+    onChange={(e) => {
+      const supportedFormats = ["image/jpeg", "image/png", "image/gif"]; // Định dạng được hỗ trợ
+      const files = Array.from(e.target.files); // Lấy danh sách file
+      const validFiles = []; // File hợp lệ
+      const invalidFiles = []; // File không hợp lệ
+
+      files.forEach((file) => {
+        if (supportedFormats.includes(file.type)) {
+          validFiles.push(file);
+        } else {
+          invalidFiles.push(file.name); // Lưu tên file không hợp lệ
+        }
+      });
+
+      if (invalidFiles.length > 0) {
+        alert(
+          `Các file không được hỗ trợ: ${invalidFiles.join(", ")}. Vui lòng chọn file định dạng ảnh (JPEG, PNG, GIF).`
+        );
+      }
+
+      // Cập nhật state chỉ với các file hợp lệ
+      setPostImages(validFiles);
+      setPostImageUrls(
+        validFiles.map((file) => URL.createObjectURL(file))
+      );
+    }}
+  />
+</div>
+
                   <div className="col text-end">
                     <button
                       id="submit-post"
