@@ -155,15 +155,11 @@ function App() {
               <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
-              <Route
-              path="/socialadmin/*"
-              element={<SocialMediaAdmin />}
-            />
-   
-
-              {/* admin end */}
-              <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
-
+              
+              <Route element={<ProtectedRoute allowedRole="SocialAdmin" />}>
+                <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
+              </Route>
+              
             </Route>
           </Routes>
         </div>
