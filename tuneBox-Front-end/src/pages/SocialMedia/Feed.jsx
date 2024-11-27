@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { images } from "../../assets/images/images";
 import axios from "axios";
-import { format } from "date-fns";
 import Cookies from "js-cookie";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -12,20 +11,25 @@ import "./css/profile.css";
 import "./css/mxh/comment.css";
 import "./css/mxh/button.css";
 import "./css/mxh/feedUpdate.css";
-import { useParams, useNavigate, Navigate, Router, useLocation, Outlet } from "react-router-dom";
-import { Link, Routes, Route } from "react-router-dom";
-import Picker from "@emoji-mart/react";
+import {
+  useParams,
+  useNavigate,
+  Navigate,
+  Router,
+  useLocation,
+  Outlet,
+  Link
+} from "react-router-dom";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
-import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
   addLike,
   checkUserLikeTrack,
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import UsersToFollow from './Profile/UsersToFollow';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import UsersToFollow from "./Profile/UsersToFollow";
 import {
   getPlaylistByUserId,
   getPlaylistById,
@@ -35,7 +39,6 @@ import { getUserInfo } from "../../service/UserService";
 import FeedTrack from "./FeedTrack";
 import FeedPost from "./FeedPost";
 import { FollowContext } from "./Profile/FollowContext";
-
 
 const HomeFeed = () => {
   const navigate = useNavigate();
@@ -66,7 +69,7 @@ const HomeFeed = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [ReportId, setReportId] = useState(null);
-  const [reportType, setReportType] = useState('');
+  const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
   const [postHiddenStates, setPostHiddenStates] = useState({});
 
@@ -79,8 +82,8 @@ const HomeFeed = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
-  const tokenjwt = localStorage.getItem('jwtToken');
-  const [activeComponent, setActiveComponent] = useState('track'); // State để quản lý component hiển thị track or post
+  const tokenjwt = localStorage.getItem("jwtToken");
+  const [activeComponent, setActiveComponent] = useState("track"); // State để quản lý component hiển thị track or post
 
   //get avatar
   const [userData, setUserData] = useState({});
@@ -103,7 +106,6 @@ const HomeFeed = () => {
 
     fetchUser();
   }, [currentUserId]);
-
 
   // track
   const [tracks, setTracks] = useState([]);
@@ -131,6 +133,7 @@ const HomeFeed = () => {
     }
   };
 
+
   const fetchTracks = async () => {
     try {
       const response = await getAllTracks();
@@ -142,14 +145,14 @@ const HomeFeed = () => {
         response.map(async (track) => {
           const liked = await checkUserLikeTrack(track.id, currentUserId);
           const count = await getLikesCountByTrackId(track.id);
-          console.log(
-            "userId:",
-            currentUserId,
-            "trackId:",
-            track.id,
-            "- likeStatus: ",
-            liked
-          );
+          // console.log(
+          //   "userId:",
+          //   currentUserId,
+          //   "trackId:",
+          //   track.id,
+          //   "- likeStatus: ",
+          //   liked
+          // );
           return { id: track.id, liked, count }; // Trả về id và trạng thái liked
         })
       );
@@ -163,8 +166,8 @@ const HomeFeed = () => {
       });
       setLikedTracks(updatedLikedTracks); // Cập nhật trạng thái likedTracks
       setCountLikedTracks(updatedCountTracks);
-      console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
-      console.log("Cập nhật trạng thái likedTracks: ", updatedCountTracks);
+      // console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
+      // console.log("Cập nhật trạng thái likedTracks: ", updatedCountTracks);
     } catch (error) {
       console.error("Error fetching all track:", error);
     }
@@ -295,11 +298,8 @@ const HomeFeed = () => {
   const [showModal, setShowModal] = useState(false);
   const [trackToAddPlayList, setTrackToAddPlayList] = useState(null);
 
-
-
   const fetchListPlaylist = async () => {
     try {
-
       const playlistResponse = await getPlaylistByUserId(currentUserId);
       setPlaylists(playlistResponse);
       console.log("playlist  ", playlistResponse);
@@ -355,8 +355,21 @@ const HomeFeed = () => {
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
     try {
+      // Gọi API kiểm tra trạng thái tài khoản
+      const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
+        withCredentials: true,
+      });
+
+      // Kiểm tra nếu tài khoản bị khóa
+      if (statusResponse.data.isBanned) {
+        // Hiển thị modal và xử lý đăng xuất
+        setIsAccountBanned(true); // Kích hoạt modal
+        return; // Dừng xử lý tiếp
+      }
+
+      // Nếu tài khoản không bị khóa, tiếp tục xử lý bài viết
       const response = await axios.get(`http://localhost:8080/api/posts/all`, {
-        params: { currentUserId }, // Truyền currentUserId vào request
+        params: { currentUserId },
         withCredentials: true,
       });
 
@@ -416,6 +429,7 @@ const HomeFeed = () => {
     }
   };
 
+
   useEffect(() => {
     const fetchLikesCounts = async () => {
       const counts = await Promise.all(
@@ -449,9 +463,12 @@ const HomeFeed = () => {
 
       if (likes[postId]?.data) {
         // Nếu đã like, thực hiện unlike
-        await fetch(`http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`, {
-          method: "DELETE",
-        });
+        await fetch(
+          `http://localhost:8080/api/likes/remove?userId=${currentUserId}&postId=${postId}`,
+          {
+            method: "DELETE",
+          }
+        );
 
         setLikes((prevLikes) => ({
           ...prevLikes,
@@ -498,7 +515,6 @@ const HomeFeed = () => {
       console.error("Error liking post:", error);
     }
   };
-
 
   // reply comment
   const handleToggleReplies = (commentId) => {
@@ -548,18 +564,25 @@ const HomeFeed = () => {
     setPostImages(files); // Cập nhật tệp ảnh
   };
   const handleSubmitPost = async () => {
+    // Kiểm tra nếu cả nội dung và ảnh đều không có
+    if ((!postContent || postContent.trim() === "") && postImages.length === 0) {
+      alert("Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh!");
+      return; // Ngăn không cho tiếp tục
+    }
+  
     const formData = new FormData();
-    formData.append("content", postContent || "");
+    formData.append("content", postContent || ""); // Nội dung mặc định là chuỗi rỗng nếu không có
     formData.append("userId", currentUserId);
-
+  
     postImages.forEach((image) => {
       formData.append("images", image);
     });
-
+  
     setIsUploading(true); // Bắt đầu quá trình tải lên
-
+  
     try {
       if (postId) {
+        // Cập nhật bài viết
         await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -567,6 +590,7 @@ const HomeFeed = () => {
           withCredentials: true,
         });
       } else {
+        // Tạo bài viết mới
         await axios.post("http://localhost:8080/api/posts", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -574,7 +598,7 @@ const HomeFeed = () => {
           withCredentials: true,
         });
       }
-
+  
       // Đóng modal và reset form
       document.getElementById("post-modal").style.display = "none";
       resetForm();
@@ -588,6 +612,8 @@ const HomeFeed = () => {
       setIsUploading(false); // Kết thúc quá trình tải lên
     }
   };
+  
+  
   // delete post
   const handleDeletePost = async (postId) => {
     const confirmDelete = window.confirm(
@@ -610,6 +636,10 @@ const HomeFeed = () => {
 
   // edit post
   const handleEditPost = (post) => {
+    if (!post.content || post.content.trim() === "") {
+      alert("Vui lòng nhập nội dung bài viết trước khi đăng!");
+      return; // dừng không cho làm tiếp vì trống rồi
+    }
     setPostContent(post.content);
     setPostImages(post.images);
     setPostId(post.id);
@@ -883,16 +913,16 @@ const HomeFeed = () => {
       );
     }
   };
-  // report post 
+  // report post
   const handleReport = (id, type) => {
-    console.log('ID to report:', id); // Kiểm tra giá trị ID
-    console.log('Type to report:', type); // Kiểm tra giá trị type
+    console.log("ID to report:", id); // Kiểm tra giá trị ID
+    console.log("Type to report:", type); // Kiểm tra giá trị type
     setReportId(id);
     setReportType(type);
     setShowReportModal(true);
   };
   const handleSubmit = () => {
-    console.log('Report Type before submit:', reportType); // Kiểm tra giá trị type
+    console.log("Report Type before submit:", reportType); // Kiểm tra giá trị type
 
     if (!ReportId || !reportType) {
       setReportMessage("ID hoặc loại báo cáo không hợp lệ.");
@@ -906,7 +936,11 @@ const HomeFeed = () => {
     try {
       const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
 
-      const reportExists = await checkReportExists(userId, reportId, reportType);
+      const reportExists = await checkReportExists(
+        userId,
+        reportId,
+        reportType
+      );
       if (reportExists) {
         setReportMessage("Bạn đã báo cáo nội dung này rồi.");
         toast.warn("Bạn đã báo cáo nội dung này rồi."); // Hiển thị toast cảnh báo
@@ -917,17 +951,22 @@ const HomeFeed = () => {
           trackId: reportType === 'track' ? reportId : null,
           albumId: reportType === 'album' ? reportId : null,
           type: reportType,
-          reason: reason
+          reason: reason,
         };
+        console.warn(reportData);
 
-        const response = await axios.post('http://localhost:8080/api/reports', reportData, {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}` // Thêm JWT token vào header
+        const response = await axios.post(
+          "http://localhost:8080/api/reports",
+          reportData,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`, // Thêm JWT token vào header
+            },
           }
-        });
+        );
 
-        console.log('Report submitted successfully:', response.data);
+        console.log("Report submitted successfully:", response.data);
         setReportMessage("Báo cáo đã được gửi thành công.");
         toast.success("Báo cáo đã được gửi thành công."); // Hiển thị toast thông báo thành công
         setShowReportModal(false);
@@ -935,7 +974,7 @@ const HomeFeed = () => {
     } catch (error) {
       console.error("Lỗi khi tạo báo cáo:", error);
       if (error.response && error.response.status === 401) {
-        navigate('/login?error=true');
+        navigate("/login?error=true");
       } else {
         setReportMessage("Đã có lỗi xảy ra khi gửi báo cáo.");
         toast.error("Đã có lỗi xảy ra khi gửi báo cáo."); // Hiển thị toast thông báo lỗi
@@ -957,7 +996,7 @@ const HomeFeed = () => {
       console.log('Check report response:', response.data);
       return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
     } catch (error) {
-      console.error('Lỗi mạng:', error);
+      console.error("Lỗi mạng:", error);
     }
   };
 
@@ -992,7 +1031,7 @@ const HomeFeed = () => {
 
   // ẩn hiện post
   const toggleHiddenState = async (postId) => {
-    const token = localStorage.getItem('jwtToken');
+    const token = localStorage.getItem("jwtToken");
 
     if (!token) {
       console.error("No JWT token found");
@@ -1001,16 +1040,20 @@ const HomeFeed = () => {
     }
 
     try {
-      await axios.put(`http://localhost:8080/api/posts/${postId}/toggle-visibility`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.put(
+        `http://localhost:8080/api/posts/${postId}/toggle-visibility`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       // Update the visibility state of the post
-      setPostHiddenStates(prevStates => ({
+      setPostHiddenStates((prevStates) => ({
         ...prevStates,
-        [postId]: !prevStates[postId] // Toggle the visibility state
+        [postId]: !prevStates[postId], // Toggle the visibility state
       }));
       fetchPosts();
     } catch (error) {
@@ -1021,14 +1064,16 @@ const HomeFeed = () => {
 
   // get user information in feed
 
-
   // Lấy danh sách tên người dùng có thể tag
   useEffect(() => {
     const fetchUserTags = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/posts/tagName", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          "http://localhost:8080/api/posts/tagName",
+          {
+            withCredentials: true,
+          }
+        );
         console.log("User tags fetched:", response.data);
         setUserSuggestions(response.data);
       } catch (error) {
@@ -1102,12 +1147,15 @@ const HomeFeed = () => {
     });
   };
 
+
+  //Render
   return (
     <div>
-      <div className="feed-container p-0"
-      style={{
-        width: '100%',
-      }}
+      <div
+        className="feed-container p-0"
+        style={{
+          width: "100%",
+        }}
       >
         <ToastContainer />
         <div className="row feed-content">
@@ -1118,14 +1166,18 @@ const HomeFeed = () => {
               {/* avatar */}
               <div className="feed-avatar d-flex align-item-center justify-content-center">
                 <img
-                  src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+                  src={
+                    userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"
+                  }
                   alt="User avatar"
                 />
               </div>
               {/* information */}
               <div className="feed-information text-center">
                 <h5 className="feed-username">{userData.name}</h5>
-                <h6 className="feed-name">@<h7>{userData.userName}</h7></h6>
+                <h6 className="feed-name">
+                  @<h7>{userData.userName}</h7>
+                </h6>
                 <h6 className="feed-following">Follower</h6>
                 <span>{followCount.followerCount}</span>
                 <h6 className="feed-follower">Following</h6>
@@ -1133,7 +1185,9 @@ const HomeFeed = () => {
               </div>
               {/* View profile */}
               <div className="view-profile text-center">
-                <Link style={{ color: '#E94F37' }} to={'/profileUser'}>View profile</Link>
+                <Link style={{ color: "#E94F37" }} to={"/profileUser"}>
+                  View profile
+                </Link>
               </div>
             </div>
             <ul className="list-unstyled">
@@ -1141,7 +1195,7 @@ const HomeFeed = () => {
                 <a
                   href="/#"
                   className="d-flex align-items-center justify-content-center"
-                  style={{ textAlign: "center", marginTop: '0px' }}
+                  style={{ textAlign: "center", marginTop: "0px" }}
                 >
                   <img
                     src={images.web_content}
@@ -1155,7 +1209,10 @@ const HomeFeed = () => {
                 </a>
               </li>
               <li className="left mb-4">
-                <a href="/#" className="d-flex align-items-center justify-content-center">
+                <a
+                  href="/#"
+                  className="d-flex align-items-center justify-content-center"
+                >
                   <img
                     src={images.followers}
                     alt="icon"
@@ -1167,7 +1224,10 @@ const HomeFeed = () => {
               </li>
 
               <li className="left mb-4">
-                <Link to={"/likepost"} className="d-flex align-items-center justify-content-center">
+                <Link
+                  to={"/likepost"}
+                  className="d-flex align-items-center justify-content-center"
+                >
                   <img
                     src={images.feedback}
                     alt="icon"
@@ -1178,7 +1238,10 @@ const HomeFeed = () => {
                 </Link>
               </li>
               <li className="left mb-4">
-                <Link to={"/likeAlbums"} className="d-flex align-items-center justify-content-center">
+                <Link
+                  to={"/likeAlbums"}
+                  className="d-flex align-items-center justify-content-center"
+                >
                   <img
                     src={images.music}
                     alt="icon"
@@ -1203,7 +1266,6 @@ const HomeFeed = () => {
                 </Link>
               </li>
               <li className="left mb-4">
-
                 <Link
                   to={"/FriendRequests"}
                   className="d-flex align-items-center justify-content-center"
@@ -1215,22 +1277,25 @@ const HomeFeed = () => {
             </ul>
           </div>
 
-
           {/* Main content */}
           <div className="col-6 content-feed">
             {/* Nav tab link */}
             <div className="row nav-link-feed mt-4">
               <ul className="d-flex justify-content-center">
                 <li
-                  className={`col-6 text-center feed-link ${activeComponent === 'track' ? 'active' : ''}`}
-                  onClick={() => setActiveComponent('track')}
+                  className={`col-6 text-center feed-link ${
+                    activeComponent === "track" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveComponent("track")}
                 >
                   <i className="fa-solid fa-music me-1"></i>
                   <span>Track</span>
                 </li>
                 <li
-                  className={`col-6 text-center feed-link ${activeComponent === 'post' ? 'active' : ''}`}
-                  onClick={() => setActiveComponent('post')}
+                  className={`col-6 text-center feed-link ${
+                    activeComponent === "post" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveComponent("post")}
                 >
                   <i className="fa-solid fa-newspaper me-1"></i>
                   <span>Post</span>
@@ -1243,7 +1308,10 @@ const HomeFeed = () => {
               <div className="row align-items-center">
                 <div className="col-auto post-header">
                   <img
-                    src={userData.avatar || '/src/UserImages/Avatar/default-avt.jpg'}
+                    src={
+                      userData.avatar ||
+                      "/src/UserImages/Avatar/default-avt.jpg"
+                    }
                     alt="User avatar"
                   />
                 </div>
@@ -1253,8 +1321,8 @@ const HomeFeed = () => {
                     type="button"
                     className="btn text-start"
                     style={{
-                      backgroundColor: 'rgba(64, 102, 128, 0.078)',
-                      width: '85%',
+                      backgroundColor: "rgba(64, 102, 128, 0.078)",
+                      width: "85%",
                       height: 50,
                     }}
                     onClick={handleCreatePostClick}
@@ -1278,8 +1346,6 @@ const HomeFeed = () => {
             </div>
           </div>
 
-
-
           {/* Right Sidebar */}
           <div className="col-3 sidebar content-right bg-light">
             <ul className="list-new-follow">
@@ -1287,8 +1353,7 @@ const HomeFeed = () => {
                 <UsersToFollow userId={currentUserId} token={tokenjwt} />
               </li>
             </ul>
-            <div className="advertisement mt-5">
-            </div>
+            <div className="advertisement mt-5"></div>
           </div>
         </div>
       </div>
@@ -1296,7 +1361,11 @@ const HomeFeed = () => {
       {/* Các modal */}
       {/* Modal báo cáo */}
       {showReportModal && (
-        <div className="modal fade show" style={{ display: 'block' }} role="dialog">
+        <div
+          className="modal fade show"
+          style={{ display: "block" }}
+          role="dialog"
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
@@ -1314,17 +1383,26 @@ const HomeFeed = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                {reportMessage && <div className="alert alert-danger">{reportMessage}</div>} {/* Thông báo lỗi hoặc thành công */}
+                {reportMessage && (
+                  <div className="alert alert-danger">{reportMessage}</div>
+                )}{" "}
+                {/* Thông báo lỗi hoặc thành công */}
                 <h6>Chọn lý do báo cáo:</h6>
                 <div className="mb-3">
-                  {["Nội dung phản cảm", "Vi phạm bản quyền", "Spam hoặc lừa đảo", "Khác"].map((reason) => (
+                  {[
+                    "Nội dung phản cảm",
+                    "Vi phạm bản quyền",
+                    "Spam hoặc lừa đảo",
+                    "Khác",
+                  ].map((reason) => (
                     <label className="d-block" key={reason}>
                       <input
                         type="radio"
                         name="reportReason"
                         value={reason}
                         onChange={(e) => setReportReason(e.target.value)}
-                      /> {reason}
+                      />{" "}
+                      {reason}
                     </label>
                   ))}
                 </div>
@@ -1333,12 +1411,19 @@ const HomeFeed = () => {
                   placeholder="Nhập lý do báo cáo"
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  style={{ resize: 'none' }}
+                  style={{ resize: "none" }}
                 />
               </div>
               <div className="modal-footer">
                 <button
-                  onClick={() => submitReport(currentUserId, ReportId, reportType, reportReason)}
+                  onClick={() =>
+                    submitReport(
+                      currentUserId,
+                      ReportId,
+                      reportType,
+                      reportReason
+                    )
+                  }
                   className="btn btn-primary"
                 >
                   Report
@@ -1354,7 +1439,6 @@ const HomeFeed = () => {
                   Close
                 </button>
               </div>
-
             </div>
           </div>
         </div>
@@ -1371,7 +1455,9 @@ const HomeFeed = () => {
             <div>
               <div className="post-header">
                 <img
-                  src={userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"}
+                  src={
+                    userData.avatar || "/src/UserImages/Avatar/default-avt.jpg"
+                  }
                 />
                 <div>
                   <div className="name">{userData.name}</div>
@@ -1398,7 +1484,10 @@ const HomeFeed = () => {
                   <div className="tag-modal">
                     <ul>
                       {userSuggestions.map((user, index) => (
-                        <li key={index} onClick={() => handleTagUser(user.tagName)}>
+                        <li
+                          key={index}
+                          onClick={() => handleTagUser(user.tagName)}
+                        >
                           <Link to={`/profile/${user.id}`} className="tag-link">
                             {user.tagName}
                           </Link>
@@ -1408,20 +1497,40 @@ const HomeFeed = () => {
                   </div>
                 )}
                 <div className="row mt-3">
-                  <div className="col text-start">
-                    <input
-                      type="file"
-                      id="file-input"
-                      multiple
-                      onChange={(e) => {
-                        const files = Array.from(e.target.files);
-                        setPostImages(files);
-                        setPostImageUrls(
-                          files.map((file) => URL.createObjectURL(file))
-                        );
-                      }}
-                    />
-                  </div>
+                <div className="col text-start">
+  <input
+    type="file"
+    id="file-input"
+    multiple
+    onChange={(e) => {
+      const supportedFormats = ["image/jpeg", "image/png", "image/gif"]; // Định dạng được hỗ trợ
+      const files = Array.from(e.target.files); // Lấy danh sách file
+      const validFiles = []; // File hợp lệ
+      const invalidFiles = []; // File không hợp lệ
+
+      files.forEach((file) => {
+        if (supportedFormats.includes(file.type)) {
+          validFiles.push(file);
+        } else {
+          invalidFiles.push(file.name); // Lưu tên file không hợp lệ
+        }
+      });
+
+      if (invalidFiles.length > 0) {
+        alert(
+          `Các file không được hỗ trợ: ${invalidFiles.join(", ")}. Vui lòng chọn file định dạng ảnh (JPEG, PNG, GIF).`
+        );
+      }
+
+      // Cập nhật state chỉ với các file hợp lệ
+      setPostImages(validFiles);
+      setPostImageUrls(
+        validFiles.map((file) => URL.createObjectURL(file))
+      );
+    }}
+  />
+</div>
+
                   <div className="col text-end">
                     <button
                       id="submit-post"
@@ -1457,7 +1566,6 @@ const HomeFeed = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

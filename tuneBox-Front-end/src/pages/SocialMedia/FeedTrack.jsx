@@ -1,11 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
-import { images } from "../../assets/images/images";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
-import { Link, Routes, Route } from "react-router-dom";
-import Picker from "@emoji-mart/react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
 import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
@@ -14,20 +11,20 @@ import {
   removeLike,
   getLikesCountByTrackId,
 } from "../../service/likeTrackServiceCus";
+import { LoadTrackReport } from "../../service/SocialMediaAdminService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import UsersToFollow from "./Profile/UsersToFollow";
 import {
   getPlaylistByUserId,
   getPlaylistById,
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
-import { getUserInfo } from "../../service/UserService";
 
 const FeedTrack = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
+  const [isAccountBanned, setIsAccountBanned] = useState(false); // Khai báo isAccountBanned
 
   // track
   const [tracks, setTracks] = useState([]);
@@ -63,23 +60,50 @@ const FeedTrack = () => {
 
   const fetchTracks = async () => {
     try {
+      // Gọi API kiểm tra trạng thái tài khoản
+      const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
+        withCredentials: true,
+      });
+
+      // Kiểm tra nếu tài khoản bị khóa
+      if (statusResponse.data.isBanned) {
+        console.log("statusResponse:",statusResponse.data.isBanned)
+        // Hiển thị modal và xử lý đăng xuất
+        setIsAccountBanned(true); // Kích hoạt modal
+        return; // Dừng xử lý tiếp
+      }
+      console.log("setIsAccountBanned:", isAccountBanned); // Đảm bảo `isAccountBanned` được cập nhật sau khi gọi setState
+
       const response = await getAllTracks();
-      setTracks(response);
+      const responseRp = await LoadTrackReport();
+      const dataRP = responseRp.data;
+      
+      const filteredTracks = response.filter(track => {
+        const report = dataRP.find(rp => rp.trackId === track.id);//search track trong rp API
+        return !report || report.status !== "RESOLVED";//loai ra RESOLVED va khong co rp API
+      });
+      
+
+      console.log(filteredTracks);
       console.log("get all track: ", response);
+      console.log("get all track Rp: ", dataRP);
+      console.log("get all track filltered: ", filteredTracks);
+
+      setTracks(filteredTracks);
 
       // ktra trạng thái like cho mỗi track
       const likedStatus = await Promise.all(
         response.map(async (track) => {
           const liked = await checkUserLikeTrack(track.id, currentUserId);
           const count = await getLikesCountByTrackId(track.id);
-          console.log(
-            "userId:",
-            currentUserId,
-            "trackId:",
-            track.id,
-            "- likeStatus: ",
-            liked
-          );
+          // console.log(
+          //   "userId:",
+          //   currentUserId,
+          //   "trackId:",
+          //   track.id,
+          //   "- likeStatus: ",
+          //   liked
+          // );
           return { id: track.id, liked, count }; // Trả về id và trạng thái liked
         })
       );
@@ -93,8 +117,8 @@ const FeedTrack = () => {
       });
       setLikedTracks(updatedLikedTracks); // Cập nhật trạng thái likedTracks
       setCountLikedTracks(updatedCountTracks);
-      console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
-      console.log("Cập nhật trạng thái likedTracks: ", updatedCountTracks);
+      // console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
+      // console.log("Cập nhật trạng thái likedTracks: ", updatedCountTracks);
     } catch (error) {
       console.error("Error fetching all track:", error);
     }
@@ -377,7 +401,6 @@ const FeedTrack = () => {
       navigate(`/profile/${post.userId}`);
     }
   };
-
 
   return (
     <div>

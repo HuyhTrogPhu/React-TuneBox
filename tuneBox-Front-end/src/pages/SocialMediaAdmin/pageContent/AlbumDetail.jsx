@@ -91,7 +91,7 @@ console.log("album:",album)
                     <td>
                       <div className="d-flex align-items-center">
                         <img
-                          src={track.imageTrack || images.ava} // Kiểm tra nếu có trackImage, nếu không thì dùng hình ảnh mặc định
+                          src={track.avatar} 
                           alt="Track Image"
                           className="rounded me-3"
                           style={{ width: 50 }}

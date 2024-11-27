@@ -51,7 +51,9 @@ const Albums = () => {
   const handleDayChange = (from, to) => {
     setStartDate(from);
     setEndDate(to);
-    filterUsers(keyword, from, to);
+    if (from && to) {
+      filterUsers(keyword, from, to);
+    }
   };
 
   const handlTodayUser = (data) => {

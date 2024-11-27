@@ -221,7 +221,7 @@ const BrandDetail = () => {
 
                         <div className="col-3 mb-4" key={instrument.id}>
                           <a href={`/DetailProduct/${instrument.id}`} className="card-link">
-                            <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                            <div className="card card2" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
                               <div className="card-img-wrapper">
                                 <img
                                   src={instrument.image}
