@@ -156,6 +156,7 @@ const handleGoogleFailure = () => {
                     <h6>Please enter account name or email.</h6>
                     <div className="col-12">
                       <input
+                      id='username'
                         type="text"
                         className="form-control"
                         placeholder="Please enter account name or email."
@@ -168,6 +169,7 @@ const handleGoogleFailure = () => {
                     <h6>Password</h6>
                     <div className="col-lg-12" style={{ marginTop: -30 }}>
                       <input
+                      id='password'
                         type="password"
                         className="form-control"
                         placeholder="Nhập mật khẩu"
@@ -177,7 +179,7 @@ const handleGoogleFailure = () => {
                     </div>
                   </div>
                   <div className="col-lg-4 col-md-10 col-8 mx-auto">
-                    <button type="submit" className="form-control">Log in</button>
+                    <button id='loginbutton' type="submit" className="form-control">Log in</button>
                   </div>
                   <div className="col-lg-8 text-center mx-auto" style={{ marginTop: 80 }}>
                     <span className="text-center">Don't have an account yet?
