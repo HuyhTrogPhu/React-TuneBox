@@ -159,7 +159,7 @@ function App() {
               path="/socialadmin/*"
               element={<SocialMediaAdmin />}
             />
-            <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
+   
 
               {/* admin end */}
               <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />

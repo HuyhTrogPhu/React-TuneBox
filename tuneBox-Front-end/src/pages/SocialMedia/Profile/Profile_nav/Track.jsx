@@ -5,6 +5,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { listGenre } from "../../../../service/TrackServiceCus";
+import { LoadTrackReport } from "../../../../service/SocialMediaAdminService";
 import { useParams } from "react-router-dom"; // Import useParams để lấy userId từ URL
 
 const Track = () => {
@@ -45,7 +46,17 @@ const Track = () => {
       const sortedTrack = response.data.sort(
         (a, b) => new Date(b.createDate) - new Date(a.createDate)
       ); // Sap xep track
-        setTracks(sortedTrack); // Luu track vao state
+      const responseRp = await LoadTrackReport();
+      const dataRP = responseRp.data;
+      // Lọc các track có status là "PENDING" hoặc "DISMISSED" từ báo cáo
+      const filteredTracks = sortedTrack.filter((track) => {
+        const report = dataRP.find((rp) => rp.trackId === track.id); // Tìm báo cáo tương ứng với track
+        return !report || report.status !== "RESOLVED";
+      });
+
+
+      
+      setTracks(filteredTracks); // Luu track vao state
       console.log(response.data);
     } catch (error) {
       console.error(
