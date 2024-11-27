@@ -172,8 +172,9 @@ function AppContent(){
               <Route element={<ProtectedRoute allowedRole="Ecomadmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
-              <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
-              <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
+              <Route element={<ProtectedRoute allowedRole="SocialAdmin" />}>
+                <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
+              </Route>
 
               {/* admin end */}
             </Route>
