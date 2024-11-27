@@ -13,7 +13,8 @@ import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
 import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
 import Track from "./SocialMediaAdmin/pageContent/Track";
 
-import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
+import Report from "./SocialMediaAdmin/pageContent/Report";
+
 import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";
 import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
 import StatisticalUser from "./SocialMediaAdmin/Statistical/StaticUser";
