@@ -24,6 +24,7 @@ import {
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
 import "./css/mxh/post.css";
+import SharePostModal from "./Profile/Profile_nav/SharePostModal";
 
 const FeedPost = ({ sharedData, clearSharedData }) => {
   const navigate = useNavigate();
@@ -67,6 +68,8 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   const tokenjwt = localStorage.getItem("jwtToken");
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   //get avatar
   const [userData, setUserData] = useState({});
@@ -1440,6 +1443,22 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                     ></i>
                   </div>
                 </div>
+                {/* share post */}
+                <button
+                  className="btn col-2 mt-2 text-center"
+                  onClick={() => setIsShareModalOpen(true)}
+                >
+                  <i
+                    type="button"
+                    style={{ fontSize: "25px" }}
+                    className="fa-solid fa-share mt-1"
+                  ></i>
+                </button>
+                <SharePostModal
+                  postId={post.id}
+                  isOpen={isShareModalOpen}
+                  onClose={() => setIsShareModalOpen(false)}
+                />
               </div>
             </div>
           );

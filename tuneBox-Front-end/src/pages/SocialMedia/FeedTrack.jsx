@@ -24,6 +24,7 @@ import {
   updatePlaylist,
 } from "../../service/PlaylistServiceCus";
 import { getUserInfo } from "../../service/UserService";
+import ShareTrackModal from "./Profile/Profile_nav/ShareTrackModal";
 
 const FeedTrack = () => {
   const navigate = useNavigate();
@@ -43,6 +44,9 @@ const FeedTrack = () => {
   const [ReportId, setReportId] = useState(null);
   const [reportType, setReportType] = useState("");
   const [reportMessage, setReportMessage] = useState("");
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
 
   useEffect(() => {
     fetchTracks();
@@ -863,3 +867,4 @@ const FeedTrack = () => {
 };
 
 export default FeedTrack;
+
