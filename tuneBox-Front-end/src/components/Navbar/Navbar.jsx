@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { images } from "../../assets/images/images";
 import "./Navbar.css";
-import { useLocation, useNavigate,Link  } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getAvatarUser, search } from "../../service/UserService";
 import {
@@ -17,10 +17,11 @@ import {
   SwipeAction,
 } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
-import { Audio } from 'react-loader-spinner'
+import { Audio } from "react-loader-spinner";
 import { useTranslation } from "react-i18next";
-import '../../i18n/i18n'
+import "../../i18n/i18n";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -120,8 +121,6 @@ const Navbar = () => {
     try {
       const response = await listGenre();
       setGenre(response.data);
-
-
     } catch (error) {
       console.error("Error fetching Genre", error);
     }
@@ -166,6 +165,7 @@ const Navbar = () => {
 
     try {
       await createTrack(newTrack);
+      toast.success("Track created successfully!");
       console.log("Track created successfully");
       document.getElementById("closeModal").click();
       resetForm();
@@ -182,15 +182,17 @@ const Navbar = () => {
     try {
       const userId = Cookies.get("userId"); // Lấy userId từ Cookie
       const cart = JSON.parse(localStorage.getItem("cart")) || []; // Lấy giỏ hàng từ LocalStorage
-  
+
       if (userId && cart.length > 0) {
         // Gửi giỏ hàng lên server
-        await axios.post(`http://localhost:8080/customer/cart/${userId}`, { items: cart });
+        await axios.post(`http://localhost:8080/customer/cart/${userId}`, {
+          items: cart,
+        });
       }
-  
+
       // Xóa giỏ hàng khỏi LocalStorage
       localStorage.removeItem("cart");
-  
+
       // Logout API
       await logout();
       Cookies.remove("userId");
@@ -200,7 +202,6 @@ const Navbar = () => {
       console.error("Error logging out:", error);
     }
   };
-  
 
   const handleAvatarClick = () => {
     if (userId) {
@@ -227,9 +228,8 @@ const Navbar = () => {
       navigate("/track-ai");
     } else {
       navigate("/login");
-
     }
-  }
+  };
 
   const markAsRead = async (notificationId) => {
     try {
@@ -283,7 +283,9 @@ const Navbar = () => {
   //Xóa từng thông báo
   const deleteNotification = async (notificationId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/notifications/${notificationId}`);
+      await axios.delete(
+        `http://localhost:8080/api/notifications/${notificationId}`
+      );
       // Update notifications in state
       setNotifications(notifications.filter((n) => n.id !== notificationId));
     } catch (error) {
@@ -295,28 +297,36 @@ const Navbar = () => {
   const handleDeleteAllReadNotifications = async (userId) => {
     try {
       // Thêm userId vào URL
-      await axios.delete(`http://localhost:8080/api/notifications/delete-read`, {
-        params: { userId },
-      });
+      await axios.delete(
+        `http://localhost:8080/api/notifications/delete-read`,
+        {
+          params: { userId },
+        }
+      );
       console.log("Đã xóa tất cả thông báo đã đọc.");
     } catch (error) {
-      console.error("Lỗi khi xóa tất cả thông báo đã đọc:", error.response.data);
+      console.error(
+        "Lỗi khi xóa tất cả thông báo đã đọc:",
+        error.response.data
+      );
     }
   };
 
-  // open the modal 
+  // open the modal
   const handleOpenModal = () => {
     if (!userId) {
       navigate("/login");
       return;
     } else {
       getAllGenre(); // gọi getAllGenre trước khi mở modal
-      const modal = new window.bootstrap.Modal(document.getElementById("addTrackModal"));
+      const modal = new window.bootstrap.Modal(
+        document.getElementById("addTrackModal")
+      );
       modal.show();
     }
   };
 
-  // handle dropdown profile 
+  // handle dropdown profile
   const handleDropdownClick = () => {
     if (userId) {
       navigate("/profileUser");
@@ -325,38 +335,44 @@ const Navbar = () => {
     }
   };
 
-
   return (
     <header className="navbar-container ">
+      <ToastContainer />
       {/* Navbar Left */}
       <div className="col-3 d-flex align-items-center">
         <button
-          className={`navbar-icon ${location.pathname === "/" ? "active" : ""
-            }`}
+          className={`navbar-icon ${location.pathname === "/" ? "active" : ""}`}
           onClick={() => navigate("/")}
         >
           <img alt="tunebox" src={images.logoTuneBox} width="150" />
         </button>
 
         <button
-          className={`navbar-button ${location.pathname === "/" ? "active" : ""
-            }`}
+          className={`navbar-button ${
+            location.pathname === "/" ? "active" : ""
+          }`}
           onClick={() => navigate("/")}
         >
           <span className="text-decoration-none">
             <img alt="icon-home" src={images.home} className="icon" />
-            <b> {t('feed')}</b>
+            <b> {t("feed")}</b>
           </span>
         </button>
 
         <button
-          className={`navbar-button ${location.pathname === "/HomeEcommerce" ? "active" : ""
-            }`}
+          className={`navbar-button ${
+            location.pathname === "/HomeEcommerce" ? "active" : ""
+          }`}
           onClick={() => navigate("/HomeEcommerce")}
         >
           <span>
-            <img alt="icon-loa" src={images.speaker} width="35" className="icon" />
-            <b> {t('shop')}</b>
+            <img
+              alt="icon-loa"
+              src={images.speaker}
+              width="35"
+              className="icon"
+            />
+            <b> {t("shop")}</b>
           </span>
         </button>
       </div>
@@ -366,7 +382,7 @@ const Navbar = () => {
         <div>
           <input
             type="text"
-            placeholder={t('search')}
+            placeholder={t("search")}
             className="search-input"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)} // Cập nhật state khi người dùng nhập
@@ -395,10 +411,14 @@ const Navbar = () => {
           </span>
 
           {notificationVisible && (
-            <div className={`notification-dropdown ${notificationVisible ? "show" : ""}`}>
+            <div
+              className={`notification-dropdown ${
+                notificationVisible ? "show" : ""
+              }`}
+            >
               <SwipeableList>
                 {notifications.length > 0 ? (
-                  notifications.map(notification => (
+                  notifications.map((notification) => (
                     <SwipeableListItem
                       key={notification.id}
                       swipeRight={{
@@ -409,8 +429,14 @@ const Navbar = () => {
                         },
                       }}
                     >
-                      <div className={`notification-item ${!notification.read ? "unread" : ""}`}>
-                        {!notification.read && <span className="red-dot"></span>}
+                      <div
+                        className={`notification-item ${
+                          !notification.read ? "unread" : ""
+                        }`}
+                      >
+                        {!notification.read && (
+                          <span className="red-dot"></span>
+                        )}
                         <div
                           className="notification-content"
                           onClick={() => handleNotificationClick(notification)}
@@ -419,32 +445,48 @@ const Navbar = () => {
                             <>
                               <span className="message">{`${notification.likerUsername} đã thích bài viết của bạn!`}</span>
                               <br />
-                              <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                              <span className="time">
+                                {new Date(
+                                  notification.createdAt
+                                ).toLocaleTimeString()}
+                              </span>
                               <p>{notification.postContent}</p>
                             </>
                           ) : (
                             <>
-                              <span className="message">{notification.message}</span>
+                              <span className="message">
+                                {notification.message}
+                              </span>
                               <br />
-                              <span className="time">{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                              <span className="time">
+                                {new Date(
+                                  notification.createdAt
+                                ).toLocaleTimeString()}
+                              </span>
                               <p>{notification.postContent}</p>
                             </>
                           )}
                         </div>
                         {/* Thêm nút xóa ở đây */}
-                        <button onClick={() => deleteNotification(notification.id)} className="delete-notification-button">
+                        <button
+                          onClick={() => deleteNotification(notification.id)}
+                          className="delete-notification-button"
+                        >
                           Delete
                         </button>
                       </div>
                     </SwipeableListItem>
                   ))
                 ) : (
-                  <li className="no-notification">{t('notification')}</li>
+                  <li className="no-notification">{t("notification")}</li>
                 )}
               </SwipeableList>
 
-              <button onClick={handleDeleteAllReadNotifications(userId)} className="delete-all-read">
-              {t('delete')}
+              <button
+                onClick={handleDeleteAllReadNotifications(userId)}
+                className="delete-all-read"
+              >
+                {t("delete")}
               </button>
             </div>
           )}
@@ -452,13 +494,13 @@ const Navbar = () => {
 
         {/* chat */}
         <span className="mx-3">
-          <Link to={'/chat'}>
-          <img
-            alt="icon-chat"
-            style={{ width: "30px", height: "30px" }}
-            src={images.conversstion}
-            className="icon"
-          />
+          <Link to={"/chat"}>
+            <img
+              alt="icon-chat"
+              style={{ width: "30px", height: "30px" }}
+              src={images.conversstion}
+              className="icon"
+            />
           </Link>
         </span>
 
@@ -476,7 +518,7 @@ const Navbar = () => {
             alt="avatar-user"
             src={avatarUrl}
             className="avatar-user"
-            style={{objectFit: 'cover'}}
+            style={{ objectFit: "cover" }}
             onClick={handleAvatarClick}
             onMouseEnter={handleMouseEnter}
           />
@@ -484,19 +526,16 @@ const Navbar = () => {
 
         {/* drop down */}
         {dropdownVisible && (
-          <div
-            className=" dropdown-menu show"
-            onMouseLeave={handleMouseLeave}
-          >
+          <div className=" dropdown-menu show" onMouseLeave={handleMouseLeave}>
             <button
               className="dropdown-item"
               onClick={() => handleDropdownClick()}
             >
-              {t('profile')}
+              {t("profile")}
             </button>
 
             <button className="dropdown-item" onClick={handleLogout}>
-            {t('logout')}
+              {t("logout")}
             </button>
           </div>
         )}
@@ -508,7 +547,7 @@ const Navbar = () => {
           data-bs-target="#addTrackModal"
           onClick={handleOpenModal}
         >
-          {t('create')}
+          {t("create")}
         </button>
 
         {/* Track AI */}
@@ -550,8 +589,9 @@ const Navbar = () => {
                     <label className="form-label">Track Name</label>
                     <input
                       type="text"
-                      className={`form-control ${errors.name ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.name ? "is-invalid" : ""
+                      }`}
                       value={newTrackName}
                       onChange={(e) => setTrackName(e.target.value)}
                     />
@@ -564,8 +604,9 @@ const Navbar = () => {
                     <label className="form-label">Image Track</label>
                     <input
                       type="file"
-                      className={`form-control ${errors.image ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.image ? "is-invalid" : ""
+                      }`}
                       accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -594,8 +635,9 @@ const Navbar = () => {
                     <label className="form-label">File Track</label>
                     <input
                       type="file"
-                      className={`form-control ${errors.file ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.file ? "is-invalid" : ""
+                      }`}
                       accept=".mp3"
                       onChange={(e) => {
                         const file = e.target.files[0];
@@ -623,8 +665,9 @@ const Navbar = () => {
                   <div className="mt-3">
                     <label className="form-label">Genre</label>
                     <select
-                      className={`form-select ${errors.genre ? "is-invalid" : ""
-                        }`}
+                      className={`form-select ${
+                        errors.genre ? "is-invalid" : ""
+                      }`}
                       value={newTrackGenre}
                       onChange={(e) => setTrackGenre(e.target.value)}
                     >
@@ -651,8 +694,9 @@ const Navbar = () => {
                     <textarea
                       cols="50"
                       rows="5"
-                      className={`form-control ${errors.description ? "is-invalid" : ""
-                        }`}
+                      className={`form-control ${
+                        errors.description ? "is-invalid" : ""
+                      }`}
                       value={newTrackDescription}
                       onChange={(e) => setTrackDescription(e.target.value)}
                     ></textarea>
@@ -680,7 +724,12 @@ const Navbar = () => {
                   disabled={isLoading} // Disable button during loading
                 >
                   {isLoading ? (
-                    <Audio height="20" width="20" color="white" ariaLabel="loading" />
+                    <Audio
+                      height="20"
+                      width="20"
+                      color="white"
+                      ariaLabel="loading"
+                    />
                   ) : (
                     "Save Track"
                   )}

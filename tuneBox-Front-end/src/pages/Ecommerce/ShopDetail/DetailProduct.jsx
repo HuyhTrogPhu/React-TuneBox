@@ -33,7 +33,7 @@ const DetailProduct = () => {
 
   // share sanpham sang feed
   const handleShareToFeed = () => {
-    navigate("/", {
+    navigate("/feed", {
       state: { sharedData: instrument, activeComponent: "post" },
     });
     console.log("sharedData: ", instrument);

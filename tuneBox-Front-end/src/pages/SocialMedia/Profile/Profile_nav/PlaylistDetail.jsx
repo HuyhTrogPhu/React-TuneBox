@@ -37,6 +37,7 @@ const PlayListDetail = () => {
   const [currentTrackName, setCurrentTrackName] = useState("");
   const [currentImageTrack, setCurrentImageTrack] = useState("");
   const [userNamePlaylist, setUserName] = useState("");
+  const [creatorIdPlaylist, setCreatorIdPlaylist] = useState("");
   const [userImg, setUserImg] = useState("");
 
   const [likesCount, setLikesCount] = useState(0);
@@ -64,6 +65,7 @@ const PlayListDetail = () => {
 
   useEffect(() => {
     fetchPlaylist();
+    fetchListPlaylist();
   }, [id]);
 
   const fetchPlaylist = async () => {
@@ -71,7 +73,8 @@ const PlayListDetail = () => {
       console.log(id); // Kiểm tra ID playlist
       const response = await getPlaylistById(id);
       setPlaylist(response.data);
-
+      console.log("respon palylít: ", response);
+      setCreatorIdPlaylist(response.data.creatorId);
       const user = await getUserInfo(response.data.creatorId);
       setUserName(user.userName);
       setUserImg(user.avatar);
@@ -97,17 +100,12 @@ const PlayListDetail = () => {
     }
   };
 
-  // Lấy danh sách playlist ban đầu
-  useEffect(() => {
-    fetchListPlaylist();
-  }, [userId]);
-
   const fetchListPlaylist = async () => {
     setIsLoading(true);
     try {
-      const playlistResponse = await getPlaylistByUserId(userId);
+      const playlistResponse = await getPlaylistByUserId(creatorIdPlaylist);
       setAllPlaylists(playlistResponse);
-      console.log("fetchListPlaylist: ", playlistResponse);
+      console.log("fetchListPlaylist creator: ", playlistResponse);
     } catch (error) {
       console.error("Error fetching playlist:", error);
     } finally {
@@ -352,15 +350,24 @@ const PlayListDetail = () => {
                       className="album-avatar"
                       alt="Album Cover"
                     />
+                    {/* 
+                    <img
+                      src={playlist.imagePlaylist || ""}
+                      className={`ImageTrack-audio ${
+                        isPlaying ? "rotating-image" : ""
+                      }`}
+                      alt="Track Image"
+                    /> */}
                     <button
                       className="player-audio-button"
                       onClick={togglePlayPause}
                     >
                       <i
-                        className={`fa-solid fa-signal music-wave-icon ${playingTrackIndex === currentTrackIndex && isPlaying
+                        className={`fa-solid fa-signal music-wave-icon ${
+                          playingTrackIndex === currentTrackIndex && isPlaying
                             ? "playing"
                             : ""
-                          }`}
+                        }`}
                       ></i>
                     </button>
                   </div>
@@ -396,8 +403,9 @@ const PlayListDetail = () => {
                     >
                       {likesCount}
                       <i
-                        className={`fa-solid fa-heart ${statusliked ? "text-danger" : "text-muted"
-                          }`}
+                        className={`fa-solid fa-heart ${
+                          statusliked ? "text-danger" : "text-muted"
+                        }`}
                         style={{ cursor: "pointer", fontSize: "20px" }}
                       ></i>
                     </button>
@@ -417,24 +425,6 @@ const PlayListDetail = () => {
                       onClose={() => setIsShareModalOpen(false)}
                     />
                   </div>
-                  <div className="default">
-                    <div className="btn-group" style={{ marginLeft: 25 }}>
-                      <button
-                        className="btn dropdown-toggle no-border"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      ></button>
-                      <ul className="dropdown-menu dropdown-menu-lg-end">
-                        <li>
-                          <a className="dropdown-item">Edit</a>
-                        </li>
-                        <li>
-                          <a className="dropdown-item">Delete</a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -450,15 +440,18 @@ const PlayListDetail = () => {
                         <th>Description</th>
                         <th>Duration</th>
                         <th>Actions</th> {/* Thêm cột cho hành động phát */}
-                        <th>Remove</th> {/* Cột Remove */}
+                        {String(playlist.creatorId) === String(userId) && (
+                          <th>Remove</th>
+                        )}
                       </tr>
                     </thead>
                     <tbody>
                       {trackDetails.map((track, index) => (
                         <tr
                           key={track.id}
-                          className={`${track.status ? "track-disabled" : ""} ${currentTrackIndex === index ? "current-track" : ""
-                            }`}
+                          className={`${track.status ? "track-disabled" : ""} ${
+                            currentTrackIndex === index ? "current-track" : ""
+                          }`}
                           style={{ opacity: track.status ? 0.5 : 1 }} // Làm mờ track nếu có status = true
                         >
                           <td>{index + 1}</td>
@@ -480,24 +473,27 @@ const PlayListDetail = () => {
                                 disabled={track.status} // Disable nút phát nếu track bị vô hiệu hóa
                               >
                                 <i
-                                  className={`fa-solid ${playingTrackIndex === index && isPlaying
+                                  className={`fa-solid ${
+                                    playingTrackIndex === index && isPlaying
                                       ? "fa-pause"
                                       : "fa-play"
-                                    }`}
+                                  }`}
                                 ></i>
                               </button>
                             )}
                           </td>
-                          <td>
-                            <a
-                              href="#"
-                              onClick={() =>
-                                handleRemoveTrack(playlist.id, track.id)
-                              }
-                            >
-                              X
-                            </a>
-                          </td>
+                          {String(playlist.creatorId) === String(userId) && (
+                            <td>
+                              <a
+                                href="#"
+                                onClick={() =>
+                                  handleRemoveTrack(playlist.id, track.id)
+                                }
+                              >
+                                X
+                              </a>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -505,35 +501,29 @@ const PlayListDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="col-3 mt-5">
-              <div className="other mb-3">Other</div>
+
+            <div className="col-3">
+              <div className="orther">Orther playlist</div>
               <div>
                 {isLoading && <p>Loading...</p>}
                 <div className="playlist-container">
-
-                  {allplaylists.slice(0, 4).map(
-                    (playlist, index) =>
-                      !playlist.status && (
-                        <Link to={{
-                          pathname: `/playlist/${playlist.id}`,
-                          state: { playlist },
-                        }}>
-                          <div key={index} className="card other-playlist">
-                            <img
-                              src={
-                                playlist.imagePlaylist ||
-                                "/src/assets/images/nai.jpg"
-                              }
-                              className="card-img"
-                              alt={playlist.title || "Playlist image"}
-                            />
-                            <h6 className="playlist-text">{playlist.title}</h6>
-                          </div>
-                        </Link>
-
-
-                      )
-                  )}
+                  {allplaylists
+                    .filter((list) => list.id !== playlist.id && !list.status)
+                    .slice(0, 3) // Lấy 3 playlist đầu tiên
+                    .map((playlist, index) => (
+                      <div key={index} className="card-orther text-bg-dark">
+                        <img
+                          src={
+                            playlist.imagePlaylist ||
+                            "/src/assets/images/nai.jpg"
+                          }
+                          className="card-orther-img"
+                        />
+                        <div className="card-img-overlay">
+                          <h6>{playlist.title}</h6>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
@@ -547,8 +537,9 @@ const PlayListDetail = () => {
               <p className="title-audio">
                 <img
                   src={currentImageTrack || playlist.imagePlaylist}
-                  className={`ImageTrack-audio ${isPlaying ? "rotating-image" : ""
-                    }`}
+                  className={`ImageTrack-audio ${
+                    isPlaying ? "rotating-image" : ""
+                  }`}
                   alt="Track Image"
                 />
 
@@ -633,9 +624,7 @@ const PlayListDetail = () => {
                 Your browser does not support the audio tag.
               </audio>
             </div>
-            <div className="col-2">
-
-            </div>
+            <div className="col-2"></div>
           </div>
         </div>
       </div>

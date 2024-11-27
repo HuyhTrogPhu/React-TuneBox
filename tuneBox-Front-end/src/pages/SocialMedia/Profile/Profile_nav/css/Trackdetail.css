@@ -34,8 +34,8 @@
   margin-top: 24px;
   padding: 32px 32px 20px;
   position: relative;
-  height: 120vh;
   box-shadow: 0 4px 15px rgba(105, 101, 101, 0.6);
+  border-bottom: none !important;
 }
 
 .track-page-player-title {
@@ -143,6 +143,7 @@
 .track-infor {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   background: #d7dfe0;
+  border-bottom: none;
 }
 
 textarea {

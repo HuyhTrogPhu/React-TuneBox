@@ -105,7 +105,7 @@ function AppContent(){
         <div className="">
           <Routes>
             {/* Các route có Header */}
-            <Route element={<LayoutWithHeader />} >
+            <Route element={<LayoutWithHeader />}>
               <Route path="/*" element={<HomeFeed />} />
               <Route path="/HomeEcommerce" element={<Home />} />
               {/* Route cho Main Content */}
@@ -164,23 +164,19 @@ function AppContent(){
               <Route path="/inspiredBy" element={<InspiredBy />} />
               <Route path="/genre" element={<Genre />} />
               <Route path="/welcome" element={<WelcomeUser />} />
-              <Route path='/statistical/user' element={<StatisticalUser/>}/>
-              <Route path='/statistical/post' element={<StatisticalPost/>}/>
+              <Route path="/statistical/user" element={<StatisticalUser />} />
+              <Route path="/statistical/post" element={<StatisticalPost />} />
               {/* admin start */}
-              
+
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
-              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
+              <Route element={<ProtectedRoute allowedRole="ECOMADMIN" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
-              <Route
-              path="/socialadmin/*"
-              element={<SocialMediaAdmin />}
-            />
-            <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
+              <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
+              <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
 
               {/* admin end */}
               <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
-
             </Route>
           </Routes>
         </div>
