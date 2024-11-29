@@ -1,6 +1,0 @@
-.playlist-image-preview {
-    max-width: 100px; /* Thay đổi giá trị này theo yêu cầu */
-    max-height: 100px; /* Thay đổi giá trị này theo yêu cầu */
-    object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng */
-  }
-  

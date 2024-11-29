@@ -1,9 +1,0 @@
-.track-link {
-    display: block; /* Để thẻ chiếm toàn bộ chiều rộng */
-    padding: 10px; /* Thêm khoảng cách cho thẻ */
-    background-color: #f0f0f0; /* Màu nền */
-    text-decoration: none; /* Bỏ gạch chân */
-    color: #000; /* Màu chữ */
-    border-radius: 5px; /* Bo góc */
-    width: 100%; /* Đảm bảo chiều rộng 100% */
-  }
