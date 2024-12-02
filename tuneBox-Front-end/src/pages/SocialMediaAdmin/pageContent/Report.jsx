@@ -18,7 +18,6 @@ import {
   LoadReportByAlbumId,
   LoadUser,
   LoadReportByReportedId,
-
 } from "../../../service/SocialMediaAdminService";
 import "../css/card.css";
 const Report = () => {
@@ -26,6 +25,7 @@ const Report = () => {
   const [ReportTrack, setReportTrack] = useState([]);
   const [ReportTrackDetail, setReportTrackDetail] = useState([]);
   const [ReportPost, setReportPost] = useState([]);
+  const [ReportPostDetail, setReportPostDetail] = useState([]);
   const [ReportAlbum, setReportAlbum] = useState([]);
   const [ReportAlbumDetail, setReportAlbumDetail] = useState([]);
   const [ReportUser, setReportUser] = useState([]);
@@ -144,10 +144,10 @@ const Report = () => {
         const Album = await DeniedRPAlbum(id);
         console.warn(Album);
         break;
-        case "user":
-          const user = await DeniedRP(id);
-          console.warn(user);
-          break;
+      case "user":
+        const user = await DeniedRP(id);
+        console.warn(user);
+        break;
     }
     handleCloseModal();
     fetchData();
@@ -163,10 +163,10 @@ const Report = () => {
         const Album = await ApproveRPAlbum(id);
         console.warn(Album);
         break;
-        case "user":
-          const user = await ApproveRP(id);
-          console.warn(user);
-          break;
+      case "user":
+        const user = await ApproveRP(id);
+        console.warn(user);
+        break;
     }
     handleCloseModal();
     fetchData();
@@ -212,6 +212,7 @@ const Report = () => {
         <div className="col-md-6">
           <div className="card mb-4 no-hover">
             <div className="card-header bg-dark text-white">
+              {console.warn(ReportTrack)}
               <h5 className="text-light">Report Track</h5>
             </div>
             <div className="card-body">
@@ -545,10 +546,12 @@ const Report = () => {
                 )}
               </div>
               <div className="modal-footer">
+                {console.warn(modalData.id)
+                }
                 <button
                   className="btn btn-info"
                   onClick={() =>
-                    navigate(`/socialadmin/TrackDetail/${modalData.trackId}`)
+                    navigate(`/socialadmin/TrackDetail/${modalData.id}`)
                   }
                 >
                   View Track Detail
@@ -657,7 +660,7 @@ const Report = () => {
                 <button
                   className="btn btn-info"
                   onClick={() =>
-                    navigate(`/socialadmin/AlbumDetail/${modalData.albumId}`)
+                    navigate(`/socialadmin/AlbumDetail/${modalDataAlbum.id}`)
                   }
                 >
                   View Album Detail
@@ -745,7 +748,6 @@ const Report = () => {
                             <td>{track.reason}</td>
                             <td>{track.status}</td>
                             <td>
-                         
                               <div className="d-flex justify-content-between gap-1">
                                 <button
                                   type="button"
@@ -759,9 +761,7 @@ const Report = () => {
                                 <button
                                   type="button"
                                   className="btn btn-primary"
-                                  onClick={() =>
-                                    handleDenied(track.id, "user")
-                                  }
+                                  onClick={() => handleDenied(track.id, "user")}
                                 >
                                   Denied
                                 </button>
