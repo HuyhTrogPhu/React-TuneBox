@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Account.css';
 import Cookies from 'js-cookie';
-import { getUserAccountSetting, updateUserEmail,updateUserBirthday,updateUserGender } from '../../service/UserService';
+import { getUserAccountSetting, updateUserEmail,updateUserBirthday,updateUserGender, updateUserPhoneNumber } from '../../service/UserService';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -11,10 +11,12 @@ const Account = () => {
   const [years, setYears] = useState([]);
 
   const [userEmail, setEmail] = useState('');
+  const [userPhoneNum, setPhoneNum] = useState('');
   const [userBirthDay, setBirthDay] = useState('');
   const [userGender, setGender] = useState('');
 
   const [newEmail, setNewEmail] = useState('');
+  const [newPhone, setNewPhone] = useState('');
   const [selectedDay, setSelectedDay] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
@@ -26,9 +28,11 @@ const Account = () => {
       const fetchUserSetting = async () => {
         try {
           const response = await getUserAccountSetting(userIdCookie);
-          const { email, birthDay, gender } = response;
+          const { email,phone, birthDay, gender } = response;
           setEmail(email || '');
+          setPhoneNum(phone || '');
           setNewEmail(email || '');
+          setNewPhone(phone || '');
           setBirthDay(birthDay || '');
           setGender(gender || 'Male');
           
@@ -106,6 +110,33 @@ const Account = () => {
     }
 };
 
+function isValidPhoneNumber(phoneNumber) {
+  if (!phoneNumber) return false;
+
+  // Biểu thức regex kiểm tra số điện thoại
+  const phoneRegex = /^[0-9]{10,15}$/; // Số điện thoại chỉ chứa 10-15 chữ số
+  return phoneRegex.test(phoneNumber);
+}
+
+const handleUpdatePhoneNumber = async (e) => {
+  e.preventDefault();
+  if(!isValidPhoneNumber(newPhone)){
+    toast.error("Số điện thoại không hợp lệ");
+    return;
+  } try{
+    const userIdCookie = Cookies.get('userId');
+    const result = await updateUserPhoneNumber(userIdCookie, newPhone);
+    toast.success(result);
+    setPhoneNum(newPhone);
+  }catch (error) {
+    console.error('Error updating Phone:', error);
+    if (error.response) {
+        console.error('Response data:', error.response.data);
+    }
+    toast.error("Cập nhật Phone không thành công");
+}
+}
+
 
 // Hàm cập nhật ngày sinh
 const formatDate = (year, month, day) => {
@@ -126,9 +157,6 @@ const handleUpdateBirthday = async (e) => {
     toast.error("Cập nhật ngày sinh không thành công");
   }
 };
-
-
-
 // Hàm cập nhật giới tính
 const handleUpdateGender = async (e) => {
   e.preventDefault();
@@ -143,7 +171,6 @@ const handleUpdateGender = async (e) => {
       toast.error("Cập nhật giới tính không thành công");
   }
 };
-
 
   return (
     <div>
@@ -169,6 +196,23 @@ const handleUpdateGender = async (e) => {
               </div>
               <div className="update mt-5">
                 <button type="submit" className='btn'>Update Email</button>
+              </div>
+            </form>
+          </div>
+          {/* Phone_num */}
+                    <div className='mt-3'>
+            <form onSubmit={handleUpdatePhoneNumber}>
+              <div className='mt-3'>
+                <label className="form-label">Enter your number</label>
+                <input
+                  type="text"
+                  className='form-control'
+                  value={newPhone}
+                  onChange={(e) => setNewPhone(e.target.value)}
+                />
+              </div>
+              <div className="update mt-5">
+                <button type="submit" className='btn'>Update Phone</button>
               </div>
             </form>
           </div>

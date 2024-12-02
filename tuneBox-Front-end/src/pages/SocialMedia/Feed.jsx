@@ -610,6 +610,8 @@ const HomeFeed = () => {
       );
     } finally {
       setIsUploading(false); // Kết thúc quá trình tải lên
+      toast.success(" Post create successfully!");
+
     }
   };
   
@@ -1049,6 +1051,17 @@ const HomeFeed = () => {
           },
         }
       );
+      if (response.status === 200) {
+        const { isHidden } = response.data;
+        toast.success("visibilityToggledSuccess");
+
+        // Cập nhật trạng thái is_hidden của bài viết trong state
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId ? { ...post, is_hidden: isHidden } : post
+          )
+        );
+      }
 
       // Update the visibility state of the post
       setPostHiddenStates((prevStates) => ({
