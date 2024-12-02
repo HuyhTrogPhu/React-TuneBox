@@ -1320,45 +1320,53 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                   </div>
                 </div>
                 {/* Dropdown cho bài viết */}
-                {String(post.userId) === String(currentUserId) ? (
-                  <div className="dropdown position-absolute top-0 end-0">
+                  {String(post.userId) === String(currentUserId) ? (
+                    <div className="dropdown position-absolute top-0 end-0">
+                      <button
+                        className="btn btn-options dropdown-toggle"
+                        type="button"
+                        id={`dropdownMenuButton-${post.id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        ...
+                      </button>
+                      <ul
+                        className="dropdown-menu"
+                        aria-labelledby={`dropdownMenuButton-${post.id}`}
+                      >
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleEditPost(post)}
+                          >
+                            <i className="fa-solid fa-pen-to-square"></i>Edit
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleDeletePost(post.id)}
+                          >
+                            <i className="fa-solid fa-trash "></i>Delete
+                          </button>
+                        </li>
+                        <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => toggleHiddenState(post.id)}
+                        >
+                          <i className="fa-solid fa-eye-slash"></i> {post.is_hidden ? ('showPost') : ('hidePost')}
+                        </button>
+                      </li>
+                      </ul>
+                    </div>
+                  ) : (
                     <button
-                      className="btn btn-options dropdown-toggle"
-                      type="button"
-                      id={`dropdownMenuButton-${post.id}`}
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      ...
-                    </button>
-                    <ul
-                      className="dropdown-menu"
-                      aria-labelledby={`dropdownMenuButton-${post.id}`}
-                    >
-                      <li>
-                        <button
-                          className="dropdown-item"
-                          onClick={() => handleEditPost(post)}
-                        >
-                          <i className="fa-solid fa-pen-to-square"></i>Edit
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className="dropdown-item"
-                          onClick={() => handleDeletePost(post.id)}
-                        >
-                          <i className="fa-solid fa-trash "></i>Delete
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                ) : (
-                  <button
-                    className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
-                    onClick={() => handleReport(post.id, "post")}
-                  ></button>
-                )}
+                      className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
+                      onClick={() => handleReport(post.id, "post")}
+                    ></button>
+                  )}
               </div>
               {/* Nội dung bài viết */}
               <div className="post-content">{post.content}</div>
