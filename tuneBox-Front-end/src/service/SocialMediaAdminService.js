@@ -219,6 +219,63 @@ export const LoadAlbum = async () => {
 };
 
 //load all Track<Report>
+export const LoadAllTrackReport = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAllTrackReport`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+//load all User<Report>
+export const LoadAllUserReport = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAllUserReport`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+//load all Track<Report>
+export const LoadAllAlbumReport = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAllAlbumReport`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+//load all Track<Report>
+export const LoadAllPostReport = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAllPostReport`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+
+//load all Track by page <Report>
 export const LoadTrackReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(

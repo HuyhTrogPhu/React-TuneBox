@@ -4,6 +4,7 @@ import { images } from "../../../assets/images/images";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Music, Users, ShoppingBag, Disc, Radio } from "lucide-react";
 import "../css/User.css";
 import {
   LoadUserDetail,
@@ -15,7 +16,6 @@ import {
 import PlaylistTable from "./Table/PlaylistTable";
 import AlbumTable from "./Table/AlbumTable";
 import TrackTable from "./Table/TrackTable";
-
 const UserDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -42,7 +42,6 @@ const UserDetail = () => {
       console.log("user:", responseUser);
       if (responseUser.status) {
         setUser(responseUser.data);
-        setUserTrack(responseUser.data.tracks);
       }
 
       // Gọi API của Album user
@@ -58,6 +57,11 @@ const UserDetail = () => {
       if (responseUserPlayList.status) {
         setPlayLists(responseUserPlayList.data);
       }
+
+      // Gọi API của track user
+      const responseUserTrack = await LoadUserTrack(id);
+      console.log("user track:", responseUserTrack);
+      setUserTrack(responseUserTrack.data);
     };
 
     fetchData();
@@ -71,101 +75,130 @@ const UserDetail = () => {
     <div className="container-fluid">
       <div className="row vh-100">
         {/* Left Sidebar (User Info) */}
+        <div className="col-lg-5 bg-light p-4 d-flex flex-column align-items-center bg-secondary-subtle text-start">
+          {" "}
+          <div className="card-body text-center position-relative">
+            <div className="position-absolute top-0 start-50 translate-middle">
+              <img
+                src={userInfor.avatar}
+                alt="User Avatar"
+                className="rounded-circle border border-4 border-white shadow"
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  objectFit: "cover",
+                }}
+              />
+            </div>
 
-        <div className="col-lg-3 bg-light p-4 d-flex flex-column align-items-center bg-secondary-subtle text-start">
-          {userDetail && userDetail.userInformation ? (
-            <img
-              src={userDetail.userInformation.avatar}
-              alt="User Avatar"
-              className="avatar img-fluid rounded-circle mb-4"
-              style={{ width: "150px", height: "150px" }}
-            />
-          ) : (
-            <img
-              src=""
-              alt="No Avatar Available"
-              className="avatar img-fluid rounded-circle mb-4"
-              style={{
-                width: "150px",
-                height: "150px",
-                backgroundColor: "#f0f0f0",
-              }}
-            />
-          )}
-          <h4>User information</h4>
+            <div className="pt-5 mt-5">
+              <h4 className="fw-bold mb-1">{userDetail.userName}</h4>
+              <p className="text-muted mb-3">{userDetail.email}</p>
 
-          {console.log("userdetail", userDetail)}
-          {console.warn("userinfor", userInfor)}
-          <div class="content-start">
-            <label class="d-block fw-bold">Username</label>
-            <label class="d-block mb-2">{userInfor.name}</label>
+              {/* Stats Grid */}
 
-            <label class="d-block fw-bold">Email</label>
-            <label class="d-block mb-2">{userDetail.email}</label>
+              {console.warn("userdetail", userDetail)}
+              {console.warn("userinfor", userInfor)}
+              <div className="row g-3 mb-4">
+                <div className="col-6">
+                  <div className="p-3 border rounded bg-light">
+                    <Users className="mb-2" />
+                    <h6 className="mb-1">Followers</h6>
+                    <h5 className="mb-0">{userDetail.followerCount}</h5>
+                  </div>
+                </div>
+                <div className="col-6">
+                  <div className="p-3 border rounded bg-light">
+                    <Users className="mb-2" />
+                    <h6 className="mb-1">Following</h6>
+                    <h5 className="mb-0">{userDetail.followingCount}</h5>
+                  </div>
+                </div>
+                <div className="col-4">
+                  <div className="p-3 border rounded bg-light">
+                    <ShoppingBag className="mb-2" />
+                    <h6 className="mb-1">Orders</h6>
+                    <h5 className="mb-0">{userDetail.odersCount}</h5>
+                  </div>
+                </div>
+                <div className="col-4">
+                  <div className="p-3 border rounded bg-light">
+                    <Disc className="mb-2" />
+                    <h6 className="mb-1">Albums</h6>
+                    <h5 className="mb-0">{userDetail.albumCount}</h5>
+                  </div>
+                </div>
+                <div className="col-4">
+                  <div className="p-3 border rounded bg-light">
+                    <Radio className="mb-2" />
+                    <h6 className="mb-1">Tracks</h6>
+                    <h5 className="mb-0">
+                      {userDetail.tracks
+                        ? userDetail.tracks.length
+                        : "No Track Created"}
+                    </h5>
+                  </div>
+                </div>
+              </div>
 
-            <label class="d-block fw-bold">Create Date</label>
-            <label class="d-block mb-2">{userDetail.createDate}</label>
+              {/* User Interests */}
+              <div className="text-start mb-4">
+                <div className="mb-3">
+                  <h6 className="fw-bold mb-2">Inspired By</h6>
+                  <div className="d-flex flex-wrap gap-2">
+                    {userDetail.inspiredBy &&
+                    userDetail.inspiredBy.length > 0 ? (
+                      userDetail.inspiredBy.map((item, index) => (
+                        <span key={index} className="badge bg-primary">
+                          {item.name}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-muted">No data available</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <h6 className="fw-bold mb-2">Talents</h6>
+                  <div className="d-flex flex-wrap gap-2">
+                    {userDetail.talent && userDetail.talent.length > 0 ? (
+                      userDetail.talent.map((item, index) => (
+                        <span key={index} className="badge bg-success">
+                          {item.name}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-muted">No data available</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <h6 className="fw-bold mb-2">Genres</h6>
+                  <div className="d-flex flex-wrap gap-2">
+                    {userDetail.genre && userDetail.genre.length > 0 ? (
+                      userDetail.genre.map((item, index) => (
+                        <span key={index} className="badge bg-info">
+                          {item.name}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-muted">No data available</span>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-            <label class="d-block fw-bold">Location</label>
-            <label class="d-block mb-2">
-              {userDetail.location || "No Data"}
-            </label>
+              <p className="text-muted mb-3">
+                Joined: {new Date(user.createDate).toLocaleDateString("vi-VN")}
+              </p>
 
-            <label className="d-block fw-bold">Genre</label>
-            <label className="d-block mb-2">
-              {userDetail.genre && userDetail.genre.length > 0 ? (
-                userDetail.genre.map((gdata, index) => (
-                  <span
-                    key={index}
-                    className="badge rounded-pill text-bg-warning"
-                  >
-                    {gdata.name}
-                  </span>
-                ))
-              ) : (
-                <span>No Data</span>
-              )}
-            </label>
-
-            <label className="d-block fw-bold">Inspired By</label>
-            <label className="d-block mb-2">
-              {userDetail.inspiredBy && userDetail.inspiredBy.length > 0 ? (
-                userDetail.inspiredBy.map((gdata, index) => (
-                  <span
-                    key={index}
-                    className="badge rounded-pill text-bg-warning"
-                  >
-                    {gdata.name}
-                  </span>
-                ))
-              ) : (
-                <span>No Data</span>
-              )}
-            </label>
-
-            <label className="d-block fw-bold">Talent</label>
-            <label className="d-block mb-2">
-              {userDetail.talent && userDetail.talent.length > 0 ? (
-                userDetail.talent.map((gdata, index) => (
-                  <span
-                    key={index}
-                    className="badge rounded-pill text-bg-warning"
-                  >
-                    {gdata.name}
-                  </span>
-                ))
-              ) : (
-                <span>No Data</span>
-              )}
-            </label>
-
-            <label class="d-block fw-bold">About</label>
-            <label class="d-block mb-2">{userDetail.about || "No Data"}</label>
+              <button className="btn btn-danger">Ban/Unban User</button>
+            </div>
           </div>
         </div>
 
         {/* Right Side (Tracks, Albums, Playlists) */}
-        <div className="col-lg-9 p-4">
+        <div className="col-lg-7 p-4">
           {/* Stats Section */}
           <div className="row mb-4 text-center">
             <div className="col-4">

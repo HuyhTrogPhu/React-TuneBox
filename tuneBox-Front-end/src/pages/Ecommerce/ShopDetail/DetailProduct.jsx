@@ -13,7 +13,7 @@ import ShareProductModal from "../../SocialMedia/Profile/Profile_nav/ShareProduc
 
 import Swal from "sweetalert2";
 import { Audio } from "react-loader-spinner";
-import ShareProductModal from "../../SocialMedia/Profile/Profile_nav/ShareProductModal";
+
 
 const DetailProduct = () => {
   const { id } = useParams();
