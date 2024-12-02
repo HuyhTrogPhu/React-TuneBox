@@ -731,3 +731,13 @@ export const LoadAlbumForTable = async (startDate, endDate) => {
     throw error;
   }
 };
+
+const API_BASE_URL = "http://localhost:8082/api/admin";
+
+export const banUser = async (id) => {
+  return await axios.put(`${API_BASE_URL}/${id}/ban`);
+};
+
+export const unbanUser = async (id) => {
+  return await axios.put(`${API_BASE_URL}/${id}/unban`);
+};

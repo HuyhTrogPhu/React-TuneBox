@@ -40,7 +40,7 @@ const SignUp = () => {
       });
 
       if (response.status === 200) {
-        const formData = { userName, email, password, name: null, avatar: null, inspiredBys: [], talents: [], genres: [] };
+        const formData = { userName, email, password, name: null, avatar: null, inspiredBys: [], talents: [], genres: [],status: "ACTIVE" };
         navigate('/userInfor', { state: formData });
       }
     } catch (err) {
@@ -89,7 +89,8 @@ const SignUp = () => {
                 avatar: user.picture || null, 
                 inspiredBys: [], 
                 talents: [], 
-                genres: [] 
+                genres: [],
+                status: ACTIVE
             };
 
             if (userExists) {

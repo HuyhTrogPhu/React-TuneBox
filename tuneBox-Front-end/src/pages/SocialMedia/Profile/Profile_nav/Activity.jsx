@@ -742,7 +742,6 @@ const Activity = () => {
 
   return (
     <div>
-      <ToastContainer />
 
       {/* Nút tạo bài */}
       <div className="container mt-2 mb-5" style={{ boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px' }}>
@@ -846,7 +845,6 @@ const Activity = () => {
         </div>
       </div>
       {/* Modal báo cáo */}
-      <ToastContainer />
       {showReportModal && (
         <div className="modal fade show" style={{ display: 'block' }} role="dialog">
           <div className="modal-dialog">

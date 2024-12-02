@@ -14,7 +14,6 @@ import ShareProductModal from "../../SocialMedia/Profile/Profile_nav/ShareProduc
 import Swal from "sweetalert2";
 import { Audio } from "react-loader-spinner";
 
-
 const DetailProduct = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -34,7 +33,7 @@ const DetailProduct = () => {
 
   // share sanpham sang feed
   const handleShareToFeed = () => {
-    navigate("/", {
+    navigate("/feed", {
       state: { sharedData: instrument, activeComponent: "post" },
     });
     console.log("sharedData: ", instrument);

@@ -93,7 +93,9 @@ export const getRepliesByComment = async (commentId) => {
 // Hàm xóa reply
 export const deleteReply = async (replyId, userId) => {
   try {
-    await axios.delete(`${API_URL_REPLY}/reply/${replyId}/user/${userId}`);
+    await axios.delete(`${API_URL_REPLY}/reply/${replyId}/user/${userId}`, {
+      withCredentials: true, // Đảm bảo cookie được gửi cùng request
+    });
   } catch (error) {
     throw new Error(error.response.data.message || "Error deleting reply");
   }

@@ -196,7 +196,7 @@ const Track = () => {
       <div className="post-header-Track position-relative m-5 mt-0">
         {tracks.map(
           (track) =>
-            track.status && (
+            !track.status && (
               <div key={track.id} className="post-header-track">
                 <img
                   src={track.imageTrack || "/src/UserImages/Avatar/avt.jpg"}

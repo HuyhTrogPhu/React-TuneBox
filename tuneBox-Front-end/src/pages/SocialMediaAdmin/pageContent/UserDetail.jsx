@@ -12,6 +12,8 @@ import {
   LoadUser,
   LoadUserAlbums,
   LoadUserPlayList,
+  banUser,
+  unbanUser
 } from "../../../service/SocialMediaAdminService";
 import PlaylistTable from "./Table/PlaylistTable";
 import AlbumTable from "./Table/AlbumTable";
@@ -27,6 +29,7 @@ const UserDetail = () => {
   const [userAlbums, setUserAlbums] = useState([]);
   const [userPlayLists, setPlayLists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isBanned, setIsBanned] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,10 +66,32 @@ const UserDetail = () => {
       console.log("user track:", responseUserTrack);
       setUserTrack(responseUserTrack.data);
     };
-
+  
     fetchData();
-    setLoading(false);
-  }, []);
+  }, [id]);
+  
+
+  const handleBanUnban = async () => {
+    try {
+      if (isBanned) {
+        await unbanUser(id); // Gọi API mở khóa người dùng
+        alert("Người dùng đã được mở khóa.");
+      } else {
+        await banUser(id); // Gọi API khóa người dùng
+        alert("Người dùng đã bị khóa.");
+      }
+  
+      // Cập nhật lại trạng thái bằng cách gọi API LoadUser
+      const responseUser = await LoadUser(id);
+      if (responseUser.status) {
+        setIsBanned(responseUser.data.status === "BANNED");
+      }
+    } catch (error) {
+      console.error("Error updating user ban status:", error);
+      alert("Không thể cập nhật trạng thái người dùng.");
+    }
+  };
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -195,6 +220,15 @@ const UserDetail = () => {
               <button className="btn btn-danger">Ban/Unban User</button>
             </div>
           </div>
+
+          <button
+  className={`btn ${isBanned ? "btn-success" : "btn-danger"} mt-4`}
+  onClick={handleBanUnban}
+>
+  {isBanned ? "Unban User" : "Ban User"}
+</button>
+
+
         </div>
 
         {/* Right Side (Tracks, Albums, Playlists) */}

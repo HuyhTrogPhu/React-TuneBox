@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { images } from "../../assets/images/images";
 import axios from "axios";
-import { format } from "date-fns";
 import Cookies from "js-cookie";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -19,11 +18,9 @@ import {
   Router,
   useLocation,
   Outlet,
+  Link
 } from "react-router-dom";
-import { Link, Routes, Route } from "react-router-dom";
-import Picker from "@emoji-mart/react";
 import { getAllTracks, listGenre } from "../../service/TrackServiceCus";
-import WaveFormFeed from "../SocialMedia/Profile/Profile_nav/WaveFormFeed";
 import {
   addLike,
   checkUserLikeTrack,
@@ -136,6 +133,7 @@ const HomeFeed = () => {
     }
   };
 
+
   const fetchTracks = async () => {
     try {
       const response = await getAllTracks();
@@ -147,14 +145,14 @@ const HomeFeed = () => {
         response.map(async (track) => {
           const liked = await checkUserLikeTrack(track.id, currentUserId);
           const count = await getLikesCountByTrackId(track.id);
-          console.log(
-            "userId:",
-            currentUserId,
-            "trackId:",
-            track.id,
-            "- likeStatus: ",
-            liked
-          );
+          // console.log(
+          //   "userId:",
+          //   currentUserId,
+          //   "trackId:",
+          //   track.id,
+          //   "- likeStatus: ",
+          //   liked
+          // );
           return { id: track.id, liked, count }; // Trả về id và trạng thái liked
         })
       );
@@ -168,8 +166,8 @@ const HomeFeed = () => {
       });
       setLikedTracks(updatedLikedTracks); // Cập nhật trạng thái likedTracks
       setCountLikedTracks(updatedCountTracks);
-      console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
-      console.log("Cập nhật trạng thái likedTracks: ", updatedCountTracks);
+      // console.log("Cập nhật trạng thái likedTracks: ", updatedLikedTracks);
+      // console.log("Cập nhật trạng thái likedTracks: ", updatedCountTracks);
     } catch (error) {
       console.error("Error fetching all track:", error);
     }
@@ -357,8 +355,21 @@ const HomeFeed = () => {
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
     try {
+      // Gọi API kiểm tra trạng thái tài khoản
+      const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
+        withCredentials: true,
+      });
+
+      // Kiểm tra nếu tài khoản bị khóa
+      if (statusResponse.data.isBanned) {
+        // Hiển thị modal và xử lý đăng xuất
+        setIsAccountBanned(true); // Kích hoạt modal
+        return; // Dừng xử lý tiếp
+      }
+
+      // Nếu tài khoản không bị khóa, tiếp tục xử lý bài viết
       const response = await axios.get(`http://localhost:8080/api/posts/all`, {
-        params: { currentUserId }, // Truyền currentUserId vào request
+        params: { currentUserId },
         withCredentials: true,
       });
 
@@ -417,6 +428,7 @@ const HomeFeed = () => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
+
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
@@ -552,18 +564,25 @@ const HomeFeed = () => {
     setPostImages(files); // Cập nhật tệp ảnh
   };
   const handleSubmitPost = async () => {
+    // Kiểm tra nếu cả nội dung và ảnh đều không có
+    if ((!postContent || postContent.trim() === "") && postImages.length === 0) {
+      alert("Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh!");
+      return; // Ngăn không cho tiếp tục
+    }
+  
     const formData = new FormData();
-    formData.append("content", postContent || "");
+    formData.append("content", postContent || ""); // Nội dung mặc định là chuỗi rỗng nếu không có
     formData.append("userId", currentUserId);
-
+  
     postImages.forEach((image) => {
       formData.append("images", image);
     });
-
+  
     setIsUploading(true); // Bắt đầu quá trình tải lên
-
+  
     try {
       if (postId) {
+        // Cập nhật bài viết
         await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -571,6 +590,7 @@ const HomeFeed = () => {
           withCredentials: true,
         });
       } else {
+        // Tạo bài viết mới
         await axios.post("http://localhost:8080/api/posts", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -578,7 +598,7 @@ const HomeFeed = () => {
           withCredentials: true,
         });
       }
-
+  
       // Đóng modal và reset form
       document.getElementById("post-modal").style.display = "none";
       resetForm();
@@ -590,8 +610,12 @@ const HomeFeed = () => {
       );
     } finally {
       setIsUploading(false); // Kết thúc quá trình tải lên
+      toast.success(" Post create successfully!");
+
     }
   };
+  
+  
   // delete post
   const handleDeletePost = async (postId) => {
     const confirmDelete = window.confirm(
@@ -614,6 +638,10 @@ const HomeFeed = () => {
 
   // edit post
   const handleEditPost = (post) => {
+    if (!post.content || post.content.trim() === "") {
+      alert("Vui lòng nhập nội dung bài viết trước khi đăng!");
+      return; // dừng không cho làm tiếp vì trống rồi
+    }
     setPostContent(post.content);
     setPostImages(post.images);
     setPostId(post.id);
@@ -921,10 +949,9 @@ const HomeFeed = () => {
       } else {
         const reportData = {
           userId: userId,
-          postId: reportType === "post" ? reportId : null,
-          trackId: reportType === "track" ? reportId : null,
-          albumId: reportType === "album" ? reportId : null,
-          userReportedId: reportType === "user" ? reportId : null,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
           type: reportType,
           reason: reason,
         };
@@ -958,21 +985,17 @@ const HomeFeed = () => {
   };
   const checkReportExists = async (userId, reportId, reportType) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/reports/check`,
-        {
-          params: {
-            userId: userId,
-            postId: reportType === "post" ? reportId : null,
-            trackId: reportType === "track" ? reportId : null,
-            albumId: reportType === "album" ? reportId : null,
-            reportedId: reportType === "user" ? reportId : null,
-            type: reportType,
-          },
-          withCredentials: true,
-        }
-      );
-      console.log("Check report response:", response.data);
+      const response = await axios.get(`http://localhost:8080/api/reports/check`, {
+        params: {
+          userId: userId,
+          postId: reportType === 'post' ? reportId : null,
+          trackId: reportType === 'track' ? reportId : null,
+          albumId: reportType === 'album' ? reportId : null,
+          type: reportType,
+        },
+        withCredentials: true,
+      });
+      console.log('Check report response:', response.data);
       return response.data.exists; // Giả sử API trả về trạng thái tồn tại của báo cáo
     } catch (error) {
       console.error("Lỗi mạng:", error);
@@ -1028,6 +1051,17 @@ const HomeFeed = () => {
           },
         }
       );
+      if (response.status === 200) {
+        const { isHidden } = response.data;
+        toast.success("visibilityToggledSuccess");
+
+        // Cập nhật trạng thái is_hidden của bài viết trong state
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId ? { ...post, is_hidden: isHidden } : post
+          )
+        );
+      }
 
       // Update the visibility state of the post
       setPostHiddenStates((prevStates) => ({
@@ -1126,6 +1160,8 @@ const HomeFeed = () => {
     });
   };
 
+
+  //Render
   return (
     <div>
       <div
@@ -1474,20 +1510,40 @@ const HomeFeed = () => {
                   </div>
                 )}
                 <div className="row mt-3">
-                  <div className="col text-start">
-                    <input
-                      type="file"
-                      id="file-input"
-                      multiple
-                      onChange={(e) => {
-                        const files = Array.from(e.target.files);
-                        setPostImages(files);
-                        setPostImageUrls(
-                          files.map((file) => URL.createObjectURL(file))
-                        );
-                      }}
-                    />
-                  </div>
+                <div className="col text-start">
+  <input
+    type="file"
+    id="file-input"
+    multiple
+    onChange={(e) => {
+      const supportedFormats = ["image/jpeg", "image/png", "image/gif"]; // Định dạng được hỗ trợ
+      const files = Array.from(e.target.files); // Lấy danh sách file
+      const validFiles = []; // File hợp lệ
+      const invalidFiles = []; // File không hợp lệ
+
+      files.forEach((file) => {
+        if (supportedFormats.includes(file.type)) {
+          validFiles.push(file);
+        } else {
+          invalidFiles.push(file.name); // Lưu tên file không hợp lệ
+        }
+      });
+
+      if (invalidFiles.length > 0) {
+        alert(
+          `Các file không được hỗ trợ: ${invalidFiles.join(", ")}. Vui lòng chọn file định dạng ảnh (JPEG, PNG, GIF).`
+        );
+      }
+
+      // Cập nhật state chỉ với các file hợp lệ
+      setPostImages(validFiles);
+      setPostImageUrls(
+        validFiles.map((file) => URL.createObjectURL(file))
+      );
+    }}
+  />
+</div>
+
                   <div className="col text-end">
                     <button
                       id="submit-post"

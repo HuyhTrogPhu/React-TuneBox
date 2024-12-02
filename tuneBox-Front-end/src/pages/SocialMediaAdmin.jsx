@@ -13,7 +13,8 @@ import Playlists from "./SocialMediaAdmin/pageContent/Playlists";
 import UserDetail from "./SocialMediaAdmin/pageContent/UserDetail";
 import Track from "./SocialMediaAdmin/pageContent/Track";
 
-import ReportManagement from "./SocialMediaAdmin/pageContent/ReportManagement";
+import Report from "./SocialMediaAdmin/pageContent/Report";
+
 import TrackDetail from "./SocialMediaAdmin/pageContent/TrackDetail";
 import Statistical from "./SocialMediaAdmin/pageContent/Statistical";
 import StatisticalUser from "./SocialMediaAdmin/Statistical/StaticUser";
@@ -106,9 +107,8 @@ const SocialMediaAdmin = () => {
               <Route path='albums' element={<Albums/>} />
               <Route path='Track' element={<Track/>} />
               <Route path='playlists' element={<Playlists/>} />
-              <Route path='Report' element={<Report/>} />
-              <Route path='Report2' element={<ReportManagement/>} />
               
+              <Route path='Report' element={<Report/>} />
               <Route path='Statistical' element={<Statistical/>} />
               <Route path='Statistical/UserStatic' element={<StatisticalUser/>} />
               <Route path='Statistical/StaticAlbum' element={<StaticAlbum/>} />
