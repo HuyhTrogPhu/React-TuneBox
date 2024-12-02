@@ -23,6 +23,7 @@ const TrackTable = ({ userTrack }) => {
 
   return (
     <div className="track-container">
+ 
       <h4>All Tracks</h4>
       {Array.isArray(userTrack) && userTrack.length > 0 ? (
         <>
@@ -32,7 +33,7 @@ const TrackTable = ({ userTrack }) => {
                 <th>#</th>
                 <th>Track Name</th>
                 <th>Like Count</th>
-                <th>Create Date</th>
+                <th>Genre</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -40,9 +41,9 @@ const TrackTable = ({ userTrack }) => {
               {currentTracks.map((track, index) => (
                 <tr key={track.id}>
                   <td>{startIndex + index + 1}</td>
-                  <td>{track.title}</td>
+                  <td>{track.name}</td>
                   <td>{track.likeCount || "0"}</td>
-                  <td>{track.createDate.split("T")[0]}</td>
+                  <td>{track.genreName}</td>
                   <td>
                     <button
                       className="btn btn-danger"

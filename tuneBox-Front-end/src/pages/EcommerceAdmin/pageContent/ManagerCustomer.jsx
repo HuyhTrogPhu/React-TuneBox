@@ -141,7 +141,7 @@ const ManagerCustomer = () => {
                             </div>
                         </form>
                     </div>
-                    {/* Search by province */}
+                    {/* Search by province
                     <div className='col-2 border rounded p-2'>
                         <form action="">
                             <div className='mt-3'>
@@ -156,7 +156,7 @@ const ManagerCustomer = () => {
                                 </select>
                             </div>
                         </form>
-                    </div>
+                    </div> */}
                     {/* Total price filter */}
                     <div className='col-3 border rounded p-2'>
                         <form>
@@ -224,7 +224,7 @@ const ManagerCustomer = () => {
                                     <th style={{ textAlign: "center" }} scope='col'>#</th>
                                     <th style={{ textAlign: "center" }} scope='col'>Username</th>
                                     <th style={{ textAlign: "center" }} scope='col'>Email</th>
-                                    <th style={{ textAlign: "center" }} scope='col'>location</th>
+                                
                                     <th style={{ textAlign: "center" }} scope='col'>Total order amount</th>
                                     <th style={{ textAlign: "center" }} scope='col'>Total order count</th>
                                     <th style={{ textAlign: "center" }} scope='col'>Action</th>
@@ -236,7 +236,7 @@ const ManagerCustomer = () => {
                                         <th style={{ textAlign: "center" }} scope='row'>{index + 1 + (currentPage - 1) * rowsPerPage}</th>
                                         <td style={{ textAlign: "center" }}>{user.userName}</td>
                                         <td style={{ textAlign: "center" }}>{user.email}</td>
-                                        <td style={{ textAlign: "center" }}>{user.location || 'null'}</td>
+                                    
                                         <td style={{ textAlign: "center" }}>{(user.totalOrderAmount).toLocaleString('vi')} VND</td>
                                         <td style={{ textAlign: "center" }}>{user.totalOrderCount} order</td>
                                         <td style={{ textAlign: "center" }}>
