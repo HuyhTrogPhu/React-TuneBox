@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./css/Trackdetail.css";
 import { useParams, useLocation } from "react-router-dom";
 import { getTrackById } from "../../../../service/TrackServiceCus";
@@ -28,6 +28,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { format } from "date-fns"; // Nhập format từ date-fns
 import ShareTrackModal from "../Profile_nav/ShareTrackModal"; // Adjust the import path as needed
+import Picker from "@emoji-mart/react";
 
 function Trackdetail() {
   const { id } = useParams();
@@ -51,6 +52,7 @@ function Trackdetail() {
 
   const [replies, setReplies] = useState({}); // State quản lý replies của các comment
   const [replyContent, setReplyContent] = useState({}); // State để lưu nội dung phản hồi
+
   const [editingReply, setEditingReply] = useState(null); // Trạng thái theo dõi reply đang chỉnh sửa
   const [editContentReply, setEditContentReply] = useState(""); // Nội dung đang chỉnh sửa
 
@@ -58,6 +60,21 @@ function Trackdetail() {
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const userId = Cookies.get("userId"); // Lấy userId từ cookies
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false); //Comment
+  const [showEmojiPickerReply, setShowEmojiPickerReply] = useState(false); //reply
+  const emojiPickerRef = useRef(null); // Tạo ref cho bảng emoji picker
+
+  // Đóng bảng emoji khi nhấn bên ngoài
+  const handleClickOutside = (event) => {
+    // Kiểm tra nếu bảng emoji đang mở và người dùng nhấn ngoài bảng emoji
+    if (
+      emojiPickerRef.current && // Kiểm tra nếu bảng emoji tồn tại
+      !emojiPickerRef.current.contains(event.target) // Kiểm tra nếu click ngoài bảng emoji
+    ) {
+      setShowEmojiPickerReply(false); // Đóng bảng emoji
+    }
+  };
 
   // get track genreid
   useEffect(() => {
@@ -144,11 +161,15 @@ function Trackdetail() {
       const response = await getCommentsByTrack(id);
       console.log("bình luận:", response);
 
+      let totalReplies = 0;
+
       // Lấy replies và chỉ thêm avatar cho comments chính
       const commentsWithAvatars = await Promise.all(
         response.map(async (comment) => {
           const replies = await fetchReplies(comment.id);
           const avatar = await getAvatarUser(comment.userId);
+
+          totalReplies += replies.length;
 
           // Gắn replies và avatar vào comment
           return {
@@ -161,6 +182,9 @@ function Trackdetail() {
 
       // Cập nhật state với danh sách comment đầy đủ
       setComments(commentsWithAvatars);
+
+      // total comments + total replies
+      setCmtCount(response.length + totalReplies);
     } catch (error) {
       console.error("Lỗi khi lấy bình luận:", error);
     }
@@ -176,6 +200,7 @@ function Trackdetail() {
     if (editingCommentId) {
       await handleUpdateComment(editingCommentId, newComment);
       setEditingCommentId(null);
+      setShowEmojiPicker(false);
     } else {
       // Thêm bình luận mới
       try {
@@ -188,6 +213,7 @@ function Trackdetail() {
         setNewComment(""); // Reset input bình luận
         const updatedComments = await getCommentsByTrack(id);
         setComments(updatedComments);
+        setShowEmojiPicker(false);
 
         fetchComments();
         fetchReplies();
@@ -195,6 +221,13 @@ function Trackdetail() {
         console.error("Lỗi khi thêm bình luận:", error);
       }
     }
+
+    fetchComments();
+    fetchReplies();
+  };
+  const addEmoji = (emoji) => {
+    setNewComment((prevComment) => prevComment + emoji.native);
+    console.log("icon comment: ", emoji.native);
   };
 
   // Xóa comment
@@ -203,6 +236,8 @@ function Trackdetail() {
       await deleteCommentTrack(commentId);
       const updatedComments = await getCommentsByTrack(id);
       setComments(updatedComments);
+      fetchComments();
+      fetchReplies();
     } catch (error) {
       console.error("Lỗi khi xóa bình luận:", error);
     }
@@ -266,8 +301,10 @@ function Trackdetail() {
         console.log("avatar reply: ", avatar);
       }
       setAvatarReplies((prev) => ({ ...prev, [commentId]: avatarRepliesObj }));
+      return replies || []; //Sử dụng || []toán tử để mặc định là một mảng trống nếu replieskhông xác định (để tính toán)
     } catch (error) {
-      console.error(error.message); // Hiển thị thông báo lỗi nếu có
+      console.error(error.message);
+      return []; // Luôn trả về một mảng (trống nếu không có phản hồi hoặc có lỗi)
     }
   };
 
@@ -338,11 +375,19 @@ function Trackdetail() {
     }
   };
 
+  const addEmojiToReply = (emoji, commentId) => {
+    setReplyContent((prevState) => ({
+      ...prevState,
+      [commentId]: (prevState[commentId] || "") + emoji.native, // Thêm emoji vào nội dung
+    }));
+  };
+
   // xóa replly
-  const handleDeleteReply = async (replyId, userId, commentId) => {
+  const handleDeleteReply = async (replyId, userId) => {
     try {
       await deleteReply(replyId, userId);
-      fetchReplies(commentId); // Cập nhật lại danh sách reply sau khi xóa
+      fetchReplies();
+      fetchComments();
     } catch (error) {
       console.error("Lỗi khi xóa reply:", error);
     }
@@ -350,11 +395,19 @@ function Trackdetail() {
     fetchReplies();
   };
 
+  const resetReplyContent = () => {
+    setReplyContent({}); // Xóa toàn bộ nội dung reply
+    setEditContentReply(""); // Xóa nội dung chỉnh sửa
+    setEditingReply(null); // Reset trạng thái chỉnh sửa
+  };
+
   // Hàm kích hoạt chỉnh sửa
   const handleEditReply = (replyId, currentContent) => {
     console.log("Editing reply:", replyId, currentContent);
     setEditContentReply(currentContent); // Đặt nội dung hiện tại vào input
     setEditingReply({ replyId }); // Đặt trạng thái chỉnh sửa với replyId
+    console.log("setEditingReply:", editingReply);
+    console.log("setEditContentReply:", editContentReply);
   };
 
   // Ham lay danh sach track by userid
@@ -486,7 +539,7 @@ function Trackdetail() {
                     className="btn-icon"
                     alt="share"
                   />
-                  Comment
+                  {cmtCount}
                 </button>
                 <button
                   className="btn"
@@ -500,34 +553,6 @@ function Trackdetail() {
                   isOpen={isShareModalOpen}
                   onClose={() => setIsShareModalOpen(false)}
                 />
-              </div>
-              <div className="track-player-actions-column">
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a
-                        className="dropdown-item"
-                        onClick={() => handleEditClick(track)}
-                      >
-                        Edit
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        className="dropdown-item"
-                        onClick={() => deleteTrack(track.id)}
-                      >
-                        Delete
-                      </a>
-                    </li>
-                  </ul>
-                </div>
               </div>
             </div>
 
@@ -552,8 +577,11 @@ function Trackdetail() {
             <div className="mt-3">
               <div>
                 {/* form comment */}
-                <div className="comment-content row">
-                  <div className="col-11">
+                <div
+                  className="comment-content row"
+                  style={{ position: "relative" }}
+                >
+                  <div className="d-flex mr-5">
                     <textarea
                       className="form-control"
                       rows="3"
@@ -561,8 +589,45 @@ function Trackdetail() {
                       onChange={(e) => setNewComment(e.target.value)} // Cập nhật nội dung bình luận
                       placeholder="Viết một bình luận..."
                     />
-                  </div>
-                  <div className="col-1">
+                    <button
+                      onClick={() => {
+                        console.log(
+                          "Trạng thái trước khi click:",
+                          showEmojiPicker
+                        );
+                        setShowEmojiPicker(!showEmojiPicker);
+                      }}
+                      className="btn btn-sm"
+                    >
+                      😀
+                    </button>
+
+                    {showEmojiPicker && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "100%",
+                          right: "0",
+                          zIndex: 10,
+                        }}
+                        // onClick={(e) => e.stopPropagation()} // Ngăn sự kiện lan ra ngoài
+                      >
+                        <Picker
+                          onEmojiSelect={(emoji) => {
+                            addEmoji(emoji);
+                            // Không đóng bảng emoji ở đây
+                          }}
+                        />
+                        {/* Nút để đóng bảng emoji */}
+                        <button
+                          onClick={() => setShowEmojiPicker(false)}
+                          className="btn btn-link"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    )}
+
                     <button className="btn-send " onClick={handleAddComment}>
                       Send
                     </button>
@@ -650,7 +715,9 @@ function Trackdetail() {
                               onClick={() => {
                                 setReplyContent((prevState) => ({
                                   ...prevState,
-                                  [comment.id]: prevState[comment.id] ? "" : "", // Toggle khung nhập
+                                  [comment.id]: prevState[comment.id]
+                                    ? editContentReply
+                                    : editContentReply, // Toggle khung nhập
                                 }));
                               }}
                             >
@@ -660,31 +727,85 @@ function Trackdetail() {
                             {replyContent[comment.id] !== undefined && (
                               <div className="reply-input-container d-flex align-items-start">
                                 <textarea
-                                  className="reply-input mt-2 form-control me-2"
+                                  className="reply-input mt-2 form-control "
                                   rows={1}
                                   placeholder="Write a reply..."
                                   value={
-                                    editingReply
-                                      ? editContentReply
-                                      : replyContent[comment.id] || "" // Hiển thị nội dung đang chỉnh sửa hoặc nội dung mới
+                                    editingReply &&
+                                    editingReply.commentId === comment.id
+                                      ? editContentReply // Hiển thị nội dung đang chỉnh sửa
+                                      : replyContent[comment.id] // Hiển thị nội dung mới
                                   }
                                   onChange={(e) => {
-                                    if (editingReply?.replyId === comment.id) {
-                                      setEditContentReply(e.target.value); // Cập nhật nội dung khi chỉnh sửa
+                                    if (
+                                      editingReply &&
+                                      editingReply.commentId === comment.id
+                                    ) {
+                                      // Khi chỉnh sửa
+                                      setEditContentReply(e.target.value);
                                     } else {
                                       setReplyContent((prevState) => ({
                                         ...prevState,
-                                        [comment.id]: e.target.value, // Cập nhật nội dung khi thêm mới
+                                        [comment.id]: e.target.value, // Cập nhật nội dung mới
                                       }));
                                     }
                                   }}
                                 />
                                 <button
-                                  className="btn-primary rounded mt-2 p-1"
-                                  onClick={() => handleAddReply(comment.id)}
+                                  onClick={() => {
+                                    console.log(
+                                      "Trạng thái trước khi click icon reply:",
+                                      showEmojiPickerReply
+                                    );
+                                    setShowEmojiPickerReply(
+                                      !showEmojiPickerReply
+                                    );
+                                  }}
+                                  className="btn btn-sm d-flex align-items-center justify-content-center"
+                                  style={{
+                                    height: "50px",
+                                  }}
                                 >
-                                  {editingReply ? "Update" : "Reply"}{" "}
-                                  {/* Thay đổi nút theo trạng thái */}
+                                  😀
+                                </button>
+                                {showEmojiPickerReply && (
+                                  <div
+                                    ref={emojiPickerRef}
+                                    className="emoji-picker-container"
+                                    style={{
+                                      position: "absolute",
+                                      bottom: "20%",
+                                      right: "0",
+                                      zIndex: 10,
+                                    }}
+                                  >
+                                    <Picker
+                                      onEmojiSelect={(emoji) => {
+                                        addEmojiToReply(emoji, comment.id);
+                                      }}
+                                    />
+                                    <button
+                                      onClick={() =>
+                                        setShowEmojiPickerReply(false)
+                                      }
+                                      className="btn btn-link"
+                                    >
+                                      Close
+                                    </button>
+                                  </div>
+                                )}
+
+                                <button
+                                  className="btn-send rounded mt-2"
+                                  onClick={() => {
+                                    setShowEmojiPickerReply(false);
+                                    handleAddReply(comment.id);
+                                  }}
+                                >
+                                  {editingReply &&
+                                  editingReply.commentId === comment.id
+                                    ? "Update"
+                                    : "Reply"}
                                 </button>
                               </div>
                             )}
@@ -692,20 +813,22 @@ function Trackdetail() {
                         </div>
 
                         {/* Hiển thị reply */}
-                        <div className="row justify-content-center">
+                        <div className="row justify-content-center ">
                           <div className="replies-list mt-2">
                             {replies[comment.id] &&
                               replies[comment.id].map((reply) => (
                                 <div
-                                  className="reply d-flex align-items-start"
+                                  className="reply d-flex align-items-start justify-content-between"
                                   key={reply.id}
                                 >
-                                  <img
-                                    src={avatarReplies[comment.id]?.[reply.id]}
-                                    className="avatar_small"
-                                    alt="Avatar"
-                                  />
-                                  <div className="reply-content">
+                                  <div className="reply-content left-content d-flex align-items-start">
+                                    <img
+                                      src={
+                                        avatarReplies[comment.id]?.[reply.id]
+                                      }
+                                      className="avatar_small"
+                                      alt="Avatar"
+                                    />
                                     <div>
                                       <div className="comment-author">
                                         @{reply.userNickname}
@@ -719,56 +842,69 @@ function Trackdetail() {
                                       <p>{reply.content}</p>
                                     </div>
                                   </div>
-                                  <div>
-                                    {/* Dropdown chỉnh sửa/xóa bình luận */}
-                                    <div className="dropdown top-0 end-0">
-                                      {String(reply.userId) === userId && (
-                                        <div
-                                          className="btn-group"
-                                          style={{ marginLeft: 25 }}
+
+                                  {/* Dropdown chỉnh sửa/xóa bình luận */}
+                                  <div className="dropdown top-0 right-actions ">
+                                    {String(reply.userId) === userId && (
+                                      <div
+                                        className="btn-group"
+                                        style={{ marginLeft: 25 }}
+                                      >
+                                        <button
+                                          className="btn no-border"
+                                          type="button"
+                                          data-bs-toggle="dropdown"
+                                          aria-expanded="false"
+                                          style={{
+                                            backgroundColor: "transparent",
+                                          }}
                                         >
-                                          <button
-                                            className="btn no-border"
-                                            type="button"
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false"
-                                            style={{
-                                              backgroundColor: "transparent",
-                                            }}
-                                          >
-                                            ...
-                                          </button>
-                                          <ul className="dropdown-menu dropdown-menu-lg-end">
-                                            <li>
-                                              <a
-                                                className="dropdown-item"
-                                                onClick={() =>
-                                                  handleEditReply(
-                                                    reply.id,
-                                                    reply.content
-                                                  )
-                                                }
-                                              >
-                                                Edit
-                                              </a>
-                                            </li>
-                                            <li>
-                                              <a
-                                                className="dropdown-item"
-                                                onClick={() =>
-                                                  handleDeleteReply(
-                                                    reply.id,
-                                                    userId
-                                                  )
-                                                }
-                                              >
-                                                Delete
-                                              </a>
-                                            </li>
-                                          </ul>
-                                        </div>
-                                      )}
-                                    </div>
+                                          ...
+                                        </button>
+                                        <ul className="dropdown-menu dropdown-menu-lg-end">
+                                          <li>
+                                            <a
+                                              className="dropdown-item"
+                                              onClick={() => {
+                                                // Goi ham edit
+                                                handleEditReply(
+                                                  reply.id,
+                                                  reply.content
+                                                );
+
+                                                // Mở khung trả lời
+                                                setReplyContent(
+                                                  (prevState) => ({
+                                                    ...prevState,
+                                                    [reply.commentId]:
+                                                      reply.content, // Hiển thị nội dung hiện tại trong khung trả lời
+                                                  })
+                                                );
+
+                                                setShowEmojiPickerReply(false);
+                                              }}
+                                            >
+                                              Edit
+                                            </a>
+                                          </li>
+                                          <li>
+                                            <a
+                                              className="dropdown-item"
+                                              onClick={() => {
+                                                setShowEmojiPickerReply(false);
+                                                resetReplyContent(); // Reset khung nhập trả lời về rỗng
+                                                handleDeleteReply(
+                                                  reply.id,
+                                                  userId
+                                                );
+                                              }}
+                                            >
+                                              Delete
+                                            </a>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               ))}
