@@ -93,19 +93,6 @@ const Track = () => {
     }
   };
 
-  // Goi fetchUserName khi component duoc mount
-  // useEffect(() => {
-  //   const getUserName = async () => {
-  //     try {
-  //       const name = await fetchUserName(); // Lay ten nguoi dung
-  //       setUserName(name); // Luu ten vao state
-  //     } catch (error) {
-  //       console.error("Error fetching track name:", error); // Log loi neu co
-  //     }
-  //   };
-  //   getUserName();
-  // }, []);
-
   const handleEditClick = (track) => {
     // Tạo một đối tượng track mới với đầy đủ thông tin
     const updatedTrack = {
