@@ -112,30 +112,30 @@ function AppContent(){
               {/* Route cho Main Content */}
               <Route path="/Shop" element={<Shop />} />
               <Route path="/profileUser/*" element={<ProfileUser />} />
-              <Route path="/profileSetting" element={<ProfileSetting />} />
-              <Route path="/CartDetail" element={<CartDetail />} />
-              <Route path="/cart" element={<Cart />} />
+              <Route path="/profileSetting" element={<XacThucUserLogin><ProfileSetting /></XacThucUserLogin>} />
+              <Route path="/CartDetail" element={<XacThucUserLogin><CartDetail /></XacThucUserLogin>} />
+              <Route path="/cart" element={<XacThucUserLogin><Cart /></XacThucUserLogin>} />
               <Route path="/DetailProduct/:id" element={<DetailProduct />} />
               <Route path="/BrandPage" element={<BrandPage />} />
               <Route path="/categoryPage" element={<CategoryPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
               <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
-              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat" element={<XacThucUserLogin><Chat /></XacThucUserLogin>} />
               <Route
                 path="/albums/album-Edit/:albumId"
-                element={<AlbumEdit />}
+                element={<XacThucUserLogin><AlbumEdit /></XacThucUserLogin>}
               />
-              <Route path="/album/:id" element={<AlbumDetail />} />
+              <Route path="/album/:id" element={<XacThucUserLogin><AlbumDetail /></XacThucUserLogin>} />
               <Route
                 path="/InstrumentBelongCategory"
                 element={<CategoryPageDetail />}
               />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
-              <Route path="/checkOut" element={<CheckOut />} />
+              <Route path="/checkOut" element={<XacThucUserLogin><CheckOut /></XacThucUserLogin>} />
               <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
-              <Route path="/doneorder" element={<ThanhCong />} />
+              <Route path="/doneorder" element={<XacThucUserLogin><ThanhCong /></XacThucUserLogin>} />
               <Route path="/post/:postIdurl" element={<Post />} />
               <Route path="/FriendRequests" element={<FriendRequests />} />
               <Route path="/FriendList/:userId" element={<FriendList />} />
