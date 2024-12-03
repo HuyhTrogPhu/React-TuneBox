@@ -55,7 +55,8 @@ import FeedPost from "./pages/SocialMedia/FeedPost";
 import TrackAI from "./components/TrackAI/TrackAI";
 import StatisticalUser from "./pages/SocialMediaAdmin/pageContent/StatisticalUser";
 import StatisticalPost from "./pages/SocialMediaAdmin/pageContent/StatisticalPost";
-// Layout có Header
+import XacThucUserLogin from "./pages/GioiThieu/XacThucUserLogin";
+// Layout có Header 
 
 //socialadmin
 import SocialMediaAdmin from "./pages/SocialMediaAdmin";
@@ -106,7 +107,7 @@ function AppContent(){
           <Routes>
             {/* Các route có Header */}
             <Route element={<LayoutWithHeader />}>
-              <Route path="/*" element={<HomeFeed />} />
+              <Route path="/*" element={<XacThucUserLogin><HomeFeed /></XacThucUserLogin>} />
               <Route path="/HomeEcommerce" element={<Home />} />
               {/* Route cho Main Content */}
               <Route path="/Shop" element={<Shop />} />
