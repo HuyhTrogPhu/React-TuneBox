@@ -12,6 +12,10 @@ import {
   Legend,
 } from 'chart.js';
 
+import * as XLSX from 'xlsx';
+import { jsPDF } from "jspdf";
+import html2canvas from 'html2canvas-pro';
+
 // Đăng ký các phần tử của Chart.js
 ChartJS.register(
   CategoryScale,
@@ -45,6 +49,66 @@ const UserNotSell = () => {
       },
     ],
   };
+  const exportToExcel = () => {
+    // Chuẩn bị dữ liệu
+    const data = userSellList.map((user, index) => ({
+      "#": index + 1,
+      Name: user.name,
+      Username: user.userName,
+      Email: user.email,
+      "Phone Number": user.phoneNumber,
+      Location: user.location,
+      "Total Order": user.totalOrder,
+      "Total Revenue (VND)": user.sumTotalPrice.toLocaleString("vi") + ' VND',
+    }));
+
+    // Tạo worksheet và workbook
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users Revenue");
+
+    // Xuất file
+    XLSX.writeFile(workbook, "user-not-sell.xlsx");
+  };
+  const exportToPDF = () => {
+    const element = document.querySelector(".table");
+    html2canvas(element, { useCORS: true }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210; // Chiều rộng PDF (A4)
+      const pageHeight = 297; // Chiều cao PDF (A4)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Thêm logo vào PDF (đảm bảo logo được lưu trữ đúng vị trí)
+
+      const logoUrl = "https://res.cloudinary.com/dslm1fjny/image/upload/v1733227547/ieedwbbhyekmka2heusc.png";
+      const logo = new Image();
+      logo.src = logoUrl;
+      logo.onload = () => {
+        // Thêm logo vào PDF
+        pdf.addImage(logo, "PNG", 10, 10, 50, 30); // Vị trí và kích thước của logo (x, y, width, height)
+
+        // Thêm nội dung từ canvas vào PDF
+        pdf.addImage(imgData, "PNG", 0, 30, imgWidth, imgHeight); // Thay đổi vị trí y để tránh chồng lên logo
+        heightLeft -= pageHeight;
+
+        // Nếu nội dung dài hơn 1 trang
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(logo, "PNG", 10, 10, 50, 30); // Thêm logo vào các trang tiếp theo
+          pdf.addImage(imgData, "PNG", 0, 30, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        // Lưu PDF
+        pdf.save("user-not-sell.pdf");
+      };
+    });
+  };
+
 
   return (
     <div>
@@ -94,6 +158,15 @@ const UserNotSell = () => {
               )}
             </tbody>
           </table>
+          <div >
+          <button className="btn btn-success my-3" onClick={exportToExcel}>
+            Export to Excel
+          </button>
+          &nbsp;
+          <button className="btn btn-danger my-3" onClick={exportToPDF}>
+            Export to PDF
+          </button>
+        </div>
         </section>
 
         {/* Biểu đồ cột */}
