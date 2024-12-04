@@ -18,6 +18,7 @@ const BrandDetail = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [name, setName] = useState('');
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' hoặc 'desc'
   const [sortByPrice, setSortByPrice] = useState('asc');
   const [sortByName, setSortByName] = useState('desc');
@@ -50,9 +51,14 @@ const BrandDetail = () => {
       const price = instrument.costPrice;
       const min = minPrice ? parseFloat(minPrice) : 0;
       const max = maxPrice ? parseFloat(maxPrice) : Infinity;
-      return instrument.status === false && price >= min && price <= max;
+
+      // Kiểm tra tên
+      const nameMatch = name ? instrument.name.toLowerCase().includes(name.toLowerCase()) : true;
+
+      return instrument.status === false && price >= min && price <= max && nameMatch;
     });
   };
+
 
   const sortInstruments = (instrumentsToSort) => {
     let sorted = [...instrumentsToSort];
@@ -117,7 +123,7 @@ const BrandDetail = () => {
 
   return (
     <div>
-      <div className="container" style={{marginTop: '100px'}}>
+      <div className="container" style={{ marginTop: '100px' }}>
         <div>
           <div className="gioithieu1">
             <div className="grid-container">
@@ -142,6 +148,7 @@ const BrandDetail = () => {
             {/* filter */}
             <div className="col-3 phamloai">
               <div className="accordion" id="accordionPanelsStayOpenExample">
+                {/* Filter by price */}
                 <div className="accordion-item">
                   <h2 className="accordion-header">
                     <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -177,7 +184,33 @@ const BrandDetail = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+                {/* Filter by name */}
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      Tên
+                    </button>
+                  </h2>
+                  <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionPanelsStayOpenExample">
+                    <div className="accordion-body">
+                      <div className="input-group mb-3">
+                        <input
+                          type="text"
+                          className="form-control rounded-3"
+                          placeholder="Nhập tên sản phẩm"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                        />
 
+                      </div>
+                      <div className="d-grid">
+                        <button className="btn btn-warning" type="button" onClick={handleFilter}>
+                          Áp dụng
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -186,14 +219,14 @@ const BrandDetail = () => {
               <div className="row">
                 <div className='col-9'>Total product: <strong>{currentInstruments.length} instrument</strong></div>
                 <div className='col-3'>
-                <select className="form-select" onChange={(e) => handleSort(e.target.value)}>
-                  <option value="">Default</option>
-                  <option value="priceAsc">Price: Low to high</option>
-                  <option value="priceDesc">Price: High to low</option>
-                  <option value="nameAsc">Name: A to Z</option>
-                  <option value="nameDesc">Name: Z to A</option>
-                </select>
-              </div>
+                  <select className="form-select" onChange={(e) => handleSort(e.target.value)}>
+                    <option value="">Default</option>
+                    <option value="priceAsc">Price: Low to high</option>
+                    <option value="priceDesc">Price: High to low</option>
+                    <option value="nameAsc">Name: A to Z</option>
+                    <option value="nameDesc">Name: Z to A</option>
+                  </select>
+                </div>
 
               </div>
 

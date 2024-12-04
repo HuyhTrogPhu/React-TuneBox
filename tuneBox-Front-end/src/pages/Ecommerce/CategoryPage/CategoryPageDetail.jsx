@@ -22,6 +22,7 @@ const CategoryPageDetail = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [name, setName] = useState('');
   const [sortByPrice, setSortByPrice] = useState('asc');
   const [sortByName, setSortByName] = useState('desc');
 
@@ -32,7 +33,7 @@ const CategoryPageDetail = () => {
   const toggleBrandAccordion = () => setIsBrandOpen(!isBrandOpen);
   const togglePriceAccordion = () => setIsPriceOpen(!isPriceOpen);
   const toggleCategoryAccordion = () => setIsCategoryOpen(!isCategoryOpen);
-  
+
   const [selectedBrands, setSelectedBrands] = useState([]);
   useEffect(() => {
     const fetchBrands = async () => {
@@ -193,16 +194,16 @@ const CategoryPageDetail = () => {
 
       return true;
     })
-     
+
 
     console.log("Filtered Instruments:", filtered);
-  
+
   }, [instruments, selectedBrands, minPrice, maxPrice]);
 
 
   return (
     <div>
-      <div className='container' style={{marginTop: '100px'}}>
+      <div className='container' style={{ marginTop: '100px' }}>
         <div className='gioithieu1'>
           <div className='grid-container'>
             <div className='grid-item image'>
@@ -226,7 +227,7 @@ const CategoryPageDetail = () => {
           {/* filter */}
           <div className='col-3 phamloai'>
             <div className="accordion" id="accordionExample">
-
+              {/* filter by price */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
                   <button
@@ -264,7 +265,36 @@ const CategoryPageDetail = () => {
                   </div>
                 </div>
               </div>
-
+              {/* filter by name */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button
+                    className={`accordion-button ${isPriceOpen ? '' : 'collapsed'}`}
+                    type="button"
+                    onClick={togglePriceAccordion}
+                  >
+                    Tên
+                  </button>
+                </h2>
+                <div className={`accordion-collapse collapse ${isPriceOpen ? 'show' : ''}`}>
+                  <div className="accordion-body">
+                    <div className="input-group mb-3">
+                      <input
+                        type="text"
+                        className="form-control rounded-3"
+                        placeholder="Nhập tên sản phẩm"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+                    <div className="d-grid">
+                      <button className="btn btn-warning" type="button" onClick={handlePriceFilter}>
+                        Áp dụng
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -307,28 +337,28 @@ const CategoryPageDetail = () => {
                     return (
                       <div className="col-3 mb-4" key={instrument.id}>
 
-                      <Link to={{
-                        pathname: `/DetailProduct/${instrument.id}`,
-                        state: { instrument }
-                      }} className="card-link">
-                        <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
-                          <div className="card-img-wrapper">
-                            <img
-                              src={instrument.image}
-                              className="card-img-top"
-                              alt={instrument.name}
-                            />
-                          </div>
-                          <div className="card-body text-center">
-                            <p className="card-title">{instrument.name}</p>
-                            <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
-                            <p className="card-status">{stockStatus}</p>
-                          </div>
+                        <Link to={{
+                          pathname: `/DetailProduct/${instrument.id}`,
+                          state: { instrument }
+                        }} className="card-link">
+                          <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                            <div className="card-img-wrapper">
+                              <img
+                                src={instrument.image}
+                                className="card-img-top"
+                                alt={instrument.name}
+                              />
+                            </div>
+                            <div className="card-body text-center">
+                              <p className="card-title">{instrument.name}</p>
+                              <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                              <p className="card-status">{stockStatus}</p>
+                            </div>
 
-                        </div>
-                      </Link>
-                    </div>
-                      
+                          </div>
+                        </Link>
+                      </div>
+
                     );
                   })
                 )}

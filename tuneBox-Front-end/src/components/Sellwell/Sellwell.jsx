@@ -69,10 +69,11 @@ const Sellwell = () => {
                                             state: { ins }
                                         }}>
                                             <div style={{ width: '100%', height: '100%', border: 'none', cursor: 'pointer' }}>
-                                                <div className='card-img-wrapper ' style={{ height: '250px' }}>
+                                                <div className='card-img ' style={{ height: '250px' }}>
                                                     <img
                                                         src={ins.image ? ins.image : 'default-image-path.jpg'}
                                                         alt={ins.name}
+                                                        className='object-fit-cover'
                                                     />
                                                 </div>
                                                 <div className='card-body text-center'>
