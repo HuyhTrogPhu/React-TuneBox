@@ -20,6 +20,7 @@ const PlaylistTable = ({ userPlayLists }) => {
   return (
     <div className="playlist-container">
     <h4>All Playlists</h4>
+    {console.warn(currentItems)}
         {currentItems.length > 0 ? (
           <>
             <table className="table">
