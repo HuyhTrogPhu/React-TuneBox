@@ -50,7 +50,7 @@ const BrandPage = () => {
   };
 
   return (
-    <div style={{marginLeft: '150px'}}>
+    <div >
       <div className='p-5' style={{marginTop: '100px', width: '100%'}}>
         <div className='fullBrand mt-4'>
           <h3 className='text-center mb-4'>Brand</h3>
