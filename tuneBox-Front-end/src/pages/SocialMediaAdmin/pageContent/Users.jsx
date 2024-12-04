@@ -42,12 +42,15 @@ const Users = () => {
 
   const handleKeywordChange = (e) => {
     setKeyword(e.target.value);
-    filterUsers(e.target.value, startDate, endDate, endDate);
+    filterUsers(e.target.value, startDate, endDate);
   };
   const handleDayChange = (from, to) => {
     setStartDate(from);
     setEndDate(to);
-    filterUsers(keyword, from, to);
+  
+    if (from && to) {
+      filterUsers(keyword, from, to);
+    }
   };
 
   const handlTodayUser = (data) => {
@@ -149,7 +152,7 @@ const Users = () => {
           {/* Total order count filter */}
           <div className="col-3">
             <div className="mt-3">
-              <label className="form-label">New Album on</label>
+              <label className="form-label">New User on</label>
               <input
                 type="date"
                 className="form-control m-2"
@@ -197,16 +200,19 @@ const Users = () => {
                     Email
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
-                    Following
-                  </th>
-                  <th style={{ textAlign: "center" }} scope="col">
                     Follower
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
-                    Comment
+                    Friend
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
                     Tracks
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Album
+                  </th>
+                  <th style={{ textAlign: "center" }} scope="col">
+                    Post
                   </th>
                   <th style={{ textAlign: "center" }} scope="col">
                     Register Day
@@ -224,10 +230,12 @@ const Users = () => {
                     </th>
                     <td>{user.userName}</td>
                     <td>{user.email}</td>
-                    <td>{user.followingCount}</td>
+
                     <td>{user.followerCount}</td>
-                    <td>{user.commentCount}</td>
+                    <td>{user.friendCount}</td>
                     <td>{user.tracks.length}</td>
+                    <td>{user.albumcount}</td>
+                    <td>{user.postCount}</td>
                     <td>{user.createDate}</td>
                     <td>
                       <Link

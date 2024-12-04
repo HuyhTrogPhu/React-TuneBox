@@ -52,7 +52,9 @@ const Playlists = () => {
   const handleDayChange = (from, to) => {
     setStartDate(from);
     setEndDate(to);
-    filterUsers(keyword, from, to);
+    if (from && to) {
+      filterUsers(keyword, from, to);
+    }
   };
 
   const handlTodayUser = (data) => {
@@ -159,6 +161,12 @@ const Playlists = () => {
               <div className="mt-3">
                 <label className="form-label">New Playlist on</label>
                 <div className="d-flex">
+                <input
+                type="date"
+                className="form-control m-2"
+                value={onDay}
+                onChange={(e) => handleOnday(e.target.value)}
+              />
                   <button className="btn btn-primary"  onClick={(e) => handlTodayUser(e)}>
                     Today
                   </button>

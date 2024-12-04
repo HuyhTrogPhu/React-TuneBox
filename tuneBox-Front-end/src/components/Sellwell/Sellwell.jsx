@@ -63,7 +63,7 @@ const Sellwell = () => {
                         currentItems.map((ins) => {
                             return (
                                 <div key={ins.id} className='col-3 mb-4'>  {/* Add the key here */}
-                                    <div className='card'>
+                                    <div className='card card2'>
                                         <Link to={{
                                             pathname: `/DetailProduct/${ins.id}`,
                                             state: { ins }

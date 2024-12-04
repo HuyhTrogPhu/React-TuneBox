@@ -337,23 +337,23 @@ const CategoryPageDetail = () => {
                     return (
                       <div className="col-3 mb-4" key={instrument.id}>
 
-                        <Link to={{
-                          pathname: `/DetailProduct/${instrument.id}`,
-                          state: { instrument }
-                        }} className="card-link">
-                          <div className="card" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
-                            <div className="card-img-wrapper">
-                              <img
-                                src={instrument.image}
-                                className="card-img-top"
-                                alt={instrument.name}
-                              />
-                            </div>
-                            <div className="card-body text-center">
-                              <p className="card-title">{instrument.name}</p>
-                              <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
-                              <p className="card-status">{stockStatus}</p>
-                            </div>
+                      <Link to={{
+                        pathname: `/DetailProduct/${instrument.id}`,
+                        state: { instrument }
+                      }} className="card-link">
+                        <div className="card card2" style={{ width: '100%', border: 'none', cursor: 'pointer' }}>
+                          <div className="card-img-wrapper">
+                            <img
+                              src={instrument.image}
+                              className="card-img-top"
+                              alt={instrument.name}
+                            />
+                          </div>
+                          <div className="card-body text-center">
+                            <p className="card-title">{instrument.name}</p>
+                            <p className="card-price">{instrument.costPrice.toLocaleString()}đ</p>
+                            <p className="card-status">{stockStatus}</p>
+                          </div>
 
                           </div>
                         </Link>

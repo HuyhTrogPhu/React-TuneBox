@@ -32,11 +32,11 @@
     
   }
   
-  .card:hover .hover-img {
+  .card2:hover .hover-img {
     opacity: 1; 
   }
   
-  .card:hover .main-img {
+  .card2:hover .main-img {
     opacity: 0;
   }
 

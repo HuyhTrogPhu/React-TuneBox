@@ -4,7 +4,10 @@ import { Line } from 'react-chartjs-2';
 import { getRevenueBeforeCurrently, getRevenueCurrently } from '../../../service/EcommerceStatistical';
 import '../css/Statistical.css';
 
-
+import html2canvas from 'html2canvas-pro';
+import { jsPDF } from 'jspdf';
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 const Statistical = () => {
 
     const [currentRevenue, setCurrentRevenue] = useState({});
@@ -160,6 +163,27 @@ const Statistical = () => {
         { type: 'fast', label: 'Express' }
     ];
 
+    // excel
+    const exportChartDataToExcel = (chartData) => {
+        // Chuẩn bị dữ liệu dưới dạng bảng
+        const data = [
+            ["Label", "Current Value", "Previous Value"], // Header
+            ["Revenue of Day", chartData.currentRevenueDay.toLocaleString("vi") + " VND", chartData.previousRevenueDay.toLocaleString("vi") + " VND"],
+            ["Revenue of Month", chartData.currentRevenueMonth.toLocaleString("vi") + " VND", chartData.previousRevenueMonth.toLocaleString("vi") + " VND"],
+            ["Revenue of Week", chartData.currentRevenueWeek.toLocaleString("vi") + " VND", chartData.previousRevenueWeek.toLocaleString("vi") + " VND"],
+            ["Revenue of Year", chartData.currentRevenueYear.toLocaleString("vi") + " VND", chartData.previousRevenueYear],
+        ];
+
+        // Tạo workbook và worksheet
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Revenue Report");
+
+        // Xuất file Excel
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(dataBlob, "revenue_report.xlsx");
+    };
 
     return (
         <div>
@@ -220,7 +244,7 @@ const Statistical = () => {
                             <div className='col-8 '>
                                 <h6 className='pb-0 fs-5 text-center'>Total revenue of the day: <span className='text-danger fs-4'>{(currentRevenue.revenueOfDay || 0).toLocaleString('vi')} VND</span></h6>
                                 <h6 className='pb-0 fs-5 text-center'>Total revenue before of the day: <span className='text-danger fs-4'>{(previousRevenue.revenueBeforeOfDay || 0).toLocaleString('vi')} VND</span></h6>
-                                <div className='mt-5' style={{ backgroundColor: '#bbe6e4' }}>
+                                <div className='mt-5' id="chartContainer" style={{ backgroundColor: '#bbe6e4' }}>
                                     <Line data={createChartData(currentRevenue.revenueOfDay, previousRevenue.revenueBeforeOfDay, 'Doanh thu Ngày')} />
                                 </div>
                             </div>
@@ -270,6 +294,7 @@ const Statistical = () => {
                                         </div>
                                     </form>
                                 </div>
+                                   
                             </div>
                         </div>
                     </div>
@@ -331,6 +356,8 @@ const Statistical = () => {
                                         </div>
                                     </form>
                                 </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -493,6 +520,23 @@ const Statistical = () => {
                                     </form>
                                 </div>
                             </div>
+                            <div className='text-center my-3'>
+                                        <button
+                                            className="btn btn-success"
+                                            onClick={() => exportChartDataToExcel({
+                                                currentRevenueDay: currentRevenue.revenueOfDay,
+                                                previousRevenueDay: previousRevenue.revenueBeforeOfDay,
+                                                currentRevenueMonth: currentRevenue.revenueOfMonth,
+                                                previousRevenueMonth: previousRevenue.revenueBeforeOfMonth,
+                                                currentRevenueWeek: currentRevenue.revenueOfWeek,
+                                                previousRevenueWeek: previousRevenue.revenueBeforeOfWeek,
+                                                currentRevenueYear: currentRevenue.revenueOfYear,
+                                                previousRevenueYear: previousRevenue.revenueBeforeOfYear,
+                                            })}
+                                        >
+                                            Export Data to Excel
+                                        </button>
+                                    </div>
                         </div>
                     </div>
                 </section>

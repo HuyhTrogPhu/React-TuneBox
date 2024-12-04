@@ -10,6 +10,8 @@ function StaticUser() {
   const [onDay, setOnDate] = useState();
   const [startWeek, setStartWeek] = useState();
   const [endWeek, setEndWeek] = useState();
+  const [WeekC1, setWeekC1] = useState();
+  const [WeekC2, setWeekC2] = useState();
   const [onWeek, setOnWeek] = useState();
   const [startMonth, setStartMonth] = useState();
   const [endMonth, setEndMonth] = useState();
@@ -26,6 +28,7 @@ function StaticUser() {
   const [Typlabel, setTyplabel] = useState("");
   const [dataOnday, setDataOnday] = useState("");
   const [timeType, setTimeType] = useState("day");
+  const [chartData, setChartData] = useState(null);
   const rowsPerPage = 7;
 
   useEffect(() => {
@@ -40,31 +43,44 @@ function StaticUser() {
     setTimeType(e.target.value);
     setDateLabels([]);
   };
+
+  const parseWeek = (weekStr, getLastDay = false) => {
+    const [year, week] = weekStr.split("-W").map(Number);
+    const firstDayOfYear = new Date(year, 0, 1);
+    const daysOffset =
+      (week - 1) * 7 -
+      firstDayOfYear.getDay() +
+      (firstDayOfYear.getDay() <= 1 ? 1 : -6);
+    const firstDayOfWeek = new Date(
+      year,
+      0,
+      firstDayOfYear.getDate() + daysOffset + 1
+    );
+
+    if (getLastDay) {
+      firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+    }
+    return firstDayOfWeek;
+  };
+
+  const getDaysOfWeek = (weekStr) => {
+    const firstDay = parseWeek(weekStr); // Lấy ngày đầu tiên của tuần
+    const days = [];
+  
+    for (let i = 0; i < 7; i++) {
+      const currentDay = new Date(firstDay);
+      currentDay.setDate(firstDay.getDate() + i);
+      days.push(currentDay.toISOString().split('T')[0]); // Định dạng yyyy-MM-dd
+    }
+  
+    return days;
+  };
+
+
+
   const getDatesInRange = useCallback(
     (start, endIn) => {
       const dateArray = [];
-
-      // Hàm tính ngày đầu tiên của tuần (Thứ Hai)
-      const parseWeek = (weekStr, getLastDay = false) => {
-        const [year, week] = weekStr.split("-W").map(Number);
-        const firstDayOfYear = new Date(year, 0, 1);
-        const daysOffset =
-          (week - 1) * 7 -
-          firstDayOfYear.getDay() +
-          (firstDayOfYear.getDay() <= 1 ? 1 : -6);
-        const firstDayOfWeek = new Date(
-          year,
-          0,
-          firstDayOfYear.getDate() + daysOffset + 1
-        );
-
-        if (getLastDay) {
-          firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
-        }
-        return firstDayOfWeek;
-      };
-
-      // Hàm chuyển đổi tháng từ chuỗi "YYYY-MM" thành ngày đầu tiên của tháng
       const parseMonth = (monthStr) => {
         const [year, month] = monthStr.split("-").map(Number);
         return new Date(year, month - 1, 1); // month - 1 vì tháng trong JavaScript bắt đầu từ 0
@@ -190,8 +206,49 @@ function StaticUser() {
     filterUsers(datesInRange);
     fillOnChart(weekInRange);
   };
+  const handleCompareWeekChange = (w1, w2) => {
+    console.log("w1:", w1, "w2:", w2);
+  if (w1 !== WeekC1) setWeekC1(w1);
+  if (w2 !== WeekC2) setWeekC2(w2);
+  };
 
-  //check khi chon nam
+  useEffect(() => {
+    // Chuyển đổi tuần sang danh sách ngày khi WeekC1 và WeekC2 thay đổi
+    const daysOfWeekC1 = WeekC1 ? getDaysOfWeek(WeekC1) : [];
+    const daysOfWeekC2 = WeekC2 ? getDaysOfWeek(WeekC2) : [];
+    console.warn("Days of WeekC1:", daysOfWeekC1);
+    console.warn("Days of WeekC2:", daysOfWeekC2);
+    
+    const data1 = fillOnChartCompareWithWeek(daysOfWeekC1);
+    const data2 = fillOnChartCompareWithWeek(daysOfWeekC2);
+    console.warn("Data1 for chart:", data1);
+    console.warn("Data2 for chart:", data2);
+    if (!data1 || !data2) {
+      console.error("Data is null or undefined");
+      return;
+    }
+  
+    if (data1.length !== 7 || data2.length !== 7) {
+      console.error("Data length mismatch. Ensure both datasets have 7 values.");
+      return;
+    }
+    const newChartData = createChartCompareData(WeekC1, data1, WeekC2, data2);
+  setChartData(newChartData);
+  }, [WeekC1, WeekC2]);
+  const fillOnChartCompareWithWeek = (datesInRange) => {
+    if (user) {
+      const userCountByDate = datesInRange.reduce((acc, date) => {
+        const count = user.filter((u) => u.createDate === date).length;
+        acc[date] = count;
+        console.warn(acc); 
+        return acc;
+      }, {});
+      return Object.values(userCountByDate); 
+    }
+    return []; 
+  };
+  
+  //check khi chon thang
   const handleMonthChange = (from, to) => {
     setStartMonth(from);
     setEndMonth(to);
@@ -347,6 +404,29 @@ function StaticUser() {
           data: data, // Dữ liệu (data) sẽ là [0] nếu không có dữ liệu
           borderColor: "rgba(75, 192, 192, 1)", // Màu viền
           backgroundColor: "rgba(75, 192, 192, 0.2)", // Màu nền
+          fill: true, // Có nền hay không
+        },
+      ],
+    };
+  };
+  const createChartCompareData = (DataName1,data1,DataName2,data2) => {
+   
+    const labels =["day 1","day 2","day 3","day 4","day 5","day 6","day 7",]
+    return {
+      labels: labels, 
+      datasets: [
+        {
+          label: DataName1,
+          data: data1, 
+          borderColor: "rgba(75, 192, 192, 1)", // Màu viền
+          backgroundColor: "rgba(75, 192, 192, 0.2)", // Màu nền
+          fill: true, // Có nền hay không
+        },
+        {
+          label: DataName2,
+          data: data2,
+          borderColor: "rgba(206, 22, 219, 1)", // Màu viền
+          backgroundColor: "rgba(206, 22, 219, 0.2)", // Màu nền
           fill: true, // Có nền hay không
         },
       ],
@@ -609,8 +689,156 @@ function StaticUser() {
               </ul>
             </nav>
           </div>
+
+
+
+
         </div>
       </div>
+
+
+      <div className="row">
+          {/* compare start */}
+          <div className="col-4">
+            {/* chose day */}
+            {timeType === "day" && (
+              <div className="mt-3">
+                <label className="form-label">Compare Day</label>
+                <div className="d-flex">
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="From"
+                    value={startDate}
+                    onChange={(e) => handleDayChange(e.target.value, endDate)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* chose Week */}
+            {timeType === "week" && (
+              <form>
+                <div className="mt-3">
+                  <label className="form-label">Compare week</label>
+                  <div className="d-flex">
+                    <input
+                      type="week"
+                      className="form-control"
+                      placeholder="To"
+                      value={WeekC1}
+                      onChange={(e) =>
+                        handleCompareWeekChange( e.target.value,WeekC2)
+                      }
+                    />
+                  </div>
+                </div>
+              </form>
+            )}
+
+            {/* chose Month */}
+            {/* {timeType === "month" && (
+              <form>
+                <div className="mt-3">
+                  <label className="form-label">Chose month</label>
+                  <div className="d-flex">
+                    <input
+                      type="month"
+                      className="form-control"
+                      placeholder="From"
+                      value={startMonth}
+                      onChange={(e) =>
+                        handleMonthChange(e.target.value, endMonth)
+                      }
+                    />
+                    -
+                    <input
+                      type="month"
+                      className="form-control"
+                      placeholder="To"
+                      value={endMonth}
+                      onChange={(e) =>
+                        handleMonthChange(startMonth, e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+              </form>
+            )} */}
+          </div>
+
+
+          <div className="col-4">
+            {/* chose day */}
+            {timeType === "day" && (
+              <div className="mt-3">
+                <label className="form-label">With Day</label>
+                <div className="d-flex">
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="From"
+                    value={startDate}
+                    onChange={(e) => handleDayChange(e.target.value, endDate)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* chose Week */}
+            {timeType === "week" && (
+              <form>
+                <div className="mt-3">
+                  <label className="form-label">With week</label>
+                  <div className="d-flex">
+                    <input
+                      type="week"
+                      className="form-control"
+                      placeholder="From"
+                      value={WeekC2}
+                      onChange={(e) =>
+                        handleCompareWeekChange(WeekC1,e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+              </form>
+            )}
+
+            {/* chose Month */}
+            {/* {timeType === "month" && (
+              <form>
+                <div className="mt-3">
+                  <label className="form-label">Chose month</label>
+                  <div className="d-flex">
+                    <input
+                      type="month"
+                      className="form-control"
+                      placeholder="From"
+                      value={startMonth}
+                      onChange={(e) =>
+                        handleMonthChange(e.target.value, endMonth)
+                      }
+                    />
+                    -
+                    <input
+                      type="month"
+                      className="form-control"
+                      placeholder="To"
+                      value={endMonth}
+                      onChange={(e) =>
+                        handleMonthChange(startMonth, e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+              </form>
+            )} */}
+          </div>
+        </div>
+        <div className="mt-5">
+      {chartData ? <Line data={chartData} /> : <p>Loading...</p>}
+    </div>
     </div>
   );
 }

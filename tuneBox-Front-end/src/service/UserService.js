@@ -73,6 +73,24 @@ export const updateUserEmail = async (userId, newEmail) => {
     throw error; // Ném lỗi ra ngoài để xử lý ở nơi khác nếu cần
   }
 };
+export const updateUserPhoneNumber = async (userId, phoneNumber) => {
+  try {
+    const response = await axios.put(
+      `${REST_API_BASE_URL}/${userId}/phone`,
+      JSON.stringify(phoneNumber),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+      },
+    }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating PhoneNum:", error);
+    throw error;
+  };
+};
 
 // get user in account setting page
 export const getUserAccountSetting = async (userId) => {

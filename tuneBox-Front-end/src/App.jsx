@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Route, Routes, Outlet, useParams, Navigate } from "react-router-dom";
+import React, { useState,useEffect  } from "react";
+import { Route, Routes, Outlet, useParams, useNavigate  } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Ecommerce/Home/Home";
 import Shop from "./pages/Ecommerce/Shop/Shop";
@@ -36,6 +36,8 @@ import LikeAlbums from "./pages/SocialMedia/Profile/Profile_nav/likeAlbums";
 import LikePlaylists from "./pages/SocialMedia/Profile/Profile_nav/likePlaylist";
 import PlayListDetail from "./pages/SocialMedia/Profile/Profile_nav/PlaylistDetail";
 import SearchForm from "./pages/SocialMedia/Profile/SearchForm";
+import { UserProvider,useUser  } from "./pages/UserContext";
+import ReusableModal from "./components/ThongBaoBan/ReusableModal";
 
 import CheckOut from "./pages/Ecommerce/CheckOut/CheckOut";
 import OrderDetail from "./pages/Ecommerce/order/OrderDetail";
@@ -47,14 +49,14 @@ import FriendList from "./pages/SocialMedia/FriendList";
 import FollowersPage from "./pages/SocialMedia/FollowersPage";
 import FollowingPage from "./pages/SocialMedia/FollowingPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-import { getUserRole, isUserRole } from './service/auth';
 import Chat from "./pages/SocialMedia/chat/chat";
 import FeedTrack from "./pages/SocialMedia/FeedTrack";
 import FeedPost from "./pages/SocialMedia/FeedPost";
 import TrackAI from "./components/TrackAI/TrackAI";
 import StatisticalUser from "./pages/SocialMediaAdmin/pageContent/StatisticalUser";
 import StatisticalPost from "./pages/SocialMediaAdmin/pageContent/StatisticalPost";
-// Layout có Header
+import XacThucUserLogin from "./pages/GioiThieu/XacThucUserLogin";
+// Layout có Header 
 
 //socialadmin
 import SocialMediaAdmin from "./pages/SocialMediaAdmin";
@@ -69,7 +71,9 @@ function LayoutWithHeader() {
   );
 }
 
+
 function LayoutWithoutHeader() {
+  
   return (
     <>
       <Outlet /> {/* Chỉ render component con mà không có Header */}
@@ -77,47 +81,61 @@ function LayoutWithoutHeader() {
   );
 }
 
-function App() {
-  const { orderId } = useParams();
+function AppContent(){
+  const { isAccountBanned, loading } = useUser();
+  const [modalOpen, setModalOpen] = useState(isAccountBanned);  // Sử dụng state để điều khiển modal
 
+  const handleCloseModal = () => {
+    setModalOpen(false);  // Đóng modal khi gọi handleCloseModal
+  };
+
+  useEffect(() => {
+    if (isAccountBanned) {
+      setModalOpen(true);  // Mở modal nếu tài khoản bị cấm
+    }
+  }, [isAccountBanned]);  // Cập nhật khi isAccountBanned thay đổi
+
+  if (loading) return <div>Loading...</div>;
   return (
-    <FollowProvider>
+    <div>
+      {modalOpen && <ReusableModal isOpen={modalOpen} onRequestClose={handleCloseModal} />}  {/* Truyền handleCloseModal vào onRequestClose */}
+      <FollowProvider>
       {" "}
       {/* Đặt FollowProvider ở đây */}
-      <div>
+      <div>   
         <div className="">
           <Routes>
             {/* Các route có Header */}
-            <Route element={<LayoutWithHeader />} >
-              <Route path="/*" element={<HomeFeed />} />
+            <Route element={<LayoutWithHeader />}>
+              <Route path="/*" element={<XacThucUserLogin><HomeFeed /></XacThucUserLogin>} />
               <Route path="/HomeEcommerce" element={<Home />} />
               {/* Route cho Main Content */}
               <Route path="/Shop" element={<Shop />} />
               <Route path="/profileUser/*" element={<ProfileUser />} />
-              <Route path="/profileSetting" element={<ProfileSetting />} />
-              <Route path="/CartDetail" element={<CartDetail />} />
-              <Route path="/cart" element={<Cart />} />
+              <Route path="/profileSetting" element={<XacThucUserLogin><ProfileSetting /></XacThucUserLogin>} />
+              <Route path="/CartDetail" element={<XacThucUserLogin><CartDetail /></XacThucUserLogin>} />
+              <Route path="/cart" element={<XacThucUserLogin><Cart /></XacThucUserLogin>} />
               <Route path="/DetailProduct/:id" element={<DetailProduct />} />
               <Route path="/BrandPage" element={<BrandPage />} />
               <Route path="/categoryPage" element={<CategoryPage />} />
               <Route path="/brand-detail" element={<BrandDetail />} />
               <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
-              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat" element={<XacThucUserLogin><Chat /></XacThucUserLogin>} />
               <Route
                 path="/albums/album-Edit/:albumId"
-                element={<AlbumEdit />}
+                element={<XacThucUserLogin><AlbumEdit /></XacThucUserLogin>}
               />
-              <Route path="/album/:id" element={<AlbumDetail />} />
+              <Route path="/album/:id" element={<XacThucUserLogin><AlbumDetail /></XacThucUserLogin>} />
               <Route
                 path="/InstrumentBelongCategory"
                 element={<CategoryPageDetail />}
               />
               <Route path="/profile/:id/*" element={<OtherUserProfile />} />
               <Route path="/track/:id" element={<TrackDetail />} />
-              <Route path="/checkOut" element={<CheckOut />} />
+              <Route path="/checkOut" element={<XacThucUserLogin><CheckOut /></XacThucUserLogin>} />
               <Route path="/orderDetail/:orderId" element={<OrderDetail />} />
-              <Route path="/doneorder" element={<ThanhCong />} />
+              <Route path="/doneorder" element={<XacThucUserLogin><ThanhCong /></XacThucUserLogin>} />
               <Route path="/post/:postIdurl" element={<Post />} />
               <Route path="/FriendRequests" element={<FriendRequests />} />
               <Route path="/FriendList/:userId" element={<FriendList />} />
@@ -147,28 +165,35 @@ function App() {
               <Route path="/inspiredBy" element={<InspiredBy />} />
               <Route path="/genre" element={<Genre />} />
               <Route path="/welcome" element={<WelcomeUser />} />
-              <Route path='/statistical/user' element={<StatisticalUser/>}/>
-              <Route path='/statistical/post' element={<StatisticalPost/>}/>
+              <Route path="/statistical/user" element={<StatisticalUser />} />
+              <Route path="/statistical/post" element={<StatisticalPost />} />
               {/* admin start */}
-              
+
               {/* Route bảo vệ với quyền 'EcomAdmin' */}
               <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
-              <Route
-              path="/socialadmin/*"
-              element={<SocialMediaAdmin />}
-            />
-            <Route path="/socialadminlogin" element={<LoginS_ADMIN />} />
-
-              {/* admin end */}
-              <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
-
+              
+              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
+                <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
+              </Route>
+              
             </Route>
           </Routes>
         </div>
       </div>
     </FollowProvider>
+    </div>
+
+  );
+
+}
+
+function App() {
+  return (
+    <UserProvider>
+      <AppContent />
+    </UserProvider>
   );
 }
 

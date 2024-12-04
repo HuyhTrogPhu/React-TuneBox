@@ -111,6 +111,45 @@ export const LoadTrackById = async (id) => {
     console.error("Error fetching user data:", error);
   }
 };
+//load rp by ID track
+export const LoadReportByTrackId = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getReportByTrack/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+export const LoadReportByAlbumId = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getReportByAlbum/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+//load rp  getReportByReported
+export const LoadReportByReportedId = async (id) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getReportByReported/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
 
 //load comment by TrackID
 export const LoadCommentByTrackID = async (id) => {
@@ -180,6 +219,63 @@ export const LoadAlbum = async () => {
 };
 
 //load all Track<Report>
+export const LoadAllTrackReport = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAllTrackReport`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+//load all User<Report>
+export const LoadAllUserReport = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAllUserReport`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+//load all Track<Report>
+export const LoadAllAlbumReport = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAllAlbumReport`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+//load all Track<Report>
+export const LoadAllPostReport = async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getAllPostReport`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+
+//load all Track by page <Report>
 export const LoadTrackReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(
@@ -197,6 +293,20 @@ export const LoadPostReport = async (page = 0, size = 10) => {
   try {
     const response = await axios.get(
       `http://localhost:8082/SocialAdmin/static/getPostReport?page=${page}&size=${size}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+//load all User<Report>
+export const LoadUserReport = async (page = 0, size = 10) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8082/SocialAdmin/static/getUserReport?page=${page}&size=${size}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -245,11 +355,63 @@ export const DeniedRP = async (id) => {
   }
 };
 
+//DeniedRP track
+export const DeniedRPTrack = async (id) => {
+  try {
+    const response = await axios.put(
+      `http://localhost:8082/SocialAdmin/static/DeniedRPTrack/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+//DeniedRP Album
+export const DeniedRPAlbum = async (id) => {
+  try {
+    const response = await axios.put(
+      `http://localhost:8082/SocialAdmin/static/DeniedRPAlbum/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
 //ApproveRP
 export const ApproveRP = async (id) => {
   try {
     const response = await axios.put(
       `http://localhost:8082/SocialAdmin/static/ApproveRP/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+export const ApproveRPTrack = async (id) => {
+  try {
+    const response = await axios.put(
+      `http://localhost:8082/SocialAdmin/static/ApproveRPTrack/${id}`,
+      { withCredentials: true }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+export const ApproveRPAlbum = async (id) => {
+  try {
+    const response = await axios.put(
+      `http://localhost:8082/SocialAdmin/static/ApproveRPAlbum/${id}`,
       { withCredentials: true }
     );
     const data = response.data;
@@ -568,4 +730,14 @@ export const LoadAlbumForTable = async (startDate, endDate) => {
     console.error("Error fetching user count:", error);
     throw error;
   }
+};
+
+const API_BASE_URL = "http://localhost:8082/api/admin";
+
+export const banUser = async (id) => {
+  return await axios.put(`${API_BASE_URL}/${id}/ban`);
+};
+
+export const unbanUser = async (id) => {
+  return await axios.put(`${API_BASE_URL}/${id}/unban`);
 };

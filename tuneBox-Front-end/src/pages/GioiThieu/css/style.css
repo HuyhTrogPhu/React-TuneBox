@@ -1248,4 +1248,53 @@ input.form-control l1{
   color: #0056b3;
 }
 
+.custom-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7); /* Màu nền đen trong suốt */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Đảm bảo modal luôn trên cùng */
+}
+
+.custom-modal-content {
+  background: #fff; /* Nền trắng */
+  padding: 20px 30px; /* Khoảng cách bên trong modal */
+  border-radius: 10px; /* Bo góc */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+  text-align: center; /* Căn giữa nội dung */
+  width: 400px; /* Độ rộng modal */
+}
+
+.custom-modal-header {
+  font-size: 20px; /* Kích thước chữ lớn */
+  font-weight: bold;
+  color: #e94f37; /* Màu đỏ */
+  margin-bottom: 15px;
+}
+
+.custom-modal-body {
+  font-size: 16px;
+  color: #555; /* Màu chữ tối nhẹ */
+  margin-bottom: 20px;
+}
+
+.custom-modal-button {
+  background-color: #e94f37; /* Nền đỏ */
+  color: #fff; /* Màu chữ trắng */
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.custom-modal-button:hover {
+  background-color: #d43c30; /* Nền đỏ đậm khi hover */
+}
 

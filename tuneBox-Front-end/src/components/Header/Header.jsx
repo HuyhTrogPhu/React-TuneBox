@@ -54,21 +54,8 @@ const Header = () => {
             style={{ width: 30, height: 30 }}
           />
         </a>
-        <ul
-          className="dropdown-menu dropdown-menu-end"
-          aria-labelledby="userDropdown"
-        >
-          <li>
-            <a className="dropdown-item" href="#">
-            {('profile')}
-            </a>
-          </li>
-          <li>
-            <a className="dropdown-item" href="#">
-            {('log_out')}
-            </a>
-          </li>
-        </ul>
+      
+       
       </div>
     </div>
   );

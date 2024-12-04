@@ -4,6 +4,7 @@ import {
   deleteAlbum,
 } from "../../../../service/AlbumsServiceCus";
 import { getLikesCountByAlbumsId } from "../../../../service/likeTrackServiceCus";
+import { LoadAlbumReport } from "../../../../service/SocialMediaAdminService";
 import Cookies from "js-cookie";
 import "./css/albums.css";
 import { ToastContainer, toast } from "react-toastify";
@@ -43,9 +44,17 @@ const Albums = () => {
     setIsLoading(true);
     try {
       const albumsResponse = await getAlbumsByUserId(targetUserId);
+      const responseRp = await LoadAlbumReport();
+      const dataRP = responseRp.data;
+      console.log(dataRP);
+      const filteredAlbums = albumsResponse.filter((album) => {
+        const report = dataRP.find(rp => rp.albumId === album.id); // Tìm báo cáo tương ứng với track
+        return !report || report.status !== "RESOLVED";
+      });
 
-      setAlbums(albumsResponse || []);
-      console.log("albumsResponse: ", albumsResponse);
+
+      setAlbums(filteredAlbums || []);
+      console.log("albumsResponse: ", filteredAlbums);
 
       // Đếm số lượng album có status là false
       const inactiveAlbumsCount = albumsResponse.filter(
