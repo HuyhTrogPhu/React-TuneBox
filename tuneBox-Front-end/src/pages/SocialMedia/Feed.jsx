@@ -1081,10 +1081,12 @@ const HomeFeed = () => {
   useEffect(() => {
     const fetchUserTags = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/posts/tagName", {
-          params: {userId: currentUserId},
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          "http://localhost:8080/api/posts/tagName",
+          {
+            withCredentials: true,
+          }
+        );
         console.log("User tags fetched:", response.data);
         setUserSuggestions(response.data);
       } catch (error) {
