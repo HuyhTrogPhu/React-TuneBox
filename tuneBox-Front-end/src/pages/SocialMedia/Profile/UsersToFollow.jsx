@@ -3,8 +3,10 @@ import React, { useEffect, useState } from 'react';
 import "../Profile/css/UsersToFollow.css";
 import { useTranslation } from "react-i18next";
 import '../../../i18n/i18n'
+import { useNavigate} from "react-router-dom";
 
 function UsersToFollow({ userId }) {
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
     const [showAll, setShowAll] = useState(false);
@@ -69,6 +71,18 @@ function UsersToFollow({ userId }) {
     const handleFollowUser = (userId) => {
         setUsers(prevUsers => prevUsers.filter(user => user.userId !== userId));
     }
+    const handleAvatarClick = (user) => {
+        console.log("Current User ID:", userId);
+        console.log("Post User ID:", user.userId);
+    
+        if (String(user.userId) === String(userId)) {
+          console.log("Navigating to ProfileUser");
+          navigate("/profileUser");
+        } else {
+          console.log("Navigating to OtherUserProfile");
+          navigate(`/profile/${user.userId}`);
+        }
+      };
 
     // Hiển thị 6 người dùng đầu tiên hoặc toàn bộ danh sách nếu showAll = true
     const displayedUsers = showAll ? users : users.slice(0, 6);
@@ -81,7 +95,7 @@ function UsersToFollow({ userId }) {
                     <div key={user.userName} className="user-card d-flex align-items-center justify-content-between">
                         {/* Information user */}
                         <div className='d-flex align-items-center'>
-                            <img src={user.avatar || 'default-avatar.png'} alt={user.name} className="Avatar me-3" />
+                            <img src={user.avatar || 'default-avatar.png'} alt={user.name} className="Avatar me-3" onClick={() => handleAvatarClick(user)}/>
                             <div className="user-info">
                                 <div className="name">{user.name}</div>
                                 <div className="title">@{user.userName}</div>

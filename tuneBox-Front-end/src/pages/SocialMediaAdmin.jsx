@@ -24,7 +24,6 @@ import StaticTrack from "./SocialMediaAdmin/Statistical/StaticTrack";
 import StatisticalPost from "./SocialMediaAdmin/pageContent/statisticalPost/StatisticalPost";
 import StaticticalReport from "./SocialMediaAdmin/Statistical/StaticticalReport";
 
-
 const SocialMediaAdmin = () => {
   return (
     <div>
