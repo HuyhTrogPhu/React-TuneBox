@@ -119,21 +119,32 @@
   margin-top: 2px; /* Khoảng cách giữa tên người dùng và thời gian */
 }
 
-.reply-input-container {
-  margin-top: 5px; /* Khoảng cách giữa phần bình luận và input reply */
+.reply-content-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.reply-to-reply-content-container {
+  display: flex;
+  justify-content: space-between;
+  width:100%;
 }
 
 .reply {
   margin-left: 30px; /* Thụt lề cho reply */
-  border-left: 2px solid #ddd; /* Đường kẻ bên trái */
-  padding-left: 10px; /* Khoảng cách bên trái */
   margin-bottom: 10px;
 }
-
+.reply-content {
+  border-left: 2px solid #ddd; /* Đường kẻ bên trái */
+  padding-left: 10px; /* Khoảng cách bên trái */
+}
 .nested-replies {
-  margin-left: 20px; /* Lùi vào bên phải cho các phản hồi lồng nhau */
-  border-left: 1px solid #ccc; /* Vạch bên trái để phân biệt */
+  display: flex;
+  flex-direction: column;
+  margin-left: 90px;
+  border-left: 1px solid #ddd; /* Vạch bên trái để phân biệt */
   padding-left: 10px; /* Khoảng cách giữa vạch và nội dung */
+  padding-right: 50px;
 }
 
 .nested-reply {
@@ -162,8 +173,9 @@ textarea {
   background: #e94f37;
   color: white;
   border: none;
-  padding: 7px;
+  padding: 5px 7px; /* 5px cho trên dưới, 7px cho trái phải */
   border-radius: 7px;
+  margin-right: 10px;
 }
 
 .btn-send:hover {
