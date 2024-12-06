@@ -23,7 +23,6 @@ import StaticPlayList from "./SocialMediaAdmin/Statistical/StaticPlayList";
 import StaticTrack from "./SocialMediaAdmin/Statistical/StaticTrack";
 import StatisticalPost from "./SocialMediaAdmin/pageContent/statisticalPost/StatisticalPost";
 import StaticticalReport from "./SocialMediaAdmin/Statistical/StaticticalReport";
-import Report from "./SocialMediaAdmin/pageContent/Report";
 
 const SocialMediaAdmin = () => {
   return (
