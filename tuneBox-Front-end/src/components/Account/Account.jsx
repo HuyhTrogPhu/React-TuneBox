@@ -28,11 +28,11 @@ const Account = () => {
       const fetchUserSetting = async () => {
         try {
           const response = await getUserAccountSetting(userIdCookie);
-          const { email,phone, birthDay, gender } = response;
+          const { email,phoneNumber, birthDay, gender } = response;
           setEmail(email || '');
-          setPhoneNum(phone || '');
+          setPhoneNum(phoneNumber || '');
           setNewEmail(email || '');
-          setNewPhone(phone || '');
+          setNewPhone(phoneNumber || '');
           setBirthDay(birthDay || '');
           setGender(gender || 'Male');
           

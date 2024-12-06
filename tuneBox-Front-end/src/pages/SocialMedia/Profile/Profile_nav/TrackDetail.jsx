@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./css/Trackdetail.css";
 import { useParams, useLocation } from "react-router-dom";
 import { getTrackById } from "../../../../service/TrackServiceCus";
@@ -19,6 +19,7 @@ import {
   addReply,
   deleteReply,
   updateReply,
+  addReplyToReply,
 } from "../../../../service/CommentTrackCus";
 import { search } from "../../../../service/UserService";
 import { images } from "../../../../assets/images/images";
@@ -28,6 +29,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { format } from "date-fns"; // Nhập format từ date-fns
 import ShareTrackModal from "../Profile_nav/ShareTrackModal"; // Adjust the import path as needed
+import Picker from "@emoji-mart/react";
 
 function Trackdetail() {
   const { id } = useParams();
@@ -43,14 +45,21 @@ function Trackdetail() {
 
   const [comments, setComments] = useState([]); // State lưu trữ comment
   const [newComment, setNewComment] = useState("");
-  const [avataCmt, setAvataCmt] = useState("");
+
   const [avataTrackDetail, setAvataTrackDetail] = useState("");
   const [avatarReplies, setAvatarReplies] = useState({});
 
   const [editingCommentId, setEditingCommentId] = useState(null); // ID của bình luận đang chỉnh sửa
 
+  const [isRepliesVisible, setRepliesVisible] = useState({});
+
   const [replies, setReplies] = useState({}); // State quản lý replies của các comment
   const [replyContent, setReplyContent] = useState({}); // State để lưu nội dung phản hồi
+
+  const [nestedReplies, setNestedReplies] = useState({}); // Lưu nested replies
+  const [replyToReplyContent, setReplyToReplyContent] = useState({}); // Nội dung phản hồi đến phản hồi
+
+  const [isEditingReply, setIsEditingReply] = useState(false);
   const [editingReply, setEditingReply] = useState(null); // Trạng thái theo dõi reply đang chỉnh sửa
   const [editContentReply, setEditContentReply] = useState(""); // Nội dung đang chỉnh sửa
 
@@ -58,6 +67,40 @@ function Trackdetail() {
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const userId = Cookies.get("userId"); // Lấy userId từ cookies
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false); //Comment
+  const [showEmojiPickerReply, setShowEmojiPickerReply] = useState(false); //reply
+  const [showEmojiPickerNestedReplies, setShowEmojiPickerNestedReplies] =
+    useState(false); //reply
+  const emojiPickerRef = useRef(null); // Tạo ref cho bảng emoji picker
+
+  const toggleRepliesVisibility = (commentId) => {
+    setRepliesVisible((prevState) => ({
+      ...prevState,
+      [commentId]: !prevState[commentId],
+    }));
+  };
+
+  // Xử lý click bên ngoài bảng emoji
+  const handleClickOutside = (event) => {
+    if (
+      emojiPickerRef.current && // Đảm bảo ref tồn tại
+      !emojiPickerRef.current.contains(event.target) // Nếu click ngoài bảng emoji
+    ) {
+      setShowEmojiPicker(false); // Đóng bảng emoji
+      setShowEmojiPickerReply(false);
+      setShowEmojiPickerNestedReplies(false);
+    }
+  };
+
+  // Gắn sự kiện lắng nghe cho document
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Cleanup sự kiện
+    };
+  }, []);
 
   // get track genreid
   useEffect(() => {
@@ -139,16 +182,24 @@ function Trackdetail() {
     fetchTrackByUserId();
   }, [id]);
 
+  useEffect(() => {
+    console.log("replyContent đã thay đổi:", replyContent);
+  }, [replyContent]); // Theo dõi sự thay đổi của replyContent
+
   const fetchComments = async () => {
     try {
       const response = await getCommentsByTrack(id);
       console.log("bình luận:", response);
+
+      let totalReplies = 0;
 
       // Lấy replies và chỉ thêm avatar cho comments chính
       const commentsWithAvatars = await Promise.all(
         response.map(async (comment) => {
           const replies = await fetchReplies(comment.id);
           const avatar = await getAvatarUser(comment.userId);
+
+          totalReplies += replies.length;
 
           // Gắn replies và avatar vào comment
           return {
@@ -161,6 +212,9 @@ function Trackdetail() {
 
       // Cập nhật state với danh sách comment đầy đủ
       setComments(commentsWithAvatars);
+
+      // total comments + total replies
+      setCmtCount(response.length + totalReplies);
     } catch (error) {
       console.error("Lỗi khi lấy bình luận:", error);
     }
@@ -176,6 +230,7 @@ function Trackdetail() {
     if (editingCommentId) {
       await handleUpdateComment(editingCommentId, newComment);
       setEditingCommentId(null);
+      setShowEmojiPicker(false);
     } else {
       // Thêm bình luận mới
       try {
@@ -188,6 +243,7 @@ function Trackdetail() {
         setNewComment(""); // Reset input bình luận
         const updatedComments = await getCommentsByTrack(id);
         setComments(updatedComments);
+        setShowEmojiPicker(false);
 
         fetchComments();
         fetchReplies();
@@ -195,6 +251,13 @@ function Trackdetail() {
         console.error("Lỗi khi thêm bình luận:", error);
       }
     }
+
+    fetchComments();
+    fetchReplies();
+  };
+  const addEmoji = (emoji) => {
+    setNewComment((prevComment) => prevComment + emoji.native);
+    console.log("icon comment: ", emoji.native);
   };
 
   // Xóa comment
@@ -203,6 +266,8 @@ function Trackdetail() {
       await deleteCommentTrack(commentId);
       const updatedComments = await getCommentsByTrack(id);
       setComments(updatedComments);
+      fetchComments();
+      fetchReplies();
     } catch (error) {
       console.error("Lỗi khi xóa bình luận:", error);
     }
@@ -266,8 +331,10 @@ function Trackdetail() {
         console.log("avatar reply: ", avatar);
       }
       setAvatarReplies((prev) => ({ ...prev, [commentId]: avatarRepliesObj }));
+      return replies || []; //Sử dụng || []toán tử để mặc định là một mảng trống nếu replieskhông xác định (để tính toán)
     } catch (error) {
-      console.error(error.message); // Hiển thị thông báo lỗi nếu có
+      console.error(error.message);
+      return []; // Luôn trả về một mảng (trống nếu không có phản hồi hoặc có lỗi)
     }
   };
 
@@ -306,7 +373,7 @@ function Trackdetail() {
 
           // Nếu tìm thấy phản hồi, cập nhật nó
           if (index !== -1) {
-            repliesForComment[index] = updatedReply; // Cập nhật phản hồi
+            repliesForComment[index] = updatedReply;
           }
 
           updatedReplies[commentId] = repliesForComment; // Cập nhật lại danh sách replies
@@ -316,8 +383,7 @@ function Trackdetail() {
         setEditingReply(null); // Reset trạng thái chỉnh sửa sau khi cập nhật
         setEditContentReply(""); // Xóa nội dung chỉnh sửa
       } else {
-        // Gọi API để thêm reply
-        const newReply = await addReply(commentId, userId, replyData); // Gọi hàm addReply
+        const newReply = await addReply(commentId, userId, replyData);
 
         // Cập nhật state replies
         setReplies((prevReplies) => ({
@@ -338,11 +404,19 @@ function Trackdetail() {
     }
   };
 
+  const addEmojiToReply = (emoji, commentId) => {
+    setReplyContent((prevState) => ({
+      ...prevState,
+      [commentId]: (prevState[commentId] || "") + emoji.native, // Thêm emoji vào nội dung
+    }));
+  };
+
   // xóa replly
-  const handleDeleteReply = async (replyId, userId, commentId) => {
+  const handleDeleteReply = async (replyId, userId) => {
     try {
       await deleteReply(replyId, userId);
-      fetchReplies(commentId); // Cập nhật lại danh sách reply sau khi xóa
+      fetchReplies();
+      fetchComments();
     } catch (error) {
       console.error("Lỗi khi xóa reply:", error);
     }
@@ -350,11 +424,57 @@ function Trackdetail() {
     fetchReplies();
   };
 
-  // Hàm kích hoạt chỉnh sửa
+  const resetReplyContent = () => {
+    setReplyContent({}); // Xóa toàn bộ nội dung reply
+    setEditContentReply(""); // Xóa nội dung chỉnh sửa
+    setEditingReply(null); // Reset trạng thái chỉnh sửa
+  };
+
+  // Đóng/mở khung nhập reply
+  const toggleReplyInput = (commentId, setReplyContent) => {
+    setReplyContent((prevState) => {
+      const isCurrentOpen = prevState[commentId] !== undefined;
+
+      // Đóng tất cả khung khác và chỉ mở/đóng khung hiện tại
+      return {
+        [commentId]: isCurrentOpen ? undefined : "", // Đóng hoặc mở khung hiện tại
+      };
+    });
+    resetReplyToReplyContent();
+  };
+
+  const resetReplyToReplyContent = () => {
+    setReplyToReplyContent({});
+  };
+
+  // Đóng/mở khung nhập reply lồng nhau
+  const toggleReplyToReplyInput = (replyId, setReplyToReplyContent) => {
+    setReplyToReplyContent((prevState) => {
+      const isCurrentOpen = prevState[replyId] !== undefined;
+
+      // Đóng tất cả khung khác và chỉ mở/đóng khung hiện tại
+      return {
+        [replyId]: isCurrentOpen ? undefined : "", // Đóng hoặc mở khung hiện tại
+      };
+    });
+
+    resetReplyContent();
+  };
+
+  const closeAllReplyInputs = (setReplyContent, setReplyToReplyContent) => {
+    // Đóng khung reply
+    setReplyContent({});
+    // Đóng khung reply lồng nhau
+    setReplyToReplyContent({});
+  };
+
+  // Hàm kích hoạt chỉnh sửa reply
   const handleEditReply = (replyId, currentContent) => {
     console.log("Editing reply:", replyId, currentContent);
     setEditContentReply(currentContent); // Đặt nội dung hiện tại vào input
     setEditingReply({ replyId }); // Đặt trạng thái chỉnh sửa với replyId
+    console.log("setEditingReply:", editingReply);
+    console.log("setEditContentReply:", editContentReply);
   };
 
   // Ham lay danh sach track by userid
@@ -381,6 +501,123 @@ function Trackdetail() {
       ); // Log loi neu co
     }
   };
+
+  const handleReplyToReply = async (parentReplyId, commentId) => {
+    const content = replyToReplyContent[parentReplyId];
+
+    if (!content) {
+      alert("Vui lòng nhập nội dung phản hồi.");
+      return;
+    }
+
+    const replyData = {
+      content: content,
+      commentId: commentId,
+    };
+
+    try {
+      const newNestedReply = await addReplyToReply(
+        parentReplyId,
+        userId,
+        replyData
+      ); // API để thêm reply vào reply
+      // Cập nhật nested replies
+      setNestedReplies((prevReplies) => ({
+        ...prevReplies,
+        [parentReplyId]: [
+          ...(prevReplies[parentReplyId] || []),
+          newNestedReply,
+        ],
+      }));
+
+      setReplyToReplyContent((prevState) => ({
+        ...prevState,
+        [parentReplyId]: "", // Xóa nội dung đã nhập
+      }));
+
+      fetchComments();
+      fetchReplies();
+    } catch (error) {
+      console.error("Lỗi khi thêm phản hồi lồng nhau:", error);
+    }
+  };
+
+  const addEmojiToReplytoReply = (emoji, commentId) => {
+    setReplyToReplyContent((prevState) => ({
+      ...prevState,
+      [commentId]: (prevState[commentId] || "") + emoji.native, // Thêm emoji vào nội dung
+    }));
+  };
+
+  const handleEditReplyToReply = async (replyId, commentId) => {
+    // Lấy nội dung chỉnh sửa từ state
+    const content = replyToReplyContent[replyId];
+
+    // Kiểm tra xem nội dung có hợp lệ không
+    if (!content || content.trim() === "") {
+      alert("Vui lòng nhập nội dung phản hồi.");
+      return;
+    }
+
+    try {
+      // Gọi API chỉnh sửa reply với dữ liệu mới
+      const updatedReply = await updateReply(replyId, userId, { content });
+
+      // Cập nhật state replies sau khi sửa
+      setReplies((prevReplies) => {
+        const updatedReplies = { ...prevReplies };
+
+        // Duyệt qua các replies để tìm reply cần sửa
+        const repliesForComment = updatedReplies[commentId] || [];
+        const index = repliesForComment.findIndex(
+          (reply) => reply.id === replyId
+        );
+
+        // Nếu tìm thấy reply, cập nhật lại nội dung
+        if (index !== -1) {
+          repliesForComment[index] = updatedReply; // Cập nhật nội dung reply
+        }
+
+        updatedReplies[commentId] = repliesForComment; // Cập nhật lại replies của comment
+        return updatedReplies;
+      });
+
+      // Reset lại trạng thái chỉnh sửa sau khi cập nhật
+      setEditingReply(null);
+      setEditContentReply(""); // Xóa nội dung chỉnh sửa
+      setReplyToReplyContent((prevState) => ({
+        ...prevState,
+        [replyId]: "", // Reset nội dung replyToReplyContent
+      }));
+    } catch (error) {
+      console.error("Lỗi khi chỉnh sửa reply:", error);
+    }
+  };
+
+  //   const content = replyToReplyContent[replyId];
+
+  //   if (!content || content.trim() === "") {
+  //     alert("Vui lòng nhập nội dung phản hồi.");
+  //     return;
+  //   }
+
+  //   try {
+  //     await updateReply(replyId, userId, { content });
+  //     setNestedReplies((prevReplies) => ({
+  //       ...prevReplies,
+  //       [replyId]: prevReplies[replyId].map((reply) =>
+  //         reply.id === replyId ? { ...reply, content } : reply
+  //       ),
+  //     }));
+  //     setReplyToReplyContent((prevState) => ({
+  //       ...prevState,
+  //       [replyId]: "", // Reset nội dung
+  //     }));
+  //     setIsEditingReply(false);
+  //   } catch (error) {
+  //     console.error("Lỗi khi chỉnh sửa reply:", error);
+  //   }
+  // };
 
   // search
   const [keyword, setKeyword] = useState("");
@@ -486,7 +723,7 @@ function Trackdetail() {
                     className="btn-icon"
                     alt="share"
                   />
-                  Comment
+                  {cmtCount}
                 </button>
                 <button
                   className="btn"
@@ -500,34 +737,6 @@ function Trackdetail() {
                   isOpen={isShareModalOpen}
                   onClose={() => setIsShareModalOpen(false)}
                 />
-              </div>
-              <div className="track-player-actions-column">
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a
-                        className="dropdown-item"
-                        onClick={() => handleEditClick(track)}
-                      >
-                        Edit
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        className="dropdown-item"
-                        onClick={() => deleteTrack(track.id)}
-                      >
-                        Delete
-                      </a>
-                    </li>
-                  </ul>
-                </div>
               </div>
             </div>
 
@@ -552,8 +761,11 @@ function Trackdetail() {
             <div className="mt-3">
               <div>
                 {/* form comment */}
-                <div className="comment-content row">
-                  <div className="col-11">
+                <div
+                  className="comment-content row"
+                  style={{ position: "relative" }}
+                >
+                  <div className="d-flex mr-5">
                     <textarea
                       className="form-control"
                       rows="3"
@@ -561,8 +773,45 @@ function Trackdetail() {
                       onChange={(e) => setNewComment(e.target.value)} // Cập nhật nội dung bình luận
                       placeholder="Viết một bình luận..."
                     />
-                  </div>
-                  <div className="col-1">
+                    <button
+                      onClick={() => {
+                        console.log(
+                          "Trạng thái trước khi click:",
+                          showEmojiPicker
+                        );
+                        setShowEmojiPicker(!showEmojiPicker);
+                      }}
+                      className="btn btn-sm"
+                    >
+                      😀
+                    </button>
+
+                    {/* Hiển thị bảng emoji */}
+                    {showEmojiPicker && (
+                      <div
+                        ref={emojiPickerRef}
+                        style={{
+                          position: "absolute",
+                          bottom: "65%",
+                          right: "2%",
+                          zIndex: 10,
+                        }}
+                      >
+                        <Picker
+                          onEmojiSelect={(emoji) => {
+                            addEmoji(emoji);
+                          }}
+                        />
+
+                        <button
+                          onClick={() => setShowEmojiPicker(false)}
+                          className="btn btn-link"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    )}
+
                     <button className="btn-send " onClick={handleAddComment}>
                       Send
                     </button>
@@ -644,47 +893,112 @@ function Trackdetail() {
                                 )}
                               </div>
                             </div>
+                            {/* Nút ẩn/hiện replies */}
+                            {replies[comment.id] &&
+                              replies[comment.id].length > 0 && (
+                                <button
+                                  className="btn btn-link"
+                                  onClick={() =>
+                                    toggleRepliesVisibility(comment.id)
+                                  }
+                                >
+                                  {isRepliesVisible[comment.id]
+                                    ? "Hide replies"
+                                    : "View all replies"}
+                                </button>
+                              )}
                             {/* Nút trả lời */}
                             <button
-                              className="btn btn-link mt-2"
-                              onClick={() => {
-                                setReplyContent((prevState) => ({
-                                  ...prevState,
-                                  [comment.id]: prevState[comment.id] ? "" : "", // Toggle khung nhập
-                                }));
-                              }}
+                              className="btn btn-link"
+                              onClick={() =>
+                                toggleReplyInput(comment.id, setReplyContent)
+                              }
                             >
-                              Reply
+                              {replyContent[comment.id] !== undefined
+                                ? "Cancel"
+                                : "Reply"}
                             </button>
+
                             {/* Khung nhập trả lời */}
                             {replyContent[comment.id] !== undefined && (
                               <div className="reply-input-container d-flex align-items-start">
                                 <textarea
-                                  className="reply-input mt-2 form-control me-2"
+                                  className="reply-input mt-2 form-control "
                                   rows={1}
                                   placeholder="Write a reply..."
                                   value={
-                                    editingReply
-                                      ? editContentReply
-                                      : replyContent[comment.id] || "" // Hiển thị nội dung đang chỉnh sửa hoặc nội dung mới
+                                    editingReply &&
+                                    editingReply.commentId === comment.id
+                                      ? editContentReply // Hiển thị nội dung đang chỉnh sửa
+                                      : replyContent[comment.id] // Hiển thị nội dung mới
                                   }
                                   onChange={(e) => {
-                                    if (editingReply?.replyId === comment.id) {
-                                      setEditContentReply(e.target.value); // Cập nhật nội dung khi chỉnh sửa
+                                    if (
+                                      editingReply &&
+                                      editingReply.commentId === comment.id
+                                    ) {
+                                      // Khi chỉnh sửa
+                                      setEditContentReply(e.target.value);
                                     } else {
                                       setReplyContent((prevState) => ({
                                         ...prevState,
-                                        [comment.id]: e.target.value, // Cập nhật nội dung khi thêm mới
+                                        [comment.id]: e.target.value, // Cập nhật nội dung mới
                                       }));
                                     }
                                   }}
                                 />
                                 <button
-                                  className="btn-primary rounded mt-2 p-1"
-                                  onClick={() => handleAddReply(comment.id)}
+                                  onClick={() => {
+                                    console.log(
+                                      "Trạng thái trước khi click icon reply:",
+                                      showEmojiPickerReply
+                                    );
+                                    setShowEmojiPickerReply(
+                                      !showEmojiPickerReply
+                                    );
+                                  }}
+                                  className="btn btn-sm d-flex align-items-center justify-content-center"
+                                  style={{
+                                    height: "50px",
+                                  }}
                                 >
-                                  {editingReply ? "Update" : "Reply"}{" "}
-                                  {/* Thay đổi nút theo trạng thái */}
+                                  😀
+                                </button>
+                                {showEmojiPickerReply && (
+                                  <div
+                                    ref={emojiPickerRef}
+                                    className="emoji-picker-container"
+                                    style={{
+                                      position: "absolute",
+                                      bottom: "22%",
+                                      right: "0",
+                                      zIndex: 10,
+                                    }}
+                                  >
+                                    <Picker
+                                      onEmojiSelect={(emoji) => {
+                                        addEmojiToReply(emoji, comment.id);
+                                      }}
+                                    />
+                                    <button
+                                      onClick={() =>
+                                        setShowEmojiPickerReply(false)
+                                      }
+                                      className="btn btn-link"
+                                    >
+                                      Close
+                                    </button>
+                                  </div>
+                                )}
+
+                                <button
+                                  className="btn-send rounded mt-2"
+                                  onClick={() => {
+                                    setShowEmojiPickerReply(false);
+                                    handleAddReply(comment.id);
+                                  }}
+                                >
+                                  Reply
                                 </button>
                               </div>
                             )}
@@ -692,86 +1006,398 @@ function Trackdetail() {
                         </div>
 
                         {/* Hiển thị reply */}
-                        <div className="row justify-content-center">
+                        <div className="row justify-content-center ">
                           <div className="replies-list mt-2">
-                            {replies[comment.id] &&
-                              replies[comment.id].map((reply) => (
-                                <div
-                                  className="reply d-flex align-items-start"
-                                  key={reply.id}
-                                >
-                                  <img
-                                    src={avatarReplies[comment.id]?.[reply.id]}
-                                    className="avatar_small"
-                                    alt="Avatar"
-                                  />
-                                  <div className="reply-content">
-                                    <div>
-                                      <div className="comment-author">
-                                        @{reply.userNickname}
-                                      </div>
-                                      <div className="comment-time">
-                                        {format(
-                                          new Date(comment.creationDate),
-                                          "dd/MM/yyyy"
-                                        )}
-                                      </div>
-                                      <p>{reply.content}</p>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    {/* Dropdown chỉnh sửa/xóa bình luận */}
-                                    <div className="dropdown top-0 end-0">
-                                      {String(reply.userId) === userId && (
-                                        <div
-                                          className="btn-group"
-                                          style={{ marginLeft: 25 }}
-                                        >
+                            {isRepliesVisible[comment.id] &&
+                              replies[comment.id] &&
+                              replies[comment.id]
+                                .filter((reply) => !reply.parentReplyId) // Lọc reply gốc
+                                .map((reply) => (
+                                  <div
+                                    className="reply d-flex flex-column"
+                                    key={reply.id}
+                                  >
+                                    <div className="d-flex align-items-start justify-content-between reply-content-container">
+                                      {/* Reply content */}
+                                      <div className="reply-content left-content d-flex align-items-start">
+                                        <img
+                                          src={
+                                            avatarReplies[comment.id]?.[
+                                              reply.id
+                                            ]
+                                          }
+                                          className="avatar_small"
+                                          alt="Avatar"
+                                        />
+                                        <div>
+                                          <div className="comment-author">
+                                            @{reply.userNickname}
+                                          </div>
+                                          <div className="comment-time">
+                                            {format(
+                                              new Date(comment.creationDate),
+                                              "dd/MM/yyyy"
+                                            )}
+                                          </div>
+                                          <p>{reply.content}</p>
+
+                                          {/* Nút trả lời */}
                                           <button
-                                            className="btn no-border"
-                                            type="button"
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false"
-                                            style={{
-                                              backgroundColor: "transparent",
-                                            }}
+                                            className="btn btn-link"
+                                            onClick={() =>
+                                              toggleReplyToReplyInput(
+                                                reply.id,
+                                                setReplyToReplyContent
+                                              )
+                                            }
                                           >
-                                            ...
+                                            {replyToReplyContent[reply.id] !==
+                                            undefined
+                                              ? "Cancel"
+                                              : "Reply"}
                                           </button>
-                                          <ul className="dropdown-menu dropdown-menu-lg-end">
-                                            <li>
-                                              <a
-                                                className="dropdown-item"
-                                                onClick={() =>
-                                                  handleEditReply(
-                                                    reply.id,
-                                                    reply.content
+
+                                          {/* Ô nhập phản hồi lồng nhau */}
+                                          {replyToReplyContent[reply.id] !==
+                                            undefined && (
+                                            <div className="reply-to-reply reply-input-container d-flex align-items-start">
+                                              <textarea
+                                                className="reply-input mt-2 form-control "
+                                                rows={1}
+                                                placeholder="Write a reply..."
+                                                value={
+                                                  replyToReplyContent[reply.id]
+                                                }
+                                                onChange={(e) =>
+                                                  setReplyToReplyContent(
+                                                    (prevState) => ({
+                                                      ...prevState,
+                                                      [reply.id]:
+                                                        e.target.value,
+                                                    })
                                                   )
                                                 }
+                                              />
+                                              <button
+                                                onClick={() => {
+                                                  console.log(
+                                                    "Trạng thái trước khi click icon reply Nested replies:",
+                                                    showEmojiPickerNestedReplies
+                                                  );
+                                                  setShowEmojiPickerNestedReplies(
+                                                    !showEmojiPickerNestedReplies
+                                                  );
+                                                }}
+                                                className="btn btn-sm d-flex align-items-center justify-content-center"
+                                                style={{
+                                                  height: "50px",
+                                                  position: "relative",
+                                                }}
                                               >
-                                                Edit
-                                              </a>
-                                            </li>
-                                            <li>
-                                              <a
-                                                className="dropdown-item"
+                                                😀
+                                              </button>
+
+                                              {showEmojiPickerNestedReplies && (
+                                                <div
+                                                  ref={emojiPickerRef}
+                                                  className="emoji-picker-container"
+                                                  style={{
+                                                    position: "absolute",
+                                                    bottom: "20",
+                                                    right: "0",
+                                                    zIndex: 10,
+                                                  }}
+                                                >
+                                                  <Picker
+                                                    onEmojiSelect={(emoji) => {
+                                                      addEmojiToReplytoReply(
+                                                        emoji,
+                                                        reply.id
+                                                      );
+                                                    }}
+                                                  />
+                                                  <button
+                                                    onClick={() =>
+                                                      setShowEmojiPickerNestedReplies(
+                                                        false
+                                                      )
+                                                    }
+                                                    className="btn btn-link"
+                                                  >
+                                                    Close
+                                                  </button>
+                                                </div>
+                                              )}
+
+                                              <button
+                                                className="btn-send rounded mt-2"
                                                 onClick={() =>
-                                                  handleDeleteReply(
+                                                  handleReplyToReply(
                                                     reply.id,
                                                     userId
                                                   )
                                                 }
                                               >
-                                                Delete
-                                              </a>
-                                            </li>
-                                          </ul>
+                                                Reply
+                                              </button>
+                                            </div>
+                                          )}
                                         </div>
-                                      )}
+                                      </div>
+
+                                      {/* Dropdown chỉnh sửa/xóa reply */}
+                                      <div className="dropdown top-0 right-actions">
+                                        {String(reply.userId) === userId && (
+                                          <div
+                                            className="btn-group"
+                                            style={{ marginLeft: 25 }}
+                                          >
+                                            <button
+                                              className="btn no-border"
+                                              type="button"
+                                              data-bs-toggle="dropdown"
+                                              aria-expanded="false"
+                                              style={{
+                                                backgroundColor: "transparent",
+                                              }}
+                                            >
+                                              ...
+                                            </button>
+                                            <ul className="dropdown-menu dropdown-menu-lg-end">
+                                              <li>
+                                                <a
+                                                  className="dropdown-item"
+                                                  onClick={() => {
+                                                    handleEditReply(
+                                                      reply.id,
+                                                      reply.content
+                                                    );
+                                                    setReplyContent(
+                                                      (prevState) => ({
+                                                        ...prevState,
+                                                        [reply.commentId]:
+                                                          reply.content,
+                                                      })
+                                                    );
+                                                    setShowEmojiPickerReply(
+                                                      false
+                                                    );
+                                                  }}
+                                                >
+                                                  Edit
+                                                </a>
+                                              </li>
+                                              <li>
+                                                <a
+                                                  className="dropdown-item"
+                                                  onClick={() => {
+                                                    setShowEmojiPickerReply(
+                                                      false
+                                                    );
+                                                    resetReplyContent();
+                                                    handleDeleteReply(
+                                                      reply.id,
+                                                      userId
+                                                    );
+                                                  }}
+                                                >
+                                                  Delete
+                                                </a>
+                                              </li>
+                                            </ul>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Nested replies */}
+                                    <div className="nested-replies reply-content-container mt-2">
+                                      {replies[comment.id]
+                                        .filter(
+                                          (nestedReply) =>
+                                            nestedReply.parentReplyId ===
+                                            reply.id
+                                        )
+                                        .map((nestedReply) => (
+                                          <div
+                                            className="nested-reply d-flex align-items-start"
+                                            key={nestedReply.id}
+                                          >
+                                            <div className="d-flex align-items-start justify-content-between reply-to-reply-content-container">
+                                              <div className="left-content d-flex">
+                                                <img
+                                                  src={
+                                                    avatarReplies[comment.id]?.[
+                                                      nestedReply.id
+                                                    ]
+                                                  }
+                                                  className="avatar_small"
+                                                  alt="Avatar"
+                                                />
+                                                <div>
+                                                  <div className="comment-author">
+                                                    @{nestedReply.userNickname}
+                                                  </div>
+                                                  <div className="comment-time">
+                                                    {format(
+                                                      new Date(
+                                                        nestedReply.creationDate
+                                                      ),
+                                                      "dd/MM/yyyy"
+                                                    )}
+                                                  </div>
+
+                                                  {/* Hiển thị input khi đang chỉnh sửa */}
+                                                  {isEditingReply &&
+                                                  editingReply ===
+                                                    nestedReply.id ? (
+                                                    <div>
+                                                      <input
+                                                        type="text "
+                                                        className="reply-input form-control "
+                                                        value={
+                                                          replyToReplyContent[
+                                                            nestedReply.id
+                                                          ] ||
+                                                          nestedReply.content
+                                                        }
+                                                        onChange={(e) => {
+                                                          setReplyToReplyContent(
+                                                            (prevState) => ({
+                                                              ...prevState,
+                                                              [nestedReply.id]:
+                                                                e.target.value,
+                                                            })
+                                                          );
+                                                        }}
+                                                      />
+
+                                                      <button
+                                                        className="btn-send mt-2 mr-3"
+                                                        onClick={() => {
+                                                          handleEditReplyToReply(
+                                                            nestedReply.id,
+                                                            comment.id
+                                                          );
+                                                        }}
+                                                      >
+                                                        Save
+                                                      </button>
+                                                      <button
+                                                        className="btn-link mt-2 ml-3"
+                                                        onClick={() => {
+                                                          setIsEditingReply(
+                                                            false
+                                                          );
+                                                          setReplyToReplyContent(
+                                                            (prevState) => ({
+                                                              ...prevState,
+                                                              [nestedReply.id]:
+                                                                nestedReply.content, // Khôi phục nội dung cũ
+                                                            })
+                                                          );
+                                                        }}
+                                                      >
+                                                        Cancel
+                                                      </button>
+                                                    </div>
+                                                  ) : (
+                                                    <p>{nestedReply.content}</p>
+                                                  )}
+
+                                                  <div className="">
+                                                    {/* Nút trả lời */}
+                                                    <button
+                                                      className="btn btn-link"
+                                                      onClick={() =>
+                                                        toggleReplyToReplyInput(
+                                                          reply.id,
+                                                          setReplyToReplyContent
+                                                        )
+                                                      }
+                                                    >
+                                                      {replyToReplyContent[
+                                                        reply.id
+                                                      ] !== undefined
+                                                        ? "Cancel"
+                                                        : "Reply"}
+                                                    </button>
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                              {/* Dropdown */}
+
+                                              <div className="dropdown top-0 right-actions">
+                                                {String(nestedReply.userId) ===
+                                                  userId && (
+                                                  <div className="btn-group">
+                                                    <button
+                                                      className="btn no-border"
+                                                      type="button"
+                                                      data-bs-toggle="dropdown"
+                                                      aria-expanded="false"
+                                                      style={{
+                                                        backgroundColor:
+                                                          "transparent",
+                                                      }}
+                                                    >
+                                                      ...
+                                                    </button>
+                                                    <ul className="dropdown-menu dropdown-menu-lg-end">
+                                                      <li>
+                                                        <button
+                                                          className="dropdown-item"
+                                                          onClick={() => {
+                                                            closeAllReplyInputs(
+                                                              setReplyContent,
+                                                              setReplyToReplyContent
+                                                            );
+                                                            setIsEditingReply(
+                                                              true
+                                                            );
+                                                            setEditingReply(
+                                                              nestedReply.id
+                                                            );
+                                                            setReplyToReplyContent(
+                                                              (prevState) => ({
+                                                                ...prevState,
+                                                                [nestedReply.id]:
+                                                                  nestedReply.content,
+                                                              })
+                                                            );
+                                                          }}
+                                                        >
+                                                          Edit
+                                                        </button>
+                                                      </li>
+                                                      <li>
+                                                        <button
+                                                          className="dropdown-item"
+                                                          onClick={() => {
+                                                            setShowEmojiPickerReply(
+                                                              false
+                                                            );
+                                                            resetReplyContent();
+                                                            handleDeleteReply(
+                                                              nestedReply.id,
+                                                              userId
+                                                            );
+                                                          }}
+                                                        >
+                                                          Delete
+                                                        </button>
+                                                      </li>
+                                                    </ul>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
                                     </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
                           </div>
                         </div>
                       </div>

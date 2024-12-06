@@ -38,10 +38,10 @@ const Header = () => {
 
   return (
     <div className="topbar d-flex justify-content-end align-items-center p-3 bg-light border-bottom">
-      <div className="dropdown">
+      <div className="">
         <a
           href="#"
-          className="dropdown-toggle"
+          
           id="userDropdown"
           data-bs-toggle="dropdown"
           aria-expanded="false"
