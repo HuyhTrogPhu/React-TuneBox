@@ -107,8 +107,8 @@ function AppContent(){
           <Routes>
             {/* Các route có Header */}
             <Route element={<LayoutWithHeader />}>
-              {/* <Route path="/*" element={<XacThucUserLogin><HomeFeed /></XacThucUserLogin>} /> */}
-              <Route path="/*" element={<HomeFeed />} />
+              <Route path="/*" element={<XacThucUserLogin><HomeFeed /></XacThucUserLogin>} />
+      
               <Route path="/HomeEcommerce" element={<Home />} />
               {/* Route cho Main Content */}
               <Route path="/Shop" element={<Shop />} />
