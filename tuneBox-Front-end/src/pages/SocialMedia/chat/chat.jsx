@@ -6,7 +6,6 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
 const Chat = () => {
