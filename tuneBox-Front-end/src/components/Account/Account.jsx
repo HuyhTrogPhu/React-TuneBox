@@ -28,10 +28,10 @@ const Account = () => {
       const fetchUserSetting = async () => {
         try {
           const response = await getUserAccountSetting(userIdCookie);
-          const { email, phoneNumber, birthDay, gender } = response;
+          const { email,phoneNumber, birthDay, gender } = response;
           setEmail(email || '');
-          setNewEmail(email || '');
           setPhoneNum(phoneNumber || '');
+          setNewEmail(email || '');
           setNewPhone(phoneNumber || '');
           setBirthDay(birthDay || '');
           setGender(gender || 'Male');

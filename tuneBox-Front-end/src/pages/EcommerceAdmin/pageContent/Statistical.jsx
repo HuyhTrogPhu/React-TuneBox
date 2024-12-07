@@ -4,7 +4,10 @@ import { Line } from 'react-chartjs-2';
 import { getRevenueBeforeCurrently, getRevenueCurrently } from '../../../service/EcommerceStatistical';
 import '../css/Statistical.css';
 
-
+import html2canvas from 'html2canvas-pro';
+import { jsPDF } from 'jspdf';
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 const Statistical = () => {
 
     const [currentRevenue, setCurrentRevenue] = useState({});
@@ -160,6 +163,27 @@ const Statistical = () => {
         { type: 'fast', label: 'Express' }
     ];
 
+    // excel
+    const exportChartDataToExcel = (chartData) => {
+        // Chuẩn bị dữ liệu dưới dạng bảng
+        const data = [
+            ["Label", "Current Value", "Previous Value"], // Header
+            ["Revenue of Day", chartData.currentRevenueDay.toLocaleString("vi") + " VND", chartData.previousRevenueDay.toLocaleString("vi") + " VND"],
+            ["Revenue of Month", chartData.currentRevenueMonth.toLocaleString("vi") + " VND", chartData.previousRevenueMonth.toLocaleString("vi") + " VND"],
+            ["Revenue of Week", chartData.currentRevenueWeek.toLocaleString("vi") + " VND", chartData.previousRevenueWeek.toLocaleString("vi") + " VND"],
+            ["Revenue of Year", chartData.currentRevenueYear.toLocaleString("vi") + " VND", chartData.previousRevenueYear],
+        ];
+
+        // Tạo workbook và worksheet
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Revenue Report");
+
+        // Xuất file Excel
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(dataBlob, "revenue_report.xlsx");
+    };
 
     return (
         <div>
@@ -220,7 +244,7 @@ const Statistical = () => {
                             <div className='col-8 '>
                                 <h6 className='pb-0 fs-5 text-center'>Total revenue of the day: <span className='text-danger fs-4'>{(currentRevenue.revenueOfDay || 0).toLocaleString('vi')} VND</span></h6>
                                 <h6 className='pb-0 fs-5 text-center'>Total revenue before of the day: <span className='text-danger fs-4'>{(previousRevenue.revenueBeforeOfDay || 0).toLocaleString('vi')} VND</span></h6>
-                                <div className='mt-5' style={{ backgroundColor: '#bbe6e4' }}>
+                                <div className='mt-5' id="chartContainer" style={{ backgroundColor: '#bbe6e4' }}>
                                     <Line data={createChartData(currentRevenue.revenueOfDay, previousRevenue.revenueBeforeOfDay, 'Doanh thu Ngày')} />
                                 </div>
                             </div>
@@ -270,6 +294,7 @@ const Statistical = () => {
                                         </div>
                                     </form>
                                 </div>
+                                   
                             </div>
                         </div>
                     </div>
@@ -331,6 +356,8 @@ const Statistical = () => {
                                         </div>
                                     </form>
                                 </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -493,6 +520,23 @@ const Statistical = () => {
                                     </form>
                                 </div>
                             </div>
+                            <div className='text-center my-3'>
+                                        <button
+                                            className="btn btn-success"
+                                            onClick={() => exportChartDataToExcel({
+                                                currentRevenueDay: currentRevenue.revenueOfDay,
+                                                previousRevenueDay: previousRevenue.revenueBeforeOfDay,
+                                                currentRevenueMonth: currentRevenue.revenueOfMonth,
+                                                previousRevenueMonth: previousRevenue.revenueBeforeOfMonth,
+                                                currentRevenueWeek: currentRevenue.revenueOfWeek,
+                                                previousRevenueWeek: previousRevenue.revenueBeforeOfWeek,
+                                                currentRevenueYear: currentRevenue.revenueOfYear,
+                                                previousRevenueYear: previousRevenue.revenueBeforeOfYear,
+                                            })}
+                                        >
+                                            Export Data to Excel
+                                        </button>
+                                    </div>
                         </div>
                     </div>
                 </section>
@@ -501,7 +545,7 @@ const Statistical = () => {
                 {/* Revenue statistical currently */}
                 <section className='row mt-5 d-flex align-items-center justify-content-center'>
                     <div className='col-5 statistical-currently rounded d-flex align-items-center'>
-                        <Link to={'/ecomadmin/Statistical/revenue-currently'} style={{width: '100%'}}>
+                        <Link to={'/ecomadmin/Statistical/revenue-currently'} style={{ width: '100%' }}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-2 m-0 d-flex justify-content-center align-items-center'>
                                     <i className="fa-solid fa-money-bill" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
@@ -518,7 +562,7 @@ const Statistical = () => {
                 {/* Statistical shop */}
                 <section className='row mt-5 d-flex justify-content-center gap-3'>
                     <div className='col-4 statistical-product rounded d-flex align-items-center'>
-                        <Link to={'/ecomadmin/Statistical/statistical-instrument'} style={{width: '100%'}}>
+                        <Link to={'/ecomadmin/Statistical/statistical-instrument'} style={{ width: '100%' }}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
                                     <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
@@ -530,7 +574,7 @@ const Statistical = () => {
                         </Link>
                     </div>
                     <div className='col-4 statistical-product rounded d-flex align-items-center'>
-                        <Link to={'/ecomadmin/Statistical/statistical-brand'} style={{width: '100%'}}>
+                        <Link to={'/ecomadmin/Statistical/statistical-brand'} style={{ width: '100%' }}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
                                     <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
@@ -542,7 +586,7 @@ const Statistical = () => {
                         </Link>
                     </div>
                     <div className='col-4 statistical-product rounded d-flex align-items-center'>
-                        <Link to={'/ecomadmin/Statistical/statistical-category'} style={{width: '100%'}}>
+                        <Link to={'/ecomadmin/Statistical/statistical-category'} style={{ width: '100%' }}>
                             <div className='row d-flex align-items-center'>
                                 <div className='col-3 m-0 d-flex justify-content-center align-items-center'>
                                     <i className="fa-solid fa-music" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>
@@ -554,13 +598,13 @@ const Statistical = () => {
                         </Link>
                     </div>
                 </section>
-                                            
+
                 <hr style={{ width: '100%' }} />
                 {/* Statistical order */}
                 <section className='row mt-5 d-flex justify-content-between gap-3'>
                     {orderTypes.map(order => (
                         <div key={order.type} className='col-2 d-flex align-items-stretch'>
-                            <Link to={`/ecomadmin/Statistical/statistical-order/${order.type}`} className='statistical-bill rounded d-flex align-items-center p-2'  style={{width: '100%'}}>
+                            <Link to={`/ecomadmin/Statistical/statistical-order/${order.type}`} className='statistical-bill rounded d-flex align-items-center p-2' style={{ width: '100%' }}>
                                 <div className='row w-100 align-items-center m-0'>
                                     <div className='col-2 m-0 d-flex justify-content-center align-items-center'>
                                         <i className="fa-solid fa-file-invoice-dollar" style={{ color: '#e94f37', fontSize: '1.2rem' }}></i>

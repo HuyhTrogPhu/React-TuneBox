@@ -67,7 +67,7 @@ const OrderDetail = () => {
     }
 
     return (
-        <div className="container" id="orderDetail">
+        <div className="container" id="orderDetail" style={{marginTop: '100px'}}>
             <div className="row">
                 {/* BEGIN INVOICE */}
                 <div className="col-xs-12">
@@ -124,6 +124,7 @@ const OrderDetail = () => {
                                                 <td><strong>#</strong></td>
                                                 <td className="text-center"><strong>Product name</strong></td>
                                                 <td className="text-center"><strong>Image</strong></td>
+                                                <td className="text-center"><strong>Price</strong></td>
                                                 <td className="text-center"><strong>Quanlity</strong></td>
                                                 <td className="text-center"><strong>Value</strong></td>
                                             </tr>
@@ -136,6 +137,10 @@ const OrderDetail = () => {
                                                     <td className='instrument-image col-2'>
                                                         <img src={detail.image} alt="" crossOrigin="anonymous" />
                                                     </td>
+                                                    <td className="text-center">
+                                                        {(parseFloat(detail.costPrice)).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                                    </td>
+
                                                     <td className="text-center">{detail.quantity}</td>
                                                     <td className="text-center">{(detail.costPrice * detail.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
                                                 </tr>
@@ -143,14 +148,21 @@ const OrderDetail = () => {
 
 
                                             <tr>
-                                                <td colSpan={3}>
+                                                <td colSpan={4}>
+
                                                 </td><td className="text-right"><strong>Total</strong></td>
                                                 <td className="text-right"><strong>{(orderDetails.totalPrice).toLocaleString('vi')} VND</strong></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                     <div className="qr-code">
-                                        <QRCodeSVG value={`http://localhost:3000/orderDetail/${orderDetails.orderId}`} size={128} />
+                                        <div className="qr-code">
+                                            <QRCodeSVG
+                                                value={`Order ID: ${orderDetails.orderId}\nName: ${orderDetails.username}\nTotal: ${(orderDetails.totalPrice).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}\nLink order: http://localhost:3000/orderDetail/${orderDetails.orderId}`}
+                                                size={128}
+                                            />
+                                        </div>
+
                                     </div>
                                     <div className="text-right mt-3">
                                         <button onClick={downloadPDF} className="btn">Download PDF</button>
@@ -160,7 +172,7 @@ const OrderDetail = () => {
                             <div className="row">
                                 <div className="col-md-12 text-right identity">
                                     <p>Order is covered by <strong>tuneBox@2024</strong></p>
-                                    <p>Head office address: QTSC 9 Building, D. To Ky, Tan Chanh Hiep, District 12, Ho Chi Minh, Vietnam</p>
+                                    <p>Head office address: QTSC 9 Building, To Ky Street, Tan Chanh Hiep, District 12, Ho Chi Minh, Vietnam</p>
                                 </div>
                             </div>
                         </div>

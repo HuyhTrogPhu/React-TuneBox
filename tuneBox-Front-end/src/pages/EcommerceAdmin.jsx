@@ -89,42 +89,49 @@ const EcommerceAdmin = () => {
             <ul className="">
               <li className="p-3">
                 <i className="fa-solid fa-house" />
+                &nbsp;
                 <Link to={"/ecomadmin"} className="text-white">
                   Dashboard
                 </Link>
               </li>
               <li className="p-3">
                 <i className="fa-solid fa-user" />
+                &nbsp;
                 <Link to={'/ecomadmin/Customer'} className="text-white">
                   Customer
                 </Link>
               </li>
               <li className="p-3">
                 <i className="fa-solid fa-music" />
+                &nbsp;
                 <Link to={'/ecomadmin/Categories'} className="text-white">
                   Category
                 </Link>
               </li>
               <li className="p-3">
                 <i className="fa-solid fa-newspaper" />
+                &nbsp;
                 <Link to={'/ecomadmin/Brand'} className="text-white">
                   Brand
                 </Link>
               </li>
               <li className="p-3">
                 <i className="fa-solid fa-headphones" />
+                &nbsp;
                 <Link to={'/ecomadmin/Instrument'} className="text-white">
                   Instrument
                 </Link>
               </li>
               <li className="p-3">
                 <i className="fa-solid fa-circle-play" />
+                &nbsp;
                 <Link to={'/ecomadmin/Order'} className="text-white">
                   Order
                 </Link>
               </li>
               <li className="p-3">
                 <i className="fa-solid fa-chart-simple" />
+                &nbsp;
                 <Link to={'/ecomadmin/Statistical'} className="text-white">
                   Statistical
                 </Link>
