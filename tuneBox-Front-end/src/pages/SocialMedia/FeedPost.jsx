@@ -13,7 +13,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { getUserInfo } from "../../service/UserService";
 import "./css/mxh/post.css";
 import SharePostModal from "./Profile/Profile_nav/SharePostModal";
-
+import 'react-photo-view/dist/react-photo-view.css';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
 const FeedPost = ({ sharedData, clearSharedData }) => {
 
   const navigate = useNavigate();
@@ -820,6 +821,8 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
       navigate(`/profile/${post.userId}`);
     }
   };
+
+  
   return (
     <div>
       {/* Phần hiển thị post */}
@@ -1383,53 +1386,63 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
               )}
               {/* Hiển thị hình ảnh dưới dạng carousel */}
               {post.images && post.images.length > 0 && (
-                <div
-                  id={`carousel-${post.id}`}
-                  className="carousel slide post-images"
-                  data-bs-ride="carousel"
-                >
-                  <div className="carousel-inner">
-                    {post.images.map((image, index) => (
-                      <div
-                        className={`carousel-item ${
-                          index === 0 ? "active" : ""
-                        }`}
-                        key={index}
-                      >
-                        <img
-                          src={image.postImage}
-                          className="d-block w-100"
-                          alt={`Post image ${index + 1}`}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    className="carousel-control-prev"
-                    type="button"
-                    data-bs-target={`#carousel-${post.id}`}
-                    data-bs-slide="prev"
-                  >
-                    <span
-                      className="carousel-control-prev-icon"
-                      aria-hidden="true"
-                    ></span>
-                    <span className="visually-hidden">Previous</span>
-                  </button>
-                  <button
-                    className="carousel-control-next"
-                    type="button"
-                    data-bs-target={`#carousel-${post.id}`}
-                    data-bs-slide="next"
-                  >
-                    <span
-                      className="carousel-control-next-icon"
-                      aria-hidden="true"
-                    ></span>
-                    <span className="visually-hidden">Next</span>
-                  </button>
-                </div>
-              )}
+        <div
+          id={`carousel-${post.id}`}
+          className="carousel slide post-images"
+          data-bs-ride="carousel"
+        >
+          <div className="carousel-inner">
+            {post.images.map((image, index) => (
+              <div
+                className={`carousel-item ${index === 0 ? "active" : ""}`}
+                key={index}
+              >
+                <PhotoProvider   toolbarRender={({ rotate, onRotate }) => {
+    return <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onRotate(rotate + 90)} />;
+  }}>
+                  
+                <PhotoView src={image.postImage}>
+                    <img
+                      src={image.postImage}
+                      className="img-fluid rounded"
+                      alt={`Post image ${index + 1}`}
+                      style={{
+                        cursor: "pointer",
+                        maxHeight: "200px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </PhotoView>
+                </PhotoProvider>
+              </div>
+            ))}
+          </div>
+          <button
+            className="carousel-control-prev"
+            type="button"
+            data-bs-target={`#carousel-${post.id}`}
+            data-bs-slide="prev"
+          >
+            <span
+              className="carousel-control-prev-icon"
+              aria-hidden="true"
+            ></span>
+            <span className="visually-hidden">Previous</span>
+          </button>
+          <button
+            className="carousel-control-next"
+            type="button"
+            data-bs-target={`#carousel-${post.id}`}
+            data-bs-slide="next"
+          >
+            <span
+              className="carousel-control-next-icon"
+              aria-hidden="true"
+            ></span>
+            <span className="visually-hidden">Next</span>
+          </button>
+        </div>
+      )}
               {/* Interact post */}
               <div className="row d-flex justify-content-start align-items-center">
                 {/* like post */}

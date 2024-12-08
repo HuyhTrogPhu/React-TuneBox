@@ -110,32 +110,40 @@ const Account = () => {
     }
   };
 
-  function isValidPhoneNumber(phoneNumber) {
-    if (!phoneNumber) return false;
+  function isValidPhoneNumber(phone) {
+    if (!phone) return false;
 
     // Biểu thức regex kiểm tra số điện thoại
     const phoneRegex = /^[0-9]{10,15}$/; // Số điện thoại chỉ chứa 10-15 chữ số
-    return phoneRegex.test(phoneNumber);
+    return phoneRegex.test(phone);
   }
-
   const handleUpdatePhoneNumber = async (e) => {
     e.preventDefault();
-    if (!isValidPhoneNumber(newPhone)) {
-      toast.error("Số điện thoại không hợp lệ");
+
+    // Xóa khoảng trắng thừa và kiểm tra số hợp lệ
+    const cleanPhone = newPhone.trim();
+    if (!isValidPhoneNumber(cleanPhone)) {
+      toast.error("Số điện thoại không hợp lệ (phải chứa từ 10-15 chữ số).");
       return;
-    } try {
+    }
+
+    try {
       const userIdCookie = Cookies.get('userId');
-      const result = await updateUserPhoneNumber(userIdCookie, newPhone);
-      toast.success(result);
-      setPhoneNum(newPhone);
+      const result = await updateUserPhoneNumber(userIdCookie, cleanPhone);
+
+      toast.success("Cập nhật số điện thoại thành công!");
+      setPhoneNum(cleanPhone); // Cập nhật số điện thoại hiển thị
+      setNewPhone(cleanPhone);
     } catch (error) {
       console.error('Error updating Phone:', error);
-      if (error.response) {
-        console.error('Response data:', error.response.data);
+
+      if (error.response && error.response.data) {
+        toast.error(`Cập nhật không thành công: ${error.response.data.message}`);
+      } else {
+        toast.error("Đã xảy ra lỗi khi cập nhật số điện thoại.");
       }
-      toast.error("Cập nhật Phone không thành công");
     }
-  }
+  };
 
 
   // Hàm cập nhật ngày sinh

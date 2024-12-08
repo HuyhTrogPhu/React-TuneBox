@@ -90,7 +90,7 @@ const SignUp = () => {
                 inspiredBys: [], 
                 talents: [], 
                 genres: [],
-                status: ACTIVE
+                status: "ACTIVE"
             };
 
             if (userExists) {
