@@ -90,30 +90,30 @@ const Profile = () => {
             // Tạo canvas để áp dụng bộ lọc
             const canvas = document.createElement('canvas');
             const img = new Image();
-            
+
             img.onload = () => {
                 // Cài đặt kích thước cho canvas giống với ảnh chụp
                 canvas.width = img.width;
                 canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
-                
+
                 // Áp dụng bộ lọc cho canvas
                 ctx.filter = selectedFilter;
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
+
                 // Chuyển canvas thành data URL và cập nhật avatar
                 const filteredScreenshot = canvas.toDataURL('image/png');
                 setAvatar(filteredScreenshot); // Cập nhật ảnh avatar hiển thị
-                
+
                 // Chuyển ảnh có bộ lọc thành file và lưu
                 setFile(dataURItoFile(filteredScreenshot, "avatar.png"));
             };
-            
+
             img.src = screenshot; // Gán src để trigger sự kiện onload
         }
         setIsCameraOpen(false); // Đóng camera sau khi chụp
     };
-    
+
 
     const dataURItoFile = (dataURI, filename) => {
         const arr = dataURI.split(',');
@@ -226,7 +226,7 @@ const Profile = () => {
         setUserInspiredBy(selectedInspiredBy);  // Cập nhật userInspiredBy với các lựa chọn trong selectedInspiredBy
         setShowModal(false);
     };
-    
+
     // Cập Nhật Thông Tin Người Dùng
     const handleUpdateUserInfo = async () => {
         const userIdCookie = Cookies.get('userId');
@@ -419,62 +419,62 @@ const Profile = () => {
                 <div className="inspired-by-section">
                     <h7><b>Inspired by</b></h7>
                     <div className="inspired-by-list">
-    {selectedInspiredBy.length > 0 ? (
-        selectedInspiredBy.map((inspired, index) => (
-            <div key={index} className="chip">
-                <span>{inspired}</span>
-                <i className="fa fa-times" aria-hidden="true" onClick={() => setSelectedInspiredBy(selectedInspiredBy.filter(item => item !== inspired))}></i>
-            </div>
-        ))
-    ) : (
-        <p>No artists added yet.</p>
-    )}
-</div>
+                        {selectedInspiredBy.length > 0 ? (
+                            selectedInspiredBy.map((inspired, index) => (
+                                <div key={index} className="chip">
+                                    <span>{inspired}</span>
+                                    <i className="fa fa-times" aria-hidden="true" onClick={() => setSelectedInspiredBy(selectedInspiredBy.filter(item => item !== inspired))}></i>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No artists added yet.</p>
+                        )}
+                    </div>
 
                     <button className="add-inspired-by" onClick={openModal}>
                         <i className="fa fa-plus" aria-hidden="true"></i> Add Artist
                     </button>
                 </div>
-{/* Modal Inspired By */}
-{showModal && (
-    <div className="custom-modal-overlay">
-        <div className="custom-modal">
-            <div className="custom-modal-content">
-                <div className="custom-modal-header">
-                    <h5 className="custom-modal-title">Add Artists</h5>
-                    <button className="custom-close-button" onClick={closeModal}>&times;</button>
-                </div>
-                <div className="custom-modal-body">
-                    <input
-                        type="text"
-                        placeholder="Search Artists..."
-                        value={searchInspiredBy}
-                        onChange={handleSearch}
-                        className="form-control"
-                    />
+                {/* Modal Inspired By */}
+                {showModal && (
+                    <div className="custom-modal-overlay">
+                        <div className="custom-modal">
+                            <div className="custom-modal-content">
+                                <div className="custom-modal-header">
+                                    <h5 className="custom-modal-title">Add Artists</h5>
+                                    <button className="custom-close-button" onClick={closeModal}>&times;</button>
+                                </div>
+                                <div className="custom-modal-body">
+                                    <input
+                                        type="text"
+                                        placeholder="Search Artists..."
+                                        value={searchInspiredBy}
+                                        onChange={handleSearch}
+                                        className="form-control"
+                                    />
 
-                    {/* Hiển thị danh sách nghệ sĩ dưới dạng các mục có thể nhấn */}
-                    <div className="artist-list mt-3">
-                        {filteredInspiredBy.map((artist) => (
-                            <div
-                                key={artist.id}
-                                className="artist-item"
-                                onClick={() => handleAddInspiredBy(artist.id)}
-                                style={{ cursor: 'pointer', padding: '5px 0', borderBottom: '1px solid #ddd' }}
-                            >
-                                {artist.name}
+                                    {/* Hiển thị danh sách nghệ sĩ dưới dạng các mục có thể nhấn */}
+                                    <div className="artist-list mt-3">
+                                        {filteredInspiredBy.map((artist) => (
+                                            <div
+                                                key={artist.id}
+                                                className="artist-item"
+                                                onClick={() => handleAddInspiredBy(artist.id)}
+                                                style={{ cursor: 'pointer', padding: '5px 0', borderBottom: '1px solid #ddd' }}
+                                            >
+                                                {artist.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="custom-modal-footer">
+                                    <button className="custom-modal-button" onClick={closeModal}>Done</button>
+                                </div>
                             </div>
-                        ))}
+                        </div>
                     </div>
-                </div>
-                <div className="custom-modal-footer">
-                    <button className="custom-modal-button" onClick={closeModal}>Done</button>
-                </div>
-            </div>
-        </div>
-    </div>
-)}
-         {/* Talents Section */}
+                )}
+                {/* Talents Section */}
                 <div className="talents-section">
                     <h7><b>Talents</b></h7>
                     <div className="talent-list mt-3">

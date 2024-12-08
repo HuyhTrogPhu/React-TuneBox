@@ -26,15 +26,15 @@ const CustomerOrder = () => {
       console.error('Failed to fetch orders', error);
     }
   };
-  const handleCancelOrder = async (orderId) => { 
+  const handleCancelOrder = async (orderId) => {
     try {
       const newStatus = "Canceled"; // Trạng thái mới là "Canceled"
       const deliveryDate = null; // Cập nhật giá trị nếu cần, hoặc để null nếu không thay đổi
       const paymentStatus = "Canceled"; // Cập nhật giá trị nếu cần, hoặc để nguyên nếu không thay đổi
-  
+
       // Gọi API cập nhật trạng thái đơn hàng
-      await updateOrderStatus(orderId, newStatus, deliveryDate, paymentStatus); 
-  
+      await updateOrderStatus(orderId, newStatus, deliveryDate, paymentStatus);
+
       // Cập nhật trạng thái trong state để giao diện thay đổi
       setOrders(prevOrders =>
         prevOrders.map(order =>
@@ -50,7 +50,7 @@ const CustomerOrder = () => {
       console.error('Failed to cancel order', error);
     }
   };
-  
+
 
   const handleSearchDate = (e) => {
     e.preventDefault();
@@ -87,7 +87,7 @@ const CustomerOrder = () => {
     <div>
       <div className='row'>
         <div className='d-flex justify-content-between ps-5 pe-5'>
-          <div className='col-3'>
+          <div className='col-3' style={{backgroundColor: 'white', padding: '20px'}}>
             <form onSubmit={handleSearchDate}>
               <div className='mt-3'>
                 <label className='form-label'>Select the day you want</label>
@@ -99,11 +99,11 @@ const CustomerOrder = () => {
                 />
               </div>
               <div className='mt-3'>
-                <button type="submit" className="btn btn-outline-primary mt-2">Search</button>
+                <button type="submit" className="btn mt-2" style={{ backgroundColor: '#e94f37', color: 'white' }}>Search</button>
               </div>
             </form>
           </div>
-          <div className='col-3'>
+          <div className='col-3' style={{backgroundColor: 'white', padding: '20px'}}>
             <form onSubmit={handleSearchBetweenDates}>
               <div className='mt-3'>
                 <label className='form-label'>From:</label>
@@ -124,7 +124,7 @@ const CustomerOrder = () => {
                 />
               </div>
               <div className='mt-3'>
-                <button type="submit" className="btn btn-outline-primary mt-2">Search</button>
+                <button type="submit" className="btn mt-2" style={{ backgroundColor: '#e94f37', color: 'white' }}>Search</button>
               </div>
             </form>
           </div>
@@ -157,7 +157,7 @@ const CustomerOrder = () => {
                 <td style={{ textAlign: "center" }}>{order.totalItem}</td>
                 <td style={{ textAlign: "center" }}>{order.paymentMethod}</td>
                 <td style={{ textAlign: "center" }}>{order.shippingMethod}</td>
-           
+
                 <td style={{ textAlign: "center" }}>
                   {order.paymentStatus}
                 </td>
@@ -170,7 +170,7 @@ const CustomerOrder = () => {
                   ) : (
                     <span style={{ color: 'gray' }}>Canceled</span>
                   )}
-                  <button className="btn btn-link" style={{textDecoration: 'none', color: '#e94f37'}}  onClick={() => handleViewDetails(order.id)}>View Details</button>
+                  <button className="btn btn-link" style={{ textDecoration: 'none', color: '#e94f37' }} onClick={() => handleViewDetails(order.id)}>View Details</button>
                 </td>
               </tr>
             ))}
