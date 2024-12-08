@@ -104,6 +104,18 @@ const Login = () => {
         };
 
         if (userExists) {
+          const expires = new Date();
+          expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);
+          document.cookie = `userId=${response.userId}; expires=${expires.toUTCString()}; path=/`;
+    
+          const cartResponse = await axios.get(`http://localhost:8080/customer/cart/${response.userId}`);
+          const cart = cartResponse.data.items || [];
+          localStorage.setItem("cart", JSON.stringify(cart));
+    
+          setTimeout(() => {
+            setLoading(false);
+            navigate('/');
+          }, 1000);
           navigate('/');  // Điều hướng người dùng hiện có tới trang chính
         } else {
           navigate('/userInfor', { state: formData });  // Điều hướng người dùng mới tới trang cập nhật thông tin
