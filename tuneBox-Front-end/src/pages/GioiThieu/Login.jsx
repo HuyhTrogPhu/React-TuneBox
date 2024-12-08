@@ -86,33 +86,46 @@ const Login = () => {
     const userName = user.email.split('@')[0];
 
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/google', { idToken: credential });
-      const { token, userExists } = res.data;
+        const res = await axios.post('http://localhost:8080/api/auth/google', { idToken: credential });
+        const { token, userId, userExists } = res.data;
 
-      localStorage.setItem('jwtToken', token);
+        // Lưu JWT token vào localStorage
+        localStorage.setItem('jwtToken', token);
 
-      if (res.status === 200) {
-        const formData = {
-          userName,
-          email: user.email,
-          password: null,
-          name: user.name,
-          avatar: user.picture || null,
-          inspiredBys: [],
-          talents: [],
-          genres: []
-        };
+        if (res.status === 200) {
+            // Lưu userId vào cookie
+            const expires = new Date();
+            expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000); // 24 giờ
+            document.cookie = `userId=${userId}; expires=${expires.toUTCString()}; path=/`;
 
-        if (userExists) {
-          navigate('/');  // Điều hướng người dùng hiện có tới trang chính
-        } else {
-          navigate('/userInfor', { state: formData });  // Điều hướng người dùng mới tới trang cập nhật thông tin
+            // Lấy thông tin giỏ hàng (nếu cần)
+            const cartResponse = await axios.get(`http://localhost:8080/customer/cart/${userId}`);
+            const cart = cartResponse.data.items || [];
+            localStorage.setItem("cart", JSON.stringify(cart));
+
+            // Điều hướng
+            if (userExists) {
+                navigate('/'); // Người dùng hiện có
+            } else {
+                const formData = {
+                    userName,
+                    email: user.email,
+                    password: null,
+                    name: user.name,
+                    avatar: user.picture || null,
+                    inspiredBys: [],
+                    talents: [],
+                    genres: []
+                };
+                navigate('/userInfor', { state: formData }); // Người dùng mới
+            }
         }
-      }
     } catch (error) {
-      console.error('Login failed', error);
+        console.error('Login failed', error);
+        setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
     }
-  };
+};
+
 
   const handleGoogleFailure = () => {
     setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');

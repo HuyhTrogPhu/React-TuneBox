@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Account.css';
 import Cookies from 'js-cookie';
-import { getUserAccountSetting, updateUserEmail,updateUserBirthday,updateUserGender, updateUserPhoneNumber } from '../../service/UserService';
+import { getUserAccountSetting, updateUserEmail, updateUserBirthday, updateUserGender, updateUserPhoneNumber } from '../../service/UserService';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -35,7 +35,7 @@ const Account = () => {
           setNewPhone(phoneNumber || '');
           setBirthDay(birthDay || '');
           setGender(gender || 'Male');
-          
+
           // Tách ngày, tháng, năm từ birthDay (định dạng yyyy-MM-dd)
           const birthDate = new Date(birthDay);
           setSelectedDay(birthDate.getDate());
@@ -93,84 +93,92 @@ const Account = () => {
   const handleUpdateEmail = async (e) => {
     e.preventDefault();
     if (!isValidEmail(newEmail)) {
-        toast.error("Email không hợp lệ");
-        return;
+      toast.error("Email không hợp lệ");
+      return;
     }
     try {
-        const userIdCookie = Cookies.get('userId');
-        const result = await updateUserEmail(userIdCookie, newEmail);
-        toast.success(result);
-        setEmail(newEmail);
+      const userIdCookie = Cookies.get('userId');
+      const result = await updateUserEmail(userIdCookie, newEmail);
+      toast.success(result);
+      setEmail(newEmail);
     } catch (error) {
-        console.error('Error updating email:', error);
-        if (error.response) {
-            console.error('Response data:', error.response.data);
-        }
-        toast.error("Cập nhật email không thành công");
-    }
-};
-
-function isValidPhoneNumber(phoneNumber) {
-  if (!phoneNumber) return false;
-
-  // Biểu thức regex kiểm tra số điện thoại
-  const phoneRegex = /^[0-9]{10,15}$/; // Số điện thoại chỉ chứa 10-15 chữ số
-  return phoneRegex.test(phoneNumber);
-}
-
-const handleUpdatePhoneNumber = async (e) => {
-  e.preventDefault();
-  if(!isValidPhoneNumber(newPhone)){
-    toast.error("Số điện thoại không hợp lệ");
-    return;
-  } try{
-    const userIdCookie = Cookies.get('userId');
-    const result = await updateUserPhoneNumber(userIdCookie, newPhone);
-    toast.success(result);
-    setPhoneNum(newPhone);
-  }catch (error) {
-    console.error('Error updating Phone:', error);
-    if (error.response) {
+      console.error('Error updating email:', error);
+      if (error.response) {
         console.error('Response data:', error.response.data);
+      }
+      toast.error("Cập nhật email không thành công");
     }
-    toast.error("Cập nhật Phone không thành công");
-}
-}
+  };
 
+  function isValidPhoneNumber(phone) {
+    if (!phone) return false;
 
-// Hàm cập nhật ngày sinh
-const formatDate = (year, month, day) => {
-  const formattedMonth = month < 10 ? `0${month}` : month;
-  const formattedDay = day < 10 ? `0${day}` : day;
-  return `${year}-${formattedMonth}-${formattedDay}`;
-};
-const handleUpdateBirthday = async (e) => {
-  e.preventDefault();
-  const updatedBirthday = formatDate(selectedYear, selectedMonth, selectedDay);
-  console.log("Updated Birthday:", updatedBirthday); // Ghi log giá trị
-  try {
-    const userIdCookie = Cookies.get('userId');
-    await updateUserBirthday(userIdCookie, updatedBirthday); // Gọi hàm cập nhật
-    toast.success("Ngày sinh đã được cập nhật thành công!");
-  } catch (error) {
-    console.error('Error updating birthday:', error);
-    toast.error("Cập nhật ngày sinh không thành công");
+    // Biểu thức regex kiểm tra số điện thoại
+    const phoneRegex = /^[0-9]{10,15}$/; // Số điện thoại chỉ chứa 10-15 chữ số
+    return phoneRegex.test(phone);
   }
-};
-// Hàm cập nhật giới tính
-const handleUpdateGender = async (e) => {
-  e.preventDefault();
-  const sanitizedGender = userGender.replace(/"/g, ''); // Xóa dấu ngoặc kép
-  console.log('Updating gender to:', sanitizedGender); // Kiểm tra giá trị đã được làm sạch
-  try {
+  const handleUpdatePhoneNumber = async (e) => {
+    e.preventDefault();
+
+    // Xóa khoảng trắng thừa và kiểm tra số hợp lệ
+    const cleanPhone = newPhone.trim();
+    if (!isValidPhoneNumber(cleanPhone)) {
+      toast.error("Số điện thoại không hợp lệ (phải chứa từ 10-15 chữ số).");
+      return;
+    }
+
+    try {
+      const userIdCookie = Cookies.get('userId');
+      const result = await updateUserPhoneNumber(userIdCookie, cleanPhone);
+
+      toast.success("Cập nhật số điện thoại thành công!");
+      setPhoneNum(cleanPhone); // Cập nhật số điện thoại hiển thị
+      setNewPhone(cleanPhone);
+    } catch (error) {
+      console.error('Error updating Phone:', error);
+
+      if (error.response && error.response.data) {
+        toast.error(`Cập nhật không thành công: ${error.response.data.message}`);
+      } else {
+        toast.error("Đã xảy ra lỗi khi cập nhật số điện thoại.");
+      }
+    }
+  };
+
+
+  // Hàm cập nhật ngày sinh
+  const formatDate = (year, month, day) => {
+    const formattedMonth = month < 10 ? `0${month}` : month;
+    const formattedDay = day < 10 ? `0${day}` : day;
+    return `${year}-${formattedMonth}-${formattedDay}`;
+  };
+  const handleUpdateBirthday = async (e) => {
+    e.preventDefault();
+    const updatedBirthday = formatDate(selectedYear, selectedMonth, selectedDay);
+    console.log("Updated Birthday:", updatedBirthday); // Ghi log giá trị
+    try {
+      const userIdCookie = Cookies.get('userId');
+      await updateUserBirthday(userIdCookie, updatedBirthday); // Gọi hàm cập nhật
+      toast.success("Ngày sinh đã được cập nhật thành công!");
+    } catch (error) {
+      console.error('Error updating birthday:', error);
+      toast.error("Cập nhật ngày sinh không thành công");
+    }
+  };
+  // Hàm cập nhật giới tính
+  const handleUpdateGender = async (e) => {
+    e.preventDefault();
+    const sanitizedGender = userGender.replace(/"/g, ''); // Xóa dấu ngoặc kép
+    console.log('Updating gender to:', sanitizedGender); // Kiểm tra giá trị đã được làm sạch
+    try {
       const userIdCookie = Cookies.get('userId');
       await updateUserGender(userIdCookie, sanitizedGender); // Sử dụng giá trị đã làm sạch
       toast.success("Giới tính đã được cập nhật thành công!");
-  } catch (error) {
+    } catch (error) {
       console.error('Error updating gender:', error);
       toast.error("Cập nhật giới tính không thành công");
-  }
-};
+    }
+  };
 
   return (
     <div>
@@ -200,7 +208,7 @@ const handleUpdateGender = async (e) => {
             </form>
           </div>
           {/* Phone_num */}
-                    <div className='mt-3'>
+          <div className='mt-3'>
             <form onSubmit={handleUpdatePhoneNumber}>
               <div className='mt-3'>
                 <label className="form-label">Enter your number</label>
