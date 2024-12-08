@@ -1,0 +1,10 @@
+types {
+    text/css css;
+    application/javascript js;
+    text/html html htm;
+    application/json json;
+    text/plain txt;
+    image/jpeg jpeg jpg;
+    image/png png;
+    # Thêm các kiểu MIME khác nếu cần
+}
