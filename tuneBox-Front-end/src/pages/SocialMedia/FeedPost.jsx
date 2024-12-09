@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef,useContext } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { images } from "../../assets/images/images";
 import axios from "axios";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import { useParams, useNavigate} from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Picker from "@emoji-mart/react";
 
 
@@ -108,33 +108,33 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
   // Hàm để lấy các bài viết
   const fetchPosts = async () => {
     try {
-        // Gọi API kiểm tra trạng thái tài khoản
-        const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
-          withCredentials: true,
-        });
-  
-        // Kiểm tra nếu tài khoản bị khóa
-        if (statusResponse.data.isBanned) {
-          console.log("statusResponse:",statusResponse.data.isBanned)
-          // Hiển thị modal và xử lý đăng xuất
-          setIsAccountBanned(true); // Kích hoạt modal
-          return; // Dừng xử lý tiếp
-        }
-        console.log("setIsAccountBanned:", isAccountBanned); // Đảm bảo `isAccountBanned` được cập nhật sau khi gọi setState
+      // Gọi API kiểm tra trạng thái tài khoản
+      const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
+        withCredentials: true,
+      });
+
+      // Kiểm tra nếu tài khoản bị khóa
+      if (statusResponse.data.isBanned) {
+        console.log("statusResponse:", statusResponse.data.isBanned)
+        // Hiển thị modal và xử lý đăng xuất
+        setIsAccountBanned(true); // Kích hoạt modal
+        return; // Dừng xử lý tiếp
+      }
+      console.log("setIsAccountBanned:", isAccountBanned); // Đảm bảo `isAccountBanned` được cập nhật sau khi gọi setState
 
       const response = await axios.get(`http://localhost:8080/api/posts/all`, {
         params: { currentUserId },
         withCredentials: true,
       });
-  
+
       console.log(response.data); // Kiểm tra dữ liệu nhận được
-  
+
       const sortedPosts = response.data.sort((a, b) => {
         const dateA = new Date(a.createdAt);
         const dateB = new Date(b.createdAt);
         return dateB - dateA; // Sắp xếp từ mới đến cũ
       });
-  
+
       // Lấy comments và replies cho từng post
       const postsWithCommentsAndLikes = await Promise.all(
         sortedPosts.map(async (post) => {
@@ -149,19 +149,19 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
               return { ...comment, replies: repliesResponse.data }; // Kết hợp replies vào comment
             })
           );
-  
+
           // Lấy số lượng likes cho từng bài viết
           const likeCountResponse = await axios.get(
             `http://localhost:8080/api/likes/post/${post.id}/count`
           );
-  
+
           // Kiểm tra xem user đã like bài viết này chưa
           const userLikeResponse = await axios.get(
             `http://localhost:8080/api/likes/post/${post.id}/user/${currentUserId}`
           );
-  
+
           const liked = userLikeResponse.data; // true nếu user đã like, false nếu chưa
-  
+
           return {
             ...post,
             comments: commentsWithReplies,
@@ -170,7 +170,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
           }; // Kết hợp comments và likeCount vào post
         })
       );
-  
+
       setPosts(postsWithCommentsAndLikes); // Cập nhật state với danh sách bài viết
       // Cập nhật trạng thái likes cho từng bài viết
       const updatedLikes = {};
@@ -182,7 +182,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
-  
+
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
@@ -822,11 +822,11 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
     }
   };
 
-  
+
   return (
     <div>
       {/* Phần hiển thị post */}
-      <div className="container p-0">
+      <div className="container p-0 align-items-center justify-content-center">
         {posts.map((post) => {
           const createdAt = post.createdAt ? new Date(post.createdAt) : null;
           const showAll = showAllComments[post.id];
@@ -928,51 +928,51 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                     {(String(comment.userId) ===
                                       String(currentUserId) ||
                                       String(selectedPost.userId) ===
-                                        String(currentUserId)) && (
-                                      <div className="dropdown position-absolute top-0 end-0">
-                                        <button
-                                          className="btn btn-options dropdown-toggle"
-                                          type="button"
-                                          id={`dropdownMenuButton-${comment.id}`}
-                                          data-bs-toggle="dropdown"
-                                          aria-expanded="false"
-                                        >
-                                          ...
-                                        </button>
-                                        <ul
-                                          className="dropdown-menu"
-                                          aria-labelledby={`dropdownMenuButton-${comment.id}`}
-                                        >
-                                          <li>
-                                            <button
-                                              className="dropdown-item"
-                                              onClick={() => {
-                                                setEditingCommentId(comment.id);
-                                                setEditingCommentContent(
-                                                  comment.content
-                                                );
-                                              }}
-                                            >
-                                              Edit
-                                            </button>
-                                          </li>
-                                          {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
-                                          <li>
-                                            <button
-                                              className="dropdown-item"
-                                              onClick={() =>
-                                                handleDeleteComment(
-                                                  comment.id,
-                                                  selectedPost.id
-                                                )
-                                              }
-                                            >
-                                              Delete
-                                            </button>
-                                          </li>
-                                        </ul>
-                                      </div>
-                                    )}
+                                      String(currentUserId)) && (
+                                        <div className="dropdown position-absolute top-0 end-0">
+                                          <button
+                                            className="btn btn-options dropdown-toggle"
+                                            type="button"
+                                            id={`dropdownMenuButton-${comment.id}`}
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                          >
+                                            ...
+                                          </button>
+                                          <ul
+                                            className="dropdown-menu"
+                                            aria-labelledby={`dropdownMenuButton-${comment.id}`}
+                                          >
+                                            <li>
+                                              <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                  setEditingCommentId(comment.id);
+                                                  setEditingCommentContent(
+                                                    comment.content
+                                                  );
+                                                }}
+                                              >
+                                                Edit
+                                              </button>
+                                            </li>
+                                            {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
+                                            <li>
+                                              <button
+                                                className="dropdown-item"
+                                                onClick={() =>
+                                                  handleDeleteComment(
+                                                    comment.id,
+                                                    selectedPost.id
+                                                  )
+                                                }
+                                              >
+                                                Delete
+                                              </button>
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      )}
 
                                     {/* Nút trả lời cho bình luận bậc 2 */}
                                     <button
@@ -1050,7 +1050,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                                       </span>
                                                     </div>
                                                     {editingReplyId ===
-                                                    reply.id ? (
+                                                      reply.id ? (
                                                       <div>
                                                         <textarea
                                                           className="form-control"
@@ -1112,50 +1112,50 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                                     {/* Dropdown cho reply bậc 2 */}
                                                     {String(reply.userId) ===
                                                       String(currentUserId) && (
-                                                      <div className="dropdown position-absolute top-0 end-0">
-                                                        <button
-                                                          className="btn btn-options dropdown-toggle"
-                                                          type="button"
-                                                          id={`dropdownMenuButton-${reply.id}`}
-                                                          data-bs-toggle="dropdown"
-                                                          aria-expanded="false"
-                                                        >
-                                                          ...
-                                                        </button>
-                                                        <ul
-                                                          className="dropdown-menu"
-                                                          aria-labelledby={`dropdownMenuButton-${reply.id}`}
-                                                        >
-                                                          <li>
-                                                            <button
-                                                              className="dropdown-item"
-                                                              onClick={() => {
-                                                                setEditingReplyId(
-                                                                  reply.id
-                                                                );
-                                                                setEditingReplyContent(
-                                                                  reply.content
-                                                                );
-                                                              }}
-                                                            >
-                                                              Edit
-                                                            </button>
-                                                          </li>
-                                                          <li>
-                                                            <button
-                                                              className="dropdown-item"
-                                                              onClick={() =>
-                                                                handleDeleteReply(
-                                                                  reply.id
-                                                                )
-                                                              }
-                                                            >
-                                                              Delete
-                                                            </button>
-                                                          </li>
-                                                        </ul>
-                                                      </div>
-                                                    )}
+                                                        <div className="dropdown position-absolute top-0 end-0">
+                                                          <button
+                                                            className="btn btn-options dropdown-toggle"
+                                                            type="button"
+                                                            id={`dropdownMenuButton-${reply.id}`}
+                                                            data-bs-toggle="dropdown"
+                                                            aria-expanded="false"
+                                                          >
+                                                            ...
+                                                          </button>
+                                                          <ul
+                                                            className="dropdown-menu"
+                                                            aria-labelledby={`dropdownMenuButton-${reply.id}`}
+                                                          >
+                                                            <li>
+                                                              <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                  setEditingReplyId(
+                                                                    reply.id
+                                                                  );
+                                                                  setEditingReplyContent(
+                                                                    reply.content
+                                                                  );
+                                                                }}
+                                                              >
+                                                                Edit
+                                                              </button>
+                                                            </li>
+                                                            <li>
+                                                              <button
+                                                                className="dropdown-item"
+                                                                onClick={() =>
+                                                                  handleDeleteReply(
+                                                                    reply.id
+                                                                  )
+                                                                }
+                                                              >
+                                                                Delete
+                                                              </button>
+                                                            </li>
+                                                          </ul>
+                                                        </div>
+                                                      )}
 
                                                     {/* Input trả lời cho reply bậc 2 */}
                                                     {replyingTo[reply.id] && (
@@ -1166,7 +1166,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                                           placeholder="Write a reply..."
                                                           value={
                                                             replyContent[
-                                                              reply.id
+                                                            reply.id
                                                             ] || ""
                                                           }
                                                           onChange={(e) =>
@@ -1323,38 +1323,38 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                   </div>
                 </div>
                 {/* Dropdown cho bài viết */}
-                  {String(post.userId) === String(currentUserId) ? (
-                    <div className="dropdown position-absolute top-0 end-0">
-                      <button
-                        className="btn btn-options dropdown-toggle"
-                        type="button"
-                        id={`dropdownMenuButton-${post.id}`}
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        ...
-                      </button>
-                      <ul
-                        className="dropdown-menu"
-                        aria-labelledby={`dropdownMenuButton-${post.id}`}
-                      >
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleEditPost(post)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i>Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleDeletePost(post.id)}
-                          >
-                            <i className="fa-solid fa-trash "></i>Delete
-                          </button>
-                        </li>
-                        <li>
+                {String(post.userId) === String(currentUserId) ? (
+                  <div className="dropdown position-absolute top-0 end-0">
+                    <button
+                      className="btn btn-options dropdown-toggle"
+                      type="button"
+                      id={`dropdownMenuButton-${post.id}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      ...
+                    </button>
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby={`dropdownMenuButton-${post.id}`}
+                    >
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handleEditPost(post)}
+                        >
+                          <i className="fa-solid fa-pen-to-square"></i>Edit
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handleDeletePost(post.id)}
+                        >
+                          <i className="fa-solid fa-trash "></i>Delete
+                        </button>
+                      </li>
+                      <li>
                         <button
                           className="dropdown-item"
                           onClick={() => toggleHiddenState(post.id)}
@@ -1362,17 +1362,22 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                           <i className="fa-solid fa-eye-slash"></i> {post.is_hidden ? ('showPost') : ('hidePost')}
                         </button>
                       </li>
-                      </ul>
-                    </div>
-                  ) : (
-                    <button
-                      className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
-                      onClick={() => handleReport(post.id, "post")}
-                    ></button>
-                  )}
+                    </ul>
+                  </div>
+                ) : (
+                  <button
+                    className="fa-regular fa-flag btn-report position-absolute top-0 end-0 border border-0"
+                    onClick={() => handleReport(post.id, "post")}
+                  ></button>
+                )}
               </div>
               {/* Nội dung bài viết */}
-              <div className="post-content">{post.content}</div>
+              <div
+                className="post-content"
+                dangerouslySetInnerHTML={{
+                  __html: post.content, // Nội dung bài viết đã được thay thế
+                }}
+              ></div>
               {/* Hiển thị tên sản phẩm dưới dạng liên kết nếu có */}
               {post.idShare != null && (
                 <a
@@ -1386,63 +1391,63 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
               )}
               {/* Hiển thị hình ảnh dưới dạng carousel */}
               {post.images && post.images.length > 0 && (
-        <div
-          id={`carousel-${post.id}`}
-          className="carousel slide post-images"
-          data-bs-ride="carousel"
-        >
-          <div className="carousel-inner">
-            {post.images.map((image, index) => (
-              <div
-                className={`carousel-item ${index === 0 ? "active" : ""}`}
-                key={index}
-              >
-                <PhotoProvider   toolbarRender={({ rotate, onRotate }) => {
-    return <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onRotate(rotate + 90)} />;
-  }}>
-                  
-                <PhotoView src={image.postImage}>
-                    <img
-                      src={image.postImage}
-                      className="img-fluid rounded"
-                      alt={`Post image ${index + 1}`}
-                      style={{
-                        cursor: "pointer",
-                        maxHeight: "200px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </PhotoView>
-                </PhotoProvider>
-              </div>
-            ))}
-          </div>
-          <button
-            className="carousel-control-prev"
-            type="button"
-            data-bs-target={`#carousel-${post.id}`}
-            data-bs-slide="prev"
-          >
-            <span
-              className="carousel-control-prev-icon"
-              aria-hidden="true"
-            ></span>
-            <span className="visually-hidden">Previous</span>
-          </button>
-          <button
-            className="carousel-control-next"
-            type="button"
-            data-bs-target={`#carousel-${post.id}`}
-            data-bs-slide="next"
-          >
-            <span
-              className="carousel-control-next-icon"
-              aria-hidden="true"
-            ></span>
-            <span className="visually-hidden">Next</span>
-          </button>
-        </div>
-      )}
+                <div
+                  id={`carousel-${post.id}`}
+                  className="carousel slide post-images"
+                  data-bs-ride="carousel"
+                >
+                  <div className="carousel-inner">
+                    {post.images.map((image, index) => (
+                      <div
+                        className={`carousel-item ${index === 0 ? "active" : ""}`}
+                        key={index}
+                      >
+                        <PhotoProvider toolbarRender={({ rotate, onRotate }) => {
+                          return <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onRotate(rotate + 90)} />;
+                        }}>
+
+                          <PhotoView src={image.postImage}>
+                            <img
+                              src={image.postImage}
+                              className="img-fluid rounded"
+                              alt={`Post image ${index + 1}`}
+                              style={{
+                                cursor: "pointer",
+                                maxHeight: "200px",
+                                objectFit: "cover",
+                              }}
+                            />
+                          </PhotoView>
+                        </PhotoProvider>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    className="carousel-control-prev"
+                    type="button"
+                    data-bs-target={`#carousel-${post.id}`}
+                    data-bs-slide="prev"
+                  >
+                    <span
+                      className="carousel-control-prev-icon"
+                      aria-hidden="true"
+                    ></span>
+                    <span className="visually-hidden">Previous</span>
+                  </button>
+                  <button
+                    className="carousel-control-next"
+                    type="button"
+                    data-bs-target={`#carousel-${post.id}`}
+                    data-bs-slide="next"
+                  >
+                    <span
+                      className="carousel-control-next-icon"
+                      aria-hidden="true"
+                    ></span>
+                    <span className="visually-hidden">Next</span>
+                  </button>
+                </div>
+              )}
               {/* Interact post */}
               <div className="row d-flex justify-content-start align-items-center">
                 {/* like post */}
@@ -1450,9 +1455,8 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                   <div className="like-count">
                     {post.likeCount || 0}
                     <i
-                      className={`fa-solid fa-heart text-danger ${
-                        likes[post.id] ? "like" : "noLike"
-                      }`}
+                      className={`fa-solid fa-heart text-danger ${likes[post.id] ? "like" : "noLike"
+                        }`}
                       onClick={() => handleLike(post.id)}
                     >
                       {likes[post.id]}
@@ -1546,6 +1550,23 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                   onChange={(e) => setReportReason(e.target.value)}
                   style={{ resize: "none" }}
                 />
+
+                {/* Hiển thị modal tag user khi gõ @ */}
+                {showTagModal && (
+                  <div className="tag-modal">
+                    <ul>
+                      {userSuggestions.length > 0 ? (
+                        userSuggestions.map((user, index) => (
+                          <li value={user.id} key={index} onClick={() => handleTagUser(user)}>
+                            <span className="tag-name">{user.tagName}</span>
+                          </li>
+                        ))
+                      ) : (
+                        <li>No users found</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
               <div className="modal-footer">
                 <button

@@ -178,3 +178,20 @@
 .sidebar.content-right::-webkit-scrollbar {
     display: none;
 }
+
+/* tag */
+.tag-modal ul {
+    margin: 10px;
+    border: 1px solid #000;
+    border-radius: 10px;
+}
+
+.tag-modal li {
+    color: #E94F37;
+}
+
+.tagged-user {
+    color: #007bff; /* Màu xanh cho tên người dùng được tag */
+    font-weight: bold;
+  }
+  

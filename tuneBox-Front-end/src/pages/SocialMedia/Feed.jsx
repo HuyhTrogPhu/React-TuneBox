@@ -91,6 +91,7 @@ const HomeFeed = () => {
   const [showPostModal, setShowPostModal] = useState(false); // Modal tạo bài viết
   const [showTagModal, setShowTagModal] = useState(false); // Modal tag người dùng
   const [userSuggestions, setUserSuggestions] = useState([]); // Danh sách gợi ý tên người dùng
+  const [taggedUsers, setTaggedUsers] = useState([]); // Lưu thông tin người dùng đã tag
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -563,23 +564,36 @@ const HomeFeed = () => {
     const files = Array.from(e.target.files);
     setPostImages(files); // Cập nhật tệp ảnh
   };
+
+  // Hàm tạo bài viết 
   const handleSubmitPost = async () => {
     // Kiểm tra nếu cả nội dung và ảnh đều không có
     if ((!postContent || postContent.trim() === "") && postImages.length === 0) {
       alert("Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh!");
-      return; // Ngăn không cho tiếp tục
+      return; // Ngừng nếu không có nội dung hoặc ảnh
     }
-  
+
+    // Chuyển @tagName thành dạng {name, id} và thay thế @tagName trong nội dung
+    const taggedContent = postContent.replace(/@(\w+)/g, (match, tagName) => {
+      // Tìm kiếm người dùng từ taggedUsers
+      const user = taggedUsers.find(user => user.tagName === tagName);
+      if (user) {
+        // Thay thế bằng <span> có màu xanh và chứa đường dẫn đến profile người dùng
+        return `<span class="tagged-user" data-user-id="${user.id}" onclick="window.location.href='/profile/${user.id}'" style="color: blue; cursor: pointer;">${match}</span>`;
+      }
+      return match; // Nếu không tìm thấy người dùng, giữ nguyên
+    });
+
     const formData = new FormData();
-    formData.append("content", postContent || ""); // Nội dung mặc định là chuỗi rỗng nếu không có
+    formData.append("content", taggedContent || ""); // Nội dung với các span chứa ID người dùng
     formData.append("userId", currentUserId);
-  
+
     postImages.forEach((image) => {
       formData.append("images", image);
     });
-  
+
     setIsUploading(true); // Bắt đầu quá trình tải lên
-  
+
     try {
       if (postId) {
         // Cập nhật bài viết
@@ -598,24 +612,21 @@ const HomeFeed = () => {
           withCredentials: true,
         });
       }
-  
+
       // Đóng modal và reset form
       document.getElementById("post-modal").style.display = "none";
       resetForm();
       fetchPosts();
     } catch (error) {
-      console.error(
-        "Error creating/updating post:",
-        error.response?.data || error.message
-      );
+      console.error("Error creating/updating post:", error.response?.data || error.message);
     } finally {
       setIsUploading(false); // Kết thúc quá trình tải lên
-      toast.success(" Post create successfully!");
-
+      toast.success("Post created successfully!");
     }
   };
-  
-  
+
+
+
   // delete post
   const handleDeletePost = async (postId) => {
     const confirmDelete = window.confirm(
@@ -1082,10 +1093,8 @@ const HomeFeed = () => {
     const fetchUserTags = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8080/api/posts/tagName",
-          {
-            withCredentials: true,
-          }
+          `http://localhost:8080/api/posts/tagName?userId=${currentUserId}`,
+          { withCredentials: true }
         );
         console.log("User tags fetched:", response.data);
         setUserSuggestions(response.data);
@@ -1094,7 +1103,8 @@ const HomeFeed = () => {
       }
     };
     fetchUserTags();
-  }, []);
+  }, [currentUserId]);
+
 
   // Hiển thị modal khi nhấn nút "What are you thinking about?"
   const handleCreatePostClick = () => {
@@ -1111,22 +1121,38 @@ const HomeFeed = () => {
 
   // Xử lý khi có thay đổi trong textarea
   const handleTextareaChange = (e) => {
-    const value = e.target.value;
-    setPostContent(value);
+    const value = e.target.value; // Lấy nội dung từ textarea
+    setPostContent(value); // Cập nhật nội dung bài viết
 
     // Kiểm tra nếu ký tự cuối là "@"
     if (value.slice(-1) === "@") {
-      setShowTagModal(true);
+      setShowTagModal(true); // Hiển thị modal tag khi gặp "@"
     } else {
       setShowTagModal(false); // Đóng modal nếu không phải là "@"
     }
   };
 
+
+
+
   // Thêm tên người dùng vào postContent khi chọn
-  const handleTagUser = (username) => {
-    setPostContent((prevContent) => prevContent + username + " ");
-    setShowTagModal(false); // Đóng modal sau khi chọn
+  const handleTagUser = (user) => {
+    if (user && user.tagName && user.id) {
+      // Lưu thông tin người dùng đã tag vào mảng taggedUsers
+      const updatedUsers = [...taggedUsers, { id: user.id, tagName: user.tagName }];
+      setTaggedUsers(updatedUsers); // Cập nhật danh sách người dùng đã tag
+
+      // Thêm @tagName vào nội dung postContent
+      const updatedContent = postContent.replace(/@$/, `@${user.tagName}`);
+      setPostContent(updatedContent); // Cập nhật nội dung bài viết
+      setShowTagModal(false); // Đóng modal khi chọn người dùng
+    } else {
+      console.error("Invalid user data:", user);
+    }
   };
+
+
+
   const { followCounts } = useContext(FollowContext);
 
   const [followCount, setFollowCount] = useState({
@@ -1296,18 +1322,16 @@ const HomeFeed = () => {
             <div className="row nav-link-feed mt-4">
               <ul className="d-flex justify-content-center">
                 <li
-                  className={`col-6 text-center feed-link ${
-                    activeComponent === "track" ? "active" : ""
-                  }`}
+                  className={`col-6 text-center feed-link ${activeComponent === "track" ? "active" : ""
+                    }`}
                   onClick={() => setActiveComponent("track")}
                 >
                   <i className="fa-solid fa-music me-1"></i>
                   <span>Track</span>
                 </li>
                 <li
-                  className={`col-6 text-center feed-link ${
-                    activeComponent === "post" ? "active" : ""
-                  }`}
+                  className={`col-6 text-center feed-link ${activeComponent === "post" ? "active" : ""
+                    }`}
                   onClick={() => setActiveComponent("post")}
                 >
                   <i className="fa-solid fa-newspaper me-1"></i>
@@ -1484,65 +1508,68 @@ const HomeFeed = () => {
                 ></button>
               </div>
               <div className="col">
+
                 <textarea
                   id="post-textarea"
                   className="form-control"
                   rows={3}
-                  placeholder="Write your post here..."
                   value={postContent}
-                  onChange={handleTextareaChange}
+                  placeholder="Write your post here..."
+                  onChange={handleTextareaChange} // Sử dụng onChange để xử lý thay đổi nội dung
                 />
+
                 {/* Hiển thị modal tag user khi gõ @ */}
                 {showTagModal && (
                   <div className="tag-modal">
                     <ul>
-                      {userSuggestions.map((user, index) => (
-                        <li
-                          key={index}
-                          onClick={() => handleTagUser(user.tagName)}
-                        >
-                          <Link to={`/profile/${user.id}`} className="tag-link">
-                            {user.tagName}
-                          </Link>
-                        </li>
-                      ))}
+                      {userSuggestions.length > 0 ? (
+                        userSuggestions.map((user, index) => (
+                          <li value={user.id} key={index} onClick={() => handleTagUser(user)}>
+                            <span className="tag-name">{user.tagName}</span>
+                          </li>
+                        ))
+                      ) : (
+                        <li>No users found</li>
+                      )}
                     </ul>
                   </div>
                 )}
+
+
                 <div className="row mt-3">
-                <div className="col text-start">
-  <input
-    type="file"
-    id="file-input"
-    multiple
-    onChange={(e) => {
-      const supportedFormats = ["image/jpeg", "image/png", "image/gif"]; // Định dạng được hỗ trợ
-      const files = Array.from(e.target.files); // Lấy danh sách file
-      const validFiles = []; // File hợp lệ
-      const invalidFiles = []; // File không hợp lệ
+                  <div className="col text-start">
+                    <input
+                      type="file"
+                      id="file-input"
+                      multiple
+                      onChange={(e) => {
+                        const supportedFormats = ["image/jpeg", "image/png", "image/gif"]; // Định dạng được hỗ trợ
+                        const files = Array.from(e.target.files); // Lấy danh sách file
+                        const validFiles = []; // File hợp lệ
+                        const invalidFiles = []; // File không hợp lệ
 
-      files.forEach((file) => {
-        if (supportedFormats.includes(file.type)) {
-          validFiles.push(file);
-        } else {
-          invalidFiles.push(file.name); // Lưu tên file không hợp lệ
-        }
-      });
+                        files.forEach((file) => {
+                          if (supportedFormats.includes(file.type)) {
+                            validFiles.push(file);
+                          } else {
+                            invalidFiles.push(file.name); // Lưu tên file không hợp lệ
+                          }
+                        });
 
-      if (invalidFiles.length > 0) {
-        alert(
-          `Các file không được hỗ trợ: ${invalidFiles.join(", ")}. Vui lòng chọn file định dạng ảnh (JPEG, PNG, GIF).`
-        );
-      }
+                        if (invalidFiles.length > 0) {
+                          alert(
+                            `Các file không được hỗ trợ: ${invalidFiles.join(", ")}. Vui lòng chọn file định dạng ảnh (JPEG, PNG, GIF).`
+                          );
+                        }
 
-      // Cập nhật state chỉ với các file hợp lệ
-      setPostImages(validFiles);
-      setPostImageUrls(
-        validFiles.map((file) => URL.createObjectURL(file))
-      );
-    }}
-  />
-</div>
+                        // Cập nhật state chỉ với các file hợp lệ
+                        setPostImages(validFiles);
+                        setPostImageUrls(
+                          validFiles.map((file) => URL.createObjectURL(file))
+                        );
+                      }}
+                    />
+                  </div>
 
                   <div className="col text-end">
                     <button
@@ -1574,6 +1601,7 @@ const HomeFeed = () => {
                     </div>
                   )}
                 </div>
+
               </div>
             </div>
           </div>

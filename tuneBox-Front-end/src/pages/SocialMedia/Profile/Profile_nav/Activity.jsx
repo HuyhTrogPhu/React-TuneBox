@@ -739,6 +739,37 @@ const Activity = () => {
     fetchUser();
   }, [userId]);
 
+  // Xử lý khi có thay đổi trong textarea
+  const handleTextareaChange = (e) => {
+    const value = e.target.value; // Lấy nội dung từ textarea
+    setPostContent(value); // Cập nhật nội dung bài viết
+
+    // Kiểm tra nếu ký tự cuối là "@"
+    if (value.slice(-1) === "@") {
+      setShowTagModal(true); // Hiển thị modal tag khi gặp "@"
+    } else {
+      setShowTagModal(false); // Đóng modal nếu không phải là "@"
+    }
+  };
+
+
+  // Thêm tên người dùng vào postContent khi chọn
+  const handleTagUser = (user) => {
+    if (user && user.tagName && user.id) {
+      // Lưu thông tin người dùng đã tag vào mảng taggedUsers
+      const updatedUsers = [...taggedUsers, { id: user.id, tagName: user.tagName }];
+      setTaggedUsers(updatedUsers); // Cập nhật danh sách người dùng đã tag
+
+      // Thêm @tagName vào nội dung postContent
+      const updatedContent = postContent.replace(/@$/, `@${user.tagName}`);
+      setPostContent(updatedContent); // Cập nhật nội dung bài viết
+      setShowTagModal(false); // Đóng modal khi chọn người dùng
+    } else {
+      console.error("Invalid user data:", user);
+    }
+  };
+
+
 
   return (
     <div>
@@ -797,8 +828,26 @@ const Activity = () => {
                 rows={3}
                 placeholder={t('p11')}
                 value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
+                onChange={handleTextareaChange}
               />
+
+              {/* Hiển thị modal tag user khi gõ @ */}
+              {showTagModal && (
+                <div className="tag-modal">
+                  <ul>
+                    {userSuggestions.length > 0 ? (
+                      userSuggestions.map((user, index) => (
+                        <li value={user.id} key={index} onClick={() => handleTagUser(user)}>
+                          <span className="tag-name">{user.tagName}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li>No users found</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
               <div className="row mt-3">
                 <div className="col text-start">
                   <input
@@ -1280,7 +1329,12 @@ const Activity = () => {
                 )}
               </div>
               {/* Nội dung bài viết */}
-              <div className="post-content">{post.content}</div>
+              <div
+                className="post-content"
+                dangerouslySetInnerHTML={{
+                  __html: post.content, // Nội dung bài viết đã được thay thế
+                }}
+              ></div>
               {/* Hiển thị hình ảnh dưới dạng carousel */}
               {post.images && post.images.length > 0 && (
                 <div id={`carousel-${post.id}`} className="carousel slide post-images" data-bs-ride="carousel">
