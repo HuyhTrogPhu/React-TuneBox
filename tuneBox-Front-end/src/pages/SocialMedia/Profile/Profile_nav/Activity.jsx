@@ -51,6 +51,11 @@ const Activity = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
 
+  // tag name user
+  const [showPostModal, setShowPostModal] = useState(false); // Modal tạo bài viết
+  const [showTagModal, setShowTagModal] = useState(false); // Modal tag người dùng
+  const [userSuggestions, setUserSuggestions] = useState([]); // Danh sách gợi ý tên người dùng
+  const [taggedUsers, setTaggedUsers] = useState([]); // Lưu thông tin người dùng đã tag
 
 
   const handleLike = async (postId) => {
@@ -234,9 +239,27 @@ const Activity = () => {
     fetchPosts();
   }, [userId, id]);
 
+  // create post 
   const handleSubmitPost = async () => {
+    // Kiểm tra nếu cả nội dung và ảnh đều không có
+    if ((!postContent || postContent.trim() === "") && postImages.length === 0) {
+      alert("Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh!");
+      return; // Ngừng nếu không có nội dung hoặc ảnh
+    }
+
+    // Chuyển @tagName thành dạng {name, id} và thay thế @tagName trong nội dung
+    const taggedContent = postContent.replace(/@(\w+)/g, (match, tagName) => {
+      // Tìm kiếm người dùng từ taggedUsers
+      const user = taggedUsers.find(user => user.tagName === tagName);
+      if (user) {
+        // Thay thế bằng <span> có màu xanh và chứa đường dẫn đến profile người dùng
+        return `<span class="tagged-user" data-user-id="${user.id}" onclick="window.location.href='/profile/${user.id}'" style="color: blue; cursor: pointer;">${match}</span>`;
+      }
+      return match; // Nếu không tìm thấy người dùng, giữ nguyên
+    });
+
     const formData = new FormData();
-    formData.append("content", postContent || "");
+    formData.append("content", taggedContent || ""); // Nội dung với các span chứa ID người dùng
     formData.append("userId", userId);
 
     postImages.forEach((image) => {
@@ -247,6 +270,7 @@ const Activity = () => {
 
     try {
       if (postId) {
+        // Cập nhật bài viết
         await axios.put(`http://localhost:8080/api/posts/${postId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -254,6 +278,7 @@ const Activity = () => {
           withCredentials: true,
         });
       } else {
+        // Tạo bài viết mới
         await axios.post("http://localhost:8080/api/posts", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -267,14 +292,14 @@ const Activity = () => {
       resetForm();
       fetchPosts();
     } catch (error) {
-      console.error(
-        "Error creating/updating post:",
-        error.response?.data || error.message
-      );
+      console.error("Error creating/updating post:", error.response?.data || error.message);
     } finally {
       setIsUploading(false); // Kết thúc quá trình tải lên
+      toast.success("Post created successfully!");
     }
   };
+
+
   const handleDeletePost = async (postId) => {
 
     const result = await Swal.fire({
@@ -739,6 +764,23 @@ const Activity = () => {
     fetchUser();
   }, [userId]);
 
+    // Lấy danh sách tên người dùng có thể tag
+    useEffect(() => {
+      const fetchUserTags = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/api/posts/tagName?userId=${userId}`,
+            { withCredentials: true }
+          );
+          console.log("User tags fetched:", response.data);
+          setUserSuggestions(response.data);
+        } catch (error) {
+          console.error("Error fetching user tags:", error);
+        }
+      };
+      fetchUserTags();
+    }, [userId]);
+
   // Xử lý khi có thay đổi trong textarea
   const handleTextareaChange = (e) => {
     const value = e.target.value; // Lấy nội dung từ textarea
@@ -865,7 +907,8 @@ const Activity = () => {
                   <button
                     id="submit-post"
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn"
+                    style={{backgroundColor: '#E94F37', color: 'white'}}
                     onClick={handleSubmitPost}
                   >
                     {t('p12')}
