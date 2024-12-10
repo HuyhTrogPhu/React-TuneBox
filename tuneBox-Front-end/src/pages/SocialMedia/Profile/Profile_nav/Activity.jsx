@@ -39,7 +39,7 @@ const Activity = () => {
   const [editingReplyContent, setEditingReplyContent] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const commentSectionRef = useRef(null);
-
+  const currentUserId = Cookies.get("userId");
   const [selectedPostId, setSelectedPostId] = useState(null);
   const selectedPost = posts.find((post) => post.id === selectedPostId);
   const { t } = useTranslation();
@@ -51,8 +51,28 @@ const Activity = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
 
+  // tag name user
+  const [showPostModal, setShowPostModal] = useState(false); // Modal tạo bài viết
+  const [showTagModal, setShowTagModal] = useState(false); // Modal tag người dùng
+  const [userSuggestions, setUserSuggestions] = useState([]); // Danh sách gợi ý tên người dùng
+  const [taggedUsers, setTaggedUsers] = useState([]); // Lưu thông tin người dùng đã tag
 
-
+  // Lấy danh sách tên người dùng có thể tag
+  useEffect(() => {
+    const fetchUserTags = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/posts/tagName?userId=${currentUserId}`,
+          { withCredentials: true }
+        );
+        console.log("User tags fetched:", response.data);
+        setUserSuggestions(response.data);
+      } catch (error) {
+        console.error("Error fetching user tags:", error);
+      }
+    };
+    fetchUserTags();
+  }, [currentUserId]);
   const handleLike = async (postId) => {
     try {
       const likeDto = {

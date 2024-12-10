@@ -122,7 +122,7 @@ function AppContent(){
               <Route path="/brand-detail" element={<BrandDetail />} />
               <Route path="/CategoryPage" element={<CategoryPage />} />
               <Route path="/albums/create-newAlbum" element={<AlbumNew />} />
-              <Route path="/chat" element={<XacThucUserLogin><Chat /></XacThucUserLogin>} />
+              <Route path="/chat" element={<Chat />} />
               <Route
                 path="/albums/album-Edit/:albumId"
                 element={<XacThucUserLogin><AlbumEdit /></XacThucUserLogin>}
@@ -175,7 +175,7 @@ function AppContent(){
                 <Route path="/ecomadmin/*" element={<EcommerceAdmin />} />
               </Route>
               
-              <Route element={<ProtectedRoute allowedRole="EcomAdmin" />}>
+              <Route element={<ProtectedRoute allowedRole="SocialAdmin" />}>
                 <Route path="/socialadmin/*" element={<SocialMediaAdmin />} />
               </Route>
               
