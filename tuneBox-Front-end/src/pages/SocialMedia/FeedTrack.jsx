@@ -67,7 +67,7 @@ const FeedTrack = () => {
 
       // Kiểm tra nếu tài khoản bị khóa
       if (statusResponse.data.isBanned) {
-        console.log("statusResponse:",statusResponse.data.isBanned)
+        console.log("statusResponse:", statusResponse.data.isBanned)
         // Hiển thị modal và xử lý đăng xuất
         setIsAccountBanned(true); // Kích hoạt modal
         return; // Dừng xử lý tiếp
@@ -77,12 +77,12 @@ const FeedTrack = () => {
       const response = await getAllTracks();
       const responseRp = await LoadTrackReport();
       const dataRP = responseRp.data;
-      
+
       const filteredTracks = response.filter(track => {
         const report = dataRP.find(rp => rp.trackId === track.id);//search track trong rp API
         return !report || report.status !== "RESOLVED";//loai ra RESOLVED va khong co rp API
       });
-      
+
 
       console.log(filteredTracks);
       console.log("get all track: ", response);
@@ -406,159 +406,161 @@ const FeedTrack = () => {
     <div>
       {/* Phần hiển thị track */}
       <div className="container p-0">
-        {tracks.map((track) => {
-          const createdAt = track.createDate
-            ? new Date(track.createDate)
-            : null;
-          if (track.status === false) {
-            return (
-              <div className="post border" key={track.id}>
-                {/* Tiêu đề */}
-                <div className="post-header position-relative">
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => handleAvatarClick(track)}
-                    aria-label="Avatar"
-                  >
-                    <img
-                      src={track.avatar}
-                      className="avatar_small"
-                      alt="Avatar"
-                    />
-                  </button>
-                  <div>
-                    <div className="name">
-                      {track.userNickname || "Unknown User"}
+        {tracks
+          .sort((a, b) => new Date(b.createDate) - new Date(a.createDate)) // Sắp xếp track theo thời gian mới nhất
+          .map((track) => {
+            const createdAt = track.createDate
+              ? new Date(track.createDate)
+              : null;
+            if (track.status === false) {
+              return (
+                <div className="post border" key={track.id}>
+                  {/* Tiêu đề */}
+                  <div className="post-header position-relative">
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => handleAvatarClick(track)}
+                      aria-label="Avatar"
+                    >
+                      <img
+                        src={track.avatar}
+                        className="avatar_small"
+                        alt="Avatar"
+                      />
+                    </button>
+                    <div>
+                      <div className="name">
+                        {track.userNickname || "Unknown User"}
+                      </div>
+                      <div className="time">
+                        {createdAt && !isNaN(createdAt.getTime())
+                          ? format(createdAt, "hh:mm a, dd MMM yyyy")
+                          : "Invalid date"}
+                      </div>
                     </div>
-                    <div className="time">
-                      {createdAt && !isNaN(createdAt.getTime())
-                        ? format(createdAt, "hh:mm a, dd MMM yyyy")
-                        : "Invalid date"}
-                    </div>
-                  </div>
-                  {/* Dropdown cho bài viết */}
-                  {String(track.userId) === String(currentUserId) ? (
-                    <div className="dropdown position-absolute top-0 end-0">
-                      <button
-                        className="btn btn-options dropdown-toggle"
-                        type="button"
-                        id={`dropdownMenuButton-${track.id}`}
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        ...
-                      </button>
-                      <ul
-                        className="dropdown-menu"
-                        aria-labelledby={`dropdownMenuButton-${track.id}`}
-                      >
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => addToPlaylist(track.id)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i> Add to
-                            playlist
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleEditClick(track)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i>Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => deleteTrack(track.id)}
-                          >
-                            <i className="fa-solid fa-trash "></i>Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  ) : (
-                    <div className="dropdown position-absolute top-0 end-0">
-                      <ul>
-                        <li>
-                          <button
-                            className="fa-regular fa-flag btn-report border border-0"
-                            onClick={() => handleReport(track.id, "track")}
-                          ></button>
-                        </li>
-                        <li>
-                          <button
-                            className="dropdown-item"
-                            onClick={() => addToPlaylist(track.id)}
-                          >
-                            <i className="fa-solid fa-pen-to-square"></i> Add to
-                            playlist
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                <div className="post-content description">
-                  {track.description || "Unknown description"}
-                </div>
-                {/* Nội dung */}
-                <div className="track-content audio">
-                  <WaveFormFeed
-                    audioUrl={track.trackFile}
-                    track={track}
-                    className="track-waveform "
-                  />
-                </div>
-
-                {/* Like/Comment */}
-                <div className="row d-flex justify-content-start align-items-center">
-                  {/* Like track*/}
-                  <div className="col-2 mt-2 text-center">
-                    <div className="like-count">
-                      {countLikedTracks[track.id]?.data || 0}{" "}
-                      {/* Hiển thị số lượng like */}
-                      <i
-                        className={`fa-solid fa-heart ${
-                          likedTracks[track.id]?.data
-                            ? "text-danger"
-                            : "text-muted"
-                        }`}
-                        onClick={() => handleLikeTrack(track.id)}
-                        style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
-                      ></i>
-                    </div>
-                  </div>
-
-                  {/* comment track -> trackDetail*/}
-                  <div className="col-2 mt-2 text-center">
-                    <div className="d-flex justify-content-center align-items-center">
-                      <Link
-                        to={{
-                          pathname: `/track/${track.id}`,
-                          state: { track },
-                        }}
-                      >
-                        <i
+                    {/* Dropdown cho bài viết */}
+                    {String(track.userId) === String(currentUserId) ? (
+                      <div className="dropdown position-absolute top-0 end-0">
+                        <button
+                          className="btn btn-options dropdown-toggle"
                           type="button"
-                          style={{ fontSize: "25px" }}
-                          className="fa-regular fa-comment"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalComment"
+                          id={`dropdownMenuButton-${track.id}`}
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        >
+                          ...
+                        </button>
+                        <ul
+                          className="dropdown-menu"
+                          aria-labelledby={`dropdownMenuButton-${track.id}`}
+                        >
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => addToPlaylist(track.id)}
+                            >
+                              <i className="fa-solid fa-pen-to-square"></i> Add to
+                              playlist
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleEditClick(track)}
+                            >
+                              <i className="fa-solid fa-pen-to-square"></i>Edit
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => deleteTrack(track.id)}
+                            >
+                              <i className="fa-solid fa-trash "></i>Delete
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    ) : (
+                      <div className="dropdown position-absolute top-0 end-0">
+                        <ul>
+                          <li>
+                            <button
+                              className="fa-regular fa-flag btn-report border border-0"
+                              onClick={() => handleReport(track.id, "track")}
+                            ></button>
+                          </li>
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => addToPlaylist(track.id)}
+                            >
+                              <i className="fa-solid fa-pen-to-square"></i> Add to
+                              playlist
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="post-content description">
+                    {track.description || "Unknown description"}
+                  </div>
+                  {/* Nội dung */}
+                  <div className="track-content audio">
+                    <WaveFormFeed
+                      audioUrl={track.trackFile}
+                      track={track}
+                      className="track-waveform "
+                    />
+                  </div>
+
+                  {/* Like/Comment */}
+                  <div className="row d-flex justify-content-start align-items-center">
+                    {/* Like track*/}
+                    <div className="col-2 mt-2 text-center">
+                      <div className="like-count">
+                        {countLikedTracks[track.id]?.data || 0}{" "}
+                        {/* Hiển thị số lượng like */}
+                        <i
+                          className={`fa-solid fa-heart ${likedTracks[track.id]?.data
+                              ? "text-danger"
+                              : "text-muted"
+                            }`}
+                          onClick={() => handleLikeTrack(track.id)}
+                          style={{ cursor: "pointer", fontSize: "25px" }} // Thêm style để biểu tượng có thể nhấn
                         ></i>
-                      </Link>
+                      </div>
+                    </div>
+
+                    {/* comment track -> trackDetail*/}
+                    <div className="col-2 mt-2 text-center">
+                      <div className="d-flex justify-content-center align-items-center">
+                        <Link
+                          to={{
+                            pathname: `/track/${track.id}`,
+                            state: { track },
+                          }}
+                        >
+                          <i
+                            type="button"
+                            style={{ fontSize: "25px" }}
+                            className="fa-regular fa-comment"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalComment"
+                          ></i>
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          }
-        })}
+              );
+            }
+          })}
       </div>
+
 
       {/* Modal for editing track */}
       <div

@@ -650,7 +650,7 @@ function Trackdetail() {
   if (!track) return <p>Track không tồn tại hoặc không thể tìm thấy.</p>;
 
   return (
-    <div className="trackDetail">
+    <div className="trackDetail" style={{marginTop: '50px'}}>
       <div className="row">
         {/* tìm kiếm track của người dùng */}
         <div className="col-3 pt-5 p-5">
