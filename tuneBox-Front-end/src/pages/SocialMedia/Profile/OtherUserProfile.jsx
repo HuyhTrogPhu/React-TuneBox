@@ -115,7 +115,7 @@ const OtherUserProfile = () => {
     };
 
     fetchUserData();
-  }, [id, userId]);
+  }, [id, userId,friendStatus]);
 
   // Check friend status
   const checkFriendStatus = async () => {
@@ -150,6 +150,7 @@ const OtherUserProfile = () => {
       fetchFollowCounts();
     }
   }, [id]);
+
 
   // Check if following
   useEffect(() => {
@@ -225,7 +226,7 @@ const OtherUserProfile = () => {
     }
   };
   // Toggle friend status
-  // Toggle friend status
+
   const toggleFriend = async () => {
     try {
       if (friendStatus === "ACCEPTED") {
@@ -291,6 +292,8 @@ const OtherUserProfile = () => {
       console.error("Error declining friend request:", error);
     }
   };
+
+
   //report
 
   const handleReport = (id, type) => {
@@ -304,7 +307,7 @@ const OtherUserProfile = () => {
   const submitReport = async (userId, reportId, reportType, reason) => {
     try {
       const token = localStorage.getItem("jwtToken"); // Hoặc từ nơi bạn lưu trữ JWT token
-console.warn();
+      console.warn();
  
       const reportExists = await checkReportExists(
         userId,
