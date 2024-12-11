@@ -385,11 +385,21 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
 
   // edit post
   const handleEditPost = (post) => {
+    setModalVisible(true); // Bật modal trước
     setPostContent(post.content);
     setPostImages(post.images);
     setPostId(post.id);
-    document.getElementById("post-modal").style.display = "flex";
+  
+    setTimeout(() => {
+      const modal = document.getElementById("post -modal");
+      if (modal) {
+        modal.style.display = "flex";
+      } else {
+        console.error('Element with id "post-modal" not found');
+      }
+    }, 0); // Đợi 1 chu kỳ để React render modal
   };
+  
 
   const handleUpdateComment = async (commentId, postId) => {
     if (!editingCommentContent.trim()) return;
@@ -1551,7 +1561,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                   style={{ resize: "none" }}
                 />
 
-                {/* Hiển thị modal tag user khi gõ @ */}
+                {/* Hiển thị modal tag user khi gõ @
                 {showTagModal && (
                   <div className="tag-modal">
                     <ul>
@@ -1566,7 +1576,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                       )}
                     </ul>
                   </div>
-                )}
+                )} */}
               </div>
               <div className="modal-footer">
                 <button
