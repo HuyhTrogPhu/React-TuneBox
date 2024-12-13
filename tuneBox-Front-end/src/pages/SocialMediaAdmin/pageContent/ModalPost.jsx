@@ -45,9 +45,11 @@ const PostModal = memo(
     loading,
     reports,
   }) => {
-    // Add debug logging to check the data
     console.log('Reports data:', reports);
     console.log('Selected post:', selectedPost);
+    
+    const showRestoreButton = selectedPost?.type === "HIDDEN" || selectedPost?.status === "HIDDEN";
+    const postId = reports?.[0]?.post?.postId || selectedPost?.id;
     
     return (
       <Modal show={isOpen} onHide={onClose} size="lg">
@@ -55,40 +57,32 @@ const PostModal = memo(
           <Modal.Title>Post Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {selectedPost && reports?.[0] && (
+          {selectedPost && (
             <div>
               <div className="mb-3">
-                <strong>Post ID:</strong> {reports[0].post.postId}
+                <strong>Post ID:</strong> {postId}
               </div>
               <div className="mb-3">
-                <strong>Post Owner:</strong> {reports[0].post.postOwner}
+                <strong>Post Owner:</strong> {reports?.[0]?.post?.postOwner || selectedPost.postOwner}
               </div>
               <div className="mb-3">
                 <strong>Status:</strong>{" "}
-                <Badge bg={reports[0].status === 'PENDING' ? 'warning' : 'secondary'}>
-                  {reports[0].status}
-                </Badge>
+                {getStatusBadge(selectedPost.status || reports?.[0]?.status || "HIDDEN")}
               </div>
               <div className="mb-3">
-                <strong>Report Reason:</strong> {reports[0].reason}
+                <strong>Report Reason:</strong> {reports?.[0]?.reason || selectedPost.reportReason}
               </div>
               <div className="mb-3">
                 <strong>Post Content:</strong>
-                {reports[0].post.content ? ( 
-                  <div className="border p-3 mt-2 bg-light rounded">
-                    {reports[0].post.content}
-                  </div>
-                ) : (
-                  <div className="border p-3 mt-2 bg-light rounded text-muted">
-                    No content available
-                  </div>
-                )}
+                <div className="border p-3 mt-2 bg-light rounded">
+                  {reports?.[0]?.post?.content || selectedPost.content || "No content available"}
+                </div>
               </div>
               <div className="mb-3">
                 <strong>Report Date:</strong>{" "}
-                {new Date(reports[0].createDate).toLocaleString()}
+                {new Date(reports?.[0]?.createDate || selectedPost.reportDate || selectedPost.createDate).toLocaleString()}
               </div>
-              {reports[0].description && (
+              {reports?.[0]?.description && (
                 <div className="mb-3">
                   <strong>Description:</strong>
                   <div className="border p-3 mt-2 bg-light rounded">
@@ -97,7 +91,7 @@ const PostModal = memo(
                 </div>
               )}
 
-              {reports[0].status === "PENDING" && (
+              {selectedPost.type === "PENDING" && (
                 <>
                   <Form.Group className="mb-3">
                     <Form.Label>Resolve Reason</Form.Label>
@@ -125,7 +119,7 @@ const PostModal = memo(
                   </Form.Group>
                 </>
               )}
-              <RelatedReportsTable reports={reports} />
+              {reports && reports.length > 0 && <RelatedReportsTable reports={reports} />}
             </div>
           )}
         </Modal.Body>
@@ -133,11 +127,11 @@ const PostModal = memo(
           <Button variant="secondary" onClick={onClose}>
             Close
           </Button>
-          {reports?.[0]?.status === "PENDING" && (
+          {selectedPost?.type === "PENDING" && (
             <>
               <Button
                 variant="warning"
-                onClick={() => onDismiss(reports[0].post.postId)}
+                onClick={() => onDismiss(postId)}
                 disabled={!formData.dismissReason.trim() || loading.dismiss}
               >
                 {loading.dismiss ? (
@@ -151,7 +145,7 @@ const PostModal = memo(
               </Button>
               <Button
                 variant="danger"
-                onClick={() => onResolve(reports[0].id)}
+                onClick={() => onResolve(reports?.[0]?.id || selectedPost.reportId)}
                 disabled={!formData.resolveReason.trim() || loading.resolve}
               >
                 {loading.resolve ? (
@@ -165,10 +159,10 @@ const PostModal = memo(
               </Button>
             </>
           )}
-          {reports?.[0]?.adminHidden && (
+          {showRestoreButton && (
             <Button
               variant="success"
-              onClick={() => onRestore(reports[0].post.postId)}
+              onClick={() => onRestore(postId)}
               disabled={loading.restore}
             >
               {loading.restore ? (
