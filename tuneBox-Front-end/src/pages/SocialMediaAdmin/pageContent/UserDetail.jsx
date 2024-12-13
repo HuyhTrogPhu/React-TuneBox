@@ -214,16 +214,16 @@ const UserDetail = () => {
                 Joined: {new Date(user.createDate).toLocaleDateString("vi-VN")}
               </p>
 
-              <button className="btn btn-danger">Ban/Unban User</button>
-            </div>
-          </div>
-
-          <button
+              <button
   className={`btn ${isBanned ? "btn-success" : "btn-danger"} mt-4`}
   onClick={handleBanUnban}
 >
   {isBanned ? "Unban User" : "Ban User"}
 </button>
+            </div>
+          </div>
+
+
 
 
         </div>
