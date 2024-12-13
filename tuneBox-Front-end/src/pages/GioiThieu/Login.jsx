@@ -74,7 +74,7 @@ const Login = () => {
         setIsAccountBanned(true);
         return;
       }
-      setError('Thông tin đăng nhập không chính xác.');
+      setError('Incorrect login information.');
     }
   };
   
@@ -122,13 +122,13 @@ const Login = () => {
         }
     } catch (error) {
         console.error('Login failed', error);
-        setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+        setError('Sign in with Google failed. Please try again.');
     }
 };
 
 
   const handleGoogleFailure = () => {
-    setError('Đăng nhập bằng Google thất bại. Vui lòng thử lại.');
+    setError('Sign in with Google failed. Please try again.');
   };
 
   return (
