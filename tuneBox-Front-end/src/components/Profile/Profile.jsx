@@ -272,7 +272,7 @@ const Profile = () => {
     };
 
     return (
-        <div>
+        <div style={{backgroundColor: 'white'}}>
             <ToastContainer />
             <div>
                 <h3>
@@ -383,7 +383,7 @@ const Profile = () => {
                                 <input
                                     className="form-control"
                                     type="text"
-                                    placeholder="Search City"
+                                    placeholder="Enter your city"
                                     id="location"
                                     value={location}
                                     onChange={(e) => setLocation(e.target.value)}

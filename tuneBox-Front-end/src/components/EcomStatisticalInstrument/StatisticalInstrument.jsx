@@ -6,19 +6,22 @@ import {
 import { Line } from 'react-chartjs-2';
 
 const StatisticalInstrument = () => {
-  const [instrumentSoldData, setinstrumentSoldData] = useState(null);
+  const [instrumentSoldData, setInstrumentSoldData] = useState(null);
   const [error, setError] = useState(null);
 
   const [instrumentData, setInstrumentData] = useState(null);
   const [selectedInstrumentId, setSelectedInstrumentId] = useState("");
   const [revenueData, setRevenueData] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   // total sold instrument
   useEffect(() => {
     const instrumentData = async () => {
       try {
         const response = await getStatisticalOfTimeInstrument();
-        setinstrumentSoldData(response.data);
+        setInstrumentSoldData(response.data);
       } catch (err) {
         setError(err);
       }
@@ -56,7 +59,24 @@ const StatisticalInstrument = () => {
     } else {
       setRevenueData(null); // Reset revenue data if no instrument is selected
     }
+  };
 
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const getCurrentDate = (period) => {
+    const date = new Date();
+    if (period === 'day') return date.toLocaleDateString();
+    if (period === 'week') {
+      const startDate = new Date(date.setDate(date.getDate() - date.getDay()));
+      const endDate = new Date(startDate.setDate(startDate.getDate() + 6));
+      return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+    }
+    if (period === 'month') {
+      return `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+    }
+    return date.toLocaleDateString();
   };
 
   if (error) {
@@ -67,14 +87,23 @@ const StatisticalInstrument = () => {
     return <div>Loading...</div>;
   }
 
-  const {
-    mostSoldToday,
-    leastSoldToday,
-    mostSoldThisWeek,
-    leastSoldThisWeek,
-    mostSoldThisMonth,
-    leastSoldThisMonth,
-  } = instrumentSoldData;
+  const { mostSoldToday, leastSoldToday, mostSoldThisWeek, leastSoldThisWeek, mostSoldThisMonth, leastSoldThisMonth } = instrumentSoldData;
+
+  const totalMostSoldToday = mostSoldToday.length;
+  const totalLeastSoldToday = leastSoldToday.length;
+  const totalMostSoldThisWeek = mostSoldThisWeek.length;
+  const totalLeastSoldThisWeek = leastSoldThisWeek.length;
+  const totalMostSoldThisMonth = mostSoldThisMonth.length;
+  const totalLeastSoldThisMonth = leastSoldThisMonth.length;
+
+  const mostSoldTodayPage = mostSoldToday.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const leastSoldTodayPage = leastSoldToday.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const mostSoldThisWeekPage = mostSoldThisWeek.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const leastSoldThisWeekPage = leastSoldThisWeek.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const mostSoldThisMonthPage = mostSoldThisMonth.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const leastSoldThisMonthPage = leastSoldThisMonth.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const totalPages = Math.ceil(totalMostSoldToday / itemsPerPage);
 
   const selectedInstrument = instrumentData?.find(
     (instrument) => instrument.instrumentId === selectedInstrumentId
@@ -98,21 +127,6 @@ const StatisticalInstrument = () => {
     ],
   };
 
-  const getCurrentDate = (period) => {
-    const date = new Date();
-    if (period === 'day') return date.toLocaleDateString();
-    if (period === 'week') {
-      const startDate = new Date(date.setDate(date.getDate() - date.getDay()));
-      const endDate = new Date(startDate.setDate(startDate.getDate() + 6));
-      return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-    }
-    if (period === 'month') {
-      return `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
-    }
-    return date.toLocaleDateString();
-  };
-
-
   return (
     <div className="container">
       {/* Instrument the most */}
@@ -135,7 +149,7 @@ const StatisticalInstrument = () => {
               </tr>
             </thead>
             <tbody className='table-group-divider'>
-              {mostSoldToday.map((instrument, index) => (
+              {mostSoldTodayPage.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -151,6 +165,28 @@ const StatisticalInstrument = () => {
             </tbody>
           </table>
 
+          {/* Pagination */}
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(number => (
+                <li key={number + 1} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
+                  <button onClick={() => paginate(number + 1)} className="page-link">
+                    {number + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Current Week</h6>
@@ -167,7 +203,7 @@ const StatisticalInstrument = () => {
               </tr>
             </thead>
             <tbody className='table-group-divider'>
-              {mostSoldThisWeek.map((instrument, index) => (
+              {mostSoldThisWeekPage.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -183,6 +219,28 @@ const StatisticalInstrument = () => {
             </tbody>
           </table>
 
+          {/* Panigation */}
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(number => (
+                <li key={number + 1} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
+                  <button onClick={() => paginate(number + 1)} className="page-link">
+                    {number + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Month:</h6>
@@ -199,7 +257,7 @@ const StatisticalInstrument = () => {
               </tr>
             </thead>
             <tbody className='table-group-divider'>
-              {mostSoldThisMonth.map((instrument, index) => (
+              {mostSoldThisMonthPage.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -215,6 +273,28 @@ const StatisticalInstrument = () => {
             </tbody>
           </table>
 
+          {/* Panigation */}
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(number => (
+                <li key={number + 1} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
+                  <button onClick={() => paginate(number + 1)} className="page-link">
+                    {number + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </section>
 
@@ -238,7 +318,7 @@ const StatisticalInstrument = () => {
               </tr>
             </thead>
             <tbody className='table-group-divider'>
-              {leastSoldToday.map((instrument, index) => (
+              {leastSoldTodayPage.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -254,6 +334,28 @@ const StatisticalInstrument = () => {
             </tbody>
           </table>
 
+          {/* Panigation */}
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(number => (
+                <li key={number + 1} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
+                  <button onClick={() => paginate(number + 1)} className="page-link">
+                    {number + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Week:</h6>
@@ -270,7 +372,7 @@ const StatisticalInstrument = () => {
               </tr>
             </thead>
             <tbody className='table-group-divider'>
-              {leastSoldThisWeek.map((instrument, index) => (
+              {leastSoldThisWeekPage.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -286,6 +388,28 @@ const StatisticalInstrument = () => {
             </tbody>
           </table>
 
+          {/* Panigation */}
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(number => (
+                <li key={number + 1} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
+                  <button onClick={() => paginate(number + 1)} className="page-link">
+                    {number + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
         <div className="col-12 mt-3">
           <h6 className='text-center'>Of Month:</h6>
@@ -302,7 +426,7 @@ const StatisticalInstrument = () => {
               </tr>
             </thead>
             <tbody>
-              {leastSoldThisMonth.map((instrument, index) => (
+              {leastSoldThisMonthPage.map((instrument, index) => (
                 <tr key={instrument.instrumentId}>
                   <td style={{ textAlign: 'center' }}>{index + 1}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -317,6 +441,29 @@ const StatisticalInstrument = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Panigation */}
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(number => (
+                <li key={number + 1} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
+                  <button onClick={() => paginate(number + 1)} className="page-link">
+                    {number + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </section>
 

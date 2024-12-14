@@ -120,7 +120,7 @@ const ManagerCustomer = () => {
     return (
         <div>
             {/* Main content */}
-            <div className='container-fluid'>
+            <div className='container-fluid' style={{backgroundColor: 'white', padding: '50px'}}>
                 {/* Search */}
                 <div className='row mt-5 gap-2'>
                     {/* Search by keyword */}

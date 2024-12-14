@@ -201,7 +201,7 @@ const DetailProduct = () => {
 
   return (
     <div>
-      <div className="container" style={{ marginTop: '100px' }}>
+      <div className="container" style={{ paddingTop: '100px', backgroundColor: 'white' }}>
         <div className="content" style={{ width: '100%' }}>
           {/* Instrument image */}
           <div className="row">

@@ -132,7 +132,7 @@ const ManagerCategories = () => {
   };
 
   return (
-    <div>
+    <div style={{backgroundColor: 'white', padding: '50px'}}>
       <div className="container-fluid">
         <button
           data-bs-toggle="modal"

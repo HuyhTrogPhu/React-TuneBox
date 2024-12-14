@@ -16,7 +16,7 @@ const Dashboard = ({ revenueData }) => {
   });
 
   return (
-    <div>
+    <div style={{backgroundColor: 'white', padding: '50px'}}>
       <h3 className="text-center">Revenue Overview</h3>
       <div className="row">
         <section className="col-6">

@@ -146,7 +146,7 @@ const MangerBrand = () => {
   };
 
   return (
-    <div>
+    <div style={{backgroundColor: 'white', padding: '50px'}}>
       <div className="container-fluid">
         {successMessage && (
           <div className="alert alert-success" role="alert">

@@ -87,7 +87,7 @@ const CustomerOrder = () => {
     <div>
       <div className='row'>
         <div className='d-flex justify-content-between ps-5 pe-5'>
-          <div className='col-3' style={{backgroundColor: 'white', padding: '20px'}}>
+          <div className='col-3' style={{backgroundColor: 'white', padding: '20px', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
             <form onSubmit={handleSearchDate}>
               <div className='mt-3'>
                 <label className='form-label'>Select the day you want</label>
@@ -103,7 +103,7 @@ const CustomerOrder = () => {
               </div>
             </form>
           </div>
-          <div className='col-3' style={{backgroundColor: 'white', padding: '20px'}}>
+          <div className='col-3' style={{backgroundColor: 'white', padding: '20px', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
             <form onSubmit={handleSearchBetweenDates}>
               <div className='mt-3'>
                 <label className='form-label'>From:</label>

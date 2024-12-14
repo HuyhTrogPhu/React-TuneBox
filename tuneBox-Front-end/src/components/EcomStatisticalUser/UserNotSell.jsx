@@ -28,6 +28,8 @@ ChartJS.register(
 
 const UserNotSell = () => {
   const [userSellList, setUserSellList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [itemsPerPage, setItemsPerPage] = useState(5); // Number of items per page
 
   useEffect(() => {
     // Fetch the list of users not sell
@@ -35,6 +37,19 @@ const UserNotSell = () => {
       setUserSellList(response.data);
     });
   }, []);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(userSellList.length / itemsPerPage);
+
+    // Slice the list for the current page
+    const currentUsers = userSellList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  
+    // Pagination logic
+    const paginate = (pageNumber) => {
+      if (pageNumber >= 1 && pageNumber <= totalPages) {
+        setCurrentPage(pageNumber);
+      }
+    };
 
   // Chuẩn bị dữ liệu cho biểu đồ cột
   const chartData = {
@@ -145,7 +160,7 @@ const UserNotSell = () => {
                     <td style={{ textAlign: 'center' }}>{user.totalOrder} order</td>
                     <td style={{ textAlign: 'center' }}>{(user.sumTotalPrice).toLocaleString('vi')} VND</td>
                     <td style={{ textAlign: 'center' }}>
-                      <Link className='btn' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
+                      <Link className='btn btn-primary' style={{ color: '#E94F37' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
                     </td>
                   </tr>
                 ))
@@ -158,6 +173,8 @@ const UserNotSell = () => {
               )}
             </tbody>
           </table>
+
+          
           <div >
           <button className="btn btn-success my-3" onClick={exportToExcel}>
             Export to Excel

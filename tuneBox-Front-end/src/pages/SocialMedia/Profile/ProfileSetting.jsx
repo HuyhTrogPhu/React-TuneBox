@@ -18,7 +18,7 @@ const ProfileSetting = () => {
   
 
   return (
-    <div className="profile-setting" style={{marginTop: '100px'}}>
+    <div className="profile-setting" style={{paddingTop: '100px', backgroundColor: 'white'}}>
       <div className="row">
         <aside className="col-sm-3">
           <div className="d-flex flex-column flex-shrink-0 p-3">
@@ -31,7 +31,7 @@ const ProfileSetting = () => {
                   onClick={() => handleComponentChange("Profile")}
                 >
                   <div className="post-setting m-0">
-                    <img src={images.avt} alt="avatar" />
+                    <img src={images.user} alt="avatar" />
                     <div className="name1">Profile</div>
                   </div>
                 </div>

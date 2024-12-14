@@ -508,7 +508,7 @@ const Navbar = () => {
         <button className="mx-3 cart-shopping" onClick={handleCartClick}>
           <i className="fa-solid fa-cart-shopping"></i>
           {cartCount > 0 && (
-            <span className="badge bg-danger">{cartCount}</span>
+            <span className="cart-count">{cartCount}</span>
           )}
         </button>
 

@@ -206,12 +206,23 @@
 }
 
 .cart-shopping {
+    position: relative;
     padding: 6px 10px;
     border-radius: 50%;
     border: none !important;
     color: #fff;
     font-size: 18px;
     background-color: #E94F37;
+}
+
+.cart-count {
+    position: absolute;
+    top: -10px;
+    background-color: #E94F37;
+    padding: 2px 7px;
+    border-radius: 50%;
+    font-size: 15px;
+
 }
 
 .notification-item.unread .red-dot {

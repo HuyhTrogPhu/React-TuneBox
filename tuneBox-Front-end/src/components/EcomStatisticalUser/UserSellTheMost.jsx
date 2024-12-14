@@ -35,6 +35,8 @@ ChartJS.register(
 const UserSellTheMost = () => {
   const [userSellList, setUserSellList] = useState([]);
   const [topUserSell, setTopUserSell] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [itemsPerPage, setItemsPerPage] = useState(5); // Number of items per page
 
   useEffect(() => {
     // Fetch the list of users who sold the most
@@ -50,6 +52,18 @@ const UserSellTheMost = () => {
     });
   }, []);
 
+  // Calculate total pages
+  const totalPages = Math.ceil(userSellList.length / itemsPerPage);
+
+  // Slice the list for the current page
+  const currentUsers = userSellList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Pagination logic
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   // Chuẩn bị dữ liệu cho biểu đồ cột
   const chartData = {
@@ -64,6 +78,7 @@ const UserSellTheMost = () => {
       },
     ],
   };
+
   const exportToExcel = () => {
     // Chuẩn bị dữ liệu
     const data = userSellList.map((user, index) => ({
@@ -85,6 +100,7 @@ const UserSellTheMost = () => {
     // Xuất file
     XLSX.writeFile(workbook, "user_sell_the_most.xlsx");
   };
+
   const exportToPDF = () => {
     const element = document.querySelector(".container");
     html2canvas(element, { useCORS: true }).then((canvas) => {
@@ -97,7 +113,6 @@ const UserSellTheMost = () => {
       let position = 0;
 
       // Thêm logo vào PDF (đảm bảo logo được lưu trữ đúng vị trí)
-
       const logoUrl = "https://res.cloudinary.com/dslm1fjny/image/upload/v1733227547/ieedwbbhyekmka2heusc.png";
       const logo = new Image();
       logo.src = logoUrl;
@@ -130,6 +145,7 @@ const UserSellTheMost = () => {
         <div className='row text-center'>
           <h6>Statistics on the list of users who have purchased the most to date</h6>
         </div>
+
         {/* Bảng người dùng bán nhiều nhất */}
         <section className='row mt-5'>
           <table className='table table-bordered'>
@@ -147,10 +163,10 @@ const UserSellTheMost = () => {
               </tr>
             </thead>
             <tbody className='table-group-divider'>
-              {userSellList.length > 0 ? (
-                userSellList.map((user, index) => (
+              {currentUsers.length > 0 ? (
+                currentUsers.map((user, index) => (
                   <tr key={user.userId}>
-                    <th scope='row'>{index + 1}</th>
+                    <th scope='row'>{(currentPage - 1) * itemsPerPage + index + 1}</th>
                     <td>{user.name}</td>
                     <td>{user.userName}</td>
                     <td>{user.email}</td>
@@ -158,7 +174,9 @@ const UserSellTheMost = () => {
                     <td>{user.location}</td>
                     <td>{user.totalOrder} order</td>
                     <td>{(user.sumTotalPrice).toLocaleString('vi')} VND</td>
-                    <Link className='btn btn-outline-primary' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
+                    <td>
+                      <Link className='btn btn-primary' style={{ color: '#E94F37' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -170,6 +188,30 @@ const UserSellTheMost = () => {
               )}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(number => (
+                <li key={number + 1} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
+                  <button onClick={() => paginate(number + 1)} className="page-link">
+                    {number + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+
         </section>
 
         {/* Biểu đồ cột */}
@@ -187,7 +229,8 @@ const UserSellTheMost = () => {
             <h6>Total Revenue: {(topUserSell.sumTotalPrice).toLocaleString('vi')} VND</h6>
           </section>
         )}
-        <div >
+
+        <div>
           <button className="btn btn-success my-3" onClick={exportToExcel}>
             Export to Excel
           </button>
@@ -198,7 +241,6 @@ const UserSellTheMost = () => {
         </div>
 
       </div>
-
     </div>
   );
 };

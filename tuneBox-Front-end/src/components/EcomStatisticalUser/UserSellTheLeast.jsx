@@ -34,6 +34,8 @@ ChartJS.register(
 const UserSellTheLeast = () => {
   const [userSellList, setUserSellList] = useState([]);
   const [topUserSell, setTopUserSell] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [itemsPerPage, setItemsPerPage] = useState(5); // Number of items per page
 
   useEffect(() => {
     // Fetch the list of users who sold the least
@@ -49,6 +51,18 @@ const UserSellTheLeast = () => {
     });
   }, []);
 
+  // Calculate total pages
+  const totalPages = Math.ceil(userSellList.length / itemsPerPage);
+
+  // Slice the list for the current page
+  const currentUsers = userSellList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Pagination logic
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   // Chuẩn bị dữ liệu cho biểu đồ cột
   const chartData = {
@@ -158,7 +172,9 @@ const UserSellTheLeast = () => {
                     <td>{user.location}</td>
                     <td>{user.totalOrder} order</td>
                     <td>{(user.sumTotalPrice).toLocaleString('vi')} VND</td>
-                    <Link className='btn btn-outline-primary' style={{ color: '#000' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
+                    <td>
+                      <Link className='btn btn-primary' style={{ color: '#E94F37' }} to={`/ecomadmin/Customer/detail/${user.userId}`}>View</Link>
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -170,6 +186,29 @@ const UserSellTheLeast = () => {
               )}
             </tbody>
           </table>
+
+          {/* Panigation */}
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-center text-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage - 1)} aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </button>
+              </li>
+              {[...Array(totalPages).keys()].map(number => (
+                <li key={number + 1} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
+                  <button onClick={() => paginate(number + 1)} className="page-link">
+                    {number + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => paginate(currentPage + 1)} aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </section>
 
         {/* Biểu đồ cột */}
@@ -187,7 +226,7 @@ const UserSellTheLeast = () => {
             <h6>Total Revenue: {(topUserSell.sumTotalPrice).toLocaleString('vi')} VND</h6>
           </section>
         )}
-         <div >
+        <div >
           <button className="btn btn-success my-3" onClick={exportToExcel}>
             Export to Excel
           </button>

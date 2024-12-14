@@ -61,7 +61,7 @@ const ManagerCustomerDetail = () => {
   }, []);
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid" style={{backgroundColor: 'white', padding: '50px'}}>
       <div className="row vh-100">
         {/* Left Sidebar (User Info) */}
         <div className="col-lg-3 bg-light p-4 d-flex flex-column align-items-center bg-secondary-subtle">
