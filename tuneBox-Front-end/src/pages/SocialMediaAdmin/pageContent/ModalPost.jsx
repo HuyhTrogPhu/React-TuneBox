@@ -48,7 +48,7 @@ const PostModal = memo(
     console.log('Reports data:', reports);
     console.log('Selected post:', selectedPost);
     
-    const showRestoreButton = selectedPost?.type === "HIDDEN" || selectedPost?.status === "HIDDEN";
+    const showRestoreButton = selectedPost?.type === "HIDDEN" || selectedPost?.status === "HIDDEN"; 
     const postId = reports?.[0]?.post?.postId || selectedPost?.id;
     
     return (
