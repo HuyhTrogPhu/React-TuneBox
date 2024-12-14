@@ -68,7 +68,7 @@ const Posts = () => {
     baseURL: "http://localhost:8082/admin/posts",
     headers: {
       "Content-Type": "application/json",
-      
+
     },
   });
 
@@ -102,7 +102,7 @@ const Posts = () => {
     } catch (error) {
       console.error("Error fetching count posts:", error);
     }
-  
+
     try {
       const newResponse = await axios.get("http://localhost:8082/admin/posts/new");
       setNewPosts(newResponse?.data?.posts || []);
@@ -110,7 +110,7 @@ const Posts = () => {
     } catch (error) {
       console.error("Error fetching new posts:", error);
     }
-  
+
     try {
       const trendingResponse = await axios.get(
         "http://localhost:8082/social-statistical/trending-posts"
@@ -120,7 +120,7 @@ const Posts = () => {
       console.error("Error fetching trending posts:", error);
     }
   };
-  
+
   //fetch all post
   const fetchPosts = async (page = 0) => {
     try {
@@ -287,19 +287,27 @@ const Posts = () => {
       <div className="row mb-4">
         <div className="col-lg-3">
           <div className="card">
-            <div className="card-body">
+            <div className="">
               <h5 className="card-title">Total Posts</h5>
-              <p className="card-text">{countPost}</p>
+              <p className="" style={{ textAlign: 'center', fontSize: '60px' }}>{countPost}</p>
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-3">
+          <div className="card">
+            <div className="">
+              <h5 className="card-title">Posts Today</h5>
+              <p className="" style={{ textAlign: 'center', fontSize: '60px' }}>{todayPostCount}</p>
             </div>
           </div>
         </div>
       </div>
 
+
       {notification && (
         <Alert
-          className={`mb-4 ${
-            notification.type === "error" ? "bg-red-100" : "bg-green-100"
-          }`}
+          className={`mb-4 ${notification.type === "error" ? "bg-red-100" : "bg-green-100"
+            }`}
         >
           <AlertDescription>{notification.message}</AlertDescription>
         </Alert>
@@ -313,12 +321,7 @@ const Posts = () => {
               <h5>New Posts</h5>
             </div>
             <div className="col-lg-3">
-              <div className="card">
-                <div className="card-body">
-                  <h5 className="card-title">Posts Today</h5>
-                  <p className="card-text">{todayPostCount}</p>
-                </div>
-              </div>
+           
             </div>
             <div className="card-body">
               {/* <input
@@ -349,7 +352,7 @@ const Posts = () => {
                             ? "Post with images"
                             : "Text only"}
                         </td>
-                        <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                        <td>{new Date(post.createdAt).toLocaleDateString('vi')}</td>
                         <td>
                           <Link
                             to={`/socialadmin/postdetail/${post.id}`}
@@ -441,7 +444,7 @@ const Posts = () => {
                             ? "Post with images"
                             : "Text only"}
                         </td>
-                        <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                        <td>{new Date(post.createdAt).toLocaleDateString('vi')}</td>
                         <td>{post.likeCount || 0}</td>
                         <td>{post.commentCount || 0}</td>
                         <td>
@@ -510,7 +513,7 @@ const Posts = () => {
                             {post.commentCount}
                           </span>
                         </td>
-                        <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                        <td>{new Date(post.createdAt).toLocaleDateString('vi')}</td>
                         <td>
                           <Link
                             to={`/socialadmin/postdetail/${post.id}`}

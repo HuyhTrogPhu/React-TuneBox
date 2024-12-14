@@ -222,7 +222,8 @@ const Albums = () => {
                     <td>{user.status ? "Active" : "Unactive"}</td>
                     <td>{user.creator}</td>
                     <td>{user.likeCount ? user.likeCount :"0" }</td>
-                    <td>{user.createDate.split('T')[0]}</td>
+                    <td>{new Date(user.createDate).toLocaleDateString('vi')}</td>
+
                     <td>{user.description}</td>
                     <td>
                       <Link

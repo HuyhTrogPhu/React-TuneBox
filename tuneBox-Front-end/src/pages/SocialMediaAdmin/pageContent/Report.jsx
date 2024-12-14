@@ -251,9 +251,8 @@ const Report = () => {
               <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center text-center">
                   <li
-                    className={`page-item ${
-                      currentPage === 1 ? "disabled" : ""
-                    }`}
+                    className={`page-item ${currentPage === 1 ? "disabled" : ""
+                      }`}
                   >
                     <button
                       className="page-link"
@@ -266,9 +265,8 @@ const Report = () => {
                   {[...Array(totalPagesReport).keys()].map((number) => (
                     <li
                       key={number + 1}
-                      className={`page-item ${
-                        currentPage === number + 1 ? "active" : ""
-                      }`}
+                      className={`page-item ${currentPage === number + 1 ? "active" : ""
+                        }`}
                     >
                       <button
                         onClick={() => handlePageChange(number + 1)}
@@ -279,9 +277,8 @@ const Report = () => {
                     </li>
                   ))}
                   <li
-                    className={`page-item ${
-                      currentPage === totalPagesReport ? "disabled" : ""
-                    }`}
+                    className={`page-item ${currentPage === totalPagesReport ? "disabled" : ""
+                      }`}
                   >
                     <button
                       className="page-link"
@@ -338,9 +335,8 @@ const Report = () => {
               <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center text-center">
                   <li
-                    className={`page-item ${
-                      currentPage === 1 ? "disabled" : ""
-                    }`}
+                    className={`page-item ${currentPage === 1 ? "disabled" : ""
+                      }`}
                   >
                     <button
                       className="page-link"
@@ -353,9 +349,8 @@ const Report = () => {
                   {[...Array(totalPagesAlbum).keys()].map((number) => (
                     <li
                       key={number + 1}
-                      className={`page-item ${
-                        currentPage === number + 1 ? "active" : ""
-                      }`}
+                      className={`page-item ${currentPage === number + 1 ? "active" : ""
+                        }`}
                     >
                       <button
                         onClick={() => handlePageChange(number + 1)}
@@ -366,9 +361,8 @@ const Report = () => {
                     </li>
                   ))}
                   <li
-                    className={`page-item ${
-                      currentPage === totalPagesReport ? "disabled" : ""
-                    }`}
+                    className={`page-item ${currentPage === totalPagesReport ? "disabled" : ""
+                      }`}
                   >
                     <button
                       className="page-link"
@@ -431,9 +425,8 @@ const Report = () => {
               <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center text-center">
                   <li
-                    className={`page-item ${
-                      currentPage === 1 ? "disabled" : ""
-                    }`}
+                    className={`page-item ${currentPage === 1 ? "disabled" : ""
+                      }`}
                   >
                     <button
                       className="page-link"
@@ -446,9 +439,8 @@ const Report = () => {
                   {[...Array(totalPagesAlbum).keys()].map((number) => (
                     <li
                       key={number + 1}
-                      className={`page-item ${
-                        currentPage === number + 1 ? "active" : ""
-                      }`}
+                      className={`page-item ${currentPage === number + 1 ? "active" : ""
+                        }`}
                     >
                       <button
                         onClick={() => handlePageChange(number + 1)}
@@ -459,9 +451,8 @@ const Report = () => {
                     </li>
                   ))}
                   <li
-                    className={`page-item ${
-                      currentPage === totalPagesReport ? "disabled" : ""
-                    }`}
+                    className={`page-item ${currentPage === totalPagesReport ? "disabled" : ""
+                      }`}
                   >
                     <button
                       className="page-link"
@@ -506,8 +497,11 @@ const Report = () => {
                   <>
                     <p>Track Name: {modalData.name}</p>
                     <p>
-                      Track created day: {modalData.createDate.split("T")[0]}
+                      Track created day: {modalData.createDate
+                        ? new Date(modalData.createDate).toLocaleDateString('vi')
+                        : "N/A"}
                     </p>
+
                     <p>User Name: {modalData.userName}</p>
                     <p>Genre Name: {modalData.genreName}</p>
                     <p>
@@ -532,7 +526,8 @@ const Report = () => {
                       <tbody>
                         {ReportTrackDetail.map((track) => (
                           <tr key={track.id}>
-                            <td>{track.createDate}</td>
+                            <td>{new Date(track.createDate).toLocaleDateString('vi')}</td>
+
                             <td>{track.reason}</td>
                             <td>{track.userName}</td>
                             <td>{/* Flexbox to align buttons in one row */}</td>

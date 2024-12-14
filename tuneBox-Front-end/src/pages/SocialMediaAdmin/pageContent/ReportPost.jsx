@@ -297,41 +297,7 @@ const PostManagement = () => {
     <div className="container-fluid p-4">
       <h2>Post Management</h2>
 
-      <Row className="mb-4">
-        <Col md={4}>
-          <Form.Group>
-            <Form.Label>Specific Date</Form.Label>
-            <Form.Control
-              type="date"
-              name="specificDate"
-              value={searchCriteria.specificDate}
-              onChange={handleSearchChange}
-            />
-          </Form.Group>
-        </Col>
-        <Col md={4}>
-          <Form.Group>
-            <Form.Label>Start Date</Form.Label>
-            <Form.Control
-              type="date"
-              name="startDate"
-              value={searchCriteria.startDate}
-              onChange={handleSearchChange}
-            />
-          </Form.Group>
-        </Col>
-        <Col md={4}>
-          <Form.Group>
-            <Form.Label>End Date</Form.Label>
-            <Form.Control
-              type="date"
-              name="endDate"
-              value={searchCriteria.endDate}
-              onChange={handleSearchChange}
-            />
-          </Form.Group>
-        </Col>
-      </Row>
+     
       <Row className="mb-4">
         <Col>
           <Button variant="primary" onClick={handleSearch} className="me-2">
@@ -383,7 +349,7 @@ const PostManagement = () => {
                       <td>{report.id}</td>
                       <td>{report.reason}</td>
                       <td>
-                        {new Date(report.createDate).toLocaleDateString()}
+                        {new Date(report.createDate).toLocaleDateString('vi')}
                       </td>
                       <td>{report.reportCount}</td>
                       <td>
