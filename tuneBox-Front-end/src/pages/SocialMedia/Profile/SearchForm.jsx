@@ -8,45 +8,10 @@ const SearchForm = () => {
   const { results } = location.state;
 
   return (
-    <div className="container">
+    <div className="container" style={{ marginTop: '100px' }}>
       <div className="row">
         <div className="col-3">
-          <h1 className="search-results-title">Search results</h1>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Top
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                User
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Tracks
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav">
-              <a className="navbar-brand" href="#">
-                Albums
-              </a>
-            </div>
-          </nav>
-          <nav className="navbar custom-navbar">
-            <div className="container-fluid nav ">
-              <a className="navbar-brand" href="#">
-                PlayList
-              </a>
-            </div>
-          </nav>
+         
         </div>
         <div className="col-6 pe-5">
           <div className="search-results">
@@ -63,30 +28,17 @@ const SearchForm = () => {
                       />
 
                       <div className="info">
-                        <div className="author">
-                          {user.name || "Unknown userName"}
-                        </div>
+                        <Link to={`/profile/${user.id}/activity`}>
+                          <div className="author">
+                            {user.name || "Unknown userName"}
+                          </div>
+                        </Link>
                         <div className="author">
                           @{user.userName || "Unknown userName"}
                         </div>
                       </div>
 
-                      <div className="btn-group" style={{ marginLeft: 25 }}>
-                        <button
-                          className="btn dropdown-toggle no-border"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        ></button>
-                        <ul className="dropdown-menu dropdown-menu-lg-end">
-                          <li>
-                            <a className="dropdown-item">Edit</a>
-                          </li>
-                          <li>
-                            <a className="dropdown-item">Delete</a>
-                          </li>
-                        </ul>
-                      </div>
+
                     </div>
                   ))}{" "}
                 </div>
@@ -109,37 +61,18 @@ const SearchForm = () => {
                       />
 
                       <div className="info">
-                        <Link
-                          to={{
-                            pathname: `/track/${track.id}`,
-                            state: { track },
-                          }}
-                        >
+                        <Link to={`/track/${track.trackId}`}>
                           <div className="name">
                             {track.trackName || "Unknown Track"}
                           </div>
                         </Link>
+
                         <div className="author">
                           {track.userNameTrack || "Unknown userName"}
                         </div>
                       </div>
 
-                      <div className="btn-group" style={{ marginLeft: 25 }}>
-                        <button
-                          className="btn dropdown-toggle no-border"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        ></button>
-                        <ul className="dropdown-menu dropdown-menu-lg-end">
-                          <li>
-                            <a className="dropdown-item">Edit</a>
-                          </li>
-                          <li>
-                            <a className="dropdown-item">Delete</a>
-                          </li>
-                        </ul>
-                      </div>
+                      
                     </div>
                   ))}
                 </div>
@@ -162,31 +95,19 @@ const SearchForm = () => {
                       />
 
                       <div className="info">
+                        <Link to={`/album/${album.albumId}`}>
                         <div className="name">
                           {album.albumTitle || "Unknown Track"}
                         </div>
+                        </Link>
+                       
 
                         <div className="author">
                           {album.userNameAlbum || "Unknown userName"}
                         </div>
                       </div>
 
-                      <div className="btn-group" style={{ marginLeft: 25 }}>
-                        <button
-                          className="btn dropdown-toggle no-border"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        ></button>
-                        <ul className="dropdown-menu dropdown-menu-lg-end">
-                          <li>
-                            <a className="dropdown-item">Edit</a>
-                          </li>
-                          <li>
-                            <a className="dropdown-item">Delete</a>
-                          </li>
-                        </ul>
-                      </div>
+                      
                     </div>
                   ))}
                 </div>
@@ -213,31 +134,19 @@ const SearchForm = () => {
                       />
 
                       <div className="info">
+                        <Link to={`/playlist/${playlist.playListId}`}>
                         <div className="name">
                           {playlist.playListTitle || "Unknown Track"}
                         </div>
+                        </Link>
+                       
 
                         <div className="author">
                           {playlist.userNamePlaylist || "Unknown userName"}
                         </div>
                       </div>
 
-                      <div className="btn-group" style={{ marginLeft: 25 }}>
-                        <button
-                          className="btn dropdown-toggle no-border"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        ></button>
-                        <ul className="dropdown-menu dropdown-menu-lg-end">
-                          <li>
-                            <a className="dropdown-item">Edit</a>
-                          </li>
-                          <li>
-                            <a className="dropdown-item">Delete</a>
-                          </li>
-                        </ul>
-                      </div>
+                      
                     </div>
                   ))}
                 </div>
@@ -248,103 +157,7 @@ const SearchForm = () => {
           </div>
         </div>
         <div className="col-3 ps-5">
-          <h1 className="search-results-title">People to Follow </h1>
-          <div className="people-to-follow">
-            <div>
-              <div className="post-header-track">
-                <img
-                  src="/src/UserImages/Avatar/avt.jpg"
-                  className="avatar_small"
-                  alt="Avatar"
-                />
-
-                <div className="info">
-                  <div className="author">userName</div>
-                </div>
-
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a className="dropdown-item">Edit</a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item">Delete</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="people-to-follow">
-            <div>
-              <div className="post-header-track">
-                <img
-                  src="/src/UserImages/Avatar/avt.jpg"
-                  className="avatar_small"
-                  alt="Avatar"
-                />
-
-                <div className="info">
-                  <div className="author">userName</div>
-                </div>
-
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a className="dropdown-item">Edit</a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item">Delete</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="people-to-follow">
-            <div>
-              <div className="post-header-track">
-                <img
-                  src="/src/UserImages/Avatar/avt.jpg"
-                  className="avatar_small"
-                  alt="Avatar"
-                />
-
-                <div className="info">
-                  <div className="author">userName</div>
-                </div>
-
-                <div className="btn-group" style={{ marginLeft: 25 }}>
-                  <button
-                    className="btn dropdown-toggle no-border"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu dropdown-menu-lg-end">
-                    <li>
-                      <a className="dropdown-item">Edit</a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item">Delete</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>
