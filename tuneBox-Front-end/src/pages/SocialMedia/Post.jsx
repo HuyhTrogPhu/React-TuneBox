@@ -721,7 +721,7 @@ function Post() {
   };
 
   return (
-    <div className="container mt-2 mb-5">
+    <div className="container  mb-5" style={{marginTop: '100px'}} > 
       {posts.map((post) => {
         const createdAt = post.createdAt ? new Date(post.createdAt) : null;
         const showAll = showAllComments[post.id];

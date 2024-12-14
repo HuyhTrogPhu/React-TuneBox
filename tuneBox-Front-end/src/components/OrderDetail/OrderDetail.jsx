@@ -113,8 +113,7 @@ const OrderDetail = () => {
           <h1 className='mb-4' style={{ fontSize: '25px' }}>User Information</h1>
           <p><strong>Name:</strong> {orderDetail.name}</p>
           <p><strong>Email:</strong> {orderDetail.email}</p>
-          <p><strong>Phone Number:</strong> {orderDetail.phone}</p>
-          <p><strong>Location:</strong> {orderDetail.location}</p>
+          
       
         </div>
 
@@ -130,12 +129,12 @@ const OrderDetail = () => {
                   ? "red"
                   : orderDetail.status === "Delivered"
                     ? "green"
-                    : "yellow"
+                    : "black"
               }}>
                 {orderDetail.status}
               </span>
             </p>
-            <p><strong>Delivery Date: </strong> <span style={{ color: 'blue' }}>{orderDetail.deliveryDate}</span></p>
+        
           </div>
         </div>
       </div>

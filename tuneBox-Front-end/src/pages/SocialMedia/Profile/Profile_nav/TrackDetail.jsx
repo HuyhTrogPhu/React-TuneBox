@@ -420,8 +420,6 @@ function Trackdetail() {
     } catch (error) {
       console.error("Lỗi khi xóa reply:", error);
     }
-    fetchComments();
-    fetchReplies();
   };
 
   const resetReplyContent = () => {
@@ -654,7 +652,7 @@ function Trackdetail() {
       <div className="row">
         {/* tìm kiếm track của người dùng */}
         <div className="col-3 pt-5 p-5">
-          <div className="orther">{track.userName} tracks</div>
+          <div className="orther">{track.userName}`s tracks</div>
           <div className="search-container mb-5">
             <input
               type="text"
@@ -1134,7 +1132,7 @@ function Trackdetail() {
                                                 onClick={() =>
                                                   handleReplyToReply(
                                                     reply.id,
-                                                    userId
+                                                    comment.id
                                                   )
                                                 }
                                               >
@@ -1452,14 +1450,7 @@ function Trackdetail() {
                               {relatedTrack.userName || "Unknown userName"}
                             </div>
                           </div>
-                          <div className="btn-group" style={{ marginLeft: 25 }}>
-                            <button
-                              className="btn dropdown-toggle no-border"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            ></button>
-                          </div>
+                          
                         </div>
                       )
                   )}

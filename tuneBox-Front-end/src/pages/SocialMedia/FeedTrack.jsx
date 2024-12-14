@@ -405,7 +405,7 @@ const FeedTrack = () => {
   return (
     <div>
       {/* Phần hiển thị track */}
-      <div className="container p-0">
+      <div className="container d-flex flex-column p-0 align-items-center justify-content-center">
         {tracks
           .sort((a, b) => new Date(b.createDate) - new Date(a.createDate)) // Sắp xếp track theo thời gian mới nhất
           .map((track) => {
@@ -414,7 +414,7 @@ const FeedTrack = () => {
               : null;
             if (track.status === false) {
               return (
-                <div className="post border" key={track.id}>
+                <div className="post border" key={track.id} style={{width: '100%'}}>
                   {/* Tiêu đề */}
                   <div className="post-header position-relative">
                     <button

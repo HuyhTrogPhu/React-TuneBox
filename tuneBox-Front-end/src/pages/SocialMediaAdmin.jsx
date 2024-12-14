@@ -33,9 +33,9 @@ const SocialMediaAdmin = () => {
           <div className="sidebar21 col-lg-2 col-md-3 vh-100">
             {/* Logo */}
             <div className="logo p-3">
-              <a href="#">
+            <Link to={"/socialadmin"}>
                 <img src={images.adminImage} alt width="100%" />
-              </a>
+                </Link>
             </div>
 
             {/* Menu */}
@@ -106,7 +106,6 @@ const SocialMediaAdmin = () => {
               <Route path='albums' element={<Albums/>} />
               <Route path='Track' element={<Track/>} />
               <Route path='playlists' element={<Playlists/>} />
-              
               <Route path='Report' element={<Report/>} />
               <Route path='Statistical' element={<Statistical/>} />
               <Route path='Statistical/UserStatic' element={<StatisticalUser/>} />

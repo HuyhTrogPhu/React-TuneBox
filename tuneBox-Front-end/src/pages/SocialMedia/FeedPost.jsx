@@ -836,13 +836,13 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
   return (
     <div>
       {/* Phần hiển thị post */}
-      <div className="container p-0 align-items-center justify-content-center">
+      <div className="container d-flex flex-column p-0 align-items-center justify-content-center">
         {posts.map((post) => {
           const createdAt = post.createdAt ? new Date(post.createdAt) : null;
           const showAll = showAllComments[post.id];
 
           return (
-            <div key={post.id} className="post border">
+            <div key={post.id} className="post border" style={{width: '100%'}}>
               {/* Modal hiển thị comment  */}
               <div
                 className="modal fade"
@@ -878,7 +878,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                 <div className="row justify-content-start">
                                   <div className="comment-content position-relative">
                                     <img
-                                      src="/src/UserImages/Avatar/avt.jpg"
+                                      src={comment.userId}
                                       className="avatar_small"
                                       alt="Avatar"
                                     />
