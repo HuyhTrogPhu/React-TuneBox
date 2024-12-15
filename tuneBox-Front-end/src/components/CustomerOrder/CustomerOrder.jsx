@@ -26,7 +26,12 @@ const CustomerOrder = () => {
       console.error('Failed to fetch orders', error);
     }
   };
-  const handleCancelOrder = async (orderId) => {
+
+  const handleCancelOrder = async (orderId, paymentMethod) => {
+    if (paymentMethod !== "COD") {
+      alert("Only COD orders can be canceled.");
+      return;
+    }
     try {
       const newStatus = "Canceled"; // Trạng thái mới là "Canceled"
       const deliveryDate = null; // Cập nhật giá trị nếu cần, hoặc để null nếu không thay đổi
@@ -47,9 +52,10 @@ const CustomerOrder = () => {
         )
       );
     } catch (error) {
-      console.error('Failed to cancel order', error);
+      console.error("Failed to cancel order", error);
     }
   };
+
 
 
   const handleSearchDate = (e) => {
@@ -87,7 +93,7 @@ const CustomerOrder = () => {
     <div>
       <div className='row'>
         <div className='d-flex justify-content-between ps-5 pe-5'>
-          <div className='col-3' style={{backgroundColor: 'white', padding: '20px', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
+          <div className='col-3' style={{ backgroundColor: 'white', padding: '20px', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
             <form onSubmit={handleSearchDate}>
               <div className='mt-3'>
                 <label className='form-label'>Select the day you want</label>
@@ -103,7 +109,7 @@ const CustomerOrder = () => {
               </div>
             </form>
           </div>
-          <div className='col-3' style={{backgroundColor: 'white', padding: '20px', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
+          <div className='col-3' style={{ backgroundColor: 'white', padding: '20px', boxShadow: 'rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px' }}>
             <form onSubmit={handleSearchBetweenDates}>
               <div className='mt-3'>
                 <label className='form-label'>From:</label>
@@ -163,15 +169,27 @@ const CustomerOrder = () => {
                 </td>
                 <td style={{ textAlign: "center" }}>{order.status}</td>
                 <td style={{ textAlign: "center" }}>
-                  {order.status === "Pending" ? (
-                    <button className="btn btn-danger" onClick={() => handleCancelOrder(order.id)}>
+                  {order.status === "Pending" && order.paymentMethod === "COD" ? (
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleCancelOrder(order.id, order.paymentMethod)}
+                    >
                       Cancel Order
                     </button>
                   ) : (
-                    <span style={{ color: 'gray' }}>Canceled</span>
+                    <span style={{ color: "gray" }}>
+                      {order.paymentMethod !== "COD" ? "Non-COD Order" : "Not Cancellable"}
+                    </span>
                   )}
-                  <button className="btn btn-link" style={{ textDecoration: 'none', color: '#e94f37' }} onClick={() => handleViewDetails(order.id)}>View Details</button>
+                  <button
+                    className="btn btn-link"
+                    style={{ textDecoration: "none", color: "#e94f37" }}
+                    onClick={() => handleViewDetails(order.id)}
+                  >
+                    View Details
+                  </button>
                 </td>
+
               </tr>
             ))}
           </tbody>
