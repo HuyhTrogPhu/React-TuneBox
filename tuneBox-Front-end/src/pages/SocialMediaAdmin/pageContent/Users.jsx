@@ -236,7 +236,8 @@ const Users = () => {
                     <td>{user.tracks.length}</td>
                     <td>{user.albumcount}</td>
                     <td>{user.postCount}</td>
-                    <td>{user.createDate}</td>
+                    <td>{new Date(user.createDate).toLocaleDateString('vi')}</td>
+
                     <td>
                       <Link
                         className="btn btn-primary"

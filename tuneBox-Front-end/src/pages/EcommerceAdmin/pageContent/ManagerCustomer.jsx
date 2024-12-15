@@ -124,7 +124,7 @@ const ManagerCustomer = () => {
                 {/* Search */}
                 <div className='row mt-5 gap-2'>
                     {/* Search by keyword */}
-                    <div className='col-3 border rounded p-2'>
+                    {/* <div className='col-3 border rounded p-2'>
                         <form action="">
                             <div className='mt-3'>
                                 <label className='form-label'>Search by keyword:</label>
@@ -140,7 +140,7 @@ const ManagerCustomer = () => {
                                 <button type='submit' className='btn border' style={{ backgroundColor: '#e94f37', color: '#fff' }}>Submit</button>
                             </div>
                         </form>
-                    </div>
+                    </div> */}
                     {/* Search by province
                     <div className='col-2 border rounded p-2'>
                         <form action="">
