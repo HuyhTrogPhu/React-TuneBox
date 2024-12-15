@@ -5,53 +5,55 @@ import { Link } from "react-router-dom";
 
 const FriendRequests = () => {
   const [friendRequests, setFriendRequests] = useState([]);
+  const [error, setError] = useState(null);
   const userId = Cookies.get("userId");
 
-  const [error, setError] = useState(null);
-
   useEffect(() => {
-    const fetchFriendRequests = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/friends/requests/${userId}`);
-        setFriendRequests(Array.isArray(response.data) ? response.data : []);
-      } catch (error) {
-        console.error("Error fetching friend requests:", error);
-        setError("Không thể tải lời mời kết bạn.");
-        setFriendRequests([]); // Đảm bảo rằng friendRequests luôn là mảng
-      }
-    };
-    fetchFriendRequests();
+    reloadFriendRequests();
   }, [userId]);
-  
-  if (error) {
-    return <div>{error}</div>;
-  }
+
+  const reloadFriendRequests = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/friends/requests/${userId}`);
+      setFriendRequests(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error reloading friend requests:", error);
+      setError("Không thể tải lời mời kết bạn.");
+    }
+  };
 
   const acceptFriendRequest = async (requestId) => {
     try {
       await axios.post(`http://localhost:8080/api/friends/accept/${requestId}`);
-      setFriendRequests(prevRequests => prevRequests.filter(req => req.id !== requestId));
+      alert("Bạn đã chấp nhận lời mời kết bạn."); // Thông báo
+      reloadFriendRequests(); // Cập nhật lại danh sách
     } catch (error) {
       console.error("Error accepting friend request:", error);
+      alert("Có lỗi xảy ra khi chấp nhận lời mời kết bạn.");
     }
   };
 
   const declineFriendRequest = async (requestId) => {
     try {
       await axios.post(`http://localhost:8080/api/friends/decline/${requestId}`);
-      setFriendRequests(prevRequests => prevRequests.filter(req => req.id !== requestId));
+      alert("Bạn đã từ chối lời mời kết bạn."); // Thông báo
+      reloadFriendRequests(); // Cập nhật lại danh sách
     } catch (error) {
       console.error("Error declining friend request:", error);
+      alert("Có lỗi xảy ra khi từ chối lời mời kết bạn.");
     }
   };
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   if (!friendRequests || friendRequests.length === 0) {
     return <div>Không có lời mời kết bạn nào.</div>;
   }
-  
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" style={{ marginTop: "100px" }}>
       <h2>Lời mời kết bạn</h2>
       <table className="table table-hover">
         <thead>
@@ -61,27 +63,37 @@ const FriendRequests = () => {
           </tr>
         </thead>
         <tbody>
-    {friendRequests.map((request) => (
-        <tr key={request.id}>
-            <td>
-                <Link to={`/profile/${request.requesterId}`}> {/* Thay đổi đường dẫn tùy theo cách bạn định nghĩa route cho trang người dùng */}
-                    <img src={request.requesterAvatar} alt="avatar" style={{ width: "50px", borderRadius: "50%" }} />
-                </Link>
-                {request.requesterName}
-            </td>
-            <td>
-                <button className="btn btn-success me-2" onClick={() => acceptFriendRequest(request.id)}>
+          {friendRequests
+            .filter((request) => request.status === "PENDING_SENT")
+            .map((request) => (
+              <tr key={request.requestId}>
+                <td>
+                  <Link to={`/profile/${request.senderId}`}>
+                    <img
+                      src={request.senderAvatar}
+                      alt="avatar"
+                      style={{ width: "50px", borderRadius: "50%" }}
+                    />
+                  </Link>
+                  {request.senderName}
+                </td>
+                <td>
+                  <button
+                    className="btn btn-success me-2"
+                    onClick={() => acceptFriendRequest(request.requestId)}
+                  >
                     Chấp nhận
-                </button>
-                <button className="btn btn-danger" onClick={() => declineFriendRequest(request.id)}>
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => declineFriendRequest(request.requestId)}
+                  >
                     Từ chối
-                </button>
-            </td>
-        </tr>
-    ))}
-</tbody>
-
-
+                  </button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
       </table>
     </div>
   );

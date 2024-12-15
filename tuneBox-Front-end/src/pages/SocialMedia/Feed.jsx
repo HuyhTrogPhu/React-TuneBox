@@ -1258,7 +1258,9 @@ const HomeFeed = () => {
                     width={20}
                     className="me-2"
                   />
+                  <Link to={`/Following/${currentUserId}`}>
                   <span className="fw-bold">Đang theo dõi</span>
+                  </Link>
                 </a>
               </li>
 

@@ -6,17 +6,15 @@ import Cookies from "js-cookie";
 import { useParams, useNavigate } from "react-router-dom";
 import Picker from "@emoji-mart/react";
 
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { getUserInfo } from "../../service/UserService";
 import "./css/mxh/post.css";
 import SharePostModal from "./Profile/Profile_nav/SharePostModal";
-import 'react-photo-view/dist/react-photo-view.css';
-import { PhotoProvider, PhotoView } from 'react-photo-view';
+import "react-photo-view/dist/react-photo-view.css";
+import { PhotoProvider, PhotoView } from "react-photo-view";
 const FeedPost = ({ sharedData, clearSharedData }) => {
-
   const navigate = useNavigate();
   const { userId } = useParams();
   const currentUserId = Cookies.get("userId");
@@ -60,7 +58,6 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
   const tokenjwt = localStorage.getItem("jwtToken");
 
   const [isAccountBanned, setIsAccountBanned] = useState(false); // Khai báo isAccountBanned
-
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
@@ -109,13 +106,16 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
   const fetchPosts = async () => {
     try {
       // Gọi API kiểm tra trạng thái tài khoản
-      const statusResponse = await axios.get(`http://localhost:8080/user/check-status/${currentUserId}`, {
-        withCredentials: true,
-      });
+      const statusResponse = await axios.get(
+        `http://localhost:8080/user/check-status/${currentUserId}`,
+        {
+          withCredentials: true,
+        }
+      );
 
       // Kiểm tra nếu tài khoản bị khóa
       if (statusResponse.data.isBanned) {
-        console.log("statusResponse:", statusResponse.data.isBanned)
+        console.log("statusResponse:", statusResponse.data.isBanned);
         // Hiển thị modal và xử lý đăng xuất
         setIsAccountBanned(true); // Kích hoạt modal
         return; // Dừng xử lý tiếp
@@ -182,7 +182,6 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
       console.error("Error fetching user posts:", error); // Log lỗi nếu có
     }
   };
-
 
   useEffect(() => {
     const fetchLikesCounts = async () => {
@@ -389,7 +388,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
     setPostContent(post.content);
     setPostImages(post.images);
     setPostId(post.id);
-  
+
     setTimeout(() => {
       const modal = document.getElementById("post -modal");
       if (modal) {
@@ -399,7 +398,6 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
       }
     }, 0); // Đợi 1 chu kỳ để React render modal
   };
-  
 
   const handleUpdateComment = async (commentId, postId) => {
     if (!editingCommentContent.trim()) return;
@@ -832,7 +830,6 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
     }
   };
 
-
   return (
     <div>
       {/* Phần hiển thị post */}
@@ -842,7 +839,11 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
           const showAll = showAllComments[post.id];
 
           return (
-            <div key={post.id} className="post border" style={{width: '100%'}}>
+            <div
+              key={post.id}
+              className="post border"
+              style={{ width: "100%" }}
+            >
               {/* Modal hiển thị comment  */}
               <div
                 className="modal fade"
@@ -878,7 +879,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                 <div className="row justify-content-start">
                                   <div className="comment-content position-relative">
                                     <img
-                                      src={comment.userId}
+                                      src={comment.avatar}
                                       className="avatar_small"
                                       alt="Avatar"
                                     />
@@ -938,51 +939,51 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                     {(String(comment.userId) ===
                                       String(currentUserId) ||
                                       String(selectedPost.userId) ===
-                                      String(currentUserId)) && (
-                                        <div className="dropdown position-absolute top-0 end-0">
-                                          <button
-                                            className="btn btn-options dropdown-toggle"
-                                            type="button"
-                                            id={`dropdownMenuButton-${comment.id}`}
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false"
-                                          >
-                                            ...
-                                          </button>
-                                          <ul
-                                            className="dropdown-menu"
-                                            aria-labelledby={`dropdownMenuButton-${comment.id}`}
-                                          >
-                                            <li>
-                                              <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                  setEditingCommentId(comment.id);
-                                                  setEditingCommentContent(
-                                                    comment.content
-                                                  );
-                                                }}
-                                              >
-                                                Edit
-                                              </button>
-                                            </li>
-                                            {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
-                                            <li>
-                                              <button
-                                                className="dropdown-item"
-                                                onClick={() =>
-                                                  handleDeleteComment(
-                                                    comment.id,
-                                                    selectedPost.id
-                                                  )
-                                                }
-                                              >
-                                                Delete
-                                              </button>
-                                            </li>
-                                          </ul>
-                                        </div>
-                                      )}
+                                        String(currentUserId)) && (
+                                      <div className="dropdown position-absolute top-0 end-0">
+                                        <button
+                                          className="btn btn-options dropdown-toggle"
+                                          type="button"
+                                          id={`dropdownMenuButton-${comment.id}`}
+                                          data-bs-toggle="dropdown"
+                                          aria-expanded="false"
+                                        >
+                                          ...
+                                        </button>
+                                        <ul
+                                          className="dropdown-menu"
+                                          aria-labelledby={`dropdownMenuButton-${comment.id}`}
+                                        >
+                                          <li>
+                                            <button
+                                              className="dropdown-item"
+                                              onClick={() => {
+                                                setEditingCommentId(comment.id);
+                                                setEditingCommentContent(
+                                                  comment.content
+                                                );
+                                              }}
+                                            >
+                                              Edit
+                                            </button>
+                                          </li>
+                                          {/* Chỉ cho phép xóa nếu là chủ bài viết hoặc chủ bình luận */}
+                                          <li>
+                                            <button
+                                              className="dropdown-item"
+                                              onClick={() =>
+                                                handleDeleteComment(
+                                                  comment.id,
+                                                  selectedPost.id
+                                                )
+                                              }
+                                            >
+                                              Delete
+                                            </button>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    )}
 
                                     {/* Nút trả lời cho bình luận bậc 2 */}
                                     <button
@@ -1041,7 +1042,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                                   }}
                                                 >
                                                   <img
-                                                    src="/src/UserImages/Avatar/avt.jpg"
+                                                    src={reply.avatar}
                                                     className="avatar_small"
                                                     alt="Avatar"
                                                   />
@@ -1060,7 +1061,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                                       </span>
                                                     </div>
                                                     {editingReplyId ===
-                                                      reply.id ? (
+                                                    reply.id ? (
                                                       <div>
                                                         <textarea
                                                           className="form-control"
@@ -1122,50 +1123,50 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                                     {/* Dropdown cho reply bậc 2 */}
                                                     {String(reply.userId) ===
                                                       String(currentUserId) && (
-                                                        <div className="dropdown position-absolute top-0 end-0">
-                                                          <button
-                                                            className="btn btn-options dropdown-toggle"
-                                                            type="button"
-                                                            id={`dropdownMenuButton-${reply.id}`}
-                                                            data-bs-toggle="dropdown"
-                                                            aria-expanded="false"
-                                                          >
-                                                            ...
-                                                          </button>
-                                                          <ul
-                                                            className="dropdown-menu"
-                                                            aria-labelledby={`dropdownMenuButton-${reply.id}`}
-                                                          >
-                                                            <li>
-                                                              <button
-                                                                className="dropdown-item"
-                                                                onClick={() => {
-                                                                  setEditingReplyId(
-                                                                    reply.id
-                                                                  );
-                                                                  setEditingReplyContent(
-                                                                    reply.content
-                                                                  );
-                                                                }}
-                                                              >
-                                                                Edit
-                                                              </button>
-                                                            </li>
-                                                            <li>
-                                                              <button
-                                                                className="dropdown-item"
-                                                                onClick={() =>
-                                                                  handleDeleteReply(
-                                                                    reply.id
-                                                                  )
-                                                                }
-                                                              >
-                                                                Delete
-                                                              </button>
-                                                            </li>
-                                                          </ul>
-                                                        </div>
-                                                      )}
+                                                      <div className="dropdown position-absolute top-0 end-0">
+                                                        <button
+                                                          className="btn btn-options dropdown-toggle"
+                                                          type="button"
+                                                          id={`dropdownMenuButton-${reply.id}`}
+                                                          data-bs-toggle="dropdown"
+                                                          aria-expanded="false"
+                                                        >
+                                                          ...
+                                                        </button>
+                                                        <ul
+                                                          className="dropdown-menu"
+                                                          aria-labelledby={`dropdownMenuButton-${reply.id}`}
+                                                        >
+                                                          <li>
+                                                            <button
+                                                              className="dropdown-item"
+                                                              onClick={() => {
+                                                                setEditingReplyId(
+                                                                  reply.id
+                                                                );
+                                                                setEditingReplyContent(
+                                                                  reply.content
+                                                                );
+                                                              }}
+                                                            >
+                                                              Edit
+                                                            </button>
+                                                          </li>
+                                                          <li>
+                                                            <button
+                                                              className="dropdown-item"
+                                                              onClick={() =>
+                                                                handleDeleteReply(
+                                                                  reply.id
+                                                                )
+                                                              }
+                                                            >
+                                                              Delete
+                                                            </button>
+                                                          </li>
+                                                        </ul>
+                                                      </div>
+                                                    )}
 
                                                     {/* Input trả lời cho reply bậc 2 */}
                                                     {replyingTo[reply.id] && (
@@ -1176,7 +1177,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                                           placeholder="Write a reply..."
                                                           value={
                                                             replyContent[
-                                                            reply.id
+                                                              reply.id
                                                             ] || ""
                                                           }
                                                           onChange={(e) =>
@@ -1247,7 +1248,10 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                         <p>No comments available</p>
                       )}
                       {/* Phần bình luận */}
-                      <div className="comment-section d-flex mt-4">
+                      <div
+                        className="comment-section d-flex mt-4"
+                        style={{ position: "relative" }}
+                      >
                         <textarea
                           className="comment-input"
                           style={{ resize: "none" }}
@@ -1269,7 +1273,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                           <div
                             style={{
                               position: "absolute",
-                              bottom: "100%",
+                              bottom: "40px", // Hiển thị ngay trên nút emoji
                               left: "0",
                               zIndex: 10,
                             }}
@@ -1277,7 +1281,6 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                             <Picker
                               onEmojiSelect={(emoji) => {
                                 addEmoji(selectedPost.id, emoji);
-                                // Không đóng bảng emoji ở đây
                               }}
                             />
                             {/* Nút để đóng bảng emoji */}
@@ -1369,7 +1372,8 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                           className="dropdown-item"
                           onClick={() => toggleHiddenState(post.id)}
                         >
-                          <i className="fa-solid fa-eye-slash"></i> {post.is_hidden ? ('showPost') : ('hidePost')}
+                          <i className="fa-solid fa-eye-slash"></i>{" "}
+                          {post.is_hidden ? "showPost" : "hidePost"}
                         </button>
                       </li>
                     </ul>
@@ -1409,13 +1413,21 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                   <div className="carousel-inner">
                     {post.images.map((image, index) => (
                       <div
-                        className={`carousel-item ${index === 0 ? "active" : ""}`}
+                        className={`carousel-item ${
+                          index === 0 ? "active" : ""
+                        }`}
                         key={index}
                       >
-                        <PhotoProvider toolbarRender={({ rotate, onRotate }) => {
-                          return <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onRotate(rotate + 90)} />;
-                        }}>
-
+                        <PhotoProvider
+                          toolbarRender={({ rotate, onRotate }) => {
+                            return (
+                              <svg
+                                className="PhotoView-Slider__toolbarIcon"
+                                onClick={() => onRotate(rotate + 90)}
+                              />
+                            );
+                          }}
+                        >
                           <PhotoView src={image.postImage}>
                             <img
                               src={image.postImage}
@@ -1465,8 +1477,9 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                   <div className="like-count">
                     {post.likeCount || 0}
                     <i
-                      className={`fa-solid fa-heart text-danger ${likes[post.id] ? "like" : "noLike"
-                        }`}
+                      className={`fa-solid fa-heart text-danger ${
+                        likes[post.id] ? "like" : "noLike"
+                      }`}
                       onClick={() => handleLike(post.id)}
                     >
                       {likes[post.id]}
@@ -1560,7 +1573,6 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                   onChange={(e) => setReportReason(e.target.value)}
                   style={{ resize: "none" }}
                 />
-
                 {/* Hiển thị modal tag user khi gõ @
                 {showTagModal && (
                   <div className="tag-modal">

@@ -1004,7 +1004,7 @@ const Activity = () => {
                                 <div className="row justify-content-start">
                                   <div className="comment-content position-relative">
                                     <img
-                                      src="/src/UserImages/Avatar/avt.jpg"
+                                      src={comment.avatar}
                                       className="avatar_small"
                                       alt="Avatar"
                                     />
@@ -1113,7 +1113,7 @@ const Activity = () => {
                                           {comment.replies.map((reply) => (
                                             <div key={`reply-${reply.id}`} className="reply">
                                               <div className="reply-content" style={{ marginLeft: "20px" }}>
-                                                <img src="/src/UserImages/Avatar/avt.jpg" className="avatar_small" alt="Avatar" />
+                                                <img src={reply.avatar} className="avatar_small" alt="Avatar" />
                                                 <div>
                                                   <div className="d-flex align-items-center">
                                                     <span className="comment-author pe-3">{reply.userNickname}</span>
