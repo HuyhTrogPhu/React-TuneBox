@@ -1,0 +1,56 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+ul,
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+.sidebar-ecommerce {
+    background-color: #011627;
+    min-height: 100vh; 
+    height: auto; 
+    position: sticky; 
+    top: 0;
+    z-index: 100;
+    overflow-x: hidden;
+}
+
+.sidebar-ecommerce .logo {
+    padding: 10px;
+    text-align: center;
+}
+
+.sidebar-ecommerce .menu-ecommerce ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-ecommerce .menu-ecommerce li {
+    padding: 15px;
+    margin-left: 20px;
+    color: #e94f37;
+}
+
+.sidebar-ecommerce .menu li a {
+    color: #e94f37;
+    text-decoration: none;
+}
+
+.sidebar-ecommerce .menu-ecommerce li a:active,
+.sidebar-ecommerce .menu-ecommerce li a:hover,
+.sidebar-ecommerce .menu-ecommerce li a:focus {
+    color: #ffffff;
+}
+
+.sidebar-ecommerce .menu-ecommerce li i {
+    margin-right: 20px;
+}

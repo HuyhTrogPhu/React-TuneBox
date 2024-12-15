@@ -1,0 +1,187 @@
+.trackDetail {
+  /* background-color: #000000; */
+}
+.track-page-player img {
+  width: 200px;
+  height: 200px;
+}
+.track-page-player-titles {
+  color: var(--dominant-color-text);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: space-evenly;
+  min-width: 0;
+}
+
+.track-page-title-name {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 40px;
+  margin: 0;
+}
+.track-page-player-cover-image {
+  border-radius: 8px;
+}
+.track-page-player {
+  display: flex;
+  gap: 32px;
+  min-height: 206px;
+}
+.track-page-header {
+  border-radius: 16px;
+  margin-top: 24px;
+  padding: 32px 32px 20px;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(105, 101, 101, 0.6);
+  border-bottom: none !important;
+}
+
+.track-page-player-title {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  position: relative;
+}
+
+.track-player-actions-column {
+  display: flex;
+  gap: 8px;
+  position: relative;
+}
+
+.track-player-actions {
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background: #d7dfe0;
+}
+.adaptive-content {
+  margin: 0 auto;
+  position: relative;
+  width: 100%;
+}
+.track-page-left-col {
+  border: 1px solid var(--ds-color-border-neutral);
+  border-radius: 8px;
+  padding: 16px 32px;
+}
+.track-related-tile {
+  background-color: var(--ds-color-surface-inactive-neutral);
+  border-radius: 8px;
+  padding: 16px;
+}
+.border-rd-16 {
+  border-radius: 16px;
+}
+
+.dropdown-toggle {
+  background-color: var(--ds-color-border-neutral);
+}
+
+.btn {
+  border: none; /* Bỏ viền */
+
+  cursor: pointer; /* Đổi con trỏ khi di chuột qua nút */
+}
+
+.comment-section {
+  display: flex; /* Sử dụng Flexbox để sắp xếp các phần tử trong hàng */
+  align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+  gap: 8px; /* Khoảng cách giữa textarea và nút */
+}
+
+/* commnet */
+.comment {
+  padding: 10px 15px; /* Padding nhỏ hơn */
+  margin: 5px 0; /* Giảm khoảng cách giữa các bình luận */
+  display: flex; /* Sử dụng flex để căn chỉnh tốt hơn */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  background-color: rgba(255, 255, 255, 0.082);
+}
+
+.comment-content {
+  flex: 1; /* Tự động chiếm toàn bộ không gian còn lại */
+  margin-left: 10px; /* Khoảng cách giữa avatar và nội dung bình luận */
+  background-color: rgba(255, 255, 255, 0);
+}
+
+.comment-author {
+  font-weight: bold; /* Đậm tên người dùng */
+  font-size: 0.9em; /* Kích thước font nhỏ hơn */
+  color: #adacac; /* Màu chữ nhẹ nhàng */
+}
+
+.comment-time {
+  font-size: 0.8em; /* Kích thước font nhỏ hơn */
+  color: #adacac; /* Màu chữ xám cho thời gian */
+  margin-top: 2px; /* Khoảng cách giữa tên người dùng và thời gian */
+}
+
+.reply-content-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.reply-to-reply-content-container {
+  display: flex;
+  justify-content: space-between;
+  width:100%;
+}
+
+.reply {
+  margin-left: 30px; /* Thụt lề cho reply */
+  margin-bottom: 10px;
+}
+.reply-content {
+  border-left: 2px solid #ddd; /* Đường kẻ bên trái */
+  padding-left: 10px; /* Khoảng cách bên trái */
+}
+.nested-replies {
+  display: flex;
+  flex-direction: column;
+  margin-left: 90px;
+  border-left: 1px solid #ddd; /* Vạch bên trái để phân biệt */
+  padding-left: 10px; /* Khoảng cách giữa vạch và nội dung */
+  padding-right: 50px;
+}
+
+.nested-reply {
+  margin-bottom: 8px; /* Giãn cách giữa các phản hồi lồng nhau */
+}
+
+.track-infor {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background: #d7dfe0;
+  border-bottom: none;
+}
+
+textarea {
+  height: 40px;
+  width: 100%;
+  border: 1px solid #ffeaed; /* Đường viền */
+  border-radius: 4px; /* Bo tròn góc */
+  resize: none; /* Ngăn người dùng thay đổi kích thước */
+}
+
+.d-flex {
+  justify-content: left;
+}
+
+.btn-send {
+  background: #e94f37;
+  color: white;
+  border: none;
+  padding: 5px 7px; /* 5px cho trên dưới, 7px cho trái phải */
+  border-radius: 7px;
+  margin-right: 10px;
+}
+
+.btn-send:hover {
+  background-color: #ffeaed;
+}
+
+.dropdown-menu {
+  color: #ddd;
+}

@@ -1,0 +1,77 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+ul,
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+.sidebar-ecommerce {
+    background-color: #011627;
+    min-height: 100vh; 
+    position: sticky; 
+    top: 0;
+    z-index: 100;
+    overflow-x: hidden;
+}
+
+.sidebar-ecommerce .logo {
+    padding: 10px;
+    text-align: center;
+}
+
+.sidebar-ecommerce .menu-ecommerce ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-ecommerce .menu-ecommerce li {
+    padding: 15px;
+    margin-left: 20px;
+    color: #e94f37;
+    position: relative;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.sidebar-ecommerce .menu-ecommerce li::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    /* Bắt đầu với width là 0 */
+    height: 3px;
+    /* Độ dày của border */
+    background-color: #E94F37;
+    /* Màu của border */
+    transition: width 0.4s ease;
+    /* Điều chỉnh thời gian chuyển động */
+}
+
+.sidebar-ecommerce .menu-ecommerce li.active::after {
+    width: 100%;
+}
+
+.sidebar-ecommerce .menu-ecommerce li a {
+    color: #e94f37;
+    text-decoration: none;
+}
+
+.sidebar-ecommerce .menu-ecommerce li a:active,
+.sidebar-ecommerce .menu-ecommerce li a:hover,
+.sidebar-ecommerce .menu-ecommerce li a:focus {
+    color: #ffffff;
+}
+
+.sidebar-ecommerce .menu-ecommerce li i {
+    margin-right: 10px;
+}

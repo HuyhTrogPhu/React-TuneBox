@@ -1,0 +1,98 @@
+.user-infor h1 {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.order-infor h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 30px;
+}
+
+.shipping-method {
+    padding: 10px;
+    border: 1px solid #E94F37;
+    border-radius: 5px;
+}
+
+.shipping-method h5 {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.shipping-method p {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+}
+
+.checkout button {
+    width: 100%;
+    margin-top: 20px;
+    background-color: #E94F37;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.shopping-cart {
+    background-color: #faedcd;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.pay:hover {
+    color: #E94F37;
+    border: 1px solid #E94F37;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.cart-item {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.instrument-image {
+    margin-bottom: 10px;
+    
+}
+
+.instrument-image img {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 4px;
+    object-fit: cover;
+    
+}
+
+.instrument-name p {
+    margin: 0px 0px 0px 10px;
+    color: #000;
+    font-weight: 500;
+}
+
+.instrument-price p {
+    margin: 0px 0px 0px 10px;
+    color: #000;
+}
+
+.total-item h5 {
+    font-size: 18px;
+    margin-top: 40px;
+    font-weight: 500;
+}
+
+.total-price h5 {
+    font-size: 18px;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.fee h5 {
+    font-size: 18px;
+    margin-top: 20px;
+    font-weight: 500;
+}

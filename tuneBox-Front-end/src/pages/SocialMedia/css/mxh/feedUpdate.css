@@ -1,0 +1,197 @@
+.feed-container {
+    display: flex;
+    padding: 0;
+    margin-top: 70px;
+    box-sizing: border-box;
+    background-color: #e5e5e5;
+    /* background-image: linear-gradient(120deg, #f6d365 0%, #fda085 100%); */
+}
+
+.feed-profile {
+    width: 100%;
+    background-color: #fff;
+    padding-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: rgba(96, 67, 63, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
+}
+
+.feed-avatar {
+    height: 200px;
+    position: relative;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: #e94f37;
+}
+
+.feed-avatar img {
+    border: 1px solid #fff;
+    border-radius: 50%;
+    height: 170px;
+    width: 170px;
+    position: absolute;
+    top: 100px;
+    background-color: #fff;
+    object-fit: cover;
+}
+
+.feed-information {
+    margin-top: 100px;
+}
+
+.feed-information p {
+    margin: 0;
+}
+
+.feed-information .feed-username {
+    font-size: 25px;
+    padding: 0;
+}
+
+.feed-information .feed-name {
+    font-size: 18px;
+    padding: 0;
+    margin: 0;
+}
+
+.feed-information .feed-following {
+    font-size: 15px;
+    padding: 20px 0 0 0;
+}
+
+.feed-information .feed-follower {
+    font-size: 15px;
+    padding: 20px 0 0 0;
+}
+
+.view-profile {
+    margin-top: 20px !important;
+    text-align: center !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+}
+
+.view-profile a {
+    color: #E94F37 !important;
+
+}
+
+.list-unstyled {
+    width: 100%;
+    background-color: #fff;
+    padding: 20px !important;
+    border-radius: 10px;
+    box-shadow: rgba(96, 67, 63, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
+}
+
+.list-unstyled a {
+    padding: 0 !important;
+}
+
+.list-unstyled li:hover {
+    background-color: #E94F37;
+
+}
+
+.list-new-follow {
+    width: 100%;
+    background-color: #fff;
+    padding: 20px !important;
+    border-radius: 10px;
+    box-shadow: rgba(96, 67, 63, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
+
+}
+
+.create-post {
+    background-color: #fff;
+    margin-top: 0;
+    border-radius: 10px;
+    box-shadow: rgba(96, 67, 63, 0.5) 0px 13px 27px -5px, rgba(233, 79, 55, 0.5) 0px 8px 16px -8px;
+
+}
+
+.nav-link-feed {
+    margin-top: 10px !important;
+}
+
+.nav-link-feed .feed-link {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000 !important;
+}
+
+.nav-link-feed .feed-link a {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+/* Thêm vào file CSS của bạn */
+
+.feed-link {
+    cursor: pointer;
+    color: #fff;
+    transition: color 0.2s;
+}
+
+.feed-link.active {
+    color: #E94F37 !important;
+    font-weight: bold;
+}
+
+.feed-content {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar.content-left {
+    position: sticky;
+    top: 100px; 
+    width: 25%;
+    max-height: calc(100vh - 100px); 
+    overflow-y: auto; 
+    background-color: #f8f9fa;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.sidebar.content-right {
+    position: sticky;
+    top: 100px; 
+    width: 25%;
+    max-height: calc(100vh - 100px); 
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Main Content */
+.content-feed {
+    width: 50%;
+    padding: 20px;
+}
+
+
+
+/* Ẩn thanh cuộn trên Chrome, Safari và Edge */
+.sidebar.content-left::-webkit-scrollbar,
+.sidebar.content-right::-webkit-scrollbar {
+    display: none;
+}
+
+/* tag */
+.tag-modal ul {
+    margin: 10px;
+    border: 1px solid #000;
+    border-radius: 10px;
+}
+
+.tag-modal li {
+    color: #E94F37;
+}
+
+.tagged-user {
+    color: #007bff; /* Màu xanh cho tên người dùng được tag */
+    font-weight: bold;
+  }
+  

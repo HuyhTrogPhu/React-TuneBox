@@ -1,0 +1,142 @@
+
+.avatar {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: -75px;
+    cursor: pointer;
+    position: relative;
+}
+.track-container {
+    margin-top: 20px;
+  }
+  
+  .track-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f8f9fa; /* Màu nền sáng */
+    border: 1px solid #ddd; /* Viền mờ nhạt */
+    border-radius: 8px; /* Bo tròn góc */
+    margin-bottom: 15px; /* Khoảng cách giữa các item */
+  }
+  
+  .track-info {
+    flex: 1;
+  }
+  
+  .track-name {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .track-user {
+    font-size: 14px;
+    color: #888; /* Màu chữ xám cho phần User */
+  }
+  
+  .track-views {
+    margin-left: 20px;
+  }
+  
+  .track-views button {
+    background-color: #dc3545; /* Màu đỏ cho nút Views */
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .track-views button:hover {
+    background-color: #c82333; 
+  }
+  .album-container {
+    margin-top: 20px;
+    width: 100%;
+  }
+  
+  .album-heading {
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+  
+  .album-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .album-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+  }
+  
+  .album-thumbnail {
+    width: 50px;
+    height: 50px;
+    background-color: #343a40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  
+  .album-thumbnail button {
+    color: white;
+    font-size: 1.5rem;
+  }
+  
+  .album-info {
+    margin-left: 1rem;
+  }
+  
+  .album-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+  
+  .album-details {
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+  
+  .btn-danger {
+    background-color: #ff5e57;
+    border-color: #ff5e57;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+  .play-button {
+    width: 60px; /* Set a fixed width for the button */
+    height: 60px; /* Set a fixed height for the button */
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px; /* Optional: rounds the button corners */
+  }
+  
+  .play-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image scales and fills the area */
+  }
+  
+  .play-button i {
+    position: absolute;
+    color: white;
+    font-size: 1.2em;
+    opacity: 0.8;
+  }
+  
+  

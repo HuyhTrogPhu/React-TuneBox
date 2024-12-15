@@ -1,0 +1,343 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background-color: #f0f2f5;
+}
+
+.messenger-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.messenger-sidebar {
+  width: 350px;
+  background-color: #ffffff;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.messenger-header {
+  padding: 20px;
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.messenger-chat {
+  flex: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background-color: #ffffff;
+  position: relative;
+  height: 100vh;
+}
+
+.messenger-chat-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0084ff 0%, #0099ff 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-right: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #1c1e21;
+  font-size: 16px;
+}
+
+.user-status {
+  font-size: 13px;
+  color: #65676b;
+  margin-top: 2px;
+}
+
+.messenger-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.messenger-chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messenger-chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messenger-chat-messages::-webkit-scrollbar-thumb {
+  background: #bcc0c4;
+  border-radius: 6px;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+  max-width: 65%;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message.sent {
+  align-self: flex-end;
+}
+
+.message.received {
+  align-self: flex-start;
+}
+
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.message.sent .message-bubble {
+  background: linear-gradient(135deg, #0084ff 0%, #0099ff 100%);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message.received .message-bubble {
+  background-color: white;
+  color: #1c1e21;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.message-time {
+  font-size: 11px;
+  color: #65676b;
+  margin-top: 4px;
+  margin-left: 4px;
+}
+
+.messenger-chat-input {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.messenger-chat-input input {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 24px;
+  background-color: #f0f2f5;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.messenger-chat-input input:focus {
+  outline: none;
+  background-color: #e4e6eb;
+  box-shadow: 0 0 0 2px rgba(0, 132, 255, 0.2);
+}
+
+.messenger-chat-input button {
+  margin-left: 12px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0084ff 0%, #0099ff 100%);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.messenger-chat-input button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.no-chat-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: #f0f2f5;
+  color: #65676b;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 20px;
+}
+
+.users-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin: 4px 8px;
+}
+
+.user-item:hover {
+  background-color: #f2f3f5;
+}
+
+.user-item.active {
+  background-color: #e7f3ff;
+}
+
+.user-item .user-avatar {
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+}
+
+.avatar-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-item .user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-item .user-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #050505;
+}
+
+.user-item .user-last-message {
+  font-size: 13px;
+  color: #65676b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attach-icon {
+  cursor: pointer;
+  font-size: 20px;
+  color: #65676b;
+  margin-right: 12px;
+  transition: all 0.2s ease;
+}
+
+.attach-icon:hover {
+  color: #0084ff;
+}
+
+.attachment {
+  margin-top: 8px;
+  max-width: 100%;
+}
+
+.attachment img {
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.attachment img:hover {
+  transform: scale(1.02);
+}
+
+.attachment a {
+  color: #0084ff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.attachment a:hover {
+  text-decoration: underline;
+}
+
+/* Add these styles to your existing chat.css file */
+
+.revoked-message {
+  font-style: italic;
+  color: #999;
+}
+
+.message {
+  position: relative; /* Add this to enable absolute positioning of the revoke button */
+}
+
+.message .revoke-button {
+  display: none;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.message .revoke-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.message:hover .revoke-button {
+  display: block;
+}
+
+/* Optional: Style for revoked message container */
+.message-bubble .revoked-message {
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}

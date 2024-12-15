@@ -1,0 +1,83 @@
+.container {
+  padding: 20px;
+}
+
+.listBrand {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+}
+
+
+.listBrand li {
+  padding: 8px 18px;
+  margin: 2px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-size: 15px;
+}
+
+.fillterBrandTarget {
+  background-color: black;
+  color: white;
+}
+
+.fillterBrand {
+  background-color: white;
+  color: black;
+}
+
+.fillterBrand:hover {
+  background-color: black;
+  color: white;
+}
+
+.fillterBrand:focus,
+.fillterBrandTarget:focus {
+  border: 1px solid white;
+  background-color: black;
+  color: white;
+}
+
+
+/* list brand a */
+.listBrandA {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap; 
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+  gap: 10px;
+    
+  
+}
+
+.brandA h1 {
+  font-size: 30px;
+}
+
+.listBrandA li {
+  flex: 1 1 calc(16.66% - 10px); /* Đảm bảo mỗi hàng chứa 6 mục, khoảng cách là 16.66% */
+  max-width: calc(16.66% - 10px);
+  box-sizing: border-box; /* Đảm bảo padding không ảnh hưởng đến kích thước */
+  text-align: center;
+}
+.brandName a {
+  text-decoration: none;
+  color: black;
+  transition: color 0.3s ease;
+}
+
+.brandName a:hover {
+  color: tomato; /* Hiệu ứng hover */
+}
+.brandSeeMore {
+  background-color: tomato;
+}

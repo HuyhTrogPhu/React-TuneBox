@@ -1,0 +1,51 @@
+.statistical-customer-card {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #ccdbfd;
+    border: 1px solid #ccc;
+}
+
+.statistical-customer-card:hover {
+    transform: scale(1.05);
+    background-color: #b0c4de;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.statistical-currently {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    box-shadow: rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px;
+    border: 1px solid #ccc;
+}
+
+.statistical-currently:hover {
+    transform: scale(1.05);
+    background-color: #fff;
+    box-shadow: rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px;
+}
+
+
+.statistical-product {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    box-shadow: rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px;
+    border: 1px solid #ccc;
+}
+
+.statistical-product:hover {
+    transform: scale(1.05);
+    background-color: #fff;
+    box-shadow: rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px;
+}
+
+.statistical-bill {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    box-shadow: rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px;
+    border: 1px solid #ccc;
+}
+
+.statistical-bill:hover {
+    transform: scale(1.05);
+    background-color: #fff;
+    box-shadow: rgba(233, 79, 55, 0.25) 0px 14px 28px, rgba(233, 79, 55, 0.22) 0px 10px 10px;
+}
