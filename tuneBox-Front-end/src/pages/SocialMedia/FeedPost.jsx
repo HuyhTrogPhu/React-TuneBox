@@ -878,7 +878,7 @@ const FeedPost = ({ sharedData, clearSharedData }) => {
                                 <div className="row justify-content-start">
                                   <div className="comment-content position-relative">
                                     <img
-                                      src={comment.userId}
+                                      src={comment.avatarUrl}
                                       className="avatar_small"
                                       alt="Avatar"
                                     />
