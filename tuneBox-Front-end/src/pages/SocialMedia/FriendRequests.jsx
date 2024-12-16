@@ -53,7 +53,7 @@ const FriendRequests = () => {
   }
 
   return (
-    <div className="container mt-4" style={{ marginTop: "100px" }}>
+    <div className="container " style={{ marginTop: "100px" }}>
       <h2>Lời mời kết bạn</h2>
       <table className="table table-hover">
         <thead>
